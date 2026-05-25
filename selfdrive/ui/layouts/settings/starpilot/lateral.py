@@ -137,6 +137,12 @@ class StarPilotLateralLayout(_SettingsPage):
     self._build_view()
 
   def _build_view(self):
+    _metric = lambda: self._params.get_bool('IsMetric')
+    _su = lambda: 'km/h' if _metric() else 'mph'
+    _sm = lambda: 150 if _metric() else 99
+    _du = lambda: 'm' if _metric() else 'ft'
+    _dm = lambda: 5.0 if _metric() else 15.0
+
     tab_defs = [
       {"id": "steering", "title": tr_noop("Steering"), "subtitle": tr_noop("Steering modes")},
       {"id": "lane", "title": tr_noop("Lane"), "subtitle": tr_noop("Lane changes")},
@@ -157,8 +163,8 @@ class StarPilotLateralLayout(_SettingsPage):
                    visible=lambda: self._params.get_bool("AlwaysOnLateral") and starpilot_state.car_state.lkasAllowedForAOL),
         SettingRow("PauseAOLOnBrake", "value", tr_noop("Pause Below"),
                    subtitle="",
-                   get_value=lambda: f"{self._params.get_int('PauseAOLOnBrake')} mph",
-                   on_click=lambda: self._show_slider("PauseAOLOnBrake", 0, 100, unit=" mph"),
+                   get_value=lambda: f"{self._params.get_int('PauseAOLOnBrake')} {_su()}",
+                   on_click=lambda: self._show_slider("PauseAOLOnBrake", 0, _sm(), unit=f" {_su()}"),
                    visible=lambda: self._params.get_bool("AlwaysOnLateral")),
         SettingRow("QOLLateral", "toggle", tr_noop("Quality of Life"),
                    subtitle="",
@@ -166,8 +172,8 @@ class StarPilotLateralLayout(_SettingsPage):
                    set_state=lambda s: self._params.put_bool("QOLLateral", s)),
         SettingRow("PauseLateralSpeed", "value", tr_noop("Pause Steering Below"),
                    subtitle="",
-                   get_value=lambda: f"{self._params.get_int('PauseLateralSpeed')} mph",
-                   on_click=lambda: self._show_slider("PauseLateralSpeed", 0, 100, unit=" mph"),
+                   get_value=lambda: f"{self._params.get_int('PauseLateralSpeed')} {_su()}",
+                   on_click=lambda: self._show_slider("PauseLateralSpeed", 0, _sm(), unit=f" {_su()}"),
                    visible=lambda: self._params.get_bool("QOLLateral")),
         SettingRow("PauseLateralOnSignal", "toggle", tr_noop("Turn Signal Only"),
                    subtitle=tr_noop("Only pause steering when the turn signal is active."),
@@ -199,13 +205,13 @@ class StarPilotLateralLayout(_SettingsPage):
                    visible=lambda: self._params.get_bool("LaneChanges") and self._params.get_bool("NudgelessLaneChange")),
         SettingRow("MinimumLaneChangeSpeed", "value", tr_noop("Min Lane Change Speed"),
                    subtitle="",
-                   get_value=lambda: f"{self._params.get_int('MinimumLaneChangeSpeed')} mph",
-                   on_click=lambda: self._show_slider("MinimumLaneChangeSpeed", 0, 100, unit=" mph"),
+                   get_value=lambda: f"{self._params.get_int('MinimumLaneChangeSpeed')} {_su()}",
+                   on_click=lambda: self._show_slider("MinimumLaneChangeSpeed", 0, _sm(), unit=f" {_su()}"),
                    visible=lambda: self._params.get_bool("LaneChanges")),
         SettingRow("LaneDetectionWidth", "value", tr_noop("Minimum Lane Width"),
                    subtitle="",
-                   get_value=lambda: f"{self._params.get_float('LaneDetectionWidth'):.1f} ft",
-                   on_click=lambda: self._show_slider("LaneDetectionWidth", 0.0, 15.0, step=0.1, unit=" ft", value_type="float"),
+                   get_value=lambda: f"{self._params.get_float('LaneDetectionWidth'):.1f} {_du()}",
+                   on_click=lambda: self._show_slider("LaneDetectionWidth", 0.0, _dm(), step=0.1, unit=f" {_du()}", value_type="float"),
                    visible=lambda: self._params.get_bool("LaneChanges") and self._params.get_bool("NudgelessLaneChange")),
         SettingRow("OneLaneChange", "toggle", tr_noop("One Lane Change Per Signal"),
                    subtitle="",
