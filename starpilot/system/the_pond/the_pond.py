@@ -3803,6 +3803,11 @@ def setup(app):
       elif key in CUSTOM_ACCEL_PROFILE_PARAM_KEYS:
         params.put(key, str_val)
         params.put_bool(CUSTOM_ACCEL_PROFILE_INITIALIZED_KEY, True)
+      elif key == "IsMetric":
+        is_metric = str_val.strip() in ("1", "true", "True")
+        params.put_bool("IsMetric", is_metric)
+        from openpilot.starpilot.common.starpilot_functions import update_metric_units
+        update_metric_units(params, is_metric)
       else:
         params.put(key, str_val)
 

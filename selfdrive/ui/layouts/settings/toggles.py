@@ -249,5 +249,10 @@ class TogglesLayout(Widget):
     if self._toggle_defs[param][3]:
       self._params.put_bool("OnroadCycleRequested", True)
 
+    if param == "IsMetric":
+      from openpilot.starpilot.common.starpilot_functions import update_metric_units
+      update_metric_units(self._params, state)
+
+
   def _set_longitudinal_personality(self, button_index: int):
     self._params.put("LongitudinalPersonality", button_index)

@@ -303,3 +303,47 @@ def update_openpilot(thread_manager, params):
     time.sleep(60)
 
   HARDWARE.reboot()
+
+
+def update_metric_units(params, state: bool):
+  from openpilot.common.constants import CV
+  speed_mult = CV.MPH_TO_KPH if state else CV.KPH_TO_MPH
+  dist_mult = CV.FOOT_TO_METER if state else CV.METER_TO_FOOT
+  small_dist_mult = CV.INCH_TO_CM if state else CV.CM_TO_INCH
+
+  for k in ["LaneDetectionWidth", "PathWidth"]:
+    try:
+      if params.get(k) is not None:
+        params.put_float(k, params.get_float(k) * dist_mult)
+    except Exception:
+      pass
+
+  int_speeds = ["MinimumLaneChangeSpeed", "PauseAOLOnBrake", "PauseLateralSpeed",
+                "CESignalSpeed", "CESpeed", "CESpeedLead", "CustomCruise", "CustomCruiseLong",
+                "Offset1", "Offset2", "Offset3", "Offset4", "Offset5", "Offset6", "Offset7",
+                "SetSpeedOffset"]
+  for k in int_speeds:
+    try:
+      if params.get(k) is not None:
+        params.put_int(k, int(round(params.get_int(k) * speed_mult)))
+    except Exception:
+      pass
+
+  int_dists = ["IncreasedStoppedDistance", "IncreasedStoppedDistanceLowVisibility",
+               "IncreasedStoppedDistanceRain", "IncreasedStoppedDistanceRainStorm",
+               "IncreasedStoppedDistanceSnow"]
+  for k in int_dists:
+    try:
+      if params.get(k) is not None:
+        params.put_int(k, int(round(params.get_int(k) * dist_mult)))
+    except Exception:
+      pass
+
+  int_small_dists = ["LaneLinesWidth", "RoadEdgesWidth"]
+  for k in int_small_dists:
+    try:
+      if params.get(k) is not None:
+        params.put_int(k, int(round(params.get_int(k) * small_dist_mult)))
+    except Exception:
+      pass
+

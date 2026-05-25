@@ -16,7 +16,8 @@ class TogglesLayoutMici(NavScroller):
     self._personality_toggle = BigMultiParamToggle("driving personality", "LongitudinalPersonality", ["aggressive", "standard", "relaxed"])
     self._safe_mode_btn = BigParamControl("safe mode", "SafeMode", toggle_callback=restart_needed_callback)
     self._experimental_btn = BigParamControl("experimental mode", "ExperimentalMode")
-    is_metric_toggle = BigParamControl("use metric units", "IsMetric")
+    from openpilot.starpilot.common.starpilot_functions import update_metric_units
+    is_metric_toggle = BigParamControl("use metric units", "IsMetric", toggle_callback=lambda state: update_metric_units(ui_state.params, state))
     ldw_toggle = BigParamControl("lane departure warnings", "IsLdwEnabled")
     always_on_dm_toggle = BigParamControl("always-on driver monitor", "AlwaysOnDM")
     record_front = BigParamControl("record & upload driver camera", "RecordFront", toggle_callback=restart_needed_callback)
