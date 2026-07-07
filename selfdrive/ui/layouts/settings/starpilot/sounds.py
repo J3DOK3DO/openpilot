@@ -248,14 +248,14 @@ class SoundsManagerView(PanelManagerView):
     else:
       available_container_h = 0.0
 
-    left_available_for_rows = available_container_h - 20.0 - 16.0 - hdr_h
+    left_available_for_rows = available_container_h - 12.0 - 4.0 - hdr_h
     left_row_h = max(80.0, min(107.0, left_available_for_rows / (len(self._controller.VOLUME_KEYS) + 1)))
     for key in self._controller.VOLUME_KEYS:
       self._adjustor_rows[key].custom_row_height = left_row_h
     self._adjustor_rows[self._controller.COOLDOWN_KEY].custom_row_height = left_row_h
 
-    left_content_h = (len(self._controller.VOLUME_KEYS) + 1) * left_row_h + 20 + 16 + hdr_h
-    tiles_needed_h = self.measure_page_grid_height(self._toggle_grid, col_width - 24) + 24 + 8 + hdr_h
+    left_content_h = (len(self._controller.VOLUME_KEYS) + 1) * left_row_h + 12 + 4 + hdr_h
+    tiles_needed_h = self.measure_page_grid_height(self._toggle_grid, col_width - 24) + 24 + 4 + hdr_h
     max_content_h = max(left_content_h, tiles_needed_h)
 
     self._left_container_h = max_content_h
@@ -289,23 +289,23 @@ class SoundsManagerView(PanelManagerView):
       style=PANEL_STYLE
     )
 
-    current_y = y + 8
+    current_y = y + 4
     current_y = draw_group_header(x + 24, current_y, width - 48, tr("VOLUME"))
 
     label_rect = rl.Rectangle(x + 24, current_y - GROUP_HEADER_HEIGHT - GROUP_HEADER_LINE_GAP - GROUP_HEADER_GAP, width - 48, GROUP_HEADER_HEIGHT)
-    gui_label(label_rect, tr("Reset All"), 18, AetherListColors.MUTED, FontWeight.NORMAL,
+    gui_label(label_rect, tr("Reset All"), 20, AetherListColors.MUTED, FontWeight.NORMAL,
               alignment=rl.GuiTextAlignment.TEXT_ALIGN_RIGHT)
     self._reset_rect = rl.Rectangle(label_rect.x + label_rect.width - 80, label_rect.y, 80, 45)
     self._interactive_rects["action:restore_defaults"] = self._reset_rect
     for i, (label, keys) in enumerate(groups):
       if label is not None:
-        divider_h = 4
+        divider_h = 3
         divider_color = rl.Color(173, 78, 90, 30) if i == 1 else rl.Color(139, 92, 246, 25)
         rl.draw_rectangle_rec(
           rl.Rectangle(x + 24, current_y, width - 48, divider_h),
           divider_color
         )
-        current_y += divider_h + 6
+        current_y += divider_h + 3
       for index, key in enumerate(keys):
         adjustor = self._adjustor_rows[key]
         row_h = adjustor.measure_height(width)
@@ -317,7 +317,7 @@ class SoundsManagerView(PanelManagerView):
 
   def _draw_utility_column(self, y: float, x: float, width: float):
     draw_list_group_shell(rl.Rectangle(x, y, width, self._tiles_container_h), style=PANEL_STYLE)
-    header_y = draw_group_header(x + 24, y + 8, width - 48, tr("ALERTS"))
+    header_y = draw_group_header(x + 24, y + 4, width - 48, tr("ALERTS"))
     avail_h = self._tiles_container_h - (header_y - y)
     self._render_page_grid(self._toggle_grid, rl.Rectangle(x + 12, header_y, width - 24, max(0.0, avail_h - 12)))
 

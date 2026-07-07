@@ -353,6 +353,11 @@ class StarPilotAppearanceLayout(_SettingsPage):
                        get_state=lambda: self._params.get_bool("StoppedTimer"),
                        set_state=lambda s: self._params.put_bool("StoppedTimer", s),
                        visible=hud_on),
+            SettingRow("ShowCSCStatus", "toggle", tr_noop("CSC Status Widget"),
+                       subtitle=tr_noop("Show the Curve Speed Controller target speed and ambient border glow."),
+                       get_state=lambda: self._params.get_bool("ShowCSCStatus"),
+                       set_state=lambda s: self._params.put_bool("ShowCSCStatus", s),
+                       visible=hud_on),
         ]
 
         # ═══ 3. Screen Declutter & Visibility ═══

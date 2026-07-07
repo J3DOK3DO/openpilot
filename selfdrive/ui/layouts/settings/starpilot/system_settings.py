@@ -482,8 +482,8 @@ class SystemSettingsManagerView(PanelManagerView):
 
   def _measure_content_height(self, width: float) -> float:
     hdr_h = GROUP_HEADER_HEIGHT + GROUP_HEADER_LINE_GAP + GROUP_HEADER_GAP
-    display_h = self._slider_section_height(self._display_slider_keys, width) + 8 + hdr_h
-    power_h = self._slider_section_height(self._power_slider_keys, width) + 8 + hdr_h
+    display_h = self._slider_section_height(self._display_slider_keys, width) + 4 + hdr_h
+    power_h = self._slider_section_height(self._power_slider_keys, width) + 4 + hdr_h
 
     if self._uses_two_columns(width):
       column_w = self._column_width(width)
@@ -496,7 +496,7 @@ class SystemSettingsManagerView(PanelManagerView):
       display_container_h = self._slider_section_height(self._display_slider_keys, column_w)
       power_container_h = self._slider_section_height(self._power_slider_keys, column_w)
 
-      left_overhead = 8.0 + 2 * (GROUP_HEADER_HEIGHT + GROUP_HEADER_LINE_GAP + GROUP_HEADER_GAP) + SECTION_GAP
+      left_overhead = 4.0 + 2 * (GROUP_HEADER_HEIGHT + GROUP_HEADER_LINE_GAP + GROUP_HEADER_GAP) + SECTION_GAP
       left_natural_content_h = left_overhead + display_container_h + power_container_h
       
       tiles_content_h = self.measure_page_grid_height(self._connectivity_tile_grid, column_w - 24)
@@ -548,7 +548,7 @@ class SystemSettingsManagerView(PanelManagerView):
 
       draw_list_group_shell(rl.Rectangle(x, y, column_w, adj_container_h), style=PANEL_STYLE)
       
-      current_y = y + 8
+      current_y = y + 4
       current_y = draw_group_header(x + 24, current_y, column_w - 48, tr("DISPLAY"))
       for index, key in enumerate(self._display_slider_keys):
         current_y = self._draw_slider_row(rl.Rectangle(x, current_y, column_w, 0), key, is_last=index == len(self._display_slider_keys) - 1)
@@ -575,10 +575,10 @@ class SystemSettingsManagerView(PanelManagerView):
     self._render_page_grid(self._connectivity_tile_grid, rl.Rectangle(x + 12, y + 12, width - 24, tiles_content_h))
 
   def _draw_slider_section(self, y: float, x: float, width: float, title: str, keys: list[str]) -> float:
-    group_h = self._slider_section_height(keys, width) + 8 + GROUP_HEADER_HEIGHT + GROUP_HEADER_LINE_GAP + GROUP_HEADER_GAP
+    group_h = self._slider_section_height(keys, width) + 4 + GROUP_HEADER_HEIGHT + GROUP_HEADER_LINE_GAP + GROUP_HEADER_GAP
     group_rect = rl.Rectangle(x, y, width, group_h)
     draw_list_group_shell(group_rect, style=PANEL_STYLE)
-    current_y = group_rect.y + 8
+    current_y = group_rect.y + 4
     current_y = draw_group_header(x + 24, current_y, width - 48, title)
     for index, key in enumerate(keys):
       current_y = self._draw_slider_row(rl.Rectangle(group_rect.x, current_y, group_rect.width, 0), key, is_last=index == len(keys) - 1)

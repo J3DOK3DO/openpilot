@@ -253,6 +253,19 @@ def draw_rounded_stroke(rect: rl.Rectangle, color: rl.Color, thickness: int = 1,
   rl.draw_rectangle_rounded_lines_ex(snapped, _roundness_for(snapped, radius_px), segments or _segments_for(snapped, radius_px), thickness, color)
 
 
+def truncate_text_ellipsis(
+  font: rl.Font, text: str, max_width: float, font_size: int
+) -> str:
+  if measure_text_cached(font, text, font_size).x <= max_width:
+    return text
+  shortened = text.rstrip()
+  candidate = f"{shortened}..."
+  while shortened and measure_text_cached(font, candidate, font_size).x > max_width:
+    shortened = shortened[:-1].rstrip()
+    candidate = f"{shortened}..." if shortened else "..."
+  return candidate
+
+
 class AetherListColors:
   PANEL_BG = rl.Color(8, 8, 10, 255)
   PANEL_BORDER = rl.Color(255, 255, 255, 22)
@@ -307,8 +320,7 @@ class AetherListMetrics:
   adjustor_preset_height: int = 64
   adjustor_preset_gap: int = 14
   adjustor_scrubber_height: int = 75
-  adjustor_value_pill_height: int = 52
-  adjustor_value_pill_width: int = 209
+
   utility_value_right: int = 391
   utility_value_width: int = 319
   utility_chevron_right: int = 90
@@ -1016,8 +1028,6 @@ class PanelManagerView(AetherInteractiveMixin, Widget):
 
 class BreadcrumbController:
   EXPAND_DURATION: float = 2.5
-  TRIGGER_DEPTH: int = 4
-  RECENT_KEEP: int = 3
 
   def __init__(self):
     self._rects: dict[str, rl.Rectangle] = {}
@@ -1167,8 +1177,8 @@ class BreadcrumbController:
     target = 1.0 if self._expanded else 0.0
     self._expand_alpha += (target - self._expand_alpha) * ANIM_LERP
 
-    ACTIVE_SIZE   = 64
-    PAST_SIZE     = 52
+    ACTIVE_SIZE   = 58
+    PAST_SIZE     = 50
     CHEVRON_SIZE  = 38
     CHEVRON_W     = 32
     GAP           = 23
@@ -1188,23 +1198,56 @@ class BreadcrumbController:
 
     mouse_pos = gui_app.last_mouse_event.pos
 
-    depth = len(path)
-    has_overflow = depth > self.TRIGGER_DEPTH
+    MIN_ACTIVE_SIZE = 34
+    CAPSULE_W = 102
+    capsule_need = CAPSULE_W + GAP + CHEVRON_W + GAP
 
-    if not has_overflow:
-      # Shallow path: render everything, no ellipsis.
-      display_path = list(path)
-      overflow_alpha = 1.0
-    elif self._expanded:
-      # Expanded: reveal the entire path and allow it to overflow.
-      # The overflow will be cleanly masked by a scissor clip and fade out gradient.
+    active_size = ACTIVE_SIZE
+
+    if self._expanded:
       display_path = list(path)
       overflow_alpha = 0.0
     else:
-      # Collapsed: single … at front, most-recent RECENT_KEEP crumbs visible.
-      recent = path[-self.RECENT_KEEP:]
-      display_path = [("...", "action:breadcrumb_history")] + recent
-      overflow_alpha = 1.0
+      active = path[-1]
+      med_font = gui_app.font(FontWeight.MEDIUM)
+      active_ts = measure_text_cached(gui_app.font(FontWeight.BOLD), active[0], ACTIVE_SIZE)
+      remaining = rect.width - 20 - active_ts.x - GAP
+
+      while remaining < capsule_need and active_size > MIN_ACTIVE_SIZE:
+        active_size -= 6
+        active_ts = measure_text_cached(gui_app.font(FontWeight.BOLD), active[0], active_size)
+        remaining = rect.width - 20 - active_ts.x - GAP
+
+      if remaining < capsule_need:
+        display_path = [active]
+        overflow_alpha = 0.0
+      else:
+        budget = remaining - capsule_need
+        sep = GAP + CHEVRON_W + GAP
+        before = []
+        for i in range(len(path) - 2, -1, -1):
+          slot = budget - sep
+          if slot <= 0:
+            break
+          full_text, action = path[i]
+          full_ts = measure_text_cached(med_font, full_text, PAST_SIZE)
+          if full_ts.x <= slot:
+            before.insert(0, (full_text, action))
+            budget -= full_ts.x + sep
+          else:
+            trunc = truncate_text_ellipsis(med_font, full_text, slot, PAST_SIZE)
+            visible = trunc.removesuffix("...").rstrip()
+            if len(visible) < 3:
+              break
+            before.insert(0, (trunc, action))
+            budget -= measure_text_cached(med_font, trunc, PAST_SIZE).x + sep
+
+        hidden = len(path) - 1 - len(before)
+        if hidden > 0:
+          display_path = [("...", "action:breadcrumb_history")] + before + [active]
+        else:
+          display_path = before + [active]
+        overflow_alpha = 1.0
 
     current_x = rect.x + 20
 
@@ -1221,7 +1264,7 @@ class BreadcrumbController:
           current_x += GAP
           continue
 
-        capsule_w, capsule_h = 102, 58
+        capsule_w, capsule_h = CAPSULE_W, 58
         cap_rect = rl.Rectangle(current_x, center_y - capsule_h / 2, capsule_w, capsule_h)
         hovered = point_hits(mouse_pos, cap_rect, None, pad_x=4, pad_y=6)
         
@@ -1265,7 +1308,7 @@ class BreadcrumbController:
 
         if is_last:
           font      = gui_app.font(FontWeight.BOLD)
-          font_size = ACTIVE_SIZE
+          font_size = active_size
           c_normal  = rl.Color(252, 252, 255, item_alpha)
           c_hover   = rl.Color(252, 252, 255, item_alpha)
           c_pressed = rl.Color(200, 200, 200, item_alpha)
@@ -1318,6 +1361,7 @@ PANEL_HEADER_TITLE_FONT_SIZE: int = 58
 PANEL_HEADER_SUBTITLE_FONT_SIZE: int = 29
 PANEL_HEADER_TITLE_FONT: FontWeight = FontWeight.SEMI_BOLD
 PANEL_HEADER_SUBTITLE_FONT: FontWeight = FontWeight.NORMAL
+PANEL_HEADER_SUBTITLE_LINE_HEIGHT: float = 33.0  # subtitle_size(29) + interline_gap(4)
 
 
 def draw_settings_panel_header(header_rect: rl.Rectangle, title: str, subtitle: str | None = None,
@@ -1879,16 +1923,16 @@ def draw_metric_strip(
       )
 
 
-GROUP_HEADER_HEIGHT = 20.0
-GROUP_HEADER_GAP = 2.0
-GROUP_HEADER_LINE_GAP = 2.0
+GROUP_HEADER_HEIGHT = 26.0
+GROUP_HEADER_GAP = 1.0
+GROUP_HEADER_LINE_GAP = 1.0
 GROUP_OVERHEAD = 8.0 + GROUP_HEADER_HEIGHT + GROUP_HEADER_LINE_GAP + GROUP_HEADER_GAP
 GROUP_HAIRLINE_COLOR = rl.Color(255, 255, 255, 30)
 GROUP_HEADER_COLOR = AetherListColors.HEADER
 
 
 def draw_group_header(x: float, y: float, width: float, label: str) -> float:
-  gui_label(rl.Rectangle(x, y, max(1.0, width), GROUP_HEADER_HEIGHT), label, 16, GROUP_HEADER_COLOR, FontWeight.MEDIUM)
+  gui_label(rl.Rectangle(x, y, max(1.0, width), GROUP_HEADER_HEIGHT), label, 20, GROUP_HEADER_COLOR, FontWeight.MEDIUM)
   y += GROUP_HEADER_HEIGHT + GROUP_HEADER_LINE_GAP
   rl.draw_line(int(x), int(y), int(x + width), int(y), GROUP_HAIRLINE_COLOR)
   return y + GROUP_HEADER_GAP
@@ -2420,8 +2464,7 @@ class AetherAdjustorRow(Widget):
     self._pressed_zone: str | None = None
     self._is_last = False
     self._header_rect = rl.Rectangle(0, 0, 0, 0)
-    self._value_rect = rl.Rectangle(0, 0, 0, 0)
-    self._hint_rect = rl.Rectangle(0, 0, 0, 0)
+    self._progress_bar_rect = rl.Rectangle(0, 0, 0, 0)
     self._preset_rects: list[tuple[float, rl.Rectangle]] = []
     self._scrubber_rect = rl.Rectangle(0, 0, 0, 0)
     self._scrubber = self._child(
@@ -2493,7 +2536,7 @@ class AetherAdjustorRow(Widget):
         self._pressed_zone = "scrubber"
         return
 
-    if rl.check_collision_point_rec(mouse_pos, self._header_rect) or rl.check_collision_point_rec(mouse_pos, self._value_rect) or rl.check_collision_point_rec(mouse_pos, self._hint_rect):
+    if rl.check_collision_point_rec(mouse_pos, self._header_rect):
       self._pressed_zone = "header"
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
@@ -2520,7 +2563,7 @@ class AetherAdjustorRow(Widget):
 
     if pressed_zone == "header":
       active = self._active()
-      if rl.check_collision_point_rec(mouse_pos, _inflate_rect(self._header_rect, 6, 4)) or rl.check_collision_point_rec(mouse_pos, _inflate_rect(self._value_rect, 6, 4)) or rl.check_collision_point_rec(mouse_pos, _inflate_rect(self._hint_rect, 6, 4)):
+      if rl.check_collision_point_rec(mouse_pos, _inflate_rect(self._header_rect, 6, 4)):
         self._set_active_state(not active)
 
   def _handle_mouse_event(self, mouse_event: MouseEvent):
@@ -2577,65 +2620,51 @@ class AetherAdjustorRow(Widget):
       current_border=current_border,
     )
 
-    title_fs = 24
-    sub_fs = 20
-    val_fs = 20
-
-    value_pill_w = min(float(AETHER_LIST_METRICS.adjustor_value_pill_width), max(118.0, rect.width * 0.22))
-    value_pill_h = float(AETHER_LIST_METRICS.adjustor_value_pill_height)
-    value_y = rect.y + 14
-
-    self._header_rect = rl.Rectangle(rect.x, rect.y, rect.width, min(rect.height, 78))
-    self._value_rect = snap_rect(rl.Rectangle(rect.x + rect.width - value_pill_w - 18, value_y, value_pill_w, value_pill_h))
-    content_right = self._value_rect.x - 18
+    title_fs = 28
+    sub_fs = 24
+    bar_val_fs = 20
 
     content_left = rect.x + 24
+    content_width = max(120.0, rect.width - 48)
 
-    content_width = max(120.0, content_right - content_left)
-
-    title_y = rect.y + 14
-    title_h = 28
+    title_y = rect.y + 10
+    title_h = 30
     gui_label(rl.Rectangle(content_left, title_y, content_width, title_h), self._title, title_fs, self._style.title_color, FontWeight.MEDIUM)
 
+    sub_y = rect.y + 44
+    sub_h = 28
     if self._subtitle:
-      sub_y = rect.y + 44
-      sub_h = 22
       gui_label(rl.Rectangle(content_left, sub_y, content_width, sub_h), self._subtitle, sub_fs, self._style.subtitle_color, FontWeight.NORMAL)
 
-    pill_fill = rl.Color(255, 255, 255, 5)
-    pill_border = rl.Color(255, 255, 255, 14)
-    if active:
-      pill_fill = mix_colors(rl.Color(18, 22, 28, 255), self._color, 0.20, alpha=255)
-      pill_border = with_alpha(self._color, 64)
-    draw_rounded_fill(self._value_rect, pill_fill, radius_px=16)
-    draw_rounded_stroke(self._value_rect, pill_border, radius_px=16)
-    val_text_y = self._value_rect.y + (self._value_rect.height - val_fs) / 2 - 2
+    bar_h = 30
+    bar_y = (sub_y + sub_h + 6) if self._subtitle else (title_y + title_h + 8)
+    bar_rect = snap_rect(rl.Rectangle(content_left, bar_y, rect.x + rect.width - 24 - content_left, bar_h))
+    self._progress_bar_rect = bar_rect
+    self._header_rect = rl.Rectangle(rect.x, rect.y, rect.width, min(rect.height, bar_y + bar_h - rect.y))
+
+    draw_rounded_fill(bar_rect, rl.Color(255, 255, 255, 8), radius_px=bar_h // 2)
+    draw_rounded_stroke(bar_rect, rl.Color(255, 255, 255, 14), radius_px=bar_h // 2)
+
+    fill_frac = self._scrubber._value_fraction(self._current_value())
+    if fill_frac > 0:
+      fill_rect = snap_rect(rl.Rectangle(bar_rect.x, bar_rect.y, max(1.0, bar_rect.width * fill_frac), bar_h))
+      draw_rounded_fill(fill_rect, with_alpha(self._color, 180 if active else 120), radius_px=bar_h // 2)
+
     draw_text_fit_common(
       self._font_value,
       self.formatted_value(),
-      rl.Vector2(self._value_rect.x + 10, val_text_y),
-      max(1.0, self._value_rect.width - 20),
-      val_fs,
+      rl.Vector2(bar_rect.x + 12, bar_rect.y + (bar_h - bar_val_fs) / 2),
+      max(1.0, bar_rect.width - 24),
+      bar_val_fs,
       align_center=True,
       color=self._style.title_color,
     )
-
-    hint_h = 8
-    value_bottom = self._value_rect.y + self._value_rect.height
-    gap_below = (rect.y + rect.height) - value_bottom
-    hint_y = value_bottom + gap_below / 2 - hint_h / 2
-    self._hint_rect = snap_rect(rl.Rectangle(content_left, hint_y, rect.x + rect.width - 24 - content_left, hint_h + 4))
-    hint_track = snap_rect(rl.Rectangle(self._hint_rect.x, self._hint_rect.y + 2, self._hint_rect.width, hint_h))
-    rl.draw_rectangle_rounded(hint_track, 1.0, 10, rl.Color(255, 255, 255, 10))
-    fill_w = hint_track.width * self._scrubber._value_fraction(self._current_value())
-    if fill_w > 0:
-      rl.draw_rectangle_rounded(snap_rect(rl.Rectangle(hint_track.x, hint_track.y, fill_w, hint_track.height)), 1.0, 10, with_alpha(self._color, 180 if active else 120))
 
     if not active:
       return
 
     tray_alpha = max(0, min(255, int(255 * self._focus_progress)))
-    tray_top = rect.y + 92 - (1.0 - self._focus_progress) * 6
+    tray_top = self._progress_bar_rect.y + self._progress_bar_rect.height + 10
     current_y = tray_top
     self._preset_rects.clear()
 
@@ -3066,7 +3095,7 @@ class AetherSettingsView(PanelManagerView):
     if not self._has_header:
       return 0.0
     if self._parent_toggle:
-      h = max(42.0, 40.0)  # toggle (42px at header top) vs title area (32px + 8px gap)
+      h = max(float(AETHER_LIST_METRICS.toggle_height), 54.0)  # toggle vs title(46px + 8px gap)
       subtitle_text = tr(self._parent_toggle.subtitle) if self._parent_toggle.subtitle else ""
       if self._header_subtitle:
         subtitle_text = tr(self._header_subtitle)
@@ -3074,18 +3103,18 @@ class AetherSettingsView(PanelManagerView):
         toggle_take = AETHER_LIST_METRICS.toggle_width + AETHER_LIST_METRICS.toggle_right_inset + 16
         col_w = max(100.0, content_width + AETHER_LIST_METRICS.content_right_gutter - toggle_take)
         desc_font = gui_app.font(FontWeight.NORMAL)
-        desc_lines = wrap_text(desc_font, subtitle_text, col_w, 20, max_lines=4)
-        h += len(desc_lines) * 24.0 + 12.0
+        desc_lines = wrap_text(desc_font, subtitle_text, col_w, 29, max_lines=4)
+        h += len(desc_lines) * PANEL_HEADER_SUBTITLE_LINE_HEIGHT + 12.0
       h += SECTION_GAP
       return h
-    h = 40.0  # title (32px) + inner gap (8px)
+    h = 54.0  # title (46px) + inner gap (8px)
     if self._header_subtitle:
       subtitle_text = tr(self._header_subtitle)
       if subtitle_text:
         desc_font = gui_app.font(FontWeight.NORMAL)
         col_w = (content_width - self.COLUMN_GAP) / 2 if self._uses_two_columns(content_width) else content_width
-        desc_lines = wrap_text(desc_font, subtitle_text, col_w, 20, max_lines=4)
-        h += len(desc_lines) * 24.0 + 12.0
+        desc_lines = wrap_text(desc_font, subtitle_text, col_w, 29, max_lines=4)
+        h += len(desc_lines) * PANEL_HEADER_SUBTITLE_LINE_HEIGHT + 12.0
     h += SECTION_GAP
     return h
 
@@ -3344,7 +3373,7 @@ class AetherSettingsView(PanelManagerView):
         is_last=is_last,
         action_pill=True,
         title_size=34, subtitle_size=22,
-        action_pill_height=44, action_text_size=18,
+        action_pill_height=AETHER_LIST_METRICS.toggle_height, action_text_size=24,
         action_text_color=action_text_color,
         action_fill=action_fill,
         action_border=action_border,
@@ -4031,7 +4060,7 @@ class HubTile(AetherTile):
     self.desc = desc
     self.custom_icon_key = icon_key if icon_key in ("sound", "steering", "navigate", "system", "display", "vehicle", "road", "aicar") else None
     self._icon = None
-    self._font_title = gui_app.font(FontWeight.BOLD)
+    self._font_title = gui_app.font(FontWeight.MEDIUM)
     self._font_desc = gui_app.font(FontWeight.MEDIUM)
 
   def _render(self, rect: rl.Rectangle):
@@ -4048,7 +4077,7 @@ class HubTile(AetherTile):
     text_scale = max(0.82, min(1.12, min(rw / 360.0, rh / 205.0)))
     gap = SPACING.line_gap
 
-    title_size = max(58, int(round(64 * text_scale)))
+    title_size = max(44, int(round(50 * text_scale)))
     desc_to_render = status_text
     desc_size = max(46, int(round(52 * text_scale))) if desc_to_render else 0
 
