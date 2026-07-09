@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import math
-import re
 from pathlib import Path
 
 import pyray as rl
@@ -54,59 +53,6 @@ def _normalize_maneuver_type(maneuver_type: str) -> str:
   elif normalized in ("new name", "continue"):
     normalized = "turn"
   return normalized.replace(" ", "_")
-
-
-_STREET_SUFFIXES = {
-  "street": "St", "avenue": "Ave", "boulevard": "Blvd", "road": "Rd",
-  "drive": "Dr", "lane": "Ln", "court": "Ct", "place": "Pl",
-  "highway": "Hwy", "parkway": "Pkwy", "square": "Sq", "terrace": "Ter",
-  "circle": "Cir", "trail": "Trl", "turnpike": "Tpke", "causeway": "Cswy",
-  "crossing": "Xing", "loop": "Loop", "way": "Way", "alley": "Aly",
-  "plaza": "Plz", "point": "Pt",
-}
-_STREET_PLURALS = {
-  "streets": "Sts", "avenues": "Aves", "boulevards": "Blvds", "roads": "Rds",
-  "drives": "Drs", "lanes": "Lns", "courts": "Cts", "places": "Pls",
-  "highways": "Hwys", "parkways": "Pkwys", "squares": "Sqs", "terraces": "Ters",
-  "circles": "Cirs", "trails": "Trls", "turnpikes": "Tpkes", "causeways": "Cswys",
-  "crossings": "Xings", "loops": "Loops", "alleys": "Alys", "plazas": "Plzs",
-  "points": "Pts",
-}
-_DIRECTIONS = {
-  "north": "N", "south": "S", "east": "E", "west": "W",
-  "northeast": "NE", "northwest": "NW", "southeast": "SE", "southwest": "SW",
-}
-_STREET_WORD_MAP = {**_STREET_SUFFIXES, **_STREET_PLURALS, **_DIRECTIONS}
-_STREET_WORD_RE = re.compile(
-  r"\b(" + "|".join(sorted(_STREET_WORD_MAP, key=len, reverse=True)) + r")\b\.?",
-  re.IGNORECASE,
-)
-_ROUTE_PATTERNS = (
-  (re.compile(r"\binterstate\s+(\d+)\b", re.IGNORECASE), r"I-\1"),
-  (re.compile(r"\bstate\s+route\s+(\d+)\b", re.IGNORECASE), r"SR \1"),
-  (re.compile(r"\bhighway\s+(\d+)\b", re.IGNORECASE), r"Hwy \1"),
-  (re.compile(r"\broute\s+(\d+)\b", re.IGNORECASE), r"Rte \1"),
-)
-_LATIN_RE = re.compile(r"[A-Za-z]")
-
-
-def _abbreviate_street_suffixes(text: str) -> str:
-  if not text or not _LATIN_RE.search(text):
-    return text
-  for pattern, repl in _ROUTE_PATTERNS:
-    text = pattern.sub(repl, text)
-  return _STREET_WORD_RE.sub(lambda m: _STREET_WORD_MAP[m.group(1).lower()], text)
-
-
-def _fit_3dots(text: str, max_width: float, font_size: int, font) -> str:
-  if measure_text_cached(font, text, font_size).x <= max_width:
-    return text
-  shortened = text.rstrip()
-  candidate = f"{shortened}..."
-  while shortened and measure_text_cached(font, candidate, font_size).x > max_width:
-    shortened = shortened[:-1].rstrip()
-    candidate = f"{shortened}..." if shortened else "..."
-  return candidate
 
 
 class NavigationCardRenderer(Widget):
@@ -258,8 +204,7 @@ class NavigationCardRenderer(Widget):
 
     self._valid = True
 
-  def _wrap_text_lines(self, text: str, max_width: float, font_size: int, max_lines: int = 2, font=None) -> tuple[list[str], bool]:
-    font = font or self._font_bold
+  def _wrap_text_lines(self, text: str, max_width: float, font_size: int, max_lines: int = 2) -> tuple[list[str], bool]:
     words = text.split()
     if not words:
       return [], False
@@ -271,7 +216,7 @@ class NavigationCardRenderer(Widget):
     while word_index < len(words):
       candidate_words = current_words + [words[word_index]]
       candidate_line = " ".join(candidate_words)
-      text_width = measure_text_cached(font, candidate_line, font_size).x
+      text_width = measure_text_cached(self._font_bold, candidate_line, font_size).x
       if text_width <= max_width or not current_words:
         current_words = candidate_words
         word_index += 1
@@ -288,7 +233,7 @@ class NavigationCardRenderer(Widget):
     if truncated and lines:
       shortened = lines[-1]
       candidate = f"{shortened}…"
-      while shortened and measure_text_cached(font, candidate, font_size).x > max_width:
+      while shortened and measure_text_cached(self._font_bold, candidate, font_size).x > max_width:
         if " " in shortened:
           shortened = shortened.rsplit(" ", 1)[0]
         else:
@@ -333,32 +278,6 @@ class NavigationCardRenderer(Widget):
       line_y = y + index * (font_size + line_gap)
       rl.draw_text_ex(self._font_bold, line, rl.Vector2(x, line_y), font_size, 0, rl.WHITE)
 
-  def _draw_lines(self, lines: list[str], x: float, y0: float, font_size: int, font, color) -> None:
-    for index, line in enumerate(lines[:2]):
-      rl.draw_text_ex(font, line, rl.Vector2(x, y0 + index * font_size), font_size, 0, color)
-
-  def _fit_intelligent(self, text, max_width, max_lines, preferred, minimum, font):
-    text = _abbreviate_street_suffixes(text or "")
-    if not text:
-      return [], preferred
-
-    one_line_font = minimum
-    for fs in range(preferred, minimum - 1, -2):
-      if measure_text_cached(font, text, fs).x <= max_width:
-        one_line_font = fs
-        break
-
-    for fs in range(preferred, minimum - 1, -2):
-      lines, truncated = self._wrap_text_lines(text, max_width, fs, max_lines, font)
-      if not truncated and all(measure_text_cached(font, ln, fs).x <= max_width for ln in lines):
-        if one_line_font > minimum and len(lines) == 2 and len(lines[1].split()) == 1:
-          if fs - one_line_font <= 4 or measure_text_cached(font, lines[1], fs).x < 0.35 * max_width:
-            return [text], one_line_font
-        return lines, fs
-
-    lines, _ = self._wrap_text_lines(text, max_width, minimum, max_lines, font)
-    return [self._fit_3dots(ln.replace("…", "..."), max_width, minimum, font) for ln in lines], minimum
-
   def _render_default(self, rect: rl.Rectangle) -> None:  # tici/tizi expanded card
     right_margin = 40
     card_width = 560
@@ -372,8 +291,6 @@ class NavigationCardRenderer(Widget):
     then_icon_size = 72
     preferred_font_size = 48
     minimum_font_size = 38
-    secondary_preferred = 26
-    secondary_minimum = 22
     distance_font_size = 32
 
     container = rl.Rectangle(container_x, container_y, card_width, card_height)
@@ -398,17 +315,28 @@ class NavigationCardRenderer(Widget):
     text_x = icon_x + icon_size + gap_after_icon
     right_gutter = icon_padding + (then_section_width if show_next else 0)
     text_area_width = card_width - (text_x - container_x) - right_gutter
-    title_lines, title_font_size = self._fit_intelligent(self._primary_text, text_area_width, 2, preferred_font_size, minimum_font_size, self._font_bold)
-    secondary_lines, secondary_font_size = self._fit_intelligent(self._secondary_text or "", text_area_width, 2, secondary_preferred, secondary_minimum, self._font_medium)
+    title_lines, title_font_size = self._fit_title(self._primary_text, text_area_width, preferred_font_size, minimum_font_size)
 
-    n_title = len(title_lines)
-    n_sec = len(secondary_lines)
-    gap = 8 if n_sec else 0
-    text_block_h = n_title * title_font_size + gap + n_sec * secondary_font_size
+    secondary_font_size = 26
+    text_block_h = len(title_lines) * title_font_size
+    if self._secondary_text:
+      text_block_h += 8 + secondary_font_size
     text_block_y = container_y + (card_height - text_block_h) // 2
 
-    self._draw_lines(title_lines, text_x, text_block_y, title_font_size, self._font_bold, rl.WHITE)
-    self._draw_lines(secondary_lines, text_x, text_block_y + n_title * title_font_size + gap, secondary_font_size, self._font_medium, rl.Color(255, 255, 255, 180))
+    for index, line in enumerate(title_lines[:2]):
+      rl.draw_text_ex(self._font_bold, line, rl.Vector2(text_x, text_block_y + index * title_font_size), title_font_size, 0, rl.WHITE)
+
+    if self._secondary_text:
+      secondary_text = self._truncate_text(self._secondary_text, text_area_width, secondary_font_size)
+      secondary_y = text_block_y + len(title_lines) * title_font_size + 8
+      rl.draw_text_ex(
+        self._font_medium,
+        secondary_text,
+        rl.Vector2(text_x, secondary_y),
+        secondary_font_size,
+        0,
+        rl.Color(255, 255, 255, 180),
+      )
 
     if not show_next:
       return
