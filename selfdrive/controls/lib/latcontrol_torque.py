@@ -388,7 +388,7 @@ class LatControlTorque(LatControl):
         friction_scale *= get_trailer_lateral_friction_scale(trailer_load_kg, CS.vEgo, setpoint)
       friction_jerk = desired_lateral_jerk
       if ioniq_6_active:
-        # planner jerk noise on straights (< ~0.3 m/s^3) chatters the friction compensation
+        # planner jerk noise on straights (p95 ~0.5 m/s^3) chatters the friction compensation
         friction_jerk = math.copysign(max(abs(desired_lateral_jerk) - IONIQ_6_FRICTION_JERK_DEADZONE, 0.0), desired_lateral_jerk)
       ff += friction_scale * get_friction(error_with_lsf + JERK_GAIN * friction_jerk, lateral_accel_deadzone, friction_threshold, self.torque_params)
       deadzone_boost_active = False
