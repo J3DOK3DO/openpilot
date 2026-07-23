@@ -653,7 +653,17 @@ IONIQ_6_LOW_SPEED_PID_RESET_SPEED = 0.1 * CV.MPH_TO_MS
 # (~0.5 Hz) weave on straights: the 0.09/0.39 small-signal slope plus the jerk feed acts as
 # extra P/D gain right where there is no breakaway torque to overcome. Deadzone the jerk
 # feed below straight-line noise levels and fade friction near center at highway speed.
-IONIQ_6_FRICTION_JERK_DEADZONE = 0.30
+# 2026-07-23: raised 0.30 -> 0.50. The 0.30 value was set when straight-line |desiredLatJerk|
+# p95 was 0.286; on the "straights" logs (70 mph, hands off) it is now p95 0.48-0.58 with
+# 17-35% of frames past the deadzone, so the jerk feed supplies 43-78% of the feedforward's
+# energy at the 0.66-0.74 Hz weave. That weave is a delay-driven loop resonance, so the fix
+# has to remove GAIN at the tone, not add phase lag. 0.50 cuts the jerk path's tone-band
+# content 44-82% while a real 2.0 m/s^3 turn-in still keeps 88% of its friction comp.
+# Bounded elsewhere: the friction argument moves by at most JERK_GAIN*0.20 = 0.044 m/s^2
+# (<=11.3% of friction authority vs the 0.39 threshold floor) and is exactly zero wherever
+# get_friction is already saturated -- 93% of sub-25 mph turn frames, so slow/tight turns
+# and the stop-turn pre-wind are untouched. Mean change is <0.25% below 45 mph.
+IONIQ_6_FRICTION_JERK_DEADZONE = 0.50
 IONIQ_6_FRICTION_CENTER_FADE_MAX = 0.50
 IONIQ_6_FRICTION_CENTER_FADE_LAT = 0.15
 IONIQ_6_FRICTION_CENTER_FADE_LAT_WIDTH = 0.06
