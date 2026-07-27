@@ -7,7 +7,7 @@ from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.system.ui.lib.application import MousePos, gui_app, FontWeight
 
-from openpilot.selfdrive.ui.layouts.settings.starpilot.panel import StarPilotPanelType, StarPilotPanelInfo, FrameCachedParams
+from openpilot.selfdrive.ui.layouts.settings.starpilot.panel import StarPilotPanelType, StarPilotPanelInfo, SettingsParamsWrapper
 from openpilot.selfdrive.ui.layouts.settings.starpilot.sounds import StarPilotSoundsLayout
 from openpilot.selfdrive.ui.layouts.settings.starpilot.driving_model import StarPilotDrivingModelLayout
 from openpilot.selfdrive.ui.layouts.settings.starpilot.longitudinal import StarPilotLongitudinalLayout
@@ -55,7 +55,7 @@ class StarPilotLayout(Widget):
 
   def __init__(self):
     super().__init__()
-    self._params = FrameCachedParams()
+    self._params = SettingsParamsWrapper()
 
     self._current_panel = StarPilotPanelType.MAIN
     self._current_category_idx: int | None = None
