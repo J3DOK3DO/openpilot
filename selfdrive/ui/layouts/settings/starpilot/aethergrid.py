@@ -381,14 +381,30 @@ def point_hits(mouse_pos: MousePos, rect: rl.Rectangle, parent_rect: rl.Rectangl
   return hit.width > 0 and hit.height > 0 and rl.check_collision_point_rec(mouse_pos, hit)
 
 
+_WRAP_TEXT_CACHE: dict[tuple[int, str, int, int, int], tuple[str, ...]] = {}
+_MAX_WRAP_CACHE_SIZE = 512
+
+
 def wrap_text(font: rl.Font, text: str, max_width: float, font_size: float, max_lines: int = 2) -> list[str]:
+  if not text or max_width <= 0:
+    return []
+
+  font_id = getattr(getattr(font, "texture", None), "id", id(font))
+  w_key = int(round(max_width))
+  s_key = int(round(font_size))
+  key = (font_id, text, w_key, s_key, max_lines)
+
+  cached = _WRAP_TEXT_CACHE.get(key)
+  if cached is not None:
+    return list(cached)
+
   spacing = font_size * 0.15
   words = text.split()
   lines: list[str] = []
   current = ""
   for word in words:
     candidate = f"{current} {word}".strip() if current else word
-    if measure_text_cached(font, candidate, int(font_size), spacing=spacing).x <= max_width:
+    if measure_text_cached(font, candidate, s_key, spacing=spacing).x <= max_width:
       current = candidate
     else:
       if current:
@@ -398,7 +414,12 @@ def wrap_text(font: rl.Font, text: str, max_width: float, font_size: float, max_
         break
   if current and len(lines) < max_lines:
     lines.append(current)
-  return lines if lines else [text]
+
+  result = tuple(lines if lines else [text])
+  if len(_WRAP_TEXT_CACHE) >= _MAX_WRAP_CACHE_SIZE:
+    _WRAP_TEXT_CACHE.clear()
+  _WRAP_TEXT_CACHE[key] = result
+  return list(result)
 
 
 def build_list_panel_frame(rect: rl.Rectangle, metrics: AetherListMetrics = AETHER_LIST_METRICS) -> AetherListFrame:

@@ -16,8 +16,6 @@ from openpilot.system.hardware import HARDWARE, PC
 
 BACKLIGHT_OFFROAD = 65 if HARDWARE.get_device_type() == "mici" else 50
 USBGPU_POLL_INTERVAL = 1.0
-
-
 class CachedParams:
   def __init__(self, ttl: float = 1.0):
     self._params = Params()
@@ -63,7 +61,6 @@ class CachedParams:
       return put_wrapper
 
     return attr
-
 
 class UIStatus(Enum):
   DISENGAGED = "disengaged"

@@ -111,13 +111,24 @@ def _speed_limit_pulse_color(base: rl.Color, alpha: int) -> rl.Color:
   )
 
 
-# ── State ─────────────────────────────────────────────────────────────
+# ── State Cache ──────────────────────────────────────────────────────
+_cached_key = None
+_cached_slc_state = None
+
 
 def _get_slc_state():
   """Extract SLC state from SubMaster. Returns dict or None if stale/hidden."""
+  global _cached_key, _cached_slc_state
   sm = ui_state.sm
+  key = (sm.frame, sm.recv_frame.get("starpilotPlan", 0), ui_state.started_frame)
+  if key == _cached_key:
+    return _cached_slc_state
+
+  _cached_key = key
+
   if sm.recv_frame["starpilotPlan"] < ui_state.started_frame:
     _reset_pulse()
+    _cached_slc_state = None
     return None
 
   plan = sm["starpilotPlan"]
@@ -131,6 +142,7 @@ def _get_slc_state():
 
   if not show_slc and not speed_limit_changed:
     _reset_pulse()
+    _cached_slc_state = None
     return None
 
   speed_conversion = CV.MS_TO_KPH if ui_state.is_metric else CV.MS_TO_MPH
@@ -161,7 +173,7 @@ def _get_slc_state():
   # and before any sign colors are computed downstream.
   _tick_pulse(plan.slcSpeedLimitSource, resolved_ms)
 
-  return {
+  _cached_slc_state = {
     'speed_limit': speed_limit,
     'speed_limit_str': "\u2013" if speed_limit <= 1 else str(int(round(speed_limit))),
     'slc_overridden_speed': slc_overridden_speed,
@@ -182,6 +194,7 @@ def _get_slc_state():
     'mapbox_sl': max(0.0, plan.slcMapboxSpeedLimit * speed_conversion),
     'next_sl': max(0.0, plan.slcNextSpeedLimit * speed_conversion),
   }
+  return _cached_slc_state
 
 
 # ── Fonts ─────────────────────────────────────────────────────────────

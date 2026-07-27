@@ -10,14 +10,28 @@ class WidgetLayoutManager:
       "right": []
     }
     self.spacing = 15  # Spacing between widgets
+    self._prev_key = None
 
   def register_widget(self, zone: str, widget: LayoutWidget):
     """Register a widget in a specific zone."""
     self.zones[zone].append(widget)
     self.zones[zone].sort(key=lambda w: w.priority)
+    self._prev_key = None
 
   def update_layout(self, content_rect: rl.Rectangle, is_rhd: bool = False):
     """Calculate and apply positions of all active widgets in all zones."""
+    key = (
+      content_rect.x, content_rect.y, content_rect.width, content_rect.height,
+      is_rhd,
+      tuple(
+        (zone, tuple((w, w.is_visible, w.get_size() if w.is_visible else None) for w in widgets))
+        for zone, widgets in self.zones.items()
+      )
+    )
+    if key == self._prev_key:
+      return
+    self._prev_key = key
+
     self.content_rect = content_rect
     self._layout_left()
     self._layout_bottom(is_rhd)

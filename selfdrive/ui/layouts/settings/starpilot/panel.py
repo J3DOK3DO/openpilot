@@ -107,7 +107,7 @@ class StarPilotPanelInfo:
 class StarPilotPanel(Widget):
     def __init__(self):
         super().__init__()
-        self._params_memory = Params(memory=True)
+        self._params_memory = ui_state.params_memory
         self._params = FrameCachedParams()
         self._navigate_callback: Callable | None = None
         self._back_callback: Callable | None = None
