@@ -16,48 +16,23 @@ from openpilot.selfdrive.ui.layouts.settings.starpilot.sectioned_panel import Se
 import time
 
 
-class FrameCachedParams:
+class SettingsParamsWrapper:
   def __init__(self):
     self._params = ui_state.params
-    self._cache = {}
-    self._last_frame_time = 0.0
-
-  def _check_clear_cache(self):
-    now = time.monotonic()
-    if now != self._last_frame_time:
-      self._cache.clear()
-      self._last_frame_time = now
 
   def get(self, key, **kwargs):
-    self._check_clear_cache()
-    cache_key = (key, "get", tuple(kwargs.items()))
-    if cache_key not in self._cache:
-      self._cache[cache_key] = self._params.get(key, **kwargs)
-    return self._cache[cache_key]
+    return self._params.get(key, **kwargs)
 
   def get_bool(self, key, **kwargs):
-    self._check_clear_cache()
-    cache_key = (key, "get_bool", tuple(kwargs.items()))
-    if cache_key not in self._cache:
-      self._cache[cache_key] = self._params.get_bool(key, **kwargs)
-    return self._cache[cache_key]
+    return self._params.get_bool(key, **kwargs)
 
   def get_int(self, key, **kwargs):
-    self._check_clear_cache()
-    cache_key = (key, "get_int", tuple(kwargs.items()))
-    if cache_key not in self._cache:
-      self._cache[cache_key] = self._params.get_int(key, **kwargs)
-    return self._cache[cache_key]
+    return self._params.get_int(key, **kwargs)
 
   def get_float(self, key, **kwargs):
-    self._check_clear_cache()
-    cache_key = (key, "get_float", tuple(kwargs.items()))
-    if cache_key not in self._cache:
-      self._cache[cache_key] = self._params.get_float(key, **kwargs)
-    return self._cache[cache_key]
+    return self._params.get_float(key, **kwargs)
 
   def _notify_changed(self):
-    self._cache.clear()
     update_starpilot_toggles()
 
   def put(self, key, val, **kwargs):
@@ -108,7 +83,7 @@ class StarPilotPanel(Widget):
     def __init__(self):
         super().__init__()
         self._params_memory = ui_state.params_memory
-        self._params = FrameCachedParams()
+        self._params = SettingsParamsWrapper()
         self._navigate_callback: Callable | None = None
         self._back_callback: Callable | None = None
         self._current_sub_panel = ""
