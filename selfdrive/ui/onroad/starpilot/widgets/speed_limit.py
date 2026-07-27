@@ -1,6 +1,5 @@
 import pyray as rl
 from typing import Optional
-from openpilot.common.params import Params
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.selfdrive.ui.onroad.starpilot.widgets.base import LayoutWidget
 from openpilot.selfdrive.ui.onroad.starpilot.slc_speed_limit import (
@@ -60,7 +59,7 @@ class SpeedLimitWidget(LayoutWidget):
       )
       if rl.check_collision_point_rec(mouse_pos, hit_rect):
         current = ui_state.params.get_bool("SpeedLimitSources")
-        Params().put_bool("SpeedLimitSources", not current)
+        ui_state.params.put_bool("SpeedLimitSources", not current)
         return
 
     state = _get_slc_state()

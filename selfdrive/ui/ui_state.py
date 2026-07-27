@@ -18,6 +18,53 @@ BACKLIGHT_OFFROAD = 65 if HARDWARE.get_device_type() == "mici" else 50
 USBGPU_POLL_INTERVAL = 1.0
 
 
+class CachedParams:
+  def __init__(self, ttl: float = 1.0):
+    self._params = Params()
+    self._cache = {}
+    self._wrappers = {}
+    self._ttl = ttl
+
+  def _invalidate(self, key=None):
+    if key is None:
+      self._cache.clear()
+    else:
+      k_str = key.decode("utf-8") if isinstance(key, bytes) else str(key)
+      self._cache = {k: v for k, v in self._cache.items() if k[0] != k_str}
+
+  def __getattr__(self, name: str):
+    if name in self._wrappers:
+      return self._wrappers[name]
+
+    attr = getattr(self._params, name)
+    if not callable(attr):
+      return attr
+
+    if name.startswith("get"):
+      def get_wrapper(key, *args, **kwargs):
+        now = time.monotonic()
+        k_str = key.decode("utf-8") if isinstance(key, bytes) else str(key)
+        ck = (k_str, name) if not args and not kwargs else (k_str, name, args, tuple(sorted(kwargs.items())))
+        val, expiry = self._cache.get(ck, (None, 0.0))
+        if now < expiry:
+          return val
+        val = attr(key, *args, **kwargs)
+        self._cache[ck] = (val, now + self._ttl)
+        return val
+      self._wrappers[name] = get_wrapper
+      return get_wrapper
+
+    if name.startswith("put") or name.startswith("remove") or name.startswith("clear"):
+      def put_wrapper(key=None, *args, **kwargs):
+        res = attr(key, *args, **kwargs) if key is not None else attr(*args, **kwargs)
+        self._invalidate(key)
+        return res
+      self._wrappers[name] = put_wrapper
+      return put_wrapper
+
+    return attr
+
+
 class UIStatus(Enum):
   DISENGAGED = "disengaged"
   ENGAGED = "engaged"
@@ -34,7 +81,7 @@ class UIState:
     return cls._instance
 
   def _initialize(self):
-    self.params = Params()
+    self.params = CachedParams()
     self.params_memory = Params(memory=True)
     self.sm = messaging.SubMaster(
       [

@@ -1,7 +1,6 @@
 import pyray as rl
 import time
 from msgq.visionipc import VisionStreamType
-from openpilot.common.params import Params
 from openpilot.selfdrive.ui.onroad.augmented_road_view import AugmentedRoadView
 from openpilot.selfdrive.ui.onroad.starpilot.starpilot_border import render_behind, render_overlay, render_background_effects
 from openpilot.selfdrive.ui.onroad.starpilot.path import render_adjacent_lanes, render_path_edges
@@ -31,7 +30,7 @@ AlertSize = log.SelfdriveState.AlertSize
 class StarPilotOnroadView(AugmentedRoadView):
   def __init__(self, stream_type: VisionStreamType = VisionStreamType.VISION_STREAM_ROAD):
     super().__init__(stream_type)
-    self._params = Params()
+    self._params = ui_state.params
 
     self._font_bold = gui_app.font(FontWeight.BOLD)
     self._font_medium = gui_app.font(FontWeight.MEDIUM)

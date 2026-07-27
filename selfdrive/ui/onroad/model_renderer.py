@@ -4,7 +4,6 @@ import pyray as rl
 from cereal import messaging, car
 from dataclasses import dataclass, field
 from openpilot.common.filter_simple import FirstOrderFilter
-from openpilot.common.params import Params
 from openpilot.common.constants import CV
 from openpilot.selfdrive.locationd.calibrationd import HEIGHT_INIT
 from openpilot.selfdrive.ui.lib.starpilot_theme import get_param_color, get_theme_color, get_visual_color, is_stock_color_scheme, with_alpha
@@ -88,7 +87,7 @@ class ModelRenderer(Widget):
     self._rainbow_path = RainbowPath()
 
     # Get longitudinal control setting from car parameters
-    self._params = Params()
+    self._params = ui_state.params
     if car_params := self._params.get("CarParams"):
       cp = messaging.log_from_bytes(car_params, car.CarParams)
       self._longitudinal_control = cp.openpilotLongitudinalControl
