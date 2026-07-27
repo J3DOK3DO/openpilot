@@ -7,7 +7,8 @@ def draw_custom_icon(key: str, x: float, y: float, s: float, color: rl.Color):
 
   # Helper for drawing quadratic Bezier curves
   def draw_bezier(p0: rl.Vector2, p1: rl.Vector2, p2: rl.Vector2, thick: float):
-    segments = 128
+    approx_len = math.hypot(p1.x - p0.x, p1.y - p0.y) + math.hypot(p2.x - p1.x, p2.y - p1.y)
+    segments = max(6, min(128, int(approx_len / 2.0)))
     for i in range(segments):
       t1 = i / segments
       t2 = (i + 1) / segments
@@ -20,7 +21,8 @@ def draw_custom_icon(key: str, x: float, y: float, s: float, color: rl.Color):
   # Helper for drawing tilted ellipse arcs
   def draw_ellipse_arc(cx: float, cy: float, a: float, b: float, tilt_deg: float, start_deg: float, end_deg: float, thick: float):
     tilt = math.radians(tilt_deg)
-    segments = 128
+    approx_len = math.pi * max(a, b) * (abs(end_deg - start_deg) / 180.0)
+    segments = max(6, min(128, int(approx_len / 2.0)))
     step = (end_deg - start_deg) / segments
     for i in range(segments):
       p1 = math.radians(start_deg + i * step)
@@ -234,7 +236,8 @@ def draw_custom_icon(key: str, x: float, y: float, s: float, color: rl.Color):
     y_c = y + 30.0 * s
 
     def draw_cubic_bezier(p0: rl.Vector2, p1: rl.Vector2, p2: rl.Vector2, p3: rl.Vector2, thick: float):
-      segments = 64
+      approx_len = math.hypot(p1.x - p0.x, p1.y - p0.y) + math.hypot(p2.x - p1.x, p2.y - p1.y) + math.hypot(p3.x - p2.x, p3.y - p2.y)
+      segments = max(6, min(128, int(approx_len / 2.0)))
       for i in range(segments):
         t1 = i / segments
         t2 = (i + 1) / segments
