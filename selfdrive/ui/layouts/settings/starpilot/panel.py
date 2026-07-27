@@ -17,9 +17,14 @@ import time
 
 
 class SettingsParamsWrapper:
+  """
+  Proxy for ui_state.params. Relies on CachedParams for global TTL caching.
+  Intercepts UI writes (put/remove) to trigger system migrations automatically.
+  """
   def __init__(self):
     self._params = ui_state.params
 
+  # --- Read Operations (Forwarded directly to global TTL cache) ---
   def get(self, key, **kwargs):
     return self._params.get(key, **kwargs)
 
@@ -33,8 +38,10 @@ class SettingsParamsWrapper:
     return self._params.get_float(key, **kwargs)
 
   def _notify_changed(self):
+    # Triggers backend state sync when UI settings are modified
     update_starpilot_toggles()
 
+  # --- Write Operations (Triggers side-effects) ---
   def put(self, key, val, **kwargs):
     self._params.put(key, val, **kwargs)
     self._notify_changed()
@@ -55,6 +62,7 @@ class SettingsParamsWrapper:
     self._params.remove(key)
     self._notify_changed()
 
+  # Safety net for any newly added parameter methods
   def __getattr__(self, name):
     return getattr(self._params, name)
 
