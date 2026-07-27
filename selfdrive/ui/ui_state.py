@@ -17,6 +17,10 @@ from openpilot.system.hardware import HARDWARE, PC
 BACKLIGHT_OFFROAD = 65 if HARDWARE.get_device_type() == "mici" else 50
 USBGPU_POLL_INTERVAL = 1.0
 class CachedParams:
+  """
+  Global TTL-based cache for Params() to prevent excessive disk/IPC reads.
+  Dynamically wraps read methods (get*) to cache values and write methods (put*) to invalidate stale cache.
+  """
   def __init__(self, ttl: float = 1.0):
     self._params = Params()
     self._cache = {}
@@ -24,6 +28,7 @@ class CachedParams:
     self._ttl = ttl
 
   def _invalidate(self, key=None):
+    # Clears specific key or entire cache to guarantee fresh reads after writes
     if key is None:
       self._cache.clear()
     else:
@@ -39,6 +44,7 @@ class CachedParams:
       return attr
 
     if name.startswith("get"):
+      # Intercept reads to serve from RAM if TTL is valid
       def get_wrapper(key, *args, **kwargs):
         now = time.monotonic()
         k_str = key.decode("utf-8") if isinstance(key, bytes) else str(key)
@@ -53,6 +59,7 @@ class CachedParams:
       return get_wrapper
 
     if name.startswith("put") or name.startswith("remove") or name.startswith("clear"):
+      # Intercept writes to immediately invalidate stale data
       def put_wrapper(key=None, *args, **kwargs):
         res = attr(key, *args, **kwargs) if key is not None else attr(*args, **kwargs)
         self._invalidate(key)
