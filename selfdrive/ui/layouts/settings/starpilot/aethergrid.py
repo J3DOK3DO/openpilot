@@ -3538,8 +3538,8 @@ class AetherCategoryDrawer(AetherSettingsView):
     
     # Read driving side dynamically for ergonomic layout (LHD vs RHD)
     try:
-      from openpilot.common.params import Params
-      self._is_rhd = Params().get_bool("IsRHD")
+      from openpilot.selfdrive.ui.ui_state import ui_state
+      self._is_rhd = ui_state.params.get_bool("IsRHD")
     except Exception:
       self._is_rhd = False
 

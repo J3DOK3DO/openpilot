@@ -5,7 +5,7 @@ from enum import IntEnum
 
 import pyray as rl
 
-from openpilot.common.params import Params
+from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.starpilot.common.starpilot_variables import update_starpilot_toggles
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.lib.application import gui_app
@@ -18,7 +18,7 @@ import time
 
 class FrameCachedParams:
   def __init__(self):
-    self._params = Params()
+    self._params = ui_state.params
     self._cache = {}
     self._last_frame_time = 0.0
 

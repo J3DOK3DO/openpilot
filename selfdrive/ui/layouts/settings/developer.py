@@ -1,4 +1,3 @@
-from openpilot.common.params import Params
 from openpilot.selfdrive.ui.widgets.ssh_key import ssh_key_item
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.widgets import Widget
@@ -8,6 +7,7 @@ from openpilot.system.ui.widgets.confirm_dialog import ConfirmDialog
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.system.ui.widgets import DialogResult
+
 
 # Description constants
 DESCRIPTIONS = {
@@ -35,7 +35,7 @@ DESCRIPTIONS = {
 class DeveloperLayout(Widget):
   def __init__(self):
     super().__init__()
-    self._params = Params()
+    self._params = ui_state.params
 
     # Build items and keep references for callbacks/state updates
     self._adb_toggle = toggle_item(

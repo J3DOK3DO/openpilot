@@ -9,10 +9,8 @@ from openpilot.system.ui.widgets.scroller import DO_ZOOM
 from openpilot.system.ui.lib.application import gui_app, FontWeight, MousePos
 from openpilot.common.filter_simple import BounceFilter
 
-try:
-  from openpilot.common.params import Params
-except ImportError:
-  Params = None
+from openpilot.selfdrive.ui.ui_state import ui_state
+from openpilot.common.params import Params
 
 SCROLLING_SPEED_PX_S = 50
 COMPLICATION_SIZE    = 36
@@ -394,7 +392,7 @@ class BigParamControl(BigToggle):
   def __init__(self, text: str, param: str, toggle_callback: Callable | None = None):
     super().__init__(text, "", toggle_callback=toggle_callback)
     self.param = param
-    self.params = Params()
+    self.params = ui_state.params
     self.set_checked(self.params.get_bool(self.param, False))
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
@@ -411,7 +409,7 @@ class BigCircleParamControl(BigCircleToggle):
                icon_offset: tuple[int, int] = (0, 0)):
     super().__init__(icon, toggle_callback, icon_offset=icon_offset)
     self._param = param
-    self.params = Params()
+    self.params = ui_state.params
     self.set_checked(self.params.get_bool(self._param, False))
 
   def _handle_mouse_release(self, mouse_pos: MousePos):

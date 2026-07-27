@@ -38,7 +38,7 @@ DESCRIPTIONS = {
 class TogglesLayout(Widget):
   def __init__(self):
     super().__init__()
-    self._params = Params()
+    self._params = ui_state.params
     self._sync_rhd_toggle()
 
     # param, title, desc, icon, needs_restart

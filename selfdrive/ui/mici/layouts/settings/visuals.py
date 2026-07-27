@@ -1,4 +1,4 @@
-from openpilot.common.params import Params
+from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.selfdrive.ui.lib.starpilot_visuals import lead_indicator_enabled
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton, BigParamControl, BigToggle
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigDialog, BigMultiOptionDialog
@@ -11,7 +11,7 @@ CAMERA_VIEW_LABELS = ["Auto", "Driver", "Standard", "Wide", "None"]
 class CameraViewBigButton(BigButton):
   def __init__(self):
     super().__init__("camera view", "", gui_app.texture("icons_mici/onroad/eye_fill.png", 64, 64))
-    self._params = Params()
+    self._params = ui_state.params
     self.set_click_callback(self._show_selector)
     self.refresh()
 
@@ -42,7 +42,7 @@ class CameraViewBigButton(BigButton):
 class LeadIndicatorBigButton(BigToggle):
   def __init__(self):
     super().__init__("lead indicator")
-    self.params = Params()
+    self.params = ui_state.params
     self.refresh()
 
   def _handle_mouse_release(self, mouse_pos):
