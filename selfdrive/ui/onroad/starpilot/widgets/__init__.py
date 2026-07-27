@@ -6,14 +6,28 @@ from openpilot.selfdrive.ui.onroad.starpilot.widgets.aethergauge import AetherGa
 from openpilot.selfdrive.ui.onroad.starpilot.widgets.personality_button import PersonalityButtonWidget
 from openpilot.selfdrive.ui.onroad.starpilot.widgets.driver_monitor import DriverMonitorWidget
 from openpilot.selfdrive.ui.onroad.starpilot.widgets.steering_wheel import SteeringWheelWidget
+from openpilot.selfdrive.ui.onroad.starpilot.widgets.favorites_dock import FavoritesDockWidget
+from openpilot.selfdrive.ui.onroad.starpilot.widgets.standstill_timer import StandstillTimerWidget
+from openpilot.selfdrive.ui.onroad.starpilot.widgets.developer_metrics import DeveloperMetricsWidget
+from openpilot.selfdrive.ui.onroad.starpilot.widgets.road_name import RoadNameWidget
+from openpilot.selfdrive.ui.onroad.starpilot.widgets.pause_indicator import PauseIndicatorWidget
+from openpilot.selfdrive.ui.onroad.starpilot.widgets.weather_icon_widget import WeatherIconWidget
+from openpilot.selfdrive.ui.onroad.starpilot.widgets.torque_bar_widget import TorqueBarWidget
 
 __all__ = [
-  "LayoutWidget",
-  "SetSpeedWidget",
-  "SpeedLimitWidget",
-  "PedalIconsWidget",
-  "AetherGaugeWidget",
-  "PersonalityButtonWidget",
-  "DriverMonitorWidget",
-  "SteeringWheelWidget",
+    "LayoutWidget",
+    "SetSpeedWidget",
+    "SpeedLimitWidget",
+    "PedalIconsWidget",
+    "AetherGaugeWidget",
+    "PersonalityButtonWidget",
+    "DriverMonitorWidget",
+    "SteeringWheelWidget",
+    "FavoritesDockWidget",
+    "StandstillTimerWidget",
+    "DeveloperMetricsWidget",
+    "RoadNameWidget",
+    "PauseIndicatorWidget",
+    "WeatherIconWidget",
+    "TorqueBarWidget",
 ]

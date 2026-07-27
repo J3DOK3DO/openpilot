@@ -34,6 +34,57 @@ FAVORITE_ACTION_OPTIONS = (
 FAVORITE_ACTION_KEYS = {option["key"] for option in FAVORITE_ACTION_OPTIONS}
 FAVORITE_ACTION_LABELS = {option["key"]: option["label"] for option in FAVORITE_ACTION_OPTIONS}
 
+import os
+
+_cached_favorite_slot_options: dict[str, tuple[str | None, str]] | None = None
+
+
+def get_all_favorite_slot_options(params: Params | None = None) -> dict[str, tuple[str | None, str]]:
+  global _cached_favorite_slot_options
+  if _cached_favorite_slot_options is not None:
+    return _cached_favorite_slot_options
+
+  params = params or Params(return_defaults=True)
+  raw_options: list[tuple[str, tuple[str | None, str]]] = []
+  seen_keys = set()
+
+  # 1. Virtual Action Options
+  for opt in FAVORITE_ACTION_OPTIONS:
+    key = opt["key"]
+    label = opt["label"]
+    seen_keys.add(key)
+    raw_options.append((label, (key, label)))
+
+  # 2. Extract layout toggles from device_settings_layout.json (100% Galaxy UI parity)
+  try:
+    layout_path = os.path.join(
+      os.path.dirname(__file__),
+      "..", "system", "the_galaxy", "assets", "components", "tools", "device_settings_layout.json"
+    )
+    if os.path.exists(layout_path):
+      with open(layout_path, "r", encoding="utf-8") as f:
+        layout_data = json.load(f)
+      for section in layout_data:
+        for param in section.get("params", []):
+          if param.get("ui_type") == "toggle" and param.get("data_type") == "bool":
+            key = str(param.get("key") or "").strip()
+            label = str(param.get("label") or key).strip()
+            if key and key not in seen_keys and favorite_key_is_valid(params, key):
+              seen_keys.add(key)
+              raw_options.append((label, (key, label)))
+  except Exception:
+    pass
+
+  # Sort options case-insensitively by label, then key (matching Galaxy UI)
+  raw_options.sort(key=lambda item: (item[0].casefold(), str(item[1][0]).casefold()))
+
+  options: dict[str, tuple[str | None, str]] = {"Disabled": (None, "")}
+  for label, val in raw_options:
+    options[label] = val
+
+  _cached_favorite_slot_options = options
+  return _cached_favorite_slot_options
+
 
 def default_favorite_slots() -> list[dict[str, Any]]:
   return [

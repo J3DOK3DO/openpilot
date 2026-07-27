@@ -19,6 +19,7 @@ from openpilot.selfdrive.ui.layouts.settings.starpilot.aethergrid import (
 )
 from openpilot.selfdrive.ui.layouts.settings.starpilot.simple_download_manager import SimpleDownloadManager
 from openpilot.starpilot.common.starpilot_variables import THEME_SAVE_PATH
+from openpilot.starpilot.common.favorite_slots import load_favorite_slots, save_favorite_slots, get_all_favorite_slot_options
 
 PANEL_STYLE = DEFAULT_PANEL_STYLE
 
@@ -31,6 +32,7 @@ THEME_KEY_CONFIG = {
 
 COLOR_PRESETS = ["Stock", "#FFFFFF", "#178644", "#3B82F6", "#E63956", "#8B5CF6", "#F59E0B"]
 CAMERA_VIEWS = ["Auto", "Driver", "Standard", "Wide"]
+
 
 # Mirrors starpilot/ui/qt/offroad/developer_panel.cc:200-218.
 # Keys are the int values stored in DeveloperSidebarMetric{1..7}; values are the
@@ -322,6 +324,21 @@ class StarPilotAppearanceLayout(_SettingsPage):
                        subtitle=tr_noop("Show the Curve Speed Controller target speed and ambient border glow."),
                        get_state=lambda: self._params.get_bool("ShowCSCStatus"),
                        set_state=lambda s: self._params.put_bool("ShowCSCStatus", s),
+                       visible=hud_on),
+            SettingRow("FavoriteSlot0", "value", tr_noop("Favorite Bar Slot #1"),
+                       subtitle=tr_noop("Assign action or feature toggle to Favorite Bar Slot #1."),
+                       get_value=lambda: self._get_favorite_slot_display(0),
+                       on_click=lambda: self._show_favorite_slot_selector(0),
+                       visible=hud_on),
+            SettingRow("FavoriteSlot1", "value", tr_noop("Favorite Bar Slot #2"),
+                       subtitle=tr_noop("Assign action or feature toggle to Favorite Bar Slot #2."),
+                       get_value=lambda: self._get_favorite_slot_display(1),
+                       on_click=lambda: self._show_favorite_slot_selector(1),
+                       visible=hud_on),
+            SettingRow("FavoriteSlot2", "value", tr_noop("Favorite Bar Slot #3"),
+                       subtitle=tr_noop("Assign action or feature toggle to Favorite Bar Slot #3."),
+                       get_value=lambda: self._get_favorite_slot_display(2),
+                       on_click=lambda: self._show_favorite_slot_selector(2),
                        visible=hud_on),
         ]
 
@@ -753,6 +770,44 @@ class StarPilotAppearanceLayout(_SettingsPage):
     def _get_developer_sidebar_metric_display(self, idx: int) -> str:
         val = self._params.get_int(f"DeveloperSidebarMetric{idx}")
         return tr(DEVELOPER_SIDEBAR_METRIC_OPTIONS.get(val, "None"))
+
+    # ── Favorite bar slot selectors ──
+
+    def _show_favorite_slot_selector(self, idx: int):
+        options_dict = get_all_favorite_slot_options()
+        options = list(options_dict.keys())
+        current_display = self._get_favorite_slot_display(idx)
+
+        def on_select(res):
+            if res == DialogResult.CONFIRM and dialog.selection:
+                selected_name = dialog.selection
+                if selected_name in options_dict:
+                    key, label = options_dict[selected_name]
+                    slots = load_favorite_slots(self._params)
+                    if idx < len(slots):
+                        slots[idx] = {
+                            "enabled": key is not None,
+                            "show_onroad": key is not None,
+                            "key": key,
+                            "label": label,
+                        }
+                        save_favorite_slots(slots, self._params)
+
+        dialog = MultiOptionDialog(tr(f"Favorite Slot #{idx + 1}"), options, current_display, callback=on_select)
+        gui_app.push_widget(dialog)
+
+    def _get_favorite_slot_display(self, idx: int) -> str:
+        slots = load_favorite_slots(self._params)
+        if idx < len(slots):
+            slot = slots[idx]
+            if slot.get("enabled") and slot.get("key"):
+                target_key = slot.get("key")
+                options_dict = get_all_favorite_slot_options()
+                for name, (k, _) in options_dict.items():
+                    if k == target_key:
+                        return tr(name)
+                return slot.get("label") or str(target_key)
+        return tr("Disabled")
 
     # ── Boot logo manager ──
 

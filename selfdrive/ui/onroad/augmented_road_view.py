@@ -116,6 +116,7 @@ class AugmentedRoadView(CameraView):
     # Draw all UI overlays
     if self._draw_road_overlays:
       self.model_renderer.render(self._content_rect)
+      self._on_after_model_render(self._content_rect)
     if self._draw_hud_controls:
       self._hud_renderer.render(self._content_rect)
     self.alert_renderer.render(self._content_rect)
@@ -135,6 +136,9 @@ class AugmentedRoadView(CameraView):
     msg = messaging.new_message('uiDebug')
     msg.uiDebug.drawTimeMillis = (time.monotonic() - start_draw) * 1000
     self._pm.send('uiDebug', msg)
+
+  def _on_after_model_render(self, rect: rl.Rectangle):
+    pass
 
   def _handle_mouse_press(self, _):
     if not self._hud_renderer.user_interacting() and self._click_callback is not None:
