@@ -309,18 +309,46 @@ def multipart_output_paths(artifact: Path, output_dir: Path | None = None) -> li
   ]
 
 
-def install_local_artifact(artifact: Path) -> None:
-  """Copy a freshly compiled local- model into the runtime dir modeld loads from.
+def install_local_artifact(artifact: Path, model_key: str, version: str) -> None:
+  """Copy a freshly compiled local- model into the runtime dir modeld loads from,
+  and ensure its <id>.json sidecar carries the correct version.
 
-  Local models must be a single is_file() in /data/models to appear in the picker.
-  No-ops off-device (when /data/models is absent) so dev-box runs don't error.
+  The sidecar version is NOT cosmetic: without it _discover_local_models() records
+  an empty version, which downstream parses on the wrong contract (a v15 model then
+  drives like v11). Since we know the build version here, we write it so the local
+  install is correct by default. Local models must be a single is_file() in
+  /data/models to show in the picker. No-ops off-device (no /data/models).
   """
   if not MODELS_PATH.is_dir():
     print(f"  skipped auto-install: {MODELS_PATH} not present (not on device?)")
     return
   dest = MODELS_PATH / artifact.name
   shutil.copy2(artifact, dest)
-  print(f"  installed -> {dest}  (reboot + one online boot to see it in the picker)")
+  print(f"  installed -> {dest}")
+
+  sidecar = MODELS_PATH / f"{model_key}.json"
+  info: dict = {}
+  if sidecar.is_file():
+    try:
+      loaded = json.loads(sidecar.read_text())
+      if isinstance(loaded, dict):
+        info = loaded
+    except Exception as error:
+      print(f"  WARN: existing sidecar {sidecar.name} is malformed, rewriting: {error}")
+  if not version:
+    if not str(info.get("version") or "").strip():
+      print(f"  WARN: could not determine version -- set it by hand in {sidecar.name} "
+            "or the model may drive on the wrong version contract")
+    return
+  # keep any user-set name/series; only guarantee a correct, non-empty version
+  if str(info.get("version") or "").strip() == version and sidecar.is_file():
+    print(f"  sidecar ok: {sidecar.name} (version {version})")
+    return
+  info.setdefault("name", model_key[len("local-"):].replace("_", " ").replace("-", " ").strip())
+  info.setdefault("series", "Local")
+  info["version"] = version
+  sidecar.write_text(json.dumps(info, indent=2) + "\n")
+  print(f"  wrote sidecar {sidecar.name} (version {version})")
 
 
 def split_oversized_artifact(
@@ -547,7 +575,7 @@ def main() -> int:
         print(f"  --no-split: kept one {size_mb:.1f} MB file; over 100 MB, so split it "
               "before committing to a repo (re-run without --no-split, or --split-artifact)")
     if is_local and not args.no_install:
-      install_local_artifact(output)
+      install_local_artifact(output, model_key, version)
   else:
     multipart_outputs = split_oversized_artifact(output)
     if multipart_outputs:
