@@ -606,34 +606,52 @@ class ModelRenderer(Widget):
     radius = 4.0
     red_color = rl.Color(255, 0, 0, 200)
 
-    # Pre-extract bounds and matrix values for native loop speed
-    x_min, x_max = self._rect.x, self._rect.x + self._rect.width
-    y_min, y_max = self._rect.y, self._rect.y + self._rect.height
+    # Pre-extract matrix values and clip bounds for native loop speed
     t = self._car_space_transform
     m00, m01, m02 = float(t[0, 0]), float(t[0, 1]), float(t[0, 2])
     m10, m11, m12 = float(t[1, 0]), float(t[1, 1]), float(t[1, 2])
-    
+    m20, m21, m22 = float(t[2, 0]), float(t[2, 1]), float(t[2, 2])
+    clip = self._clip_region
+    clip_x, clip_y = float(clip.x), float(clip.y)
+    clip_xmax, clip_ymax = clip_x + float(clip.width), clip_y + float(clip.height)
     offset_z = float(self._path_offset_z)
-    
+
+    rect_x, rect_y = float(self._rect.x), float(self._rect.y)
+    rect_xmax, rect_ymax = rect_x + float(self._rect.width), rect_y + float(self._rect.height)
+
     for point in radar_points:
       d_rel = float(point.dRel)
-      
+      in_y = float(-point.yRel)
+
+      # 0. Early NaN guard
+      if math.isnan(d_rel) or math.isnan(in_y):
+        continue
+
       # 1. Fast binary search instead of np.where boolean mask
       idx = np.searchsorted(path_x_array, d_rel, side='right') - 1
-      idx = idx if idx >= 0 else 0
+      idx = int(idx) if idx >= 0 else 0
       z = float(line_z[idx]) if idx < len(line_z) else 0.0
 
-      # 2. Native unrolled matrix multiplication (Bypasses np.array allocation overhead)
-      in_y = float(-point.yRel)
+      # 2. Native unrolled 3x3 matrix multiply (bypasses np.array allocation)
       in_z = z + offset_z
-      
-      pt_x = m00 * d_rel + m01 * in_y + m02 * in_z
-      pt_y = m10 * d_rel + m11 * in_y + m12 * in_z
+      pt_w = m20 * d_rel + m21 * in_y + m22 * in_z
 
-      # 3. Native clipping (50x faster than np.clip on scalars)
-      x = max(x_min, min(pt_x, x_max))
-      y = max(y_min, min(pt_y, y_max))
-      
+      # 3. Focal plane & near-plane guard (rejects points on or behind camera)
+      if pt_w <= 1e-6:
+        continue
+
+      # 4. Perspective divide (matches _map_to_screen)
+      x = (m00 * d_rel + m01 * in_y + m02 * in_z) / pt_w
+      y = (m10 * d_rel + m11 * in_y + m12 * in_z) / pt_w
+
+      # 5. Clip region check (matches _map_to_screen)
+      if not (clip_x <= x <= clip_xmax and clip_y <= y <= clip_ymax):
+        continue
+
+      # 6. Screen rect clamping (matches original np.clip on calibrated_point)
+      x = max(rect_x, min(x, rect_xmax))
+      y = max(rect_y, min(y, rect_ymax))
+
       rl.draw_circle_v(rl.Vector2(x, y), radius, red_color)
 
   def _update_adjacent_paths(self, max_idx: int, max_distance: float):
