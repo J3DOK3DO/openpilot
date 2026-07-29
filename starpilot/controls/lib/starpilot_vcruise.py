@@ -45,7 +45,11 @@ ACTIVATION_HYSTERESIS_M = 8.0  # m — release margin; absorbs model_length jitt
 LEAD_VETO_M = 75.0        # m — lead proximity that vetoes Force Stop (not ACTIVATION_M,
                           # so raising activation can't silently widen the veto)
 MPC_HANDOFF_M = 6.0       # m — below this, command 0 and let MPC finish the stop
-FORCE_STOP_APPROACH_DECEL = 1.2  # m/s^2 — speed ceiling before commit; riding it decelerates at this rate
+FORCE_STOP_APPROACH_DECEL = 0.9  # m/s^2 — speed ceiling before commit. LOWER = slower ceiling
+                          # = more early braking. Must stay above FORCE_STOP_MODEL_APPROACH_DECEL
+                          # or the pre-commit ceiling is stricter than the stop itself.
+                          # 1.2 road-tested too loose: only asked a 50 mph car to shed 1.7 mph
+                          # by 200 m, and the car delivers ~50-75% of the commanded decel.
 ADAS_MAX_MS = 17.88       # 40 mph — cross-street ADAS guard
 DASH_SEED_M = 27.0        # ~88 ft — typical ADAS detection distance, used to snap
                           # tracked length closer when dashboard confirms a sign
