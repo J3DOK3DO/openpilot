@@ -41,6 +41,7 @@ ACTIVATION_M = 75.0       # m — CEM/model path activates when model_length < t
                           # Don't raise: forcing_stop latches until standstill, so a brief
                           # red-light blip at longer range commits to a stop the car can't
                           # release (manualstop rlog t=1150 arms at 100 m, drove through at 75).
+ACTIVATION_HYSTERESIS_M = 8.0  # m — release margin; absorbs model_length jitter at the gate
 LEAD_VETO_M = 75.0        # m — lead proximity that vetoes Force Stop (not ACTIVATION_M,
                           # so raising activation can't silently widen the veto)
 MPC_HANDOFF_M = 6.0       # m — below this, command 0 and let MPC finish the stop
@@ -142,6 +143,7 @@ class StarPilotVCruise:
 
     self.override_force_stop_timer = 0
     self.force_stop_timer = 0.0
+    self.activation_gate_active = False
     self.standstill_force_stop_hold = False
     self.standstill_force_stop_clear_since = 0.0
     self.standstill_force_stop_started_at = None
@@ -313,9 +315,19 @@ class StarPilotVCruise:
     # Exclude when a lead is present (raw or filtered) — the handoff_to_stopped_lead path
     # in CEM can set stop_light_detected even with a lead present, which would incorrectly
     # activate Force Stop and stop the car far behind the lead instead of letting ACC handle it.
-    cem_path = (self.starpilot_planner.starpilot_cem.stop_light_detected
+    # Schmitt trigger: model_length can jitter several meters around ACTIVATION_M, which
+    # otherwise keeps resetting force_stop_timer's ramp. Scoped to a detected stop so the
+    # wider release threshold can't leak into ordinary slow driving.
+    stop_light_detected = self.starpilot_planner.starpilot_cem.stop_light_detected
+    if self.activation_gate_active and stop_light_detected:
+      model_length_active = self.starpilot_planner.model_length < ACTIVATION_M + ACTIVATION_HYSTERESIS_M
+    else:
+      model_length_active = self.starpilot_planner.model_length < ACTIVATION_M
+    self.activation_gate_active = model_length_active and stop_light_detected
+
+    cem_path = (stop_light_detected
                 and controls_enabled and starpilot_toggles.force_stops
-                and self.starpilot_planner.model_length < ACTIVATION_M
+                and model_length_active
                 and self.override_force_stop_timer <= 0
                 and not self.starpilot_planner.driving_in_curve
                 and not curved_approach_scene
@@ -548,7 +560,7 @@ class StarPilotVCruise:
       # Far-approach envelope: bleed speed off before the stop is close enough to commit,
       # so the car isn't still at cruise when the kinematic curve takes over. Same vetoes
       # as the activation paths; no latch, recomputed each frame, releases on green.
-      if (self.starpilot_planner.starpilot_cem.stop_light_detected
+      if (stop_light_detected
           and controls_enabled and starpilot_toggles.force_stops
           and self.override_force_stop_timer <= 0
           and not self.starpilot_planner.driving_in_curve
