@@ -37,8 +37,14 @@ NAV_TURN_TARGET_SPEEDS = {
 # Smaller values pull speed down earlier on approach.
 FORCE_STOP_MODEL_APPROACH_DECEL = 0.65
 FORCE_STOP_DASH_APPROACH_DECEL = 1.0
-ACTIVATION_M = 75.0       # m — CEM/model path activates when model_length < this
+ACTIVATION_M = 75.0       # m — CEM/model path activates when model_length < this.
+                          # Don't raise: forcing_stop latches until standstill, so a brief
+                          # red-light blip at longer range commits to a stop the car can't
+                          # release (manualstop rlog t=1150 arms at 100 m, drove through at 75).
+LEAD_VETO_M = 75.0        # m — lead proximity that vetoes Force Stop (not ACTIVATION_M,
+                          # so raising activation can't silently widen the veto)
 MPC_HANDOFF_M = 6.0       # m — below this, command 0 and let MPC finish the stop
+FORCE_STOP_APPROACH_DECEL = 1.2  # m/s^2 — speed ceiling before commit; riding it decelerates at this rate
 ADAS_MAX_MS = 17.88       # 40 mph — cross-street ADAS guard
 DASH_SEED_M = 27.0        # ~88 ft — typical ADAS detection distance, used to snap
                           # tracked length closer when dashboard confirms a sign
@@ -296,7 +302,7 @@ class StarPilotVCruise:
     # during the filter's settling window and stay committed for the whole stop.
     lead = self.starpilot_planner.lead_one
     lead_present = (bool(getattr(lead, "status", False))
-                    and float(getattr(lead, "dRel", float("inf"))) < ACTIVATION_M
+                    and float(getattr(lead, "dRel", float("inf"))) < LEAD_VETO_M
                     and float(getattr(lead, "vLead", float("inf"))) < v_ego + 2.0)
     curved_approach_scene = (
       abs(float(getattr(self.starpilot_planner, "road_curvature", 0.0))) >= FORCE_STOP_CURVE_VETO_MAX_ROAD_CURVATURE
@@ -538,6 +544,22 @@ class StarPilotVCruise:
         targets.append(slc_control_target)
       if self.nav_turn_target > 0.0:
         targets.append(self.nav_turn_target)
+
+      # Far-approach envelope: bleed speed off before the stop is close enough to commit,
+      # so the car isn't still at cruise when the kinematic curve takes over. Same vetoes
+      # as the activation paths; no latch, recomputed each frame, releases on green.
+      if (self.starpilot_planner.starpilot_cem.stop_light_detected
+          and controls_enabled and starpilot_toggles.force_stops
+          and self.override_force_stop_timer <= 0
+          and not self.starpilot_planner.driving_in_curve
+          and not curved_approach_scene
+          and not turn_scene_active
+          and not self.starpilot_planner.tracking_lead
+          and not lead_present):
+        approach_d = self.starpilot_planner.model_length + offset_m
+        if approach_d > MPC_HANDOFF_M:
+          targets.append(math.sqrt(2.0 * FORCE_STOP_APPROACH_DECEL * (approach_d - MPC_HANDOFF_M)))
+
       v_cruise = min(targets)
 
     self.controls_enabled_previously = controls_enabled
