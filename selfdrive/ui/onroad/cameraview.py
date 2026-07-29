@@ -5,9 +5,7 @@ import pyray as rl
 
 from msgq.visionipc import VisionIpcClient, VisionStreamType, VisionBuf
 from openpilot.common.swaglog import cloudlog
-from openpilot.system.hardware import TICI
 from openpilot.system.ui.lib.application import gui_app
-from openpilot.system.ui.lib.egl import init_egl, create_egl_image, destroy_egl_image, bind_egl_image_to_texture, EGLImage
 from openpilot.system.ui.widgets import Widget
 from openpilot.selfdrive.ui.ui_state import ui_state
 
@@ -38,32 +36,17 @@ void main() {
 }
 """
 
-# Choose fragment shader based on platform capabilities
-if TICI:
-  FRAME_FRAGMENT_SHADER = """
-    #version 300 es
-    #extension GL_OES_EGL_image_external_essl3 : enable
-    precision mediump float;
-    in vec2 fragTexCoord;
-    uniform samplerExternalOES texture0;
-    out vec4 fragColor;
-    void main() {
-      vec4 color = texture(texture0, fragTexCoord);
-      fragColor = vec4(pow(color.rgb, vec3(1.0/1.28)), color.a);
-    }
-    """
-else:
-  FRAME_FRAGMENT_SHADER = VERSION + """
-    in vec2 fragTexCoord;
-    uniform sampler2D texture0;
-    uniform sampler2D texture1;
-    out vec4 fragColor;
-    void main() {
-      float y = texture(texture0, fragTexCoord).r;
-      vec2 uv = texture(texture1, fragTexCoord).ra - 0.5;
-      fragColor = vec4(y + 1.402*uv.y, y - 0.344*uv.x - 0.714*uv.y, y + 1.772*uv.x, 1.0);
-    }
-    """
+FRAME_FRAGMENT_SHADER = VERSION + """
+  in vec2 fragTexCoord;
+  uniform sampler2D texture0;
+  uniform sampler2D texture1;
+  out vec4 fragColor;
+  void main() {
+    float y = texture(texture0, fragTexCoord).r;
+    vec2 uv = texture(texture1, fragTexCoord).ra - 0.5;
+    fragColor = vec4(y + 1.402*uv.y, y - 0.344*uv.x - 0.714*uv.y, y + 1.772*uv.x, 1.0);
+  }
+  """
 
 
 class CameraView(Widget):
@@ -83,26 +66,14 @@ class CameraView(Widget):
     self._texture_needs_update = True
     self.last_connection_attempt: float = 0.0
     self.shader = rl.load_shader_from_memory(VERTEX_SHADER, FRAME_FRAGMENT_SHADER)
-    self._texture1_loc: int = rl.get_shader_location(self.shader, "texture1") if not TICI else -1
+    self._texture1_loc: int = rl.get_shader_location(self.shader, "texture1")
 
     self.frame: VisionBuf | None = None
-    self._last_frame_id = -1
-    self._regressive_frame_count = 0
     self.texture_y: rl.Texture | None = None
     self.texture_uv: rl.Texture | None = None
 
-    # EGL resources
-    self.egl_images: dict[int, EGLImage] = {}
-    self.egl_texture: rl.Texture | None = None
-
     self._placeholder_color: rl.Color | None = None
     self._closed = False
-
-    # Initialize EGL for zero-copy rendering on TICI
-    if TICI:
-      if not init_egl():
-        raise RuntimeError("Failed to initialize EGL")
-      self._create_egl_texture()
 
     self_ref = weakref.ref(self)
 
@@ -117,12 +88,8 @@ class CameraView(Widget):
     self._reset_camera_connection()
 
   def _reset_camera_connection(self):
-    # EGL images and VisionBuf objects both retain the imported camera buffer.
-    # Release them on every road-state transition instead of pinning the old
-    # camerad allocation until this view happens to render again.
     self._clear_textures()
     self.frame = None
-    self._last_frame_id = -1
     self.available_streams.clear()
     self.client = VisionIpcClient(self._name, self._stream_type, conflate=True)
     self._target_client = None
@@ -171,7 +138,6 @@ class CameraView(Widget):
       rl.unload_shader(self.shader)
 
     self.frame = None
-    self._last_frame_id = -1
     self.available_streams.clear()
     self.client = None
     self._target_client = None
@@ -205,15 +171,11 @@ class CameraView(Widget):
       self._draw_placeholder(rect)
       return
 
-    # An EGL image references camerad's reusable ring-buffer slot. Account for
-    # that slot advancing before accepting another (possibly older) slot.
-    if TICI:
-      self._observe_displayed_frame()
-
     # Try to get a new buffer without blocking
     buffer = self.client.recv(timeout_ms=0)
     if buffer:
-      self._accept_frame(buffer, self.client.frame_id)
+      self.frame = buffer
+      self._texture_needs_update = True
     elif not self.client.is_connected():
       # ensure we clear the displayed frame when the connection is lost
       self.frame = None
@@ -241,67 +203,20 @@ class CameraView(Widget):
 
     dst_rect = rl.Rectangle(x_offset, y_offset, scale_x, scale_y)
 
-    # Render with appropriate method
-    if TICI:
-      self._render_egl(src_rect, dst_rect)
-    else:
-      self._render_textures(src_rect, dst_rect)
+    self._render_textures(src_rect, dst_rect)
 
   def _draw_placeholder(self, rect: rl.Rectangle):
     if self._placeholder_color:
       rl.draw_rectangle_rec(rect, self._placeholder_color)
 
-  def _observe_displayed_frame(self) -> None:
-    if self.frame is not None:
-      client_frame_id = getattr(self.client, "frame_id", -1) if hasattr(self, "client") and self.client is not None else -1
-      frame_id = getattr(self.frame, "frame_id", client_frame_id)
-      self._last_frame_id = max(self._last_frame_id, int(frame_id))
-
-  def _accept_frame(self, frame: VisionBuf, packet_frame_id: int) -> bool:
-    content_frame_id = int(getattr(frame, "frame_id", packet_frame_id))
-    if content_frame_id < self._last_frame_id:
-      self._regressive_frame_count += 1
-      if self._regressive_frame_count == 1 or self._regressive_frame_count % 100 == 0:
-        message = f"Dropping regressive {self._name} frame: content={content_frame_id}, packet={packet_frame_id}, "
-        message += f"displayed={self._last_frame_id}, idx={frame.idx}, count={self._regressive_frame_count}"
-        cloudlog.warning(message)
-      return False
-
-    self.frame = frame
-    self._last_frame_id = content_frame_id
-    self._texture_needs_update = True
-    return True
-
-  def _render_egl(self, src_rect: rl.Rectangle, dst_rect: rl.Rectangle) -> None:
-    """Render using EGL for direct buffer access"""
-    if self.frame is None or self.egl_texture is None:
-      return
-
-    idx = self.frame.idx
-    egl_image = self.egl_images.get(idx)
-
-    # Create EGL image if needed
-    if egl_image is None:
-      egl_image = create_egl_image(self.frame.width, self.frame.height, self.frame.stride, self.frame.fd, self.frame.uv_offset)
-      if egl_image:
-        self.egl_images[idx] = egl_image
-      else:
-        return
-
-    # Update texture dimensions to match current frame
-    self.egl_texture.width = self.frame.width
-    self.egl_texture.height = self.frame.height
-
-    # Bind the EGL image to our texture
-    bind_egl_image_to_texture(self.egl_texture.id, egl_image)
-
-    # Render with shader
-    rl.begin_shader_mode(self.shader)
-    rl.draw_texture_pro(self.egl_texture, src_rect, dst_rect, rl.Vector2(0, 0), 0.0, rl.WHITE)
-    rl.end_shader_mode()
-
   def _render_textures(self, src_rect: rl.Rectangle, dst_rect: rl.Rectangle) -> None:
-    """Render using texture copies"""
+    """Copy camera data into ordinary Raylib textures before drawing.
+
+    Raylib batches camera draws as GL_TEXTURE_2D. Imported EGL images are
+    GL_TEXTURE_EXTERNAL_OES objects and cannot safely pass through that path;
+    copying also prevents the GPU from sampling camerad's reusable buffers
+    after they have been handed back to the producer.
+    """
     if not self.texture_y or not self.texture_uv or self.frame is None:
       return
 
@@ -323,7 +238,6 @@ class CameraView(Widget):
   def _ensure_connection(self) -> bool:
     if not self.client.is_connected():
       self.frame = None
-      self._last_frame_id = -1
       self.available_streams.clear()
 
       # Throttle connection attempts
@@ -332,8 +246,6 @@ class CameraView(Widget):
         return False
       self.last_connection_attempt = current_time
 
-      # A GL texture can retain the last EGL image after camerad exits. Release
-      # it before connect() frees and replaces the client's imported buffers.
       self._clear_textures()
       if not self.client.connect(False) or not self.client.num_buffers:
         return False
@@ -365,15 +277,11 @@ class CameraView(Widget):
   def _complete_switch(self) -> None:
     """Instantly switch to target stream."""
     cloudlog.debug(f"Switching to {self._target_stream_type}")
-    # Delete the GL texture before releasing the old client. Merely destroying
-    # the EGLImage handle leaves its storage alive while a texture sibling exists.
     self._clear_textures()
 
     # Switch to target
     self.client = self._target_client
     self._stream_type = self._target_stream_type
-    client_frame_id = getattr(self.client, "frame_id", -1) if hasattr(self, "client") and self.client is not None else -1
-    self._last_frame_id = int(getattr(self.frame, "frame_id", client_frame_id)) if self.frame is not None else -1
     self._texture_needs_update = True
 
     # Reset state
@@ -386,19 +294,10 @@ class CameraView(Widget):
 
   def _initialize_textures(self):
     self._clear_textures()
-    if TICI:
-      self._create_egl_texture()
-    else:
-      self.texture_y = rl.load_texture_from_image(rl.Image(None, int(self.client.stride),
-        int(self.client.height), 1, rl.PixelFormat.PIXELFORMAT_UNCOMPRESSED_GRAYSCALE))
-      self.texture_uv = rl.load_texture_from_image(rl.Image(None, int(self.client.stride // 2),
-        int(self.client.height // 2), 1, rl.PixelFormat.PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA))
-
-  def _create_egl_texture(self):
-    # A fresh texture has no EGL image sibling from a previous camera client.
-    temp_image = rl.gen_image_color(1, 1, rl.BLACK)
-    self.egl_texture = rl.load_texture_from_image(temp_image)
-    rl.unload_image(temp_image)
+    self.texture_y = rl.load_texture_from_image(rl.Image(None, int(self.client.stride),
+      int(self.client.height), 1, rl.PixelFormat.PIXELFORMAT_UNCOMPRESSED_GRAYSCALE))
+    self.texture_uv = rl.load_texture_from_image(rl.Image(None, int(self.client.stride // 2),
+      int(self.client.height // 2), 1, rl.PixelFormat.PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA))
 
   def _clear_textures(self):
     if self.texture_y and self.texture_y.id:
@@ -408,17 +307,6 @@ class CameraView(Widget):
     if self.texture_uv and self.texture_uv.id:
       rl.unload_texture(self.texture_uv)
       self.texture_uv = None
-
-    # Delete the texture first. eglDestroyImageKHR only destroys the EGLImage
-    # handle; the image storage stays alive while a GL texture sibling exists.
-    if TICI:
-      if self.egl_texture and self.egl_texture.id:
-        rl.unload_texture(self.egl_texture)
-      self.egl_texture = None
-
-      for data in self.egl_images.values():
-        destroy_egl_image(data)
-      self.egl_images = {}
 
 
 if __name__ == "__main__":

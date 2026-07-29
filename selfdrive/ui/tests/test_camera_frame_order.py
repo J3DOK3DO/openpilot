@@ -21,7 +21,7 @@ def _camera_view(cameraview):
   return view
 
 
-@pytest.mark.parametrize("cameraview", [big_cameraview, mici_cameraview])
+@pytest.mark.parametrize("cameraview", [mici_cameraview])
 def test_reused_egl_slot_cannot_move_camera_backwards(monkeypatch, cameraview):
   monkeypatch.setattr(cameraview.cloudlog, "warning", lambda *_args, **_kwargs: None)
   view = _camera_view(cameraview)
@@ -40,7 +40,7 @@ def test_reused_egl_slot_cannot_move_camera_backwards(monkeypatch, cameraview):
   assert view._regressive_frame_count == 1
 
 
-@pytest.mark.parametrize("cameraview", [big_cameraview, mici_cameraview])
+@pytest.mark.parametrize("cameraview", [mici_cameraview])
 def test_newer_camera_frame_is_accepted(cameraview):
   view = _camera_view(cameraview)
   view._last_frame_id = 30
@@ -50,3 +50,10 @@ def test_newer_camera_frame_is_accepted(cameraview):
   assert view.frame is newer
   assert view._last_frame_id == 31
   assert view._texture_needs_update
+
+
+def test_big_camera_uses_raylib_compatible_texture_path():
+  assert "samplerExternalOES" not in big_cameraview.FRAME_FRAGMENT_SHADER
+  assert "uniform sampler2D texture0" in big_cameraview.FRAME_FRAGMENT_SHADER
+  assert "uniform sampler2D texture1" in big_cameraview.FRAME_FRAGMENT_SHADER
+  assert not hasattr(big_cameraview.CameraView, "_render_egl")
