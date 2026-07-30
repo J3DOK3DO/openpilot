@@ -143,6 +143,12 @@ class CarInterface(CarInterfaceBase):
         CarControllerParams.BOSCH_GAS_LOOKUP_BP = [-0.2, 2.0]
 
     elif candidate == CAR.HONDA_ACCORD_11G:
+      # MVL-derived Accord 11G baseline. CAN FD responds significantly faster
+      # than older radar-based Bosch platforms, especially below 3 m/s.
+      ret.longitudinalActuatorDelay = 0.05
+      ret.vEgoStopping = 0.5
+      ret.vEgoStarting = 0.5
+      ret.stoppingDecelRate = 0.1
       ret.steerActuatorDelay = 0.22
       ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560, 5200], [0, 2560, 12747]]
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)

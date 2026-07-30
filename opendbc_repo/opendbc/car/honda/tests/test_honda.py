@@ -275,3 +275,27 @@ class TestHondaFingerprint:
 
     assert hrv3g_cp.longitudinalActuatorDelay == pytest.approx(0.4)
     assert accord_cp.longitudinalActuatorDelay == pytest.approx(0.5)
+
+  def test_accord_11g_mvl_core_tuning(self):
+    toggles = get_test_toggles()
+    CP = CarInterface.get_params(CAR.HONDA_ACCORD_11G, gen_empty_fingerprint(), [], True, False, False, toggles)
+
+    assert CP.steerRatio == pytest.approx(16.7)
+    assert CP.steerActuatorDelay == pytest.approx(0.22)
+    assert CP.longitudinalActuatorDelay == pytest.approx(0.05)
+    assert CP.vEgoStopping == pytest.approx(0.5)
+    assert CP.vEgoStarting == pytest.approx(0.5)
+    assert CP.stoppingDecelRate == pytest.approx(0.1)
+    assert list(CP.lateralParams.torqueBP) == [0, 2560, 5200]
+    assert list(CP.lateralParams.torqueV) == [0, 2560, 12747]
+    assert CP.lateralTuning.which() == "torque"
+    assert CP.lateralTuning.torque.latAccelFactor == pytest.approx(3.0)
+    assert CP.lateralTuning.torque.friction == pytest.approx(0.16)
+
+  def test_accord_11g_2025_firmware_versions_are_recognized(self):
+    fw = FW_VERSIONS[CAR.HONDA_ACCORD_11G]
+
+    assert b'8S102-30A-A080\x00\x00' in fw[(CarParams.Ecu.fwdCamera, 0x18DAB5F1, None)]
+    assert b'5J802-30B-AB20\x00\x00' in fw[(CarParams.Ecu.gateway, 0x18DAEFF1, None)]
+    assert b'39991-30B-D010\x00\x00' in fw[(CarParams.Ecu.eps, 0x18DA30F1, None)]
+    assert b'46114-30A-A040\x00\x00' in fw[(CarParams.Ecu.electricBrakeBooster, 0x18DA2BF1, None)]
