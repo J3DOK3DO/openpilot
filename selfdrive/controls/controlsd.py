@@ -483,6 +483,9 @@ class Controls:
     else:
       new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
 
+    # MVL Accord uses the model/lateral-maneuver curvature directly (then lane centering + stock clip).
+    mvl_accord_raw_curvature = new_desired_curvature
+
     # Low-speed turn-intent hold (see CURVATURE_HOLD_* above). Curvature sign convention
     # here is positive for RIGHT turns (pauseturn log: left turn at +148 deg steering
     # angle logs desiredCurvature -0.07), so the blinker maps right=+1, left=-1.
@@ -635,6 +638,11 @@ class Controls:
             held_mag = min(lead_curvature * blinker_dir, abs(self.turn_hold_curvature) + CURVATURE_HOLD_RATCHET_RATE * DT_CTRL)
             self.turn_hold_curvature = math.copysign(held_mag, lead_curvature)
 
+    if self.mvl_accord_mode:
+      new_desired_curvature = mvl_accord_raw_curvature
+      self.turn_hold_curvature = 0.0
+      self.turn_hold_done = False
+
     new_desired_curvature = self.lane_centering.update(
       new_desired_curvature, model_v2, CS.vEgo,
       self.starpilot_toggles.lane_centering,
@@ -680,9 +688,14 @@ class Controls:
           jerk_factor = self.lc_arrest_jerk_factor + rise_alpha * (jerk_factor - self.lc_arrest_jerk_factor)
       self.lc_arrest_jerk_factor = jerk_factor
 
+    if self.mvl_accord_mode:
+      jerk_factor = 1.0
+
     self.desired_curvature, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll,
                                                                jerk_factor)
-    lat_smooth_seconds = get_control_lateral_smooth_seconds(self.CP.brand, CS.vEgo, self.CP.lateralSmoothSeconds)
+    lat_smooth_seconds = 0.0 if self.mvl_accord_mode else get_control_lateral_smooth_seconds(
+      self.CP.brand, CS.vEgo, self.CP.lateralSmoothSeconds
+    )
     lat_delay = self.sm["liveDelay"].lateralDelay + lat_smooth_seconds
 
     actuators.curvature = self.desired_curvature
