@@ -28,6 +28,7 @@ from openpilot.selfdrive.controls.lib.latcontrol_torque import (
   get_honda_accord_steer_ratio_scale,
 )
 from openpilot.selfdrive.controls.lib.longcontrol import LongControl
+from openpilot.selfdrive.controls.lib.mvl_accord_longcontrol import MVLAccordLongControl
 from openpilot.selfdrive.car.cruise_state import should_cancel_stock_cruise
 from openpilot.selfdrive.modeld.modeld import LAT_SMOOTH_SECONDS, get_car_lateral_smooth_seconds
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
@@ -344,7 +345,8 @@ class Controls:
     self.pose_calibrator = PoseCalibrator()
     self.calibrated_pose: Pose | None = None
 
-    self.LoC = LongControl(self.CP)
+    self.mvl_accord_mode = self.CP.carFingerprint == HONDA_CAR.HONDA_ACCORD_11G
+    self.LoC = MVLAccordLongControl(self.CP) if self.mvl_accord_mode else LongControl(self.CP)
     self.VM = VehicleModel(self.CP)
     self.LaC: LatControl
     if self.CP.steerControlType == car.CarParams.SteerControlType.angle:
@@ -462,13 +464,17 @@ class Controls:
     # accel PID loop
     pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, CS.vCruise * CV.KPH_TO_MS)
     self.LoC.experimental_mode = bool(self.sm['selfdriveState'].experimentalMode)
-    actuators.accel = float(min(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits,
-                                                self.starpilot_toggles, has_lead=long_plan.hasLead,
-                                                traffic_mode_enabled=self.sm['starpilotCarState'].trafficModeEnabled,
-                                                profile_max_accel=self.sm['starpilotPlan'].maxAcceleration,
-                                                pedal_override=tesla_pedal_override,
-                                                leads=(self.sm['radarState'].leadOne, self.sm['radarState'].leadTwo)),
-                                self.starpilot_toggles.max_desired_acceleration))
+    long_output = self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits,
+                                  self.starpilot_toggles, has_lead=long_plan.hasLead,
+                                  traffic_mode_enabled=self.sm['starpilotCarState'].trafficModeEnabled,
+                                  profile_max_accel=self.sm['starpilotPlan'].maxAcceleration,
+                                  pedal_override=tesla_pedal_override,
+                                  leads=(self.sm['radarState'].leadOne, self.sm['radarState'].leadTwo))
+    # MVL Accord uses its controller output directly; preserve StarPilot's global max-accel knob elsewhere.
+    actuators.accel = float(
+      long_output if self.mvl_accord_mode
+      else min(long_output, self.starpilot_toggles.max_desired_acceleration)
+    )
 
     # Steering PID loop and lateral MPC
     # Reset desired curvature to current to avoid violating the limits on engage
