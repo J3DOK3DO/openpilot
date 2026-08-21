@@ -17,6 +17,7 @@ from opendbc.car.honda.values import (
   HondaFlags,
 )
 from opendbc.car.interfaces import CarControllerBase
+from opendbc.car.common.pid import PIDController
 from openpilot.common.params import Params
 
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
@@ -243,6 +244,14 @@ class CarController(CarControllerBase):
     self.bosch_gas_factor_before_gasmax = self.bosch_gas_factor
     self.bosch_wind_factor_before_gasmax = self.bosch_wind_factor
     self.pitch = 0.0
+    self.mvl_accord_mode = CP.carFingerprint == CAR.HONDA_ACCORD_11G
+    # MVL low-speed extra-brake integrator. Accord 11G only.
+    self.mvl_brake_pid = PIDController(
+      k_p=0.0, k_i=1.0,
+      pos_limit=0.0, neg_limit=-2.0,
+      rate=50,
+    )
+    self.mvl_brake_pid.reset()
 
   def _modified_civic_standard_active(self) -> bool:
     return self.CP.carFingerprint == CAR.HONDA_CIVIC_BOSCH and bool(self.CP.flags & HondaFlags.EPS_MODIFIED)
@@ -264,6 +273,7 @@ class CarController(CarControllerBase):
     hud_v_cruise = hud_control.setSpeed / CS.v_cruise_factor if hud_control.speedVisible else 255
     pcm_cancel_cmd = CC.cruiseControl.cancel
     gas_interceptor_command = 0.0
+    min_gas = self.params.BOSCH_GAS_LOOKUP_BP[0]
     if len(CC.orientationNED) == 3:
       self.pitch = CC.orientationNED[1]
     hill_brake = math.sin(self.pitch) * ACCELERATION_DUE_TO_GRAVITY
@@ -422,23 +432,57 @@ class CarController(CarControllerBase):
         ts = self.frame * DT_CTRL
 
         if self.CP.carFingerprint in HONDA_BOSCH:
-          self.accel = float(np.clip(accel, self.params.BOSCH_ACCEL_MIN, self.params.BOSCH_ACCEL_MAX))
-          gas_pedal_force = self.accel + hill_brake
+          if self.mvl_accord_mode and (accel < min_gas) and (1e-3 < CS.out.vEgo < 3.0):
+            brake_addon = self.mvl_brake_pid.update(
+              error=accel - CS.out.aEgo,
+              speed=CS.out.vEgo,
+            )
+            target_accel = min(accel, accel + brake_addon)
+          else:
+            if self.mvl_accord_mode:
+              self.mvl_brake_pid.reset()
+            target_accel = accel
+
+          self.accel = float(np.clip(
+            target_accel,
+            self.params.BOSCH_ACCEL_MIN,
+            self.params.BOSCH_ACCEL_MAX,
+          ))
+
+          # Accord MVL uses requested accel rather than extra-brake-adjusted
+          # accel to determine the propulsion/braking crossover.
+          gas_pedal_force = (
+            accel if self.mvl_accord_mode else self.accel
+          ) + hill_brake
 
           if self.CP.carFingerprint not in HONDA_BOSCH_RADARLESS:
             gas_pedal_force += wind_brake_mps2 * self.bosch_wind_factor
 
             if actuators.longControlState == LongCtrlState.pid and not CS.out.gasPressed:
-              gas_error = self.accel - CS.out.aEgo
+              gas_error = (
+                accel if self.mvl_accord_mode else self.accel
+              ) - CS.out.aEgo
 
-              if gas_error != 0.0 and gas_pedal_force > 0.0:
+              # Preserve existing Dom threshold on non-Accord Bosch cars.
+              gas_learning_threshold = min_gas if self.mvl_accord_mode else 0.0
+              if gas_error != 0.0 and gas_pedal_force > gas_learning_threshold:
                 if self.CP.carFingerprint == CAR.HONDA_INSIGHT:
                   gas_learn_speed = 150.0
                 elif self.CP.carFingerprint in (CAR.ACURA_RDX_3G, CAR.ACURA_RDX_3G_MMR):
                   gas_learn_speed = 300.0
                 else:
                   gas_learn_speed = 50.0
-                self.bosch_gas_factor = float(np.clip(self.bosch_gas_factor + gas_error / gas_learn_speed * gas_pedal_force, 0.1, 3.0))
+                gas_factor_floor = 0.01 if self.mvl_accord_mode else 0.1
+                gas_learn_force = (
+                  gas_pedal_force - min_gas
+                  if self.mvl_accord_mode
+                  else gas_pedal_force
+                )
+                self.bosch_gas_factor = float(np.clip(
+                  self.bosch_gas_factor + gas_error / gas_learn_speed * gas_learn_force,
+                  gas_factor_floor,
+                  3.0,
+                ))
 
               if gas_error != 0.0 and not CS.out.brakePressed and CS.out.vEgo > 0.0:
                 wind_learn_speed = 100.0 if self.CP.carFingerprint in (CAR.ACURA_RDX_3G, CAR.ACURA_RDX_3G_MMR) else 1000.0
@@ -448,7 +492,8 @@ class CarController(CarControllerBase):
                 else:
                   self.bosch_wind_factor = float(np.clip(self.bosch_wind_factor / wind_adjust, 0.1, 3.0))
 
-              if gas_pedal_force <= 0.0:
+              wind_brake_threshold = min_gas if self.mvl_accord_mode else 0.0
+              if gas_pedal_force <= wind_brake_threshold:
                 self.bosch_wind_factor = max(self.bosch_wind_factor, self.bosch_wind_factor_before_brake)
               else:
                 self.bosch_wind_factor_before_brake = self.bosch_wind_factor
@@ -460,7 +505,16 @@ class CarController(CarControllerBase):
                 self.bosch_gas_factor_before_gasmax = self.bosch_gas_factor
                 self.bosch_wind_factor_before_gasmax = self.bosch_wind_factor
 
-          self.gas = float(np.interp(gas_pedal_force * self.bosch_gas_factor, self.params.BOSCH_GAS_LOOKUP_BP, self.params.BOSCH_GAS_LOOKUP_V))
+          gas_lookup_input = (
+            (gas_pedal_force - min_gas) * self.bosch_gas_factor + min_gas
+            if self.mvl_accord_mode
+            else gas_pedal_force * self.bosch_gas_factor
+          )
+          self.gas = float(np.interp(
+            gas_lookup_input,
+            self.params.BOSCH_GAS_LOOKUP_BP,
+            self.params.BOSCH_GAS_LOOKUP_V,
+          ))
           self.gas = min(self.gas, max(60.0, self.bosch_last_gas + 60.0))
           self.bosch_last_gas = self.gas
 
@@ -473,6 +527,7 @@ class CarController(CarControllerBase):
               hondacan.create_acc_commands(
                 self.packer, self.CAN, CC.enabled, CC.longActive,
                 self.accel, self.gas, self.stopping_counter, self.CP.carFingerprint,
+                gas_force=gas_pedal_force if self.mvl_accord_mode else None,
               )
             )
         else:
