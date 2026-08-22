@@ -1,4 +1,7 @@
 import math
+import threading
+from queue import Empty, Queue
+
 import numpy as np
 
 from opendbc.can import CANPacker
@@ -204,6 +207,39 @@ def process_hud_alert(hud_alert):
   return alert_fcw, alert_steer_required
 
 
+class HondaParamWriter:
+  def __init__(self, params=None):
+    self._params = Params() if params is None else params
+    self._queue = Queue()
+    self._thread = threading.Thread(
+      target=self._run,
+      name="honda-param-writer",
+      daemon=True,
+    )
+    self._thread.start()
+
+  def put_many(self, values):
+    self._queue.put({
+      key: float(value)
+      for key, value in values.items()
+    })
+
+  def _run(self):
+    while True:
+      pending = self._queue.get()
+
+      # Collapse delayed snapshots so only the newest queued
+      # value for each key is ultimately persisted.
+      try:
+        while True:
+          pending.update(self._queue.get_nowait())
+      except Empty:
+        pass
+
+      for key, value in pending.items():
+        self._params.put_float(key, value)
+
+
 LKAS_STATE_CHANGE_PULSE_FRAMES = 30
 
 
@@ -224,6 +260,7 @@ class CarController(CarControllerBase):
     self.packer = CANPacker(dbc_names[Bus.pt])
     self.params = CarControllerParams(CP)
     self.param_store = Params()
+    self.param_writer = HondaParamWriter()
     self.CAN = hondacan.CanBus(CP)
     self.tja_control = CP.carFingerprint in HONDA_BOSCH_TJA_CONTROL
 
@@ -683,8 +720,10 @@ class CarController(CarControllerBase):
       )
 
     if self.frame > 0 and self.frame % 6000 == 0:
-      self.param_store.put_float("HondaGasFactorParams", self.bosch_gas_factor)
-      self.param_store.put_float("HondaWindFactorParams", self.bosch_wind_factor)
+      self.param_writer.put_many({
+        "HondaGasFactorParams": self.bosch_gas_factor,
+        "HondaWindFactorParams": self.bosch_wind_factor,
+      })
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed
