@@ -1,4 +1,5 @@
 import re
+import threading
 from types import SimpleNamespace
 import pytest
 
@@ -8,6 +9,7 @@ from opendbc.car import gen_empty_fingerprint
 from opendbc.car.honda.interface import CarInterface
 from opendbc.car.honda.carcontroller import (
   CarController,
+  HondaParamWriter,
   update_accord11g_lkas_state_change,
   get_civic_bosch_modified_steering_pressed,
   get_civic_bosch_modified_torque_lpf_tau,
@@ -109,6 +111,35 @@ class TestHondaFingerprint:
       lkas_state_change=True,
     )
     assert cmds[0][2]["LKAS_STATE_CHANGE"] == 1
+
+  def test_honda_param_writer_persists_snapshot_asynchronously(self):
+    class FakeParams:
+      def __init__(self):
+        self.values = {}
+        self.complete = threading.Event()
+
+      def put_float(self, key, value):
+        self.values[key] = float(value)
+
+        if {
+          "HondaGasFactorParams",
+          "HondaWindFactorParams",
+        }.issubset(self.values):
+          self.complete.set()
+
+    params = FakeParams()
+    writer = HondaParamWriter(params=params)
+
+    assert writer._thread.daemon
+
+    writer.put_many({
+      "HondaGasFactorParams": 1.25,
+      "HondaWindFactorParams": 0.875,
+    })
+
+    assert params.complete.wait(1.0)
+    assert params.values["HondaGasFactorParams"] == pytest.approx(1.25)
+    assert params.values["HondaWindFactorParams"] == pytest.approx(0.875)
 
   def test_fw_version_format(self):
     # Asserts all FW versions follow an expected format
