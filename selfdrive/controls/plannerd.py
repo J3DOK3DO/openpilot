@@ -4,7 +4,7 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.controls.lib.ldw import LaneDepartureWarning
-from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
+from openpilot.selfdrive.controls.lib.mvl_accord_longitudinal import create_longitudinal_planner
 import cereal.messaging as messaging
 
 from openpilot.starpilot.common.starpilot_variables import get_starpilot_toggles
@@ -19,7 +19,7 @@ def main():
   cloudlog.info("plannerd got CarParams: %s", CP.brand)
 
   ldw = LaneDepartureWarning()
-  longitudinal_planner = LongitudinalPlanner(CP)
+  longitudinal_planner = create_longitudinal_planner(CP)
   pm = messaging.PubMaster(['longitudinalPlan', 'driverAssistance'])
   sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'liveParameters', 'radarState', 'modelV2', 'selfdriveState'],
                            poll='modelV2')
