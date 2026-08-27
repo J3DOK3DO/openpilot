@@ -38,6 +38,10 @@ from openpilot.selfdrive.controls.lib.mvl_accord_longitudinal import (
   create_long_control,
   is_mvl_accord,
 )
+from openpilot.selfdrive.controls.lib.mvl_accord_lateral import (
+  apply_mvl_accord_takeoff_guard,
+  update_mvl_accord_twitch_guard,
+)
 from openpilot.selfdrive.car.cruise_state import should_cancel_stock_cruise
 from openpilot.selfdrive.modeld.modeld import LAT_SMOOTH_SECONDS, get_car_lateral_smooth_seconds
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
@@ -406,6 +410,7 @@ class Controls:
     self.turn_hold_done = False
     self.turn_blinker_swept = 0.0
     self.twitch_guard_remaining = 0.0
+    self.mvl_accord_twitch_guard_remaining = 0.0
     self.kona_non_scc_lateral_active = False
 
     self.pose_calibrator = PoseCalibrator()
@@ -463,6 +468,10 @@ class Controls:
   def state_control(self):
     CS = self.sm['carState']
     self.twitch_guard_remaining = update_twitch_guard(self.twitch_guard_remaining, CS.vEgo, CS.standstill)
+    if self.mvl_accord_mode:
+      self.mvl_accord_twitch_guard_remaining = update_mvl_accord_twitch_guard(
+        self.mvl_accord_twitch_guard_remaining, CS.vEgo, CS.standstill,
+      )
 
     # Update VehicleModel
     lp = self.sm['liveParameters']
@@ -567,9 +576,19 @@ class Controls:
     # here is positive for RIGHT turns (pauseturn log: left turn at +148 deg steering
     # angle logs desiredCurvature -0.07), so the blinker maps right=+1, left=-1.
     blinker_dir = float(CS.rightBlinker) - float(CS.leftBlinker)
-    if (CC.latActive and self.twitch_guard_remaining > 0.0 and
-        blinker_dir == 0.0 and self.turn_hold_curvature == 0.0):
+    if self.mvl_accord_mode:
+      new_desired_curvature = apply_mvl_accord_takeoff_guard(
+        model_v2, new_desired_curvature, CS.vEgo, self.mvl_accord_twitch_guard_remaining,
+        blinker_active=blinker_dir != 0.0,
+        turn_hold_active=self.turn_hold_curvature != 0.0,
+        lane_change_active=model_v2.meta.laneChangeState != LaneChangeState.off,
+        lat_active=CC.latActive,
+      )
+    elif (CC.latActive and self.twitch_guard_remaining > 0.0 and
+          blinker_dir == 0.0 and self.turn_hold_curvature == 0.0):
       new_desired_curvature = limit_curvature_to_plan(model_v2, new_desired_curvature, CS.vEgo)
+    # Preserve the already-scaled model/action curvature before generic turn policy.
+    mvl_accord_raw_curvature = new_desired_curvature
     # heading swept in the blinker's direction over the whole blinker cycle (any speed):
     # discriminates a turn not yet made from one being exited (see the re-arm below)
     if blinker_dir == 0.0:
@@ -718,6 +737,11 @@ class Controls:
             held_mag = min(lead_curvature * blinker_dir, abs(self.turn_hold_curvature) + CURVATURE_HOLD_RATCHET_RATE * DT_CTRL)
             self.turn_hold_curvature = math.copysign(held_mag, lead_curvature)
 
+    if self.mvl_accord_mode:
+      new_desired_curvature = mvl_accord_raw_curvature
+      self.turn_hold_curvature = 0.0
+      self.turn_hold_done = False
+
     new_desired_curvature = self.lane_centering.update(
       new_desired_curvature, model_v2, CS.vEgo,
       self.starpilot_toggles.lane_centering,
@@ -763,9 +787,14 @@ class Controls:
           jerk_factor = self.lc_arrest_jerk_factor + rise_alpha * (jerk_factor - self.lc_arrest_jerk_factor)
       self.lc_arrest_jerk_factor = jerk_factor
 
+    if self.mvl_accord_mode:
+      jerk_factor = 1.0
+
     self.desired_curvature, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll,
                                                                jerk_factor)
-    lat_smooth_seconds = get_control_lateral_smooth_seconds(self.CP.brand, CS.vEgo, self.CP.lateralSmoothSeconds)
+    lat_smooth_seconds = 0.0 if self.mvl_accord_mode else get_control_lateral_smooth_seconds(
+      self.CP.brand, CS.vEgo, self.CP.lateralSmoothSeconds,
+    )
     lat_delay = self.sm["liveDelay"].lateralDelay + lat_smooth_seconds
 
     actuators.curvature = self.desired_curvature

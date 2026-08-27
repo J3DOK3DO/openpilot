@@ -29,8 +29,10 @@ from openpilot.common.transformations.model import get_warp_matrix
 from openpilot.system.camerad.cameras.nv12_info import get_nv12_info
 from openpilot.system import sentry
 from opendbc.car.car_helpers import get_demo_car_params
+from opendbc.car.honda.values import CAR as HONDA_CAR
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper
 from openpilot.selfdrive.controls.lib.drive_helpers import get_accel_from_plan_tomb_raider, smooth_value
+from openpilot.selfdrive.controls.lib.mvl_accord_lateral import scale_mvl_action_curvature
 from openpilot.selfdrive.modeld.camera_offset import CameraOffset, DEFAULT_CAMERA_HEIGHT
 from openpilot.selfdrive.modeld.parse_model_outputs import Parser
 from openpilot.selfdrive.modeld.fill_model_msg import fill_model_msg, fill_pose_msg, PublishState, get_curvature_from_output
@@ -245,11 +247,14 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                           lat_action_t: float, long_action_t: float, v_ego: float, mlsim: bool,
                           is_v9: bool, is_v14: bool, is_v15: bool, starpilot_toggles,
                           lat_smooth_seconds=LAT_SMOOTH_SECONDS, long_smooth_seconds=LONG_SMOOTH_SECONDS,
-                          is_v16: bool = False) -> log.ModelDataV2.Action:
+                          mvl_accord_mode: bool = False, is_v16: bool = False) -> log.ModelDataV2.Action:
     if is_v14 or is_v15 or is_v16:
       desired_curv_unscaled, desired_accel = model_output['action'][0]
       if is_v15 or is_v16:
-        desired_curvature = float(desired_curv_unscaled) / max(1.0, v_ego) ** 2
+        if mvl_accord_mode:
+          desired_curvature = scale_mvl_action_curvature(desired_curv_unscaled, v_ego)
+        else:
+          desired_curvature = float(desired_curv_unscaled) / max(1.0, v_ego) ** 2
       else:
         desired_curvature = float(desired_curv_unscaled) / 100.0
       should_stop = (v_ego < 0.3 and desired_accel < 0.1)
@@ -265,7 +270,7 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                                     shouldStop=bool(should_stop))
 
     plan = model_output['plan'][0]
-    if 'planplus' in model_output:
+    if 'planplus' in model_output and not mvl_accord_mode:
       recovery_power = getattr(starpilot_toggles, "recovery_power", 1.0)
       plan = plan + recovery_power * model_output['planplus'][0]
       cloudlog.error(f"planplus applied: shape {model_output['planplus'].shape}, RECOVERY_POWER {recovery_power}")
@@ -759,8 +764,9 @@ def main(demo=False):
   else:
     CP = messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams)
   cloudlog.info("modeld got CarParams: %s", CP.brand)
+  mvl_accord_mode = CP.carFingerprint == HONDA_CAR.HONDA_ACCORD_11G
 
-  lat_smooth_seconds = _model_smooth_seconds(params, "LatSmoothSeconds", LAT_SMOOTH_SECONDS)
+  lat_smooth_seconds = 0.0 if mvl_accord_mode else _model_smooth_seconds(params, "LatSmoothSeconds", LAT_SMOOTH_SECONDS)
   long_smooth_seconds = _model_smooth_seconds(params, "LongSmoothSeconds", LONG_SMOOTH_SECONDS)
   long_delay = CP.longitudinalActuatorDelay + long_smooth_seconds
   prev_action = log.ModelDataV2.Action()
@@ -812,8 +818,11 @@ def main(demo=False):
     v_ego = max(sm["carState"].vEgo, 0.)
     lat_smooth_default = CP.lateralSmoothSeconds if (CP.brand == "rivian" or CP.lateralSmoothSeconds > 0.0) else LAT_SMOOTH_SECONDS
     lat_smooth_maximum = _model_smooth_seconds(params, "LatSmoothSeconds", lat_smooth_default)
-    lat_smooth_seconds = get_car_lateral_smooth_seconds(CP.brand, v_ego, lat_smooth_maximum)
-    lat_delay = sm["liveDelay"].lateralDelay + lat_smooth_seconds
+    lat_smooth_seconds = 0.0 if mvl_accord_mode else get_car_lateral_smooth_seconds(CP.brand, v_ego, lat_smooth_maximum)
+    if mvl_accord_mode and not sm.seen['liveDelay']:
+      lat_delay = CP.steerActuatorDelay + 0.2
+    else:
+      lat_delay = sm["liveDelay"].lateralDelay + lat_smooth_seconds
     lateral_control_params = np.array([v_ego, lat_delay], dtype=np.float32)
     if sm.frame % 60 == 0:
       camera_offset.set_target(params.get_float("CameraOffset", return_default=True))
@@ -929,7 +938,7 @@ def main(demo=False):
         lat_action_t,
         long_action_t,
         v_ego, model.mlsim, model.is_v9, model.is_v14, model.is_v15, starpilot_toggles,
-        lat_smooth_seconds, long_smooth_seconds, is_v16=model.is_v16,
+        lat_smooth_seconds, long_smooth_seconds, mvl_accord_mode=mvl_accord_mode, is_v16=model.is_v16,
       )
       prev_action = action
       fill_model_msg(drivingdata_send, modelv2_send, model_output, action,
