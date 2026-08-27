@@ -204,6 +204,12 @@ def process_hud_alert(hud_alert):
   return alert_fcw, alert_steer_required
 
 
+def persist_honda_learned_params_nonblocking(params, gas_factor, wind_factor):
+  # Persist gas and wind factors asynchronously using put_nonblocking
+  params.put_nonblocking("HondaGasFactorParams", float(gas_factor))
+  params.put_nonblocking("HondaWindFactorParams", float(wind_factor))
+
+
 LKAS_STATE_CHANGE_PULSE_FRAMES = 30
 
 
@@ -623,8 +629,7 @@ class CarController(CarControllerBase):
       ))
 
     if self.frame > 0 and self.frame % 6000 == 0:
-      self.param_store.put_float("HondaGasFactorParams", self.bosch_gas_factor)
-      self.param_store.put_float("HondaWindFactorParams", self.bosch_wind_factor)
+      persist_honda_learned_params_nonblocking(self.param_store, self.bosch_gas_factor, self.bosch_wind_factor)
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed
