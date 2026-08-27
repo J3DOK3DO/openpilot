@@ -12,6 +12,7 @@ from opendbc.car.honda.carcontroller import (
   get_civic_bosch_modified_torque_lpf_tau,
   get_honda_bosch_wind_brake_mps2,
   update_honda_bosch_live_learning,
+  update_accord11g_lkas_state_change,
 )
 from opendbc.car.honda.hondacan import create_lkas_hud
 from opendbc.car.honda.fingerprints import FW_VERSIONS
@@ -38,6 +39,76 @@ class TestHondaFingerprint:
     cmds = create_lkas_hud(FakePacker(), 0, CP, hud_control, True, True, False, False, {})
 
     assert cmds[0][2]["SOLID_LANES"] is True
+
+  def test_accord11g_lkas_state_change_pulse(self):
+    key = None
+    frames = 0
+    hud_key = (False, False)
+
+    # First observed state starts one stock-style 3-second pulse.
+    key, frames, state_change = update_accord11g_lkas_state_change(
+      key, frames, hud_key
+    )
+
+    assert state_change
+    assert frames == 29
+
+    # Remaining 29 10-Hz messages stay high.
+    for _ in range(29):
+      key, frames, state_change = update_accord11g_lkas_state_change(
+        key, frames, hud_key
+      )
+      assert state_change
+
+    assert frames == 0
+
+    # Unchanged state is normally low afterward.
+    key, frames, state_change = update_accord11g_lkas_state_change(
+      key, frames, hud_key
+    )
+
+    assert not state_change
+    assert frames == 0
+
+    # A real HUD-state transition retriggers the pulse.
+    key, frames, state_change = update_accord11g_lkas_state_change(
+      key, frames, (True, False)
+    )
+
+    assert state_change
+    assert frames == 29
+
+  def test_accord11g_lkas_hud_dynamic_state_change(self):
+    class FakePacker:
+      @staticmethod
+      def make_can_msg(name, bus, values):
+        return name, bus, values
+
+    CP = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+    hud_control = SimpleNamespace(lanesVisible=True)
+
+    # Existing/default behavior remains high.
+    cmds = create_lkas_hud(
+      FakePacker(), 0, CP, hud_control,
+      True, True, False, False, {}
+    )
+    assert cmds[0][2]["LKAS_STATE_CHANGE"] == 1
+
+    # Accord controller may explicitly hold it low.
+    cmds = create_lkas_hud(
+      FakePacker(), 0, CP, hud_control,
+      True, True, False, False, {},
+      lkas_state_change=False,
+    )
+    assert cmds[0][2]["LKAS_STATE_CHANGE"] == 0
+
+    # And pulse it high.
+    cmds = create_lkas_hud(
+      FakePacker(), 0, CP, hud_control,
+      True, True, False, False, {},
+      lkas_state_change=True,
+    )
+    assert cmds[0][2]["LKAS_STATE_CHANGE"] == 1
 
   def test_fw_version_format(self):
     # Asserts all FW versions follow an expected format
