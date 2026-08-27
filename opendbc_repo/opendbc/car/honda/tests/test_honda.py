@@ -8,6 +8,7 @@ from opendbc.car import gen_empty_fingerprint
 from opendbc.car.honda.interface import CarInterface
 from opendbc.car.honda.carcontroller import (
   CarController,
+  persist_honda_learned_params_nonblocking,
   get_civic_bosch_modified_steering_pressed,
   get_civic_bosch_modified_torque_lpf_tau,
   get_honda_bosch_wind_brake_mps2,
@@ -317,6 +318,31 @@ class TestHondaFingerprint:
 
     assert controller.bosch_gas_factor == pytest.approx(1.25)
     assert controller.bosch_wind_factor == pytest.approx(0.85)
+
+  def test_honda_param_writer_persists_snapshot_asynchronously(self):
+    class FakeParams:
+      def __init__(self):
+        self.values = []
+        self.put_nonblocking_called = False
+
+      def put_nonblocking(self, key, value):
+        self.put_nonblocking_called = True
+        self.values.append((key, float(value)))
+
+      def put_float(self, key, value):
+        # This should never be called in our test
+        raise AssertionError("put_float should not be called")
+
+    params = FakeParams()
+
+    # Test the helper function directly
+    persist_honda_learned_params_nonblocking(params, 1.25, 0.875)
+
+    # Verify exactly two calls in order with correct values
+    assert len(params.values) == 2
+    assert params.values[0] == ("HondaGasFactorParams", 1.25)
+    assert params.values[1] == ("HondaWindFactorParams", 0.875)
+    assert params.put_nonblocking_called
 
   def test_honda_bosch_controller_does_not_deepen_planner_braking(self, monkeypatch):
     toggles = get_test_toggles()
