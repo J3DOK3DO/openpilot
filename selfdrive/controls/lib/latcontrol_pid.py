@@ -100,6 +100,7 @@ class LatControlPID(LatControl):
     self.ff_factor = CP.lateralTuning.pid.kf
     self.get_steer_feedforward = CI.get_steer_feedforward_function()
     self.is_honda_pid_lateral = CP.brand == "honda"
+    self.is_accord_11g = CP.carFingerprint == HONDA.HONDA_ACCORD_11G
     self.honda_lateral_pid_kp_scale = 1.0
     self.honda_lateral_pid_ki_scale = 1.0
     self.is_civic_bosch_modified = CP.carFingerprint == HONDA.HONDA_CIVIC_BOSCH and bool(CP.flags & HondaFlags.EPS_MODIFIED)
@@ -114,8 +115,12 @@ class LatControlPID(LatControl):
     if not self.is_honda_pid_lateral:
       return
 
-    kp_scale = get_honda_lateral_pid_gain_scale(getattr(starpilot_toggles, "honda_lateral_pid_kp_scale", 1.0))
-    ki_scale = get_honda_lateral_pid_gain_scale(getattr(starpilot_toggles, "honda_lateral_pid_ki_scale", 1.0))
+    if self.is_accord_11g:
+      kp_scale = 1.0
+      ki_scale = 1.0
+    else:
+      kp_scale = get_honda_lateral_pid_gain_scale(getattr(starpilot_toggles, "honda_lateral_pid_kp_scale", 1.0))
+      ki_scale = get_honda_lateral_pid_gain_scale(getattr(starpilot_toggles, "honda_lateral_pid_ki_scale", 1.0))
     if math.isclose(kp_scale, self.honda_lateral_pid_kp_scale) and math.isclose(ki_scale, self.honda_lateral_pid_ki_scale):
       return
 
