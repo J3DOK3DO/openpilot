@@ -28,6 +28,12 @@ ACCORD11G_BRAKE_PID_DECEL_THRESHOLD = 1e-3
 ACCORD11G_BRAKE_PID_MIN_SPEED = 1e-3
 ACCORD11G_BRAKE_PID_MAX_SPEED = 3.0
 ACCORD11G_BRAKE_PID_RELEASE_PER_UPDATE = 0.02
+ACCORD11G_GASALPHA_MIN = 0.0
+ACCORD11G_GASALPHA_MAX = 0.4
+ACCORD11G_GASALPHA_MIN_SPEED = 1.0
+ACCORD11G_GASALPHA_LEARN_FORCE_MIN = -0.5
+ACCORD11G_GASALPHA_LEARN_FORCE_MAX = 0.1
+ACCORD11G_GASALPHA_LEARN_SPEED = 50.0
 
 
 def get_civic_bosch_modified_torque_lpf_tau(torque_cmd: float, prev_torque_cmd: float, v_ego: float) -> float:
@@ -124,6 +130,65 @@ def update_accord11g_low_speed_brake_pid(
     brake_addon = brake_pid.i
 
   return min(accel, accel + brake_addon)
+
+
+def load_accord11g_gasalpha(params) -> float:
+  try:
+    gasalpha = float(params.get_float("HondaGasAlphaParams", default=0.0))
+  except (TypeError, ValueError):
+    return ACCORD11G_GASALPHA_MIN
+  if not math.isfinite(gasalpha):
+    return ACCORD11G_GASALPHA_MIN
+  return float(np.clip(gasalpha, ACCORD11G_GASALPHA_MIN, ACCORD11G_GASALPHA_MAX))
+
+
+def update_accord11g_gasalpha(
+  gasalpha: float,
+  desired_accel: float,
+  actual_accel: float,
+  gas_force_without_alpha: float,
+  v_ego: float,
+  long_active: bool,
+  pid_active: bool,
+  gas_pressed: bool,
+  brake_pressed: bool,
+  in_reverse: bool,
+  retained_brake_active: bool,
+) -> float:
+  values = (gasalpha, desired_accel, actual_accel, gas_force_without_alpha, v_ego)
+  if not all(math.isfinite(value) for value in values):
+    return float(np.clip(gasalpha, ACCORD11G_GASALPHA_MIN, ACCORD11G_GASALPHA_MAX)) if math.isfinite(gasalpha) else 0.0
+
+  eligible = (
+    long_active
+    and pid_active
+    and not gas_pressed
+    and not brake_pressed
+    and not in_reverse
+    and not retained_brake_active
+    and v_ego > ACCORD11G_GASALPHA_MIN_SPEED
+    and ACCORD11G_GASALPHA_LEARN_FORCE_MIN < gas_force_without_alpha < ACCORD11G_GASALPHA_LEARN_FORCE_MAX
+  )
+  if not eligible:
+    return float(np.clip(gasalpha, ACCORD11G_GASALPHA_MIN, ACCORD11G_GASALPHA_MAX))
+
+  gas_error = desired_accel - actual_accel
+  return float(np.clip(
+    gasalpha + gas_error / ACCORD11G_GASALPHA_LEARN_SPEED / 10.0,
+    ACCORD11G_GASALPHA_MIN,
+    ACCORD11G_GASALPHA_MAX,
+  ))
+
+
+def apply_accord11g_gasalpha(gas_force_without_alpha: float, gasalpha: float, retained_brake_active: bool) -> float:
+  # Preserve the exact NATIVE-13 command until its retained negative correction has released.
+  return gas_force_without_alpha if retained_brake_active else gas_force_without_alpha + gasalpha
+
+
+def get_honda_bosch_gas_lookup_input(gas_pedal_force: float, gas_factor: float, min_gas: float, accord11g: bool) -> float:
+  if accord11g:
+    return gas_pedal_force * gas_factor
+  return (gas_pedal_force - min_gas) * gas_factor + min_gas
 
 
 def update_honda_bosch_live_learning(
@@ -234,8 +299,9 @@ def process_hud_alert(hud_alert):
   return alert_fcw, alert_steer_required
 
 
-def persist_honda_learned_params_nonblocking(params, gas_factor, wind_factor):
-  # Persist gas and wind factors asynchronously using put_nonblocking
+def persist_honda_learned_params_nonblocking(params, gasalpha, gas_factor, wind_factor):
+  # Persist learned factors asynchronously using put_nonblocking.
+  params.put_nonblocking("HondaGasAlphaParams", float(gasalpha))
   params.put_nonblocking("HondaGasFactorParams", float(gas_factor))
   params.put_nonblocking("HondaWindFactorParams", float(wind_factor))
 
@@ -300,6 +366,7 @@ class CarController(CarControllerBase):
     self.bosch_wind_factor_before_gasmax = self.bosch_wind_factor
     self.pitch = 0.0
     self.mvl_accord_mode = CP.carFingerprint == CAR.HONDA_ACCORD_11G
+    self.bosch_gasalpha = load_accord11g_gasalpha(self.param_store) if self.mvl_accord_mode else 0.0
     # MVL Bosch low-speed extra-brake integrator. Active only for Accord 11G MVL mode.
     self.mvl_brake_pid = PIDController(k_p=0.0, k_i=1.0, pos_limit=0.0, neg_limit=-2.0, rate=50)
     self.mvl_brake_pid.reset()
@@ -483,6 +550,24 @@ class CarController(CarControllerBase):
           if self.CP.carFingerprint not in HONDA_BOSCH_RADARLESS:
             gas_pedal_force += wind_brake_mps2 * self.bosch_wind_factor
 
+            if self.mvl_accord_mode:
+              self.bosch_gasalpha = update_accord11g_gasalpha(
+                self.bosch_gasalpha,
+                accel,
+                CS.out.aEgo,
+                gas_pedal_force,
+                CS.out.vEgo,
+                CC.longActive,
+                actuators.longControlState == LongCtrlState.pid,
+                CS.out.gasPressed,
+                CS.out.brakePressed,
+                CS.out.gearShifter == structs.CarState.GearShifter.reverse,
+                self.mvl_brake_pid.i < 0.0,
+              )
+              gas_pedal_force = apply_accord11g_gasalpha(
+                gas_pedal_force, self.bosch_gasalpha, self.mvl_brake_pid.i < 0.0,
+              )
+
             if actuators.longControlState == LongCtrlState.pid and not CS.out.gasPressed:
               gas_error = (accel if self.mvl_accord_mode else self.accel) - CS.out.aEgo
 
@@ -521,8 +606,9 @@ class CarController(CarControllerBase):
                 self.bosch_gas_factor_before_gasmax = self.bosch_gas_factor
                 self.bosch_wind_factor_before_gasmax = self.bosch_wind_factor
 
-          gas_lookup_input = ((gas_pedal_force - min_gas) * self.bosch_gas_factor + min_gas) if self.mvl_accord_mode else \
-                             gas_pedal_force * self.bosch_gas_factor
+          gas_lookup_input = get_honda_bosch_gas_lookup_input(
+            gas_pedal_force, self.bosch_gas_factor, min_gas, self.mvl_accord_mode,
+          )
           self.gas = float(np.interp(gas_lookup_input, self.params.BOSCH_GAS_LOOKUP_BP, self.params.BOSCH_GAS_LOOKUP_V))
           self.gas = min(self.gas, max(60.0, self.bosch_last_gas + 60.0))
           self.bosch_last_gas = self.gas
@@ -660,7 +746,9 @@ class CarController(CarControllerBase):
       ))
 
     if self.frame > 0 and self.frame % 6000 == 0:
-      persist_honda_learned_params_nonblocking(self.param_store, self.bosch_gas_factor, self.bosch_wind_factor)
+      persist_honda_learned_params_nonblocking(
+        self.param_store, self.bosch_gasalpha, self.bosch_gas_factor, self.bosch_wind_factor,
+      )
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed
