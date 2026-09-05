@@ -92,6 +92,67 @@ def test_accord11g_native_longcontrol_stopping_ramp_hold_release_and_off():
   assert controller.long_control_state == LongCtrlState.off
 
 
+def test_accord11g_leaving_experimental_slews_positive_accel_and_freezes_integral():
+  CP = make_cp()
+  CP.longitudinalTuning.kiV = [1.0]
+  controller = LongControl(CP)
+  controller.long_control_state = LongCtrlState.pid
+  controller.current_mode = "blended"
+  controller.prev_mode = "acc"
+  controller.experimental_mode = False
+  controller.last_output_accel = 0.05
+  controller.pid.i = 0.4
+  integral_before = controller.pid.i
+
+  output = controller.update(
+    True, make_car_state(v_ego=20.0, a_ego=0.05), 1.5, False,
+    [-3.0, 2.0], object(),
+  )
+
+  assert controller.current_mode == "acc"
+  assert controller.transitioning
+  assert output > 0.05
+  assert output < 0.25
+  assert controller.pid.i == pytest.approx(integral_before)
+
+
+def test_accord11g_leaving_experimental_allows_stronger_braking_immediately():
+  controller = LongControl(make_cp())
+  controller.long_control_state = LongCtrlState.pid
+  controller.current_mode = "blended"
+  controller.prev_mode = "acc"
+  controller.experimental_mode = False
+  controller.last_output_accel = 0.2
+
+  output = controller.update(
+    True, make_car_state(v_ego=20.0, a_ego=0.0), -1.0, False,
+    [-3.0, 2.0], object(),
+  )
+
+  assert controller.transitioning
+  assert output == pytest.approx(-1.0)
+
+
+def test_accord11g_leaving_experimental_transition_timer_progresses():
+  controller = LongControl(make_cp())
+  controller.long_control_state = LongCtrlState.pid
+  controller.current_mode = "blended"
+  controller.experimental_mode = False
+  CS = make_car_state(v_ego=20.0)
+
+  controller.update(True, CS, 0.5, False, [-3.0, 2.0], object())
+  first = controller.mode_transition_timer
+  controller.update(True, CS, 0.5, False, [-3.0, 2.0], object())
+
+  assert first == pytest.approx(DT_CTRL)
+  assert controller.mode_transition_timer == pytest.approx(2.0 * DT_CTRL)
+
+  for _ in range(int(controller.mode_transition_duration / DT_CTRL)):
+    controller.update(True, CS, 0.5, False, [-3.0, 2.0], object())
+
+  assert not controller.transitioning
+
+
 def test_non_accord_longcontrol_remains_on_native_dom_path():
   civic = LongControl(make_cp(fingerprint=HONDA_CAR.HONDA_CIVIC_BOSCH))
   assert not civic.honda_accord_11g
