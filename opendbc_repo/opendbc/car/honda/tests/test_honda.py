@@ -9,8 +9,13 @@ from opendbc.car.honda.carstate import CarState
 from opendbc.car.honda.interface import CarInterface
 from opendbc.car.honda.carcontroller import (
   ACCORD11G_BRAKE_PID_DECEL_THRESHOLD,
+  ACCORD11G_GASALPHA_MAX,
   CarController,
+  apply_accord11g_gasalpha,
+  get_honda_bosch_gas_lookup_input,
+  load_accord11g_gasalpha,
   persist_honda_learned_params_nonblocking,
+  update_accord11g_gasalpha,
   update_accord11g_low_speed_brake_pid,
   get_civic_bosch_modified_steering_pressed,
   get_civic_bosch_modified_torque_lpf_tau,
@@ -18,7 +23,7 @@ from opendbc.car.honda.carcontroller import (
   update_honda_bosch_live_learning,
   update_accord11g_lkas_state_change,
 )
-from opendbc.car.honda.hondacan import create_lkas_hud
+from opendbc.car.honda.hondacan import create_acc_commands, create_lkas_hud
 from opendbc.car.honda.fingerprints import FW_VERSIONS
 from opendbc.car.honda.values import CAR, DBC, HONDA_BOSCH, HONDA_BOSCH_TJA_CONTROL, CarControllerParams, HondaFlags, HondaSafetyFlags, \
                                      HondaStarPilotFlags
@@ -428,6 +433,8 @@ class TestHondaFingerprint:
       def get_float(self, key, block=False, return_default=False, default=0.0):
         if key == "HondaGasFactorParams":
           return 1.25
+        if key == "HondaGasAlphaParams":
+          return 0.2
         if key == "HondaWindFactorParams":
           return 0.85
         return default
@@ -437,8 +444,116 @@ class TestHondaFingerprint:
     CP = CarInterface.get_params(CAR.HONDA_ACCORD, gen_empty_fingerprint(), [], True, False, False, toggles)
     controller = CarController(DBC[CP.carFingerprint], CP)
 
+    assert controller.bosch_gasalpha == pytest.approx(0.0)
     assert controller.bosch_gas_factor == pytest.approx(1.25)
     assert controller.bosch_wind_factor == pytest.approx(0.85)
+
+    CP = CarInterface.get_params(CAR.HONDA_ACCORD_11G, gen_empty_fingerprint(), [], True, False, False, toggles)
+    controller = CarController(DBC[CP.carFingerprint], CP)
+    assert controller.bosch_gasalpha == pytest.approx(0.2)
+
+  @pytest.mark.parametrize(("stored", "expected"), [
+    (-1.0, 0.0),
+    (0.0, 0.0),
+    (0.2, 0.2),
+    (1.0, ACCORD11G_GASALPHA_MAX),
+    (float("nan"), 0.0),
+    (float("inf"), 0.0),
+  ])
+  def test_accord11g_gasalpha_load_is_finite_and_bounded(self, stored, expected):
+    params = SimpleNamespace(get_float=lambda *args, **kwargs: stored)
+    assert load_accord11g_gasalpha(params) == pytest.approx(expected)
+
+  @pytest.mark.parametrize("stored", [None, "", "not-a-number"])
+  def test_accord11g_gasalpha_load_rejects_missing_or_malformed_values(self, stored):
+    params = SimpleNamespace(get_float=lambda *args, **kwargs: stored)
+    assert load_accord11g_gasalpha(params) == pytest.approx(0.0)
+
+  @pytest.mark.parametrize("blocked", [
+    "long_inactive", "pid_inactive", "gas_pressed", "brake_pressed", "reverse", "too_slow", "force_low", "force_high",
+    "retained_brake",
+  ])
+  def test_accord11g_gasalpha_learning_guards(self, blocked):
+    kwargs = dict(
+      gasalpha=0.2, desired_accel=0.1, actual_accel=0.0, gas_force_without_alpha=0.0,
+      v_ego=2.0, long_active=True, pid_active=True, gas_pressed=False, brake_pressed=False, in_reverse=False,
+      retained_brake_active=False,
+    )
+    overrides = {
+      "long_inactive": ("long_active", False),
+      "pid_inactive": ("pid_active", False),
+      "gas_pressed": ("gas_pressed", True),
+      "brake_pressed": ("brake_pressed", True),
+      "reverse": ("in_reverse", True),
+      "too_slow": ("v_ego", 1.0),
+      "force_low": ("gas_force_without_alpha", -0.5),
+      "force_high": ("gas_force_without_alpha", 0.1),
+      "retained_brake": ("retained_brake_active", True),
+    }
+    key, value = overrides[blocked]
+    kwargs[key] = value
+    assert update_accord11g_gasalpha(**kwargs) == pytest.approx(0.2)
+
+  def test_accord11g_gasalpha_learning_direction_and_bounds(self):
+    common = dict(gas_force_without_alpha=0.0, v_ego=2.0, long_active=True, pid_active=True,
+                  gas_pressed=False, brake_pressed=False, in_reverse=False, retained_brake_active=False)
+    increased = update_accord11g_gasalpha(0.2, 0.2, 0.0, **common)
+    decreased = update_accord11g_gasalpha(0.2, -0.2, 0.0, **common)
+    upper = update_accord11g_gasalpha(ACCORD11G_GASALPHA_MAX, 10.0, 0.0, **common)
+    lower = update_accord11g_gasalpha(0.0, -10.0, 0.0, **common)
+    assert increased > 0.2
+    assert decreased < 0.2
+    assert upper == pytest.approx(ACCORD11G_GASALPHA_MAX)
+    assert lower == pytest.approx(0.0)
+
+  def test_accord11g_gasalpha_zero_error_does_not_learn(self):
+    value = update_accord11g_gasalpha(
+      0.2, 0.0, 0.0, 0.0, 2.0, True, True, False, False, False, False,
+    )
+    assert value == pytest.approx(0.2)
+
+  @pytest.mark.parametrize("gas_factor", [0.5, 1.0, 1.5])
+  def test_accord11g_gas_lookup_zero_anchor_is_monotonic(self, gas_factor):
+    forces = [-0.1, 0.0, 0.05, 0.2, 1.0]
+    inputs = [get_honda_bosch_gas_lookup_input(force, gas_factor, -0.2, True) for force in forces]
+    assert inputs == sorted(inputs)
+    assert inputs[1] == pytest.approx(0.0)
+
+  def test_non_accord_gas_lookup_retains_legacy_anchor(self):
+    assert get_honda_bosch_gas_lookup_input(0.0, 1.5, -0.2, False) == pytest.approx(0.1)
+    assert get_honda_bosch_gas_lookup_input(0.0, 1.5, -0.2, True) == pytest.approx(0.0)
+
+  def test_accord11g_gasalpha_preserves_retained_brake_before_propulsion(self):
+    pid = FakeBrakePid(i=-0.4)
+    retained_target = update_accord11g_low_speed_brake_pid(
+      pid, accel=0.1, actual_accel=0.0, v_ego=1.0,
+      active_accel_threshold=-0.2, long_active=True,
+    )
+    gas_force = apply_accord11g_gasalpha(retained_target, 0.2, pid.i < 0.0)
+    assert retained_target < 0.0
+    assert gas_force == pytest.approx(retained_target)
+    assert apply_accord11g_gasalpha(-0.01, 0.2, True) == pytest.approx(-0.01)
+    assert apply_accord11g_gasalpha(-0.01, 0.2, False) == pytest.approx(0.19)
+
+  @pytest.mark.parametrize(("fingerprint", "gas_force", "gas_expected", "brake_expected"), [
+    (CAR.HONDA_ACCORD_11G, -0.01, -30000, 1),
+    (CAR.HONDA_ACCORD_11G, 0.0, -30000, 0),
+    (CAR.HONDA_ACCORD_11G, 0.01, 123, 0),
+    (CAR.HONDA_CIVIC_BOSCH, -0.1, 123, 0),
+  ])
+  def test_accord11g_acc_command_uses_zero_anchor_only(self, monkeypatch, fingerprint, gas_force, gas_expected, brake_expected):
+    class FakePacker:
+      def make_can_msg(self, name, bus, values):
+        return name, bus, values
+
+    monkeypatch.setattr(CarControllerParams, "BOSCH_GAS_LOOKUP_BP", [-0.2, 2.0])
+    commands = create_acc_commands(
+      FakePacker(), SimpleNamespace(pt=1), True, True, 0.0, 123, 0,
+      SimpleNamespace(carFingerprint=fingerprint), gas_force=gas_force,
+    )
+    values = commands[1][2]
+    assert values["GAS_COMMAND"] == gas_expected
+    assert values["BRAKE_REQUEST"] == brake_expected
 
   def test_honda_param_writer_persists_snapshot_asynchronously(self):
     class FakeParams:
@@ -457,12 +572,13 @@ class TestHondaFingerprint:
     params = FakeParams()
 
     # Test the helper function directly
-    persist_honda_learned_params_nonblocking(params, 1.25, 0.875)
+    persist_honda_learned_params_nonblocking(params, 0.2, 1.25, 0.875)
 
-    # Verify exactly two calls in order with correct values
-    assert len(params.values) == 2
-    assert params.values[0] == ("HondaGasFactorParams", 1.25)
-    assert params.values[1] == ("HondaWindFactorParams", 0.875)
+    # Verify exactly three calls in order with correct values.
+    assert len(params.values) == 3
+    assert params.values[0] == ("HondaGasAlphaParams", 0.2)
+    assert params.values[1] == ("HondaGasFactorParams", 1.25)
+    assert params.values[2] == ("HondaWindFactorParams", 0.875)
     assert params.put_nonblocking_called
 
   def test_honda_bosch_controller_does_not_deepen_planner_braking(self, monkeypatch):
