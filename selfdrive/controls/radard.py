@@ -16,11 +16,13 @@ from openpilot.common.simple_kalman import KF1D
 from openpilot.selfdrive.controls.lib.desire_helper import LaneChangeDirection, LaneChangeState
 from openpilot.starpilot.common.starpilot_variables import get_starpilot_toggles
 from opendbc.car.honda.radar_interface import BOSCH_A_FREQ_HZ
-from opendbc.car.honda.values import HONDA_BOSCH_A
+from opendbc.car.honda.values import CAR as HONDA_CAR, HONDA_BOSCH_A
 
 
 # Default lead acceleration decay set to 50% at 1s
 _LEAD_ACCEL_TAU = 0.6
+HONDA_ACCORD_11G_LEAD_ACCEL_TAU = 1.5
+HONDA_ACCORD_11G_MODEL_LEAD_PROBABILITY = 0.5
 
 # radar tracks
 SPEED, ACCEL = 0, 1     # Kalman filter states enum
@@ -41,6 +43,10 @@ HONDA_BOSCH_A_GROSS_DISTANCE_M = 25.0
 
 def is_bosch_a_radar_car(CP) -> bool:
   return CP.brand == "honda" and CP.carFingerprint in HONDA_BOSCH_A and not CP.radarUnavailable
+
+
+def is_honda_accord_11g_radar_car(CP) -> bool:
+  return CP.brand == "honda" and CP.carFingerprint == HONDA_CAR.HONDA_ACCORD_11G
 
 
 def has_slow_radar_tracks(CP) -> bool:
@@ -83,10 +89,13 @@ class KalmanParams:
 
 
 class Track:
-  def __init__(self, identifier: int, v_lead: float, kalman_params: KalmanParams):
+  def __init__(self, identifier: int, v_lead: float, kalman_params: KalmanParams,
+               honda_accord_11g_radar: bool = False):
     self.identifier = identifier
     self.cnt = 0
-    self.aLeadTau = FirstOrderFilter(_LEAD_ACCEL_TAU, 0.45, DT_MDL)
+    self.honda_accord_11g_radar = honda_accord_11g_radar
+    lead_accel_tau = HONDA_ACCORD_11G_LEAD_ACCEL_TAU if honda_accord_11g_radar else _LEAD_ACCEL_TAU
+    self.aLeadTau = FirstOrderFilter(lead_accel_tau, 0.45, DT_MDL)
     self.K_A = kalman_params.A
     self.K_C = kalman_params.C
     self.K_K = kalman_params.K
@@ -125,7 +134,9 @@ class Track:
 
     if measurement_update:
       # Learn if constant acceleration
-      if abs(self.aLeadK) < 0.5:
+      if self.honda_accord_11g_radar:
+        update_honda_accord_11g_accel_tau(self.aLeadTau, self.aLeadK)
+      elif abs(self.aLeadK) < 0.5:
         self.aLeadTau.x = min(max(self.aLeadTau.x, 1e-2) * 1.1, _LEAD_ACCEL_TAU)
       else:
         self.aLeadTau.update(0.0)
@@ -220,12 +231,99 @@ def laplacian_pdf(x: float, mu: float, b: float):
   return math.exp(-abs(x-mu)/b)
 
 
+def update_honda_accord_11g_accel_tau(a_lead_tau, a_lead_k: float) -> None:
+  if abs(a_lead_k) < 0.5:
+    a_lead_tau.x = HONDA_ACCORD_11G_LEAD_ACCEL_TAU
+  else:
+    a_lead_tau.update(0.0)
+
+
 def vision_track_probability(track: Track, lead: capnp._DynamicStructReader, v_ego: float) -> float:
   offset_vision_dist = lead.x[0] - RADAR_TO_CAMERA
   prob_d = laplacian_pdf(track.dRel, offset_vision_dist, lead.xStd[0])
   prob_y = laplacian_pdf(track.yRel, -lead.y[0], lead.yStd[0])
   prob_v = laplacian_pdf(track.vRel + v_ego, lead.v[0], lead.vStd[0])
   return prob_d * prob_y * prob_v
+
+
+def match_honda_accord_11g_vision_to_track(v_ego: float, lead, tracks: dict[int, Track]):
+  """Validated Accord association without DOM preferred-track shaping."""
+  if not tracks:
+    return None
+
+  offset_vision_dist = lead.x[0] - RADAR_TO_CAMERA
+  track = max(tracks.values(), key=lambda candidate: vision_track_probability(candidate, lead, v_ego))
+
+  dist_sane = abs(track.dRel - offset_vision_dist) < max(offset_vision_dist * 0.25, 5.0)
+  vel_sane = abs(track.vRel + v_ego - lead.v[0]) < 10.0 or v_ego + track.vRel > 3.0
+
+  return track if dist_sane and vel_sane else None
+
+
+def get_honda_accord_11g_radar_state_from_vision(
+  lead,
+  v_ego: float,
+  model_v_ego: float,
+  lead_prob: float,
+) -> dict[str, Any]:
+  lead_v_rel_pred = lead.v[0] - model_v_ego
+
+  return {
+    "dRel": float(lead.x[0] - RADAR_TO_CAMERA),
+    "yRel": float(-lead.y[0]),
+    "vRel": float(lead_v_rel_pred),
+    "vLead": float(v_ego + lead_v_rel_pred),
+    "vLeadK": float(v_ego + lead_v_rel_pred),
+    "aLeadK": float(lead.a[0]),
+    "aLeadTau": 0.3,
+    "fcw": False,
+    "modelProb": float(lead_prob),
+    "status": True,
+    "radar": False,
+    "radarTrackId": -1,
+  }
+
+
+def get_honda_accord_11g_lead(
+  v_ego: float,
+  ready: bool,
+  tracks: dict[int, Track],
+  lead,
+  model_v_ego: float,
+  lead_prob: float,
+  low_speed_override: bool = True,
+) -> dict[str, Any]:
+  """Select an Accord lead without preferred-track, distance-offset, or target shaping."""
+  if tracks and ready and lead_prob > HONDA_ACCORD_11G_MODEL_LEAD_PROBABILITY:
+    track = match_honda_accord_11g_vision_to_track(v_ego, lead, tracks)
+  else:
+    track = None
+
+  lead_dict: dict[str, Any] = {"status": False}
+
+  if track is not None:
+    lead_dict = track.get_RadarState(lead_prob)
+  elif ready and lead_prob > HONDA_ACCORD_11G_MODEL_LEAD_PROBABILITY:
+    lead_dict = get_honda_accord_11g_radar_state_from_vision(
+      lead, v_ego, model_v_ego, lead_prob,
+    )
+
+  if low_speed_override:
+    low_speed_tracks = [
+      candidate for candidate in tracks.values()
+      if candidate.potential_low_speed_lead(v_ego)
+    ]
+
+    if low_speed_tracks:
+      closest_track = min(low_speed_tracks, key=lambda candidate: candidate.dRel)
+
+      if not lead_dict["status"] or closest_track.dRel < lead_dict["dRel"]:
+        lead_dict = closest_track.get_RadarState()
+
+  for radar_track in tracks.values():
+    radar_track.leadTrackID = lead_dict.get("radarTrackId", -1)
+
+  return lead_dict
 
 
 def g90_radar_lead_lateral_sane(track: Track) -> bool:
@@ -318,7 +416,14 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
              model_v_ego: float, model_data: capnp._DynamicStructReader, standstill: bool,
              starpilot_plan: capnp._DynamicStructReader, starpilot_toggles: SimpleNamespace,
              low_speed_override: bool = True, g90_radar_filter: bool = False, lead_prob: float | None = None,
-             preferred_track_id: int = -1, honda_bosch_a_radar: bool = False) -> dict[str, Any]:
+             preferred_track_id: int = -1, honda_bosch_a_radar: bool = False, honda_accord_11g_radar: bool = False) -> dict[str, Any]:
+  if honda_accord_11g_radar:
+    accord_prob = float(lead_prob if lead_prob is not None else getattr(lead_msg, "prob", 0.0))
+    return get_honda_accord_11g_lead(
+      v_ego, ready, tracks, lead_msg, model_v_ego, accord_prob,
+      low_speed_override=low_speed_override,
+    )
+
   lead_detection_probability = float(getattr(starpilot_toggles, "lead_detection_probability", 0.35))
   filtered_lead_prob = float(lead_msg.prob if lead_prob is None else lead_prob)
 
@@ -438,11 +543,12 @@ def get_adjacent_stopped(tracks: dict[int, Track], model_data: capnp._DynamicStr
 
 class RadarD:
   def __init__(self, radar_ts: float = DT_MDL, delay: float = 0.0, g90_radar_filter: bool = False,
-               honda_bosch_a_radar: bool = False):
+               honda_bosch_a_radar: bool = False, honda_accord_11g_radar: bool = False):
     self.current_time = 0.0
 
     self.tracks: dict[int, Track] = {}
     self.honda_bosch_a_radar = honda_bosch_a_radar
+    self.honda_accord_11g_radar = honda_accord_11g_radar
     # The lead KF consumes Bosch measurements at the physical radar cadence. Lead probability
     # filters, however, consume modelV2 leads every model cycle and must retain model-loop timing.
     kf_dt = HONDA_BOSCH_A_RADAR_TS if self.honda_bosch_a_radar else radar_ts
@@ -553,7 +659,10 @@ class RadarD:
 
       # create the track if it doesn't exist or it's a new track
       if ids not in self.tracks:
-        self.tracks[ids] = Track(ids, v_lead, self.kalman_params)
+        self.tracks[ids] = Track(
+          ids, v_lead, self.kalman_params,
+          honda_accord_11g_radar=self.honda_accord_11g_radar,
+        )
       measured = rpt[3] if not self.honda_bosch_a_radar else bool(rpt[3] and radar_fresh)
       # Non-Bosch sources retain the historical per-model-cycle update semantics. Only Civic Bosch
       # suppresses duplicate measurement updates when liveTracks has not advanced.
@@ -583,18 +692,19 @@ class RadarD:
         else:
           self.lead_prob_filters[i].update(lead_prob)
 
-        self._update_honda_bosch_a_preferred_staleness(i, leads_v3[i], self.lead_prob_filters[i].x)
+        if not self.honda_accord_11g_radar:
+          self._update_honda_bosch_a_preferred_staleness(i, leads_v3[i], self.lead_prob_filters[i].x)
 
       self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, sm['modelV2'],
                                           sm['carState'].standstill, sm['starpilotPlan'], self.starpilot_toggles, low_speed_override=True,
                                           g90_radar_filter=self.g90_radar_filter, lead_prob=self.lead_prob_filters[0].x,
                                           preferred_track_id=self.prev_lead_track_ids[0],
-                                          honda_bosch_a_radar=self.honda_bosch_a_radar)
+                                          honda_bosch_a_radar=self.honda_bosch_a_radar, honda_accord_11g_radar=self.honda_accord_11g_radar)
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, sm['modelV2'],
                                           sm['carState'].standstill, sm['starpilotPlan'], self.starpilot_toggles, low_speed_override=False,
                                           g90_radar_filter=self.g90_radar_filter, lead_prob=self.lead_prob_filters[1].x,
                                           preferred_track_id=self.prev_lead_track_ids[1],
-                                          honda_bosch_a_radar=self.honda_bosch_a_radar)
+                                          honda_bosch_a_radar=self.honda_bosch_a_radar, honda_accord_11g_radar=self.honda_accord_11g_radar)
 
       for i, lead in enumerate((self.radar_state.leadOne, self.radar_state.leadTwo)):
         if lead.status and getattr(lead, "radar", False):
@@ -653,8 +763,9 @@ def main() -> None:
 
   g90_radar_filter = CP.brand == "hyundai" and CP.carFingerprint == "GENESIS_G90"
   honda_bosch_a_radar = is_bosch_a_radar_car(CP)
+  honda_accord_11g_radar = is_honda_accord_11g_radar_car(CP)
   RD = RadarD(radar_ts=radar_ts, delay=CP.radarDelay, g90_radar_filter=g90_radar_filter,
-              honda_bosch_a_radar=honda_bosch_a_radar)
+              honda_bosch_a_radar=honda_bosch_a_radar, honda_accord_11g_radar=honda_accord_11g_radar)
 
   sm = sm.extend(['starpilotPlan'])
   pm = pm.extend(['starpilotRadarState'])
