@@ -73,7 +73,7 @@ def create_brake_command(packer, CAN, apply_brake, pump_on, pcm_override, pcm_ca
 
 def create_acc_commands(packer, CAN, enabled, active, accel, gas, stopping_counter, CP, gas_force=None):
   commands = []
-  min_gas_accel = CarControllerParams.BOSCH_GAS_LOOKUP_BP[0]
+  min_gas_accel = 0.0 if CP.carFingerprint == CAR.HONDA_ACCORD_11G else CarControllerParams.BOSCH_GAS_LOOKUP_BP[0]
 
   control_on = 5 if enabled else 0
   if gas_force is None:

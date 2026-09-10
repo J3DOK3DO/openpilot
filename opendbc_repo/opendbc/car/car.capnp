@@ -375,6 +375,7 @@ struct CarControl {
     torqueOutputCan @8: Float32;   # value sent over can to the car
     speed @6: Float32;  # m/s
     lateralControlMode @9: LateralControlMode;
+    experimentalToAccTransition @10: Bool;  # bounded CEM/experimental -> ACC handoff is active
 
     enum LongControlState @0xe40f3a917d908282{
       off @0;

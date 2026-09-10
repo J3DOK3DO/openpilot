@@ -586,6 +586,9 @@ class Controls:
                                                 pedal_override=tesla_pedal_override,
                                                 leads=(self.sm['radarState'].leadOne, self.sm['radarState'].leadTwo)),
                                 self.starpilot_toggles.max_desired_acceleration))
+    actuators.experimentalToAccTransition = bool(
+      self.LoC.transitioning and self.LoC.prev_mode == 'blended' and self.LoC.current_mode == 'acc'
+    )
 
     # Steering PID loop and lateral MPC
     # Reset desired curvature to current to avoid violating the limits on engage
