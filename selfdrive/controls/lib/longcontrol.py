@@ -167,7 +167,17 @@ class LongControl:
       self.pid.reset()
     else:
       error = a_target - CS.aEgo
-      output_accel = self.pid.update(error, speed=CS.vEgo, feedforward=a_target)
+      self.update_mpc_mode(self.experimental_mode)
+      leaving_experimental = self.transitioning and self.prev_mode == 'blended' and self.current_mode == 'acc'
+      raw_output_accel = self.pid.update(
+        error, speed=CS.vEgo, feedforward=a_target,
+        freeze_integrator=leaving_experimental,
+      )
+      if leaving_experimental and raw_output_accel > self.last_output_accel:
+        progress = min(1.0, self.mode_transition_timer / max(self.mode_transition_duration, 1e-3))
+        output_accel = self.last_output_accel + (raw_output_accel - self.last_output_accel) * progress
+      else:
+        output_accel = raw_output_accel
 
     self.last_output_accel = float(clip(output_accel, accel_limits[0], accel_limits[1]))
     return self.last_output_accel
