@@ -258,9 +258,14 @@ class LongControl:
 
     elif self.long_control_state == LongCtrlState.stopping:
       output_accel = self.last_output_accel
-      if output_accel > starpilot_toggles.stopAccel:
+      # Follow the live stopping target at the existing ramp rate. This keeps
+      # stronger requests on the original deepening path, while a moving car
+      # releases stale stopping history without stepping past the live target.
+      if output_accel > starpilot_toggles.stopAccel and output_accel >= a_target:
         output_accel = min(output_accel, 0.0)
         output_accel -= starpilot_toggles.stoppingDecelRate * DT_CTRL
+      elif should_stop and CS.vEgo > 0.0 and not CS.cruiseState.standstill and a_target > output_accel:
+        output_accel = min(a_target, 0.0, output_accel + starpilot_toggles.stoppingDecelRate * DT_CTRL)
       output_accel = self.vehicle_tuning.shape_stopping_accel(
         output_accel, a_target, should_stop, CS.vEgo, has_lead, starpilot_toggles.stopAccel, leads=leads,
       )

@@ -757,6 +757,84 @@ def test_stopping_state_follows_stronger_moving_stop_target():
   assert output_accel < -1.43
 
 
+def test_accord_ls004_stopping_relaxation_does_not_ramp_stale_brake():
+  """
+  TEST_NAME=accord_ls004_stopping_relaxation_does_not_ramp_stale_brake
+  DEFECT_REPRODUCED=LS004 LongControl stopping output keeps ramping after the current planner target relaxes.
+  CAUSAL_LAYER=LONGCONTROL_STOPPING_STATE_OUTPUT
+  EXPECTED_ON_CANDIDATE1=EXPECTED_FAIL_RED: the last stopping output is decremented despite the relaxed current target.
+  EXPECTED_AFTER_CANDIDATE2=the relaxed current target prevents further negative ramp from stale stopping history.
+  """
+  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5)
+  CP.longitudinalTuning.kpBP = [0.0]
+  CP.longitudinalTuning.kpV = [0.1]
+  CP.longitudinalTuning.kiBP = [0.0]
+  CP.longitudinalTuning.kiV = [0.03]
+
+  # The previous -1.417 m/s² request is the LS004 planner-led entry brake.
+  # The current -0.186 m/s² target is the matched relaxed planner value; it is
+  # deliberately distinct from the stopping-state history below.
+  prior_planner_target = -1.417
+  current_planner_target = -0.186
+  lc = LongControl(CP)
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = prior_planner_target
+  CS = car.CarState.new_message(vEgo=0.2, aEgo=-0.2, brakePressed=False)
+  CS.cruiseState.standstill = False
+
+  output_accel = lc.update(
+    active=True,
+    CS=CS,
+    a_target=current_planner_target,
+    should_stop=True,
+    accel_limits=(-3.0, 2.0),
+    starpilot_toggles=make_toggles(stopAccel=-2.0, stoppingDecelRate=0.8),
+    has_lead=True,
+  )
+
+  assert lc.long_control_state == LongCtrlState.stopping
+  assert current_planner_target > prior_planner_target
+  # No comfort constant is introduced: this is the state-machine invariant that
+  # a relaxed target must not make the stale stopping output more negative.
+  assert output_accel >= prior_planner_target
+
+
+def test_accord_stopped_lead_holds_current_strong_stopping_request():
+  """
+  TEST_NAME=accord_stopped_lead_holds_current_strong_stopping_request
+  DEFECT_REPRODUCED=counter-test for LS004 relaxation handling.
+  CAUSAL_LAYER=STOPPED_LEAD_HOLD_SAFETY
+  EXPECTED_ON_CANDIDATE1=EXPECTED_PASS_GUARD: an active stopped-lead request retains braking at least as strong as the live target.
+  EXPECTED_AFTER_CANDIDATE2=the same stopped-lead brake hold remains intact.
+  """
+  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5)
+  CP.longitudinalTuning.kpBP = [0.0]
+  CP.longitudinalTuning.kpV = [0.1]
+  CP.longitudinalTuning.kiBP = [0.0]
+  CP.longitudinalTuning.kiV = [0.03]
+
+  live_stopping_target = -1.417
+  lc = LongControl(CP)
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = live_stopping_target
+  CS = car.CarState.new_message(vEgo=0.0, aEgo=0.0, brakePressed=False)
+  CS.cruiseState.standstill = True
+
+  output_accel = lc.update(
+    active=True,
+    CS=CS,
+    a_target=live_stopping_target,
+    should_stop=True,
+    accel_limits=(-3.0, 2.0),
+    starpilot_toggles=make_toggles(stopAccel=-2.0, stoppingDecelRate=0.8),
+    has_lead=True,
+    leads=(SimpleNamespace(status=True, dRel=5.0, vLead=0.0),),
+  )
+
+  assert lc.long_control_state == LongCtrlState.stopping
+  assert output_accel <= live_stopping_target
+
+
 def test_elantra_lead_stop_releases_stale_hard_brake_after_target_eases():
   CP = make_longcontrol_cp(brand="hyundai", carFingerprint="HYUNDAI_ELANTRA_2021")
   tuning = vehicle_tunes.LongControlVehicleTuning(CP)
@@ -1617,3 +1695,171 @@ def test_leaving_experimental_does_not_reset_mode_transition_timer():
     lc.update_mpc_mode(False)
 
   assert not lc.transitioning
+
+
+def test_accord_ls004_already_deep_stopping_output_recovers_toward_relaxed_plan():
+  """
+  LS004 decisive-state regression.
+
+  Full-rate road evidence showed LongControl already near -2.0 m/s² while the
+  contemporaneous planner target had relaxed to about -0.186 m/s². Merely
+  preventing another negative stoppingDecelRate step is insufficient once the
+  stale stopping output is already deep.
+
+  While still moving and still in stopping, a relaxed live target must begin
+  releasing an already-stale strong stopping command. Genuine standstill hold
+  is covered separately by the stopped-lead safety guard.
+  """
+  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5)
+  CP.longitudinalTuning.kpBP = [0.0]
+  CP.longitudinalTuning.kpV = [0.1]
+  CP.longitudinalTuning.kiBP = [0.0]
+  CP.longitudinalTuning.kiV = [0.03]
+
+  stale_output = -2.0
+  relaxed_target = -0.186
+
+  lc = LongControl(CP)
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = stale_output
+
+  CS = car.CarState.new_message(
+    vEgo=0.2,
+    aEgo=-1.5,
+    brakePressed=False,
+  )
+  CS.cruiseState.standstill = False
+
+  toggles = make_toggles(
+    stopAccel=-2.0,
+    stoppingDecelRate=0.8,
+  )
+
+  outputs = []
+  for _ in range(5):
+    outputs.append(float(lc.update(
+      active=True,
+      CS=CS,
+      a_target=relaxed_target,
+      should_stop=True,
+      accel_limits=(-3.0, 2.0),
+      starpilot_toggles=toggles,
+      has_lead=True,
+    )))
+
+  assert lc.long_control_state == LongCtrlState.stopping
+
+  # The decisive invariant: an already-deep stale command must begin releasing.
+  assert outputs[0] > stale_output
+
+  # Recovery must not reverse direction back toward stronger stale braking.
+  assert all(
+    later >= earlier
+    for earlier, later in zip(outputs, outputs[1:])
+  )
+
+  # Do not release beyond the current planner request.
+  assert outputs[-1] <= relaxed_target
+
+
+def test_stopping_release_hysteresis_does_not_command_positive_accel_before_state_exit_while_moving():
+  """
+  A relaxed negative stopping command may recover while should_stop remains
+  asserted, but once should_stop has cleared, the existing state-transition
+  hysteresis remains authoritative.
+
+  While LongControl is still in the stopping state, it must not begin producing
+  positive acceleration merely because vEgo is slightly above zero. Positive
+  launch output starts only after the existing hysteresis changes state.
+  """
+  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5)
+  CP.longitudinalTuning.kpBP = [0.0]
+  CP.longitudinalTuning.kpV = [0.1]
+  CP.longitudinalTuning.kiBP = [0.0]
+  CP.longitudinalTuning.kiV = [0.03]
+
+  lc = LongControl(CP)
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = 0.0
+
+  CS = car.CarState.new_message(
+    vEgo=0.2,
+    aEgo=0.0,
+    brakePressed=False,
+  )
+  CS.cruiseState.standstill = False
+
+  toggles = make_toggles(startAccel=1.5)
+
+  release_frames = int(round(
+    longcontrol.STOPPING_RELEASE_HYSTERESIS / longcontrol.DT_CTRL
+  ))
+
+  for _ in range(release_frames - 1):
+    output_accel = lc.update(
+      active=True,
+      CS=CS,
+      a_target=0.16,
+      should_stop=False,
+      accel_limits=(-3.0, 2.0),
+      starpilot_toggles=toggles,
+    )
+
+    assert lc.long_control_state == LongCtrlState.stopping
+    assert output_accel <= 0.0
+
+  output_accel = lc.update(
+    active=True,
+    CS=CS,
+    a_target=0.16,
+    should_stop=False,
+    accel_limits=(-3.0, 2.0),
+    starpilot_toggles=toggles,
+  )
+
+  assert lc.long_control_state == LongCtrlState.starting
+  assert output_accel > 0.0
+
+
+def test_stopping_state_never_releases_positive_while_should_stop_remains_true():
+  """
+  Stale stopping output may recover toward a relaxed target while moving, but
+  the stopping state remains non-positive while should_stop is still asserted.
+
+  This preserves the pre-Candidate-2 stopping-state invariant even if a planner
+  transition briefly presents a positive acceleration target.
+  """
+  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5)
+  CP.longitudinalTuning.kpBP = [0.0]
+  CP.longitudinalTuning.kpV = [0.1]
+  CP.longitudinalTuning.kiBP = [0.0]
+  CP.longitudinalTuning.kiV = [0.03]
+
+  lc = LongControl(CP)
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = -0.01
+
+  CS = car.CarState.new_message(
+    vEgo=0.2,
+    aEgo=0.0,
+    brakePressed=False,
+  )
+  CS.cruiseState.standstill = False
+
+  toggles = make_toggles(
+    stopAccel=-2.0,
+    stoppingDecelRate=0.8,
+  )
+
+  for _ in range(10):
+    output_accel = lc.update(
+      active=True,
+      CS=CS,
+      a_target=0.16,
+      should_stop=True,
+      accel_limits=(-3.0, 2.0),
+      starpilot_toggles=toggles,
+    )
+
+    assert lc.long_control_state == LongCtrlState.stopping
+    assert output_accel <= 0.0

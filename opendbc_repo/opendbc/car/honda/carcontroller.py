@@ -428,8 +428,15 @@ class CarController(CarControllerBase):
 
         if self.CP.carFingerprint in HONDA_BOSCH:
           if self.mvl_accord_mode and (accel < min_gas) and (1e-3 < CS.out.vEgo < 3.0):
-            brake_addon = self.mvl_brake_pid.update(error=accel - CS.out.aEgo, speed=CS.out.vEgo)
-            target_accel = min(accel, accel + brake_addon)
+            brake_error = accel - CS.out.aEgo
+            if brake_error < 0.0:
+              brake_addon = self.mvl_brake_pid.update(error=brake_error, speed=CS.out.vEgo)
+              target_accel = min(accel, accel + brake_addon)
+            else:
+              # The requested deceleration is already met; discard retained
+              # negative I so the sole low-speed correction cannot linger.
+              self.mvl_brake_pid.reset()
+              target_accel = accel
           else:
             if self.mvl_accord_mode:
               self.mvl_brake_pid.reset()

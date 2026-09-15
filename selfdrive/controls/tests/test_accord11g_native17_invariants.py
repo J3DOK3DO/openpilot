@@ -2,6 +2,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from cereal import car
 from opendbc.car import gen_empty_fingerprint, structs
 from opendbc.car.honda import carcontroller as hcc
 from opendbc.car.honda import hondacan
@@ -9,7 +10,7 @@ from opendbc.car.honda.carcontroller import CarController, get_honda_bosch_wind_
 from opendbc.car.honda.hondacan import create_acc_commands
 from opendbc.car.honda.interface import CarInterface
 from opendbc.car.honda.values import CAR, DBC, HONDA_BOSCH_A, HONDA_BOSCH_CANFD, HondaSafetyFlags
-from openpilot.selfdrive.controls.lib.longcontrol import LongCtrlState
+from openpilot.selfdrive.controls.lib.longcontrol import LongControl, LongCtrlState
 from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import get_honda_accord_11g_reduction_only_v_cruise
 
 
@@ -32,6 +33,60 @@ def get_accord_cp():
     False,
     get_test_toggles(),
   )
+
+
+def _make_accord_low_speed_boundary(monkeypatch):
+  """Run the real Accord controller, replacing only CAN packing with an argument recorder."""
+  cp = get_accord_cp()
+  controller = CarController(DBC[cp.carFingerprint], cp)
+  recorded = []
+
+  monkeypatch.setattr(hondacan, "create_acc_commands", lambda *args, **kwargs: recorded.append((args, kwargs)) or [])
+  monkeypatch.setattr(hondacan, "create_steering_control", lambda *args, **kwargs: (0, b"", 0))
+  monkeypatch.setattr(hondacan, "create_lkas_hud", lambda *args, **kwargs: [])
+  monkeypatch.setattr(hondacan, "create_radar_hud_canfd", lambda *args, **kwargs: (0, b"", 0))
+  monkeypatch.setattr(hondacan, "create_canfd_supplemental", lambda *args, **kwargs: (0, b"", 0))
+  monkeypatch.setattr(hondacan, "create_canfd_50hz_radar_messages", lambda *args, **kwargs: [])
+  monkeypatch.setattr(hondacan, "create_canfd_5hz_radar_messages", lambda *args, **kwargs: [])
+  return controller, recorded
+
+
+def _run_accord_low_speed_frame(controller, recorded, frame, accel, a_ego):
+  cc = structs.CarControl.new_message()
+  cc.enabled = True
+  cc.longActive = True
+  cc.latActive = False
+  cc.actuators.accel = float(accel)
+  cc.actuators.torque = 0.0
+  cc.actuators.longControlState = LongCtrlState.stopping
+  cc.orientationNED = [0.0, 0.0, 0.0]
+
+  out = structs.CarState.new_message()
+  out.vEgo = 2.0
+  out.aEgo = float(a_ego)
+  out.cruiseState.available = True
+  cs = SimpleNamespace(
+    out=out,
+    v_cruise_factor=1.0,
+    canfd_relay_open=True,
+    stock_acc_alive=False,
+    hud_tick=False,
+    supp_tick=False,
+    radar_50hz_tick=False,
+    radar_5hz_tick=False,
+    radar_ref_counter=0,
+    is_metric=False,
+    acc_hud={},
+    lkas_hud={"LKAS_READY": 0},
+    cruise_buttons=0,
+    cruise_setting=0,
+    scm_ambient_light=0,
+  )
+
+  controller.frame = frame
+  controller.update(cc.as_reader(), cs, 0, get_test_toggles())
+  assert recorded
+  return recorded[-1]
 
 
 def test_accord_11g_reduction_only_cruise_authority():
@@ -70,7 +125,13 @@ def test_accord_11g_platform_tune_and_bosch_c_identity():
 
 
 def test_low_speed_brake_correction_preserves_requested_force_for_crossover(monkeypatch):
-  """The Accord-only correction can only lower final accel, never redefine gas crossover."""
+  """
+  TEST_NAME=accord_crossover_uses_original_requested_accel_plus_road_load
+  DEFECT_REPRODUCED=architecture guard against moving the propulsion crossover to the low-speed adjusted target.
+  CAUSAL_LAYER=PROPULSION_CROSSOVER
+  EXPECTED_ON_CANDIDATE1=EXPECTED_PASS_GUARD: the recorded gas-force coordinate uses requested accel plus wind compensation.
+  EXPECTED_AFTER_CANDIDATE2=the original-request crossover coordinate remains unchanged.
+  """
   cp = get_accord_cp()
   controller = CarController(DBC[cp.carFingerprint], cp)
   controller.mvl_brake_pid.update = lambda **kwargs: -0.5
@@ -129,6 +190,75 @@ def test_low_speed_brake_correction_preserves_requested_force_for_crossover(monk
   assert kwargs["braking"] is None
 
 
+def test_accord_ls003_addon_resets_when_actual_decel_matches_relaxed_request(monkeypatch):
+  """
+  TEST_NAME=accord_ls003_addon_resets_when_actual_decel_matches_relaxed_request
+  DEFECT_REPRODUCED=LS003 mvl_brake_pid retains negative integral correction after its accel error disappears.
+  CAUSAL_LAYER=ACCORD_LOW_SPEED_ADDON
+  EXPECTED_ON_CANDIDATE1=EXPECTED_FAIL_RED: the final controller target stays more negative than the matching requested accel.
+  EXPECTED_AFTER_CANDIDATE2=the existing mvl_brake_pid is reset or bounded to no residual correction when the error is zero.
+  """
+  controller, recorded = _make_accord_low_speed_boundary(monkeypatch)
+  requested_accel = -0.492
+
+  # Build state through the production PID under a genuine low-speed deficit.
+  for frame in range(100, 160, 2):
+    _run_accord_low_speed_frame(controller, recorded, frame, requested_accel, a_ego=0.0)
+  precondition_final_accel = recorded[-1][0][4]
+  assert precondition_final_accel < requested_accel
+
+  # The requested decel has stabilized and the vehicle now supplies it exactly:
+  # no low-speed correction is still needed, so stale integral state must not add brake.
+  args, _ = _run_accord_low_speed_frame(controller, recorded, 160, requested_accel, a_ego=requested_accel)
+  final_accel = args[4]
+  assert final_accel == pytest.approx(requested_accel)
+
+
+def test_accord_ls001_mixed_stopping_and_addon_states_do_not_stack_stale_brake(monkeypatch):
+  """
+  TEST_NAME=accord_ls001_mixed_stopping_and_addon_states_do_not_stack_stale_brake
+  DEFECT_REPRODUCED=LS001 coexistence of relaxed-plan LongControl stopping history and retained Accord addon state produces stacked negative output.
+  CAUSAL_LAYER=LONGCONTROL_STOPPING_STATE_OUTPUT_WITH_ACCORD_ADDON_AMPLIFICATION
+  EXPECTED_ON_CANDIDATE1=EXPECTED_FAIL_RED: LongControl remains at the stale stop output and the addon makes final accel still more negative.
+  EXPECTED_AFTER_CANDIDATE2=after the addon need disappears, final controller accel no longer stacks an additional stale correction.
+  """
+  long_cp = car.CarParams.new_message(startingState=True, vEgoStarting=0.5)
+  long_cp.longitudinalTuning.kpBP = [0.0]
+  long_cp.longitudinalTuning.kpV = [0.1]
+  long_cp.longitudinalTuning.kiBP = [0.0]
+  long_cp.longitudinalTuning.kiV = [0.03]
+  lc = LongControl(long_cp)
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = -2.0
+  long_cs = car.CarState.new_message(vEgo=0.2, aEgo=-0.2, brakePressed=False)
+  long_cs.cruiseState.standstill = False
+  relaxed_planner_target = -0.230
+  longcontrol_output = lc.update(
+    active=True,
+    CS=long_cs,
+    a_target=relaxed_planner_target,
+    should_stop=True,
+    accel_limits=(-3.0, 2.0),
+    starpilot_toggles=SimpleNamespace(
+      custom_accel_profile=False, startAccel=1.5, stopAccel=-2.0, stoppingDecelRate=0.8,
+      vEgoStarting=0.5, vEgoStopping=0.5,
+    ),
+    has_lead=True,
+  )
+  assert longcontrol_output < relaxed_planner_target
+
+  controller, recorded = _make_accord_low_speed_boundary(monkeypatch)
+  # Accumulate the sole existing addon's state, then make its correction need
+  # disappear by matching measured and requested acceleration.
+  for frame in range(100, 160, 2):
+    _run_accord_low_speed_frame(controller, recorded, frame, -0.492, a_ego=0.0)
+  args, _ = _run_accord_low_speed_frame(
+    controller, recorded, 160, longcontrol_output, a_ego=longcontrol_output,
+  )
+  final_accel = args[4]
+  assert final_accel == pytest.approx(longcontrol_output)
+
+
 def test_accord_bypasses_generic_bosch_brake_hysteresis_owner():
   cp = get_accord_cp()
   controller = CarController(DBC[cp.carFingerprint], cp)
@@ -152,6 +282,13 @@ def test_accord_bypasses_generic_bosch_brake_hysteresis_owner():
   (False, 0.2, 0.5, False),
 ])
 def test_bosch_acc_command_never_combines_gas_and_braking(active, accel, gas_force, braking):
+  """
+  TEST_NAME=accord_final_can_gas_brake_mutual_exclusion
+  DEFECT_REPRODUCED=architecture guard for final Honda CAN arbitration.
+  CAUSAL_LAYER=FINAL_CAN_MUTEX
+  EXPECTED_ON_CANDIDATE1=EXPECTED_PASS_GUARD: positive gas and brake request/light never coexist.
+  EXPECTED_AFTER_CANDIDATE2=the same final CAN mutex remains unchanged.
+  """
   class FakePacker:
     @staticmethod
     def make_can_msg(name, bus, values):
