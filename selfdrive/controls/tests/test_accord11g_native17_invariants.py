@@ -376,3 +376,87 @@ def test_canfd_replacement_acc_requires_deferred_accord_ownership(monkeypatch):
   assert run_state(True, False) == replacement
   assert run_state(True, True) == set()
   assert run_state(False, False) == set()
+
+
+def test_accord_c3_addon_requires_confirmed_deficit_after_reset(monkeypatch):
+  """
+  TEST_NAME=C3_CHATTER_TEST
+  DEFECT_REPRODUCED=after LS003 resets the Accord low-speed addon, a single
+  negative brake-error opportunity immediately re-engages the PID and permits
+  active -> reset -> active chatter.
+  CAUSAL_LAYER=HONDA_ADDON_RESET_REENGAGEMENT
+  EXPECTED_ON_CANDIDATE2=RED: the first negative-error opportunity immediately
+  after reset already produces additional negative acceleration.
+  EXPECTED_AFTER_CANDIDATE3=the LS003 reset remains immediate, but one negative
+  opportunity is required to confirm re-arm; only a second consecutive negative
+  opportunity may resume the existing PID.
+  """
+  controller, recorded = _make_accord_low_speed_boundary(monkeypatch)
+
+  requested_accel = -0.5
+
+  # Establish that the existing low-speed addon can genuinely become active.
+  args, _ = _run_accord_low_speed_frame(
+    controller,
+    recorded,
+    100,
+    requested_accel,
+    a_ego=0.0,
+  )
+  assert args[4] < requested_accel
+
+  # LS003: once measured deceleration meets the request, correction must be
+  # released immediately and retained negative integral state discarded.
+  args, _ = _run_accord_low_speed_frame(
+    controller,
+    recorded,
+    102,
+    requested_accel,
+    a_ego=requested_accel,
+  )
+  assert args[4] == pytest.approx(requested_accel)
+
+  # C3 RED:
+  # A single negative-error opportunity immediately after the reset must not
+  # restart the integrator. Candidate2 fails here because it re-engages
+  # immediately.
+  first_deficit_a_ego = -0.45
+  args, _ = _run_accord_low_speed_frame(
+    controller,
+    recorded,
+    104,
+    requested_accel,
+    a_ego=first_deficit_a_ego,
+  )
+  assert args[4] == pytest.approx(requested_accel)
+
+  # If the deficit disappears again, confirmation must also reset.
+  args, _ = _run_accord_low_speed_frame(
+    controller,
+    recorded,
+    106,
+    requested_accel,
+    a_ego=requested_accel,
+  )
+  assert args[4] == pytest.approx(requested_accel)
+
+  # First negative opportunity after the new reset is confirmation-only again.
+  args, _ = _run_accord_low_speed_frame(
+    controller,
+    recorded,
+    108,
+    requested_accel,
+    a_ego=first_deficit_a_ego,
+  )
+  assert args[4] == pytest.approx(requested_accel)
+
+  # A second consecutive negative opportunity proves the deficit persists;
+  # the sole existing PID may now resume.
+  args, _ = _run_accord_low_speed_frame(
+    controller,
+    recorded,
+    110,
+    requested_accel,
+    a_ego=first_deficit_a_ego,
+  )
+  assert args[4] < requested_accel

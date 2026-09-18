@@ -263,6 +263,7 @@ class CarController(CarControllerBase):
     # MVL Bosch low-speed extra-brake integrator. Active only for Accord 11G MVL mode.
     self.mvl_brake_pid = PIDController(k_p=0.0, k_i=1.0, pos_limit=0.0, neg_limit=-2.0, rate=50)
     self.mvl_brake_pid.reset()
+    self.mvl_brake_rearm_confirmed = True
 
   def _modified_civic_standard_active(self) -> bool:
     return self.CP.carFingerprint == CAR.HONDA_CIVIC_BOSCH and bool(self.CP.flags & HondaFlags.EPS_MODIFIED)
@@ -430,12 +431,17 @@ class CarController(CarControllerBase):
           if self.mvl_accord_mode and (accel < min_gas) and (1e-3 < CS.out.vEgo < 3.0):
             brake_error = accel - CS.out.aEgo
             if brake_error < 0.0:
-              brake_addon = self.mvl_brake_pid.update(error=brake_error, speed=CS.out.vEgo)
-              target_accel = min(accel, accel + brake_addon)
+              if self.mvl_brake_rearm_confirmed:
+                brake_addon = self.mvl_brake_pid.update(error=brake_error, speed=CS.out.vEgo)
+                target_accel = min(accel, accel + brake_addon)
+              else:
+                self.mvl_brake_rearm_confirmed = True
+                target_accel = accel
             else:
               # The requested deceleration is already met; discard retained
               # negative I so the sole low-speed correction cannot linger.
               self.mvl_brake_pid.reset()
+              self.mvl_brake_rearm_confirmed = False
               target_accel = accel
           else:
             if self.mvl_accord_mode:
