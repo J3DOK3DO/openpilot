@@ -1,6 +1,14 @@
 import numpy as np
 
 
+def get_honda_accord_11g_reduction_only_v_cruise(CP, stock_v_cruise, policy_v_cruise):
+  if getattr(CP, "brand", "") != "honda" or str(getattr(CP, "carFingerprint", "")) != "HONDA_ACCORD_11G":
+    return None
+  if np.isfinite(policy_v_cruise) and policy_v_cruise >= 0.0:
+    return float(min(stock_v_cruise, policy_v_cruise))
+  return float(stock_v_cruise)
+
+
 HONDA_HRV_3G_FAR_FOLLOW_BRAKE_SLEW_RATE = 3.0
 HONDA_HRV_3G_FAR_FOLLOW_RELEASE_SLEW_RATE = 2.0
 HONDA_CRV_5G_FAR_FOLLOW_BRAKE_SLEW_RATE = 1.5
