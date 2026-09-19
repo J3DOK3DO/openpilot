@@ -17,6 +17,7 @@ from opendbc.car.toyota.interface import CarInterface as ToyotaCarInterface
 from opendbc.car.toyota.values import CAR as TOYOTA_CAR
 import openpilot.selfdrive.controls.lib.longitudinal_planner as longitudinal_planner_module
 from openpilot.selfdrive.controls.lib.longcontrol import LongCtrlState
+from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
 from openpilot.selfdrive.controls.lib.longitudinal_planner import (
   LongitudinalPlanner,
@@ -36,6 +37,7 @@ from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import (
   allow_radar_standstill_gap_settle,
   get_far_follow_output_slew_rates,
   get_follow_prebrake_min_headway,
+  get_honda_accord_11g_reduction_only_v_cruise,
   get_honda_accord_lead_departure_tune,
   get_honda_accord_stop_go_accel_cap,
   get_honda_crv_5g_stopped_lead_obstacle_bias,
@@ -681,6 +683,85 @@ def make_toggles(model_version: str = "v11", radar_takeoffs: bool = False):
     conditional_limit=0.0,
     conditional_limit_lead=0.0,
   )
+
+
+def test_accord_11g_policy_cruise_never_exceeds_pcm_ceiling(monkeypatch):
+  """C1 oracle: policy inputs may lower the PCM target, never raise it."""
+  v_ego = 20.0
+  CP = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(CP, init_v=v_ego)
+  sm = make_sm(v_ego, desired_accel=0.0, min_accel=-1.0, experimental_mode=False)
+
+  # carState.vCruise is in kph. The policy target is deliberately above it.
+  sm["carState"].vCruise = 72.0
+  sm["starpilotPlan"].vCruise = 30.0
+  captured = {}
+  original_update = planner.mpc.update
+
+  def capture_update(*args, **kwargs):
+    captured["v_cruise"] = args[1]
+    return original_update(*args, **kwargs)
+
+  monkeypatch.setattr(planner.mpc, "update", capture_update)
+  planner.update(sm, make_toggles())
+
+  assert captured["v_cruise"] <= 20.0 + 1e-6
+
+
+@pytest.mark.parametrize(("policy_v_cruise", "expected"), [
+  (10.0, 10.0),
+  (20.0, 20.0),
+  (30.0, 20.0),
+  (float("nan"), 20.0),
+  (float("inf"), 20.0),
+  (-1.0, 20.0),
+])
+def test_accord_11g_reduction_only_cruise_helper_edges(policy_v_cruise, expected):
+  CP = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  assert get_honda_accord_11g_reduction_only_v_cruise(CP, 20.0, policy_v_cruise) == pytest.approx(expected)
+
+
+def test_accord_11g_policy_cruise_applies_current_v_cruise_max(monkeypatch):
+  CP = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(CP, init_v=20.0)
+  sm = make_sm(20.0, desired_accel=0.0, min_accel=-1.0, experimental_mode=False)
+  sm["carState"].vCruise = V_CRUISE_MAX + 50.0
+  sm["starpilotPlan"].vCruise = 100.0
+  captured = {}
+  original_update = planner.mpc.update
+
+  def capture_update(*args, **kwargs):
+    captured["v_cruise"] = args[1]
+    return original_update(*args, **kwargs)
+
+  monkeypatch.setattr(planner.mpc, "update", capture_update)
+  planner.update(sm, make_toggles())
+
+  assert captured["v_cruise"] == pytest.approx(V_CRUISE_MAX * CV.KPH_TO_MS)
+
+
+def test_non_accord_cruise_helper_has_no_effect():
+  CP = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC)
+  assert get_honda_accord_11g_reduction_only_v_cruise(CP, 20.0, 10.0) is None
+
+
+def test_non_accord_planner_retains_current_policy_cruise_input(monkeypatch):
+  CP = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC)
+  planner = LongitudinalPlanner(CP, init_v=20.0)
+  sm = make_sm(20.0, desired_accel=0.0, min_accel=-1.0, experimental_mode=False)
+  sm["carState"].vCruise = 72.0
+  sm["starpilotPlan"].vCruise = 30.0
+  captured = {}
+  original_update = planner.mpc.update
+
+  def capture_update(*args, **kwargs):
+    captured["v_cruise"] = args[1]
+    return original_update(*args, **kwargs)
+
+  monkeypatch.setattr(planner.mpc, "update", capture_update)
+  planner.update(sm, make_toggles())
+
+  assert captured["v_cruise"] == pytest.approx(30.0)
 
 
 @pytest.mark.parametrize("model_version", ["v11", "v12", "v13", "v14", "v15"])

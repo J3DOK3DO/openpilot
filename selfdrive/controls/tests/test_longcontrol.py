@@ -757,6 +757,32 @@ def test_stopping_state_follows_stronger_moving_stop_target():
   assert output_accel < -1.43
 
 
+def test_accord_c4_ls004_stale_stopping_output_recovers_toward_relaxed_target():
+  """Exact C2 LS004 oracle, exercised against the current Dom stopping path."""
+  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5)
+  CP.longitudinalTuning.kpBP = [0.0]
+  CP.longitudinalTuning.kpV = [0.1]
+  CP.longitudinalTuning.kiBP = [0.0]
+  CP.longitudinalTuning.kiV = [0.03]
+  lc = LongControl(CP)
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = -2.0
+  CS = car.CarState.new_message(vEgo=0.2, aEgo=-1.5, brakePressed=False)
+  CS.cruiseState.standstill = False
+
+  outputs = []
+  for _ in range(5):
+    outputs.append(lc.update(
+      active=True, CS=CS, a_target=-0.186, should_stop=True, accel_limits=(-3.0, 2.0),
+      starpilot_toggles=make_toggles(stopAccel=-2.0, stoppingDecelRate=0.8), has_lead=True,
+    ))
+
+  assert lc.long_control_state == LongCtrlState.stopping
+  assert outputs[0] > -2.0
+  assert all(later >= earlier for earlier, later in zip(outputs, outputs[1:]))
+  assert outputs[-1] <= -0.186
+
+
 def test_elantra_lead_stop_releases_stale_hard_brake_after_target_eases():
   CP = make_longcontrol_cp(brand="hyundai", carFingerprint="HYUNDAI_ELANTRA_2021")
   tuning = vehicle_tunes.LongControlVehicleTuning(CP)
