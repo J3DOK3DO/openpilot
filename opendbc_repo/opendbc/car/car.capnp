@@ -376,6 +376,27 @@ struct CarControl {
     speed @6: Float32;  # m/s
     lateralControlMode @9: LateralControlMode;
 
+    # Temporary C5 Honda crossover provenance. These values are snapshots of
+    # already-computed controller state and have no control consumer.
+    c5ObsHondaValid @10 :Bool;
+    c5ObsHondaSample @11 :Bool;
+    c5ObsHondaVEgo @12 :Float32;
+    c5ObsHondaOriginalAccel @13 :Float32;
+    c5ObsHondaControllerAccel @14 :Float32;
+    c5ObsHondaPitch @15 :Float32;
+    c5ObsHondaHillContribution @16 :Float32;
+    c5ObsHondaWindFactor @17 :Float32;
+    c5ObsHondaWindContribution @18 :Float32;
+    c5ObsHondaGasPedalForce @19 :Float32;
+    c5ObsHondaMinGasAccel @20 :Float32;
+    c5ObsHondaBrakeSide @21 :Bool;
+    c5ObsHondaBrakeRequest @22 :Bool;
+    c5ObsHondaBrakeLights @23 :Bool;
+    c5ObsHondaGasCommanded @24 :Bool;
+    c5ObsHondaLowSpeedEligible @25 :Bool;
+    c5ObsHondaLowSpeedAddon @26 :Float32;
+    c5ObsHondaFinalAccel @27 :Float32;
+
     enum LongControlState @0xe40f3a917d908282{
       off @0;
       pid @1;

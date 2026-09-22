@@ -602,6 +602,23 @@ class LongitudinalPlanner:
     self.v_model_error = 0.0
     self.output_a_target = 0.0
     self.output_should_stop = False
+    # Temporary C5 planner provenance defaults also cover test/replay callers
+    # that publish before an update cycle. These scalars have no control consumer.
+    self.c5_obs_base_t_follow = 0.0
+    self.c5_obs_effective_t_follow = 0.0
+    self.c5_obs_raw_mpc_accel = 0.0
+    self.c5_obs_policy_input = 0.0
+    self.c5_obs_policy_output = 0.0
+    self.c5_obs_gap_error = 0.0
+    self.c5_obs_catchup_cap = 0.0
+    self.c5_obs_catchup_cap_active = False
+    self.c5_obs_brake_floor = 0.0
+    self.c5_obs_brake_floor_active = False
+    self.c5_obs_accel_min = 0.0
+    self.c5_obs_accel_max = 0.0
+    self.c5_obs_tracking_lead = False
+    self.c5_obs_panic_bypass = False
+    self.c5_obs_post_departure = False
     self.far_follow_brake_slew_rate, self.far_follow_release_slew_rate = get_far_follow_output_slew_rates(CP)
     self.untracked_slow_lead_decel_scale = get_untracked_slow_lead_decel_scale(CP)
     self.tracked_lead_catchup_headway_margins = get_tracked_lead_catchup_headway_margins(CP)
@@ -2952,6 +2969,7 @@ class LongitudinalPlanner:
     # Keep the normal catch-up cap on this car; urgent braking remains outside
     # this comfort policy and is still allowed through unchanged.
     post_departure_bypass = post_departure_active and not is_toyota_rav4_tss2_post_departure_tune(self.CP)
+    c5_policy_input = float(output_a_target)
     follow_result = apply_follow_policy(
       self.lead_one,
       self.lead_two,
@@ -3188,6 +3206,22 @@ class LongitudinalPlanner:
       self.a_desired = min(self.a_desired, accord_stop_go_target)
       output_a_target = accord_stop_go_target
 
+    # Scalar snapshots only: no container allocation or control feedback.
+    self.c5_obs_base_t_follow = float(sm['starpilotPlan'].tFollow)
+    self.c5_obs_effective_t_follow = float(effective_t_follow)
+    self.c5_obs_raw_mpc_accel = float(self.a_desired_trajectory[0])
+    self.c5_obs_policy_input = c5_policy_input
+    self.c5_obs_policy_output = float(follow_result.target)
+    self.c5_obs_gap_error = float(desired_gap - policy_lead.dRel) if desired_gap is not None and policy_lead.status else 0.0
+    self.c5_obs_catchup_cap = float(follow_result.accel_cap or 0.0)
+    self.c5_obs_catchup_cap_active = follow_result.accel_cap is not None
+    self.c5_obs_brake_floor = float(follow_result.brake_floor or 0.0)
+    self.c5_obs_brake_floor_active = follow_result.brake_floor is not None
+    self.c5_obs_accel_min = float(output_accel_min)
+    self.c5_obs_accel_max = float(output_accel_max)
+    self.c5_obs_tracking_lead = bool(tracking_lead)
+    self.c5_obs_panic_bypass = bool(panic_bypass)
+    self.c5_obs_post_departure = bool(post_departure_bypass)
     self.output_a_target = output_a_target
     self.output_should_stop = bool(output_should_stop or vision_low_speed_stop_active)
 
@@ -3218,6 +3252,22 @@ class LongitudinalPlanner:
     longitudinalPlan.leadTrajectoryV1 = self.mpc.lead_xv_1[:, 1].tolist()
 
     longitudinalPlan.aTarget = float(self.output_a_target)
+    longitudinalPlan.c5ObsValid = True
+    longitudinalPlan.c5ObsBaseTFollow = self.c5_obs_base_t_follow
+    longitudinalPlan.c5ObsEffectiveTFollow = self.c5_obs_effective_t_follow
+    longitudinalPlan.c5ObsRawMpcAccel = self.c5_obs_raw_mpc_accel
+    longitudinalPlan.c5ObsPolicyInput = self.c5_obs_policy_input
+    longitudinalPlan.c5ObsPolicyOutput = self.c5_obs_policy_output
+    longitudinalPlan.c5ObsGapError = self.c5_obs_gap_error
+    longitudinalPlan.c5ObsCatchupCap = self.c5_obs_catchup_cap
+    longitudinalPlan.c5ObsCatchupCapActive = self.c5_obs_catchup_cap_active
+    longitudinalPlan.c5ObsBrakeFloor = self.c5_obs_brake_floor
+    longitudinalPlan.c5ObsBrakeFloorActive = self.c5_obs_brake_floor_active
+    longitudinalPlan.c5ObsAccelMin = self.c5_obs_accel_min
+    longitudinalPlan.c5ObsAccelMax = self.c5_obs_accel_max
+    longitudinalPlan.c5ObsTrackingLead = self.c5_obs_tracking_lead
+    longitudinalPlan.c5ObsPanicBypass = self.c5_obs_panic_bypass
+    longitudinalPlan.c5ObsPostDeparture = self.c5_obs_post_departure
     force_stop_handoff = bool(
       sm['starpilotPlan'].forcingStop and (
         sm['starpilotPlan'].forcingStopLength < 1.0 or

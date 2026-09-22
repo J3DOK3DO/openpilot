@@ -1333,6 +1333,24 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   leadTrajectoryX1 @42 :List(Float32);
   leadTrajectoryV1 @43 :List(Float32);
 
+  # Temporary C5 route-replay provenance. Snapshot-only; no control consumer.
+  c5ObsValid @44 :Bool;
+  c5ObsBaseTFollow @45 :Float32;
+  c5ObsEffectiveTFollow @46 :Float32;
+  c5ObsRawMpcAccel @47 :Float32;
+  c5ObsPolicyInput @48 :Float32;
+  c5ObsPolicyOutput @49 :Float32;
+  c5ObsGapError @50 :Float32;
+  c5ObsCatchupCap @51 :Float32;
+  c5ObsCatchupCapActive @52 :Bool;
+  c5ObsBrakeFloor @53 :Float32;
+  c5ObsBrakeFloorActive @54 :Bool;
+  c5ObsAccelMin @55 :Float32;
+  c5ObsAccelMax @56 :Float32;
+  c5ObsTrackingLead @57 :Bool;
+  c5ObsPanicBypass @58 :Bool;
+  c5ObsPostDeparture @59 :Bool;
+
   enum LongitudinalPlanSource {
     cruise @0;
     lead0 @1;
