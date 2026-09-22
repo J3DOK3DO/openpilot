@@ -255,27 +255,60 @@ def _plan_positions_are_finite(model_v2) -> bool:
     return False
 
 
-def limit_curvature_to_plan(model_v2, curvature: float, v_ego: float) -> float:
+# C5 temporary route-replay reason codes for the existing twitch guard. The values
+# only annotate its already-selected branch; they are never read by control logic.
+C5_OBS_GUARD_NOT_EVALUATED = 0
+C5_OBS_GUARD_NONFINITE_INPUT = 1
+C5_OBS_GUARD_SPEED_OR_ZERO_COMMAND = 2
+C5_OBS_GUARD_PLAN_NONFINITE = 3
+C5_OBS_GUARD_INSUFFICIENT_REACH = 4
+C5_OBS_GUARD_CURVATURE_NONFINITE = 5
+C5_OBS_GUARD_WITHIN_LIMIT = 6
+C5_OBS_GUARD_APPLIED = 7
+
+
+def _record_twitch_guard_observation(obs, plan: float, reach: float, straight_path: bool, reason: int, applied: bool) -> None:
+  if obs is not None:
+    obs.c5ObsPlanCurvature = float(plan)
+    obs.c5ObsPlanReach = float(reach)
+    obs.c5ObsStraightPath = bool(straight_path)
+    obs.c5ObsGuardReason = reason
+    obs.c5ObsGuardApplied = bool(applied)
+
+
+def limit_curvature_to_plan(model_v2, curvature: float, v_ego: float, obs=None) -> float:
+  # `obs` is the optional, already-published debug builder. The original guard
+  # calculations run once and are unchanged; scalar snapshots are written only after
+  # each existing branch has been selected.
   if not (math.isfinite(curvature) and math.isfinite(v_ego)):
+    _record_twitch_guard_observation(obs, 0.0, 0.0, False, C5_OBS_GUARD_NONFINITE_INPUT, False)
     return curvature
   if v_ego >= TWITCH_GUARD_MAX_SPEED or curvature == 0.0:
+    _record_twitch_guard_observation(obs, 0.0, 0.0, False, C5_OBS_GUARD_SPEED_OR_ZERO_COMMAND, False)
     return curvature
   if not _plan_positions_are_finite(model_v2):
+    _record_twitch_guard_observation(obs, 0.0, 0.0, False, C5_OBS_GUARD_PLAN_NONFINITE, False)
     return curvature
   reach = get_plan_reach(model_v2)
   if not math.isfinite(reach) or reach < TWITCH_GUARD_MIN_REACH:
+    _record_twitch_guard_observation(obs, 0.0, reach if math.isfinite(reach) else 0.0, False, C5_OBS_GUARD_INSUFFICIENT_REACH, False)
     return curvature
   plan = abs(_plan_circle_curvature(model_v2.position.x, model_v2.position.y,
                                     CURVATURE_HOLD_PLAN_LOOKAHEAD_FAR))
   if not math.isfinite(plan):
+    _record_twitch_guard_observation(obs, 0.0, reach, False, C5_OBS_GUARD_CURVATURE_NONFINITE, False)
     return curvature
   straightness = (plan - TWITCH_GUARD_STRAIGHT_LO) / (TWITCH_GUARD_STRAIGHT_HI - TWITCH_GUARD_STRAIGHT_LO)
+  straight_path = plan <= TWITCH_GUARD_STRAIGHT_HI
   limit = max(TWITCH_GUARD_PLAN_RATIO * plan * min(max(straightness, 0.0), 1.0), TWITCH_GUARD_FLOOR)
   if abs(curvature) <= limit:
+    _record_twitch_guard_observation(obs, plan, reach, straight_path, C5_OBS_GUARD_WITHIN_LIMIT, False)
     return curvature
   fade = (TWITCH_GUARD_MAX_SPEED - v_ego) / (TWITCH_GUARD_MAX_SPEED - TWITCH_GUARD_FADE_SPEED)
   fade = min(max(fade, 0.0), 1.0)
-  return curvature + (math.copysign(limit, curvature) - curvature) * fade
+  guarded = curvature + (math.copysign(limit, curvature) - curvature) * fade
+  _record_twitch_guard_observation(obs, plan, reach, straight_path, C5_OBS_GUARD_APPLIED, True)
+  return guarded
 
 
 def update_twitch_guard(remaining: float, v_ego: float, standstill: bool) -> float:
@@ -579,18 +612,49 @@ class Controls:
 
     # Steering PID loop and lateral MPC
     # Reset desired curvature to current to avoid violating the limits on engage
-    if self.sm.valid['lateralManeuverPlan']:
+    maneuver_plan_valid = self.sm.valid['lateralManeuverPlan']
+    model_action_curvature = float(model_v2.action.desiredCurvature)
+    if maneuver_plan_valid:
       new_desired_curvature = self.sm['lateralManeuverPlan'].desiredCurvature if CC.latActive else self.curvature
     else:
-      new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
+      new_desired_curvature = model_action_curvature if CC.latActive else self.curvature
+
+    # Temporary C5 lateral provenance. The persistent debug builder is already
+    # published by the existing service; values are reset every control cycle and
+    # never feed any steering decision.
+    c5_lateral_obs = getattr(self.LaC, 'starpilot_lateral_state', None)
+    if c5_lateral_obs is not None:
+      c5_lateral_obs.c5ObsValid = True
+      c5_lateral_obs.c5ObsVEgo = float(CS.vEgo)
+      c5_lateral_obs.c5ObsLatActive = bool(CC.latActive)
+      c5_lateral_obs.c5ObsModelActionCurvature = model_action_curvature
+      c5_lateral_obs.c5ObsDesiredBeforeGuard = float(new_desired_curvature)
+      c5_lateral_obs.c5ObsPlanCurvature = 0.0
+      c5_lateral_obs.c5ObsPlanReach = 0.0
+      c5_lateral_obs.c5ObsStraightPath = False
+      c5_lateral_obs.c5ObsGuardEligible = False
+      c5_lateral_obs.c5ObsGuardApplied = False
+      c5_lateral_obs.c5ObsGuardReason = C5_OBS_GUARD_NOT_EVALUATED
+      c5_lateral_obs.c5ObsTurnHoldActive = self.turn_hold_curvature != 0.0
+      c5_lateral_obs.c5ObsTurnHoldCurvature = float(self.turn_hold_curvature)
+      c5_lateral_obs.c5ObsTwitchGuardRemaining = float(self.twitch_guard_remaining)
+      c5_lateral_obs.c5ObsBlinkerLeft = bool(CS.leftBlinker)
+      c5_lateral_obs.c5ObsBlinkerRight = bool(CS.rightBlinker)
+      c5_lateral_obs.c5ObsManeuverPlanValid = bool(maneuver_plan_valid)
+      c5_lateral_obs.c5ObsStandstill = bool(CS.standstill)
 
     # Low-speed turn-intent hold (see CURVATURE_HOLD_* above). Curvature sign convention
     # here is positive for RIGHT turns (pauseturn log: left turn at +148 deg steering
     # angle logs desiredCurvature -0.07), so the blinker maps right=+1, left=-1.
     blinker_dir = float(CS.rightBlinker) - float(CS.leftBlinker)
-    if (CC.latActive and self.twitch_guard_remaining > 0.0 and
-        blinker_dir == 0.0 and self.turn_hold_curvature == 0.0):
-      new_desired_curvature = limit_curvature_to_plan(model_v2, new_desired_curvature, CS.vEgo)
+    c5_low_speed_guard_eligible = (CC.latActive and self.twitch_guard_remaining > 0.0 and
+                                   blinker_dir == 0.0 and self.turn_hold_curvature == 0.0)
+    if c5_lateral_obs is not None:
+      c5_lateral_obs.c5ObsGuardEligible = bool(c5_low_speed_guard_eligible)
+    if c5_low_speed_guard_eligible:
+      new_desired_curvature = limit_curvature_to_plan(model_v2, new_desired_curvature, CS.vEgo, c5_lateral_obs)
+    if c5_lateral_obs is not None:
+      c5_lateral_obs.c5ObsDesiredAfterGuard = float(new_desired_curvature)
     # heading swept in the blinker's direction over the whole blinker cycle (any speed):
     # discriminates a turn not yet made from one being exited (see the re-arm below)
     if blinker_dir == 0.0:
@@ -786,6 +850,9 @@ class Controls:
                                                                jerk_factor)
     lat_smooth_seconds = get_control_lateral_smooth_seconds(self.CP.brand, CS.vEgo, self.CP.lateralSmoothSeconds)
     lat_delay = self.sm["liveDelay"].lateralDelay + lat_smooth_seconds
+    if c5_lateral_obs is not None:
+      c5_lateral_obs.c5ObsLiveDelay = float(lat_delay)
+      c5_lateral_obs.c5ObsFinalDesired = float(self.desired_curvature)
 
     actuators.curvature = self.desired_curvature
     steer, lateral_output, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
@@ -799,6 +866,10 @@ class Controls:
       actuators.curvature = float(lateral_output)
     else:
       actuators.steeringAngleDeg = float(lateral_output)
+    if c5_lateral_obs is not None:
+      c5_lateral_obs.c5ObsCarControlCurvature = float(actuators.curvature)
+      c5_lateral_obs.c5ObsLateralOutput = float(lateral_output)
+      c5_lateral_obs.c5ObsPidSaturated = bool(getattr(lac_log, 'saturated', False))
 
     if len(long_plan.speeds):
       actuators.speed = long_plan.speeds[-1]

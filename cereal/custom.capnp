@@ -320,6 +320,32 @@ struct StarPilotLateralState @0xc2243c65e0340384 {
   frictionJerkDeadzone @5 :Float32;
   lowSpeedFactor @6 :Float32;
   unwindDetected @7 :Bool;
+
+  # Temporary C5 low-speed guard provenance. Snapshot-only; no control consumer.
+  c5ObsValid @8 :Bool;
+  c5ObsVEgo @9 :Float32;
+  c5ObsLatActive @10 :Bool;
+  c5ObsModelActionCurvature @11 :Float32;
+  c5ObsDesiredBeforeGuard @12 :Float32;
+  c5ObsPlanCurvature @13 :Float32;
+  c5ObsPlanReach @14 :Float32;
+  c5ObsStraightPath @15 :Bool;
+  c5ObsGuardEligible @16 :Bool;
+  c5ObsGuardApplied @17 :Bool;
+  c5ObsGuardReason @18 :UInt8;
+  c5ObsTurnHoldActive @19 :Bool;
+  c5ObsTurnHoldCurvature @20 :Float32;
+  c5ObsTwitchGuardRemaining @21 :Float32;
+  c5ObsBlinkerLeft @22 :Bool;
+  c5ObsBlinkerRight @23 :Bool;
+  c5ObsManeuverPlanValid @24 :Bool;
+  c5ObsStandstill @25 :Bool;
+  c5ObsLiveDelay @26 :Float32;
+  c5ObsDesiredAfterGuard @27 :Float32;
+  c5ObsFinalDesired @28 :Float32;
+  c5ObsCarControlCurvature @29 :Float32;
+  c5ObsLateralOutput @30 :Float32;
+  c5ObsPidSaturated @31 :Bool;
 }
 
 struct CustomReserved12 @0x9ccdc8676701b412 {
