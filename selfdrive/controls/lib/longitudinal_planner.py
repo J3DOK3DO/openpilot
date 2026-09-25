@@ -206,6 +206,23 @@ VISION_UNTRACKED_APPROACH_LIFT_CONFIRM_TIME = 0.30
 VISION_UNTRACKED_APPROACH_LIFT_HOLD_TIME = 0.75
 VISION_UNTRACKED_APPROACH_LIFT_RATE_DOWN = 0.35
 VISION_UNTRACKED_APPROACH_LIFT_RATE_UP = 0.25
+# C5-A: narrowly admit the two observed pretracking vision-lead geometries to
+# the existing positive-acceleration lift path. These are qualifiers only; the
+# cap calculation below remains the shared 0..MAX_ACCEL throttle-only path.
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_MODEL_PROB = 0.99
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_EGO_SPEED = 5.0
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_EGO_SPEED = 12.0
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_LATERAL_OFFSET = 0.75
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_DISTANCE = 8.0
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_DISTANCE = 35.0
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_CLOSING_SPEED = 0.4
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_MODEL_PROB = 0.85
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_EGO_SPEED = 24.0
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_LATERAL_OFFSET = 1.0
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_DISTANCE = 70.0
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_DISTANCE = 115.0
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_CLOSING_SPEED = 2.5
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_CLOSING_RATIO = 0.12
 VISION_SLOW_LEAD_MAX_SPEED = 5.0
 VISION_SLOW_LEAD_MIN_CLOSING_SPEED = 1.5
 VISION_SLOW_LEAD_TRIGGER_TTC = 4.5
@@ -978,23 +995,44 @@ class LongitudinalPlanner:
     """Trim throttle before a confident vision lead reaches the tracking window."""
     if lead is None or not lead.status or bool(getattr(lead, "radar", False)):
       return None
-    if float(v_ego) < VISION_UNTRACKED_APPROACH_LIFT_MIN_EGO_SPEED:
-      return None
 
+    v_ego = float(v_ego)
     lead_prob = float(getattr(lead, "modelProb", 0.0))
-    if lead_prob < VISION_UNTRACKED_APPROACH_LIFT_MIN_MODEL_PROB:
-      return None
-    if abs(float(getattr(lead, "yRel", 0.0))) > VISION_UNTRACKED_APPROACH_LIFT_MAX_LATERAL_OFFSET:
-      return None
-    if float(lead.dRel) > VISION_UNTRACKED_APPROACH_LIFT_MAX_DISTANCE:
-      return None
+    d_rel = float(lead.dRel)
+    lateral_offset = abs(float(getattr(lead, "yRel", 0.0)))
+    closing_speed = v_ego - float(lead.vLead)
+    closing_ratio = closing_speed / max(v_ego, 0.1)
 
-    closing_speed = float(v_ego) - float(lead.vLead)
-    if closing_speed < VISION_UNTRACKED_APPROACH_LIFT_MIN_CLOSING_SPEED:
+    standard_qualifier = (
+      v_ego >= VISION_UNTRACKED_APPROACH_LIFT_MIN_EGO_SPEED and
+      lead_prob >= VISION_UNTRACKED_APPROACH_LIFT_MIN_MODEL_PROB and
+      lateral_offset <= VISION_UNTRACKED_APPROACH_LIFT_MAX_LATERAL_OFFSET and
+      d_rel <= VISION_UNTRACKED_APPROACH_LIFT_MAX_DISTANCE and
+      closing_speed >= VISION_UNTRACKED_APPROACH_LIFT_MIN_CLOSING_SPEED
+    )
+    near_low_qualifier = (
+      VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_EGO_SPEED <= v_ego <= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_EGO_SPEED and
+      lead_prob >= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_MODEL_PROB and
+      lateral_offset <= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_LATERAL_OFFSET and
+      VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_DISTANCE <= d_rel <= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_DISTANCE and
+      closing_speed >= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_CLOSING_SPEED
+    )
+    # Confidence is relaxed only for a centered lead with both a bounded far
+    # geometry, an evidenced ego-speed class, and substantially stronger closing
+    # evidence than the standard path.
+    far_closing_qualifier = (
+      VISION_UNTRACKED_APPROACH_LIFT_MIN_EGO_SPEED <= v_ego <= VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_EGO_SPEED and
+      lead_prob >= VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_MODEL_PROB and
+      lateral_offset <= VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_LATERAL_OFFSET and
+      VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_DISTANCE <= d_rel <= VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_DISTANCE and
+      closing_speed >= VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_CLOSING_SPEED and
+      closing_ratio >= VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_CLOSING_RATIO
+    )
+    if not (standard_qualifier or near_low_qualifier or far_closing_qualifier):
       return None
 
     desired_gap = float(desired_follow_distance(v_ego, lead.vLead, t_follow))
-    gap_excess = float(lead.dRel) - desired_gap
+    gap_excess = d_rel - desired_gap
     if gap_excess < VISION_UNTRACKED_APPROACH_LIFT_MIN_GAP_EXCESS:
       return 0.0
 
@@ -1012,6 +1050,15 @@ class LongitudinalPlanner:
 
   def update_vision_untracked_approach_lift_cap(self, raw_cap, output_a_target, prev_output_a_target,
                                                 now_t, untracked):
+    # A lift cap is throttle-only. If the planner is already braking, discard
+    # pending/held state so this path cannot preserve or introduce a negative cap.
+    if float(output_a_target) <= 0.0:
+      self.untracked_vision_approach_lift_confirm_t = 0.0
+      self.untracked_vision_approach_lift_cap = None
+      self.untracked_vision_approach_lift_target = None
+      self.untracked_vision_approach_lift_hold_until = 0.0
+      return None
+
     if untracked and raw_cap is not None:
       if self.untracked_vision_approach_lift_cap is None:
         self.untracked_vision_approach_lift_confirm_t = min(
@@ -1019,7 +1066,7 @@ class LongitudinalPlanner:
           VISION_UNTRACKED_APPROACH_LIFT_CONFIRM_TIME,
         )
         if self.untracked_vision_approach_lift_confirm_t >= VISION_UNTRACKED_APPROACH_LIFT_CONFIRM_TIME:
-          self.untracked_vision_approach_lift_cap = float(prev_output_a_target)
+          self.untracked_vision_approach_lift_cap = max(0.0, float(prev_output_a_target))
       if self.untracked_vision_approach_lift_cap is not None:
         self.untracked_vision_approach_lift_target = float(raw_cap)
         self.untracked_vision_approach_lift_hold_until = now_t + VISION_UNTRACKED_APPROACH_LIFT_HOLD_TIME
@@ -1037,7 +1084,7 @@ class LongitudinalPlanner:
 
     lower = active_cap - VISION_UNTRACKED_APPROACH_LIFT_RATE_DOWN * self.dt
     upper = active_cap + VISION_UNTRACKED_APPROACH_LIFT_RATE_UP * self.dt
-    active_cap = float(np.clip(target, lower, upper))
+    active_cap = max(0.0, float(np.clip(target, lower, upper)))
     self.untracked_vision_approach_lift_cap = active_cap
 
     if not holding and active_cap >= float(output_a_target) - 1e-6:

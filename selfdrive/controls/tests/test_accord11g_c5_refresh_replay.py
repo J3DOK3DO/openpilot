@@ -21,7 +21,10 @@ from openpilot.selfdrive.controls.controlsd import limit_curvature_to_plan
 from openpilot.selfdrive.controls.lib.latcontrol_pid import LatControlPID
 from openpilot.selfdrive.controls.lib.latcontrol_torque import LatControlTorque
 from openpilot.selfdrive.controls.lib.longcontrol import LongCtrlState
-from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
+from openpilot.selfdrive.controls.lib.longitudinal_planner import (
+  LongitudinalPlanner,
+  VISION_UNTRACKED_APPROACH_LIFT_MAX_ACCEL,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -78,22 +81,53 @@ def test_c5a_road_constants_preserve_observed_positive_untracked_punch(road):
   assert road["requested_accel"] > 1.0
 
 
-@pytest.mark.xfail(strict=True, reason="C5-A RED: current pretracking lift does not recognize A_LOW_C0_48")
 def test_c5a_red_low_near_positive_punch_is_eligible_for_existing_pretracking_family():
   road = A_LOW_C0_48
   lead = _vision_lead(road["d_rel"], road["v_lead"], road["model_prob"], road["y_rel"])
 
-  # Future C5-A work should adapt this existing family, not introduce a parallel
-  # policy. A selected cap value is deliberately not prescribed by this RED.
-  assert LongitudinalPlanner.get_vision_untracked_approach_lift_cap(lead, road["v_ego"], 1.25) is not None
+  cap = LongitudinalPlanner.get_vision_untracked_approach_lift_cap(lead, road["v_ego"], 1.25)
+  assert cap is not None
+  assert 0.0 <= cap <= VISION_UNTRACKED_APPROACH_LIFT_MAX_ACCEL
+  assert cap < road["requested_accel"]
+  assert road["requested_accel"] - cap > 0.75
 
 
-@pytest.mark.xfail(strict=True, reason="C5-A RED: current pretracking lift rejects A_HIGH_C0_72 confidence")
 def test_c5a_red_moderate_far_positive_punch_is_eligible_for_existing_pretracking_family():
   road = A_HIGH_C0_72
   lead = _vision_lead(road["d_rel"], road["v_lead"], road["model_prob"], road["y_rel"])
 
-  assert LongitudinalPlanner.get_vision_untracked_approach_lift_cap(lead, road["v_ego"], 1.25) is not None
+  cap = LongitudinalPlanner.get_vision_untracked_approach_lift_cap(lead, road["v_ego"], 1.25)
+  assert cap is not None
+  assert 0.0 <= cap <= VISION_UNTRACKED_APPROACH_LIFT_MAX_ACCEL
+  assert cap < road["requested_accel"]
+  assert road["requested_accel"] - cap > 0.75
+
+
+def test_c5a_far_lift_closing_ratio_boundary_keeps_mild_closure_outside_evidence_window():
+  # The relaxed far path requires 0.12 closing ratio: retain A_HIGH_C0_72
+  # (~0.1309) while rejecting the independent 30/27/110 0.10 regression.
+  admitted = _vision_lead(
+    A_HIGH_C0_72["d_rel"], A_HIGH_C0_72["v_lead"], A_HIGH_C0_72["model_prob"], A_HIGH_C0_72["y_rel"],
+  )
+  rejected = _vision_lead(110.0, 27.0, 0.90, 0.0)
+
+  assert LongitudinalPlanner.get_vision_untracked_approach_lift_cap(admitted, A_HIGH_C0_72["v_ego"], 1.25) is not None
+  assert LongitudinalPlanner.get_vision_untracked_approach_lift_cap(rejected, 30.0, 1.25) is None
+
+
+def test_c5a_far_relaxed_lift_is_bounded_to_the_evidenced_ego_speed_class():
+  admitted = _vision_lead(
+    A_HIGH_C0_72["d_rel"], A_HIGH_C0_72["v_lead"], 0.868, A_HIGH_C0_72["y_rel"],
+  )
+  above_evidence_speed = 24.01
+  # Preserve A_HIGH's far centered geometry and relaxed closing ratio. The
+  # sub-standard confidence isolates the far relaxed path from the standard one.
+  rejected = _vision_lead(
+    A_HIGH_C0_72["d_rel"], above_evidence_speed * (1.0 - 0.13), 0.868, A_HIGH_C0_72["y_rel"],
+  )
+
+  assert LongitudinalPlanner.get_vision_untracked_approach_lift_cap(admitted, A_HIGH_C0_72["v_ego"], 1.25) is not None
+  assert LongitudinalPlanner.get_vision_untracked_approach_lift_cap(rejected, above_evidence_speed, 1.25) is None
 
 
 def test_c5a_preservation_opening_lead_control_is_not_a_closing_cap_case():
@@ -106,6 +140,40 @@ def test_c5a_preservation_opening_lead_control_is_not_a_closing_cap_case():
   assert requested_accel > 0.0
 
 
+@pytest.mark.parametrize("v_ego, d_rel, v_lead, model_prob, y_rel", [
+  (A_LOW_C0_48["v_ego"], A_LOW_C0_48["d_rel"], A_LOW_C0_48["v_ego"] + 0.1, A_LOW_C0_48["model_prob"], A_LOW_C0_48["y_rel"]),
+  (A_LOW_C0_48["v_ego"], A_LOW_C0_48["d_rel"], A_LOW_C0_48["v_ego"] - 0.2, A_LOW_C0_48["model_prob"], A_LOW_C0_48["y_rel"]),
+  (A_LOW_C0_48["v_ego"], A_LOW_C0_48["d_rel"], A_LOW_C0_48["v_lead"], 0.98, A_LOW_C0_48["y_rel"]),
+  (A_LOW_C0_48["v_ego"], 36.0, A_LOW_C0_48["v_lead"], A_LOW_C0_48["model_prob"], A_LOW_C0_48["y_rel"]),
+  (A_LOW_C0_48["v_ego"], A_LOW_C0_48["d_rel"], A_LOW_C0_48["v_lead"], A_LOW_C0_48["model_prob"], 0.76),
+], ids=["opening", "non_closing", "low_confidence", "implausibly_far", "off_path"])
+def test_c5a_near_low_qualifier_rejects_outside_its_narrow_evidence_window(v_ego, d_rel, v_lead, model_prob, y_rel):
+  lead = _vision_lead(d_rel, v_lead, model_prob, y_rel)
+  assert LongitudinalPlanner.get_vision_untracked_approach_lift_cap(lead, v_ego, 1.25) is None
+
+
+@pytest.mark.parametrize("d_rel, v_lead, model_prob, y_rel", [
+  (A_HIGH_C0_72["d_rel"], A_HIGH_C0_72["v_ego"] + 0.1, A_HIGH_C0_72["model_prob"], A_HIGH_C0_72["y_rel"]),
+  (A_HIGH_C0_72["d_rel"], A_HIGH_C0_72["v_lead"], A_HIGH_C0_72["model_prob"], 1.01),
+  (A_HIGH_C0_72["d_rel"], A_HIGH_C0_72["v_lead"], 0.84, A_HIGH_C0_72["y_rel"]),
+  (116.0, A_HIGH_C0_72["v_lead"], A_HIGH_C0_72["model_prob"], A_HIGH_C0_72["y_rel"]),
+  (A_HIGH_C0_72["d_rel"], A_HIGH_C0_72["v_ego"] - 2.4, A_HIGH_C0_72["model_prob"], A_HIGH_C0_72["y_rel"]),
+], ids=["opening", "large_lateral_offset", "weak_confidence", "too_distant", "too_slow_closing"])
+def test_c5a_far_moderate_qualifier_rejects_without_strong_closing_geometry(d_rel, v_lead, model_prob, y_rel):
+  lead = _vision_lead(d_rel, v_lead, model_prob, y_rel)
+  assert LongitudinalPlanner.get_vision_untracked_approach_lift_cap(lead, A_HIGH_C0_72["v_ego"], 1.25) is None
+
+
+@pytest.mark.parametrize("lead", [
+  _vision_lead(A_LOW_C0_48["d_rel"], A_LOW_C0_48["v_lead"], A_LOW_C0_48["model_prob"], A_LOW_C0_48["y_rel"]),
+  None,
+], ids=["radar", "invalid"])
+def test_c5a_qualifiers_do_not_affect_radar_or_invalid_leads(lead):
+  if lead is not None:
+    lead.radar = True
+  assert LongitudinalPlanner.get_vision_untracked_approach_lift_cap(lead, A_LOW_C0_48["v_ego"], 1.25) is None
+
+
 def test_c5a_preservation_urgent_closing_control_remains_negative():
   # C0/69, 13:53:32.026 UAE, A_FAR_07. Model confidence/lateral fields and
   # prior planner state were not retained, so no full planner replay is claimed.
@@ -116,6 +184,70 @@ def test_c5a_preservation_urgent_closing_control_remains_negative():
   assert raw_mpc_accel < 0.0
   assert policy_output < 0.0
   assert requested_accel < 0.0
+
+
+def test_c5a_preservation_positive_lift_cap_cannot_raise_urgent_negative_target():
+  road = A_HIGH_C0_72
+  lead = _vision_lead(road["d_rel"], road["v_lead"], road["model_prob"], road["y_rel"])
+  cap = LongitudinalPlanner.get_vision_untracked_approach_lift_cap(lead, road["v_ego"], 1.25)
+
+  assert cap is not None and cap >= 0.0
+  urgent_negative_target = -0.788
+  state = SimpleNamespace()
+  assert LongitudinalPlanner.update_vision_untracked_approach_lift_cap(
+    state, cap, urgent_negative_target, 0.5, 1.0, True,
+  ) is None
+  assert state.untracked_vision_approach_lift_cap is None
+  assert min(urgent_negative_target, cap) == urgent_negative_target
+
+
+def test_c5a_approach_lift_positive_held_negative_positive_requires_fresh_confirmation():
+  state = SimpleNamespace(
+    dt=0.05,
+    untracked_vision_approach_lift_confirm_t=0.0,
+    untracked_vision_approach_lift_cap=None,
+    untracked_vision_approach_lift_target=None,
+    untracked_vision_approach_lift_hold_until=0.0,
+  )
+  now = 0.0
+
+  # A normal six-tick confirmation establishes an active positive held cap.
+  for _ in range(6):
+    now += state.dt
+    cap = LongitudinalPlanner.update_vision_untracked_approach_lift_cap(state, 0.0, 0.5, 0.5, now, True)
+  assert cap is not None and cap >= 0.0
+  assert state.untracked_vision_approach_lift_hold_until > now
+
+  # Braking clears every pending/held lift field immediately.
+  now += state.dt
+  assert LongitudinalPlanner.update_vision_untracked_approach_lift_cap(state, 0.0, -0.1, 0.5, now, True) is None
+  assert state.untracked_vision_approach_lift_confirm_t == 0.0
+  assert state.untracked_vision_approach_lift_cap is None
+  assert state.untracked_vision_approach_lift_target is None
+  assert state.untracked_vision_approach_lift_hold_until == 0.0
+
+  # Returning positive cannot reuse the cleared confirmation or held cap.
+  now += state.dt
+  assert LongitudinalPlanner.update_vision_untracked_approach_lift_cap(state, 0.0, 0.5, 0.5, now, True) is None
+  assert state.untracked_vision_approach_lift_confirm_t == pytest.approx(state.dt)
+  for _ in range(4):
+    now += state.dt
+    assert LongitudinalPlanner.update_vision_untracked_approach_lift_cap(state, 0.0, 0.5, 0.5, now, True) is None
+  now += state.dt
+  assert LongitudinalPlanner.update_vision_untracked_approach_lift_cap(state, 0.0, 0.5, 0.5, now, True) is not None
+
+
+def test_c5a_negative_untracked_slow_lead_cap_remains_authoritative_over_lift_cap():
+  v_ego = 21.45
+  lead = _vision_lead(60.0, 18.45, 0.98, 0.0)
+  planner = LongitudinalPlanner(_accord_cp(), init_v=v_ego)
+
+  negative_slow_cap = planner.get_vision_untracked_slow_lead_cap(lead, v_ego, -1.0)
+  nonnegative_lift_cap = planner.get_vision_untracked_approach_lift_cap(lead, v_ego, 1.25)
+
+  assert negative_slow_cap is not None and negative_slow_cap < 0.0
+  assert nonnegative_lift_cap is not None and nonnegative_lift_cap >= 0.0
+  assert min(negative_slow_cap, nonnegative_lift_cap) == negative_slow_cap
 
 
 # C0/70 B_HIGH_C0_70, 13:54:57.699--13:55:00.259 UAE.  These are compacted
