@@ -156,7 +156,7 @@ class CANParser:
     # Honda route replays query can_valid() on every frame. Keep the detailed
     # Honda-only diagnostic useful without repeating it for one invalid spell.
     self._prev_can_valid: bool = False
-    self._is_honda_or_acura_dbc = dbc_name.startswith(("honda_", "acura_"))
+    self._is_honda_or_acura_dbc = "honda" in dbc_name or "acura" in dbc_name
 
   def _add_message(self, name_or_addr: str | int, freq: int = None) -> None:
     if isinstance(name_or_addr, numbers.Number):

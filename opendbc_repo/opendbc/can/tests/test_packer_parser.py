@@ -1,5 +1,7 @@
-import pytest
 import random
+from pathlib import Path
+
+import pytest
 
 from opendbc.can import CANPacker, CANParser
 from opendbc.can import parser as can_parser
@@ -48,6 +50,24 @@ class TestCanParserPacker:
     ]
     assert not parser.can_valid
     assert len(errors) == 2
+
+  def test_path_form_honda_can_invalid_logs_once_on_falling_edge(self, monkeypatch):
+    dbc_path = (Path(__file__).parents[2] / "dbc" / "honda_civic_touring_2016_can_generated.dbc").resolve()
+    parser = CANParser(str(dbc_path), [("STEERING_CONTROL", 10)], 0)
+    packer = CANPacker("honda_civic_touring_2016_can_generated")
+    errors = []
+    monkeypatch.setattr(can_parser.carlog, "error", errors.append)
+
+    self._make_valid(parser, packer, "STEERING_CONTROL")
+    parser.update([2_000_000_000, []])
+    for _ in range(4):
+      assert parser.can_valid
+    assert not parser.can_valid
+    assert [set(error) for error in errors] == [{"can invalid - message", "bus"}]
+
+    for _ in range(10):
+      assert not parser.can_valid
+    assert len(errors) == 1
 
   def test_non_honda_can_invalid_never_logs_honda_detailed_errors(self, monkeypatch):
     parser = CANParser(TEST_DBC, [("CAN_FD_MESSAGE", 10)], 0)
