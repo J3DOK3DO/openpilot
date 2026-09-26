@@ -2,12 +2,68 @@ import pytest
 import random
 
 from opendbc.can import CANPacker, CANParser
+from opendbc.can import parser as can_parser
 from opendbc.can.tests import TEST_DBC
 
 MAX_BAD_COUNTER = 5
 
 
 class TestCanParserPacker:
+  @staticmethod
+  def _make_valid(parser, packer, message_name, timestamp=1):
+    parser.update([timestamp, [packer.make_can_msg(message_name, 0, {"COUNTER": 0})]])
+    assert parser.can_valid
+
+  def test_honda_can_invalid_detailed_errors_only_log_on_falling_edge(self, monkeypatch):
+    parser = CANParser("honda_civic_touring_2016_can_generated", [("STEERING_CONTROL", 10)], 0)
+    packer = CANPacker("honda_civic_touring_2016_can_generated")
+    errors = []
+    monkeypatch.setattr(can_parser.carlog, "error", errors.append)
+
+    # The parser starts invalid, but no true-to-false transition has occurred.
+    assert not parser.can_valid
+    assert errors == []
+
+    self._make_valid(parser, packer, "STEERING_CONTROL")
+    parser.update([2_000_000_000, []])
+
+    # Existing invalid-count semantics require five queries before canValid
+    # falls. Only that transition gets the timeout/missing detailed error.
+    for _ in range(4):
+      assert parser.can_valid
+      assert errors == []
+    assert not parser.can_valid
+    assert [set(error) for error in errors] == [{"can invalid - message", "bus"}]
+
+    for _ in range(10):
+      assert not parser.can_valid
+    assert len(errors) == 1
+
+    # A valid observation re-arms exactly one future falling-edge diagnostic.
+    self._make_valid(parser, packer, "STEERING_CONTROL", 2_000_000_001)
+    parser.message_states[next(iter(parser.message_states))].counter_fail = MAX_BAD_COUNTER
+    assert not parser.can_valid
+    assert [set(error) for error in errors] == [
+      {"can invalid - message", "bus"}, {"counter invalid - message", "bus"},
+    ]
+    assert not parser.can_valid
+    assert len(errors) == 2
+
+  def test_non_honda_can_invalid_never_logs_honda_detailed_errors(self, monkeypatch):
+    parser = CANParser(TEST_DBC, [("CAN_FD_MESSAGE", 10)], 0)
+    packer = CANPacker(TEST_DBC)
+    errors = []
+    monkeypatch.setattr(can_parser.carlog, "error", errors.append)
+
+    assert not parser.can_valid
+    parser.update([1, [packer.make_can_msg("CAN_FD_MESSAGE", 0, {})]])
+    assert parser.can_valid
+    parser.update([2_000_000_000, []])
+    for _ in range(20):
+      parser.can_valid
+
+    assert errors == []
+
   def test_packer(self):
     packer = CANPacker(TEST_DBC)
 
