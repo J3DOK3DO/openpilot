@@ -3,7 +3,6 @@ import numpy as np
 from abc import abstractmethod, ABC
 from types import SimpleNamespace
 
-from cereal import custom
 from openpilot.selfdrive.locationd.helpers import Pose
 
 
@@ -16,10 +15,6 @@ class LatControl(ABC):
 
     # we define the steer torque scale as [-1.0...1.0]
     self.steer_max = 1.0
-
-    # Controller-agnostic lateral provenance builder. Individual controllers may
-    # populate their own diagnostic fields; control code never reads this state.
-    self.starpilot_lateral_state = custom.StarPilotLateralState.new_message()
 
   @abstractmethod
   def update(self, active: bool, CS, VM, params, steer_limited_by_safety: bool, desired_curvature: float, curvature_limited: bool, lat_delay: float, calibrated_pose: Pose, model_data: capnp._DynamicStructReader, starpilot_toggles: SimpleNamespace):

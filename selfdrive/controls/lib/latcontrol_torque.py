@@ -2,7 +2,7 @@ import math
 import numpy as np
 from collections import deque
 
-from cereal import log
+from cereal import custom, log
 from opendbc.car.honda.values import CAR as HONDA_CAR, HondaFlags
 from opendbc.car.hyundai.values import HyundaiFlags
 from opendbc.car.lateral import get_friction
@@ -97,6 +97,8 @@ class LatControlTorque(LatControl):
     self.prev_output_torque = 0.0
     self.debug_counter = 0
     self.prev_desired_lateral_accel = 0.0
+    self.starpilot_lateral_state = custom.StarPilotLateralState.new_message()
+
     self.is_bolt = CP.carFingerprint in BOLT_CARS
     self.is_bolt_2022_2023 = CP.carFingerprint in BOLT_2022_2023_CARS
     self.is_bolt_2018_2021 = CP.carFingerprint in BOLT_2018_2021_CARS
