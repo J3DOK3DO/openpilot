@@ -140,6 +140,42 @@ def test_c5a_preservation_opening_lead_control_is_not_a_closing_cap_case():
   assert requested_accel > 0.0
 
 
+def test_c5a_opening_or_off_path_transition_clears_active_cap_before_positive_catchup():
+  state = SimpleNamespace(
+    dt=0.05,
+    untracked_vision_approach_lift_confirm_t=0.0,
+    untracked_vision_approach_lift_cap=None,
+    untracked_vision_approach_lift_target=None,
+    untracked_vision_approach_lift_hold_until=0.0,
+  )
+  now = 0.0
+
+  # Establish a confirmed cap from a qualifying closing lead.
+  for _ in range(6):
+    now += state.dt
+    active_cap = LongitudinalPlanner.update_vision_untracked_approach_lift_cap(
+      state, 0.0, 0.5, 0.5, now, True,
+    )
+  assert active_cap is not None and active_cap < 0.5
+
+  # The helper has no lead identity/qualification evidence once raw_cap is
+  # None, so an opening or off-path transition must clear rather than hold it.
+  now += state.dt
+  cleared_cap = LongitudinalPlanner.update_vision_untracked_approach_lift_cap(
+    state, None, 1.25, 0.5, now, True,
+  )
+  assert cleared_cap is None
+  assert state.untracked_vision_approach_lift_cap is None
+  assert state.untracked_vision_approach_lift_target is None
+  assert state.untracked_vision_approach_lift_hold_until == 0.0
+
+  # With no stale cap returned, the next legitimate positive target passes
+  # through unsuppressed when the planner applies this optional cap.
+  next_target = 1.25
+  applied_target = min(next_target, cleared_cap) if cleared_cap is not None else next_target
+  assert applied_target == next_target
+
+
 @pytest.mark.parametrize("v_ego, d_rel, v_lead, model_prob, y_rel", [
   (A_LOW_C0_48["v_ego"], A_LOW_C0_48["d_rel"], A_LOW_C0_48["v_ego"] + 0.1, A_LOW_C0_48["model_prob"], A_LOW_C0_48["y_rel"]),
   (A_LOW_C0_48["v_ego"], A_LOW_C0_48["d_rel"], A_LOW_C0_48["v_ego"] - 0.2, A_LOW_C0_48["model_prob"], A_LOW_C0_48["y_rel"]),
@@ -420,7 +456,7 @@ def test_c5b_high_sparse_controller_replay_preserves_force_and_selected_command_
     assert kwargs["gas_force"] == pytest.approx(force, abs=3e-6)
     assert (kwargs["gas_force"] < min_gas) is brake_side
     selected_braking = kwargs["braking"]
-    assert bool(actuators.c5ObsHondaBrakeSide) is selected_braking
+    assert bool(actuators.c5ObsHondaBrakeSide) is brake_side
     assert bool(actuators.c5ObsHondaBrakeRequest) is selected_braking
     assert bool(actuators.c5ObsHondaBrakeLights) is selected_braking
     assert bool(actuators.c5ObsHondaGasCommanded) is (kwargs["gas_force"] > min_gas and not selected_braking)
@@ -438,6 +474,28 @@ def test_c5b_high_sparse_controller_replay_preserves_force_and_selected_command_
     assert not (values["GAS_COMMAND"] > 0 and values["BRAKE_LIGHTS"] == 1)
 
   assert sum(b and not a for a, b in zip(observed_sides, observed_sides[1:], strict=False)) == 9
+
+
+def test_c5b_observability_distinguishes_raw_side_from_selected_brake_during_release_debounce(monkeypatch):
+  _, controller, calls = _controller_and_acc_capture(monkeypatch)
+
+  entered, _, entered_kwargs, _ = _replay_crossover_sample(controller, calls, 100, B_HIGH_C0_70[1])
+  assert entered_kwargs["braking"]
+  assert entered.c5ObsHondaBrakeSide
+  assert entered.c5ObsHondaBrakeRequest
+
+  # This sample crosses to raw gas side, but its modest negative request is
+  # intentionally still within the selected-brake release debounce.
+  released_side, _, release_kwargs, (_, _, _, force, min_gas, raw_brake_side) = _replay_crossover_sample(
+    controller, calls, 102, B_HIGH_C0_70[2],
+  )
+  assert force > min_gas
+  assert not raw_brake_side
+  assert release_kwargs["braking"]
+  assert not released_side.c5ObsHondaBrakeSide
+  assert released_side.c5ObsHondaBrakeRequest
+  assert released_side.c5ObsHondaBrakeLights
+  assert not released_side.c5ObsHondaGasCommanded
 
 
 def test_c5d_torque_path_has_lateral_provenance_builder():

@@ -1052,7 +1052,11 @@ class LongitudinalPlanner:
                                                 now_t, untracked):
     # A lift cap is throttle-only. If the planner is already braking, discard
     # pending/held state so this path cannot preserve or introduce a negative cap.
-    if float(output_a_target) <= 0.0:
+    # This helper receives only the cap value, not enough lead identity or
+    # qualification state to distinguish a noisy qualifying sample from an
+    # opening/off-path lead. Do not retain a throttle cap once the qualifier
+    # disappears or normal lead tracking takes over.
+    if float(output_a_target) <= 0.0 or raw_cap is None or not untracked:
       self.untracked_vision_approach_lift_confirm_t = 0.0
       self.untracked_vision_approach_lift_cap = None
       self.untracked_vision_approach_lift_target = None
@@ -1070,9 +1074,6 @@ class LongitudinalPlanner:
       if self.untracked_vision_approach_lift_cap is not None:
         self.untracked_vision_approach_lift_target = float(raw_cap)
         self.untracked_vision_approach_lift_hold_until = now_t + VISION_UNTRACKED_APPROACH_LIFT_HOLD_TIME
-    elif self.untracked_vision_approach_lift_cap is None:
-      self.untracked_vision_approach_lift_confirm_t = 0.0
-
     active_cap = self.untracked_vision_approach_lift_cap
     if active_cap is None:
       return None

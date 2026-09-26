@@ -1304,7 +1304,7 @@ def test_vision_untracked_approach_lift_ignores_unqualified_leads(lead):
   assert planner.get_vision_untracked_approach_lift_cap(lead, v_ego, 1.4) is None
 
 
-def test_vision_untracked_approach_lift_is_rate_limited_and_held():
+def test_vision_untracked_approach_lift_is_rate_limited_while_qualified():
   CP = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC)
   planner = LongitudinalPlanner(CP, init_v=25.0, init_a=0.5)
   now = 0.0
@@ -1317,12 +1317,11 @@ def test_vision_untracked_approach_lift_is_rate_limited_and_held():
   assert cap is not None
   assert 0.45 < cap < 0.5
 
-  held_cap = planner.update_vision_untracked_approach_lift_cap(None, 0.5, 0.5, now + planner.dt, True)
-  assert held_cap is not None
-  assert held_cap < cap
+  assert planner.update_vision_untracked_approach_lift_cap(None, 0.5, 0.5, now + planner.dt, True) is None
+  assert planner.untracked_vision_approach_lift_cap is None
 
 
-def test_vision_untracked_approach_lift_releases_after_hold_or_tracking():
+def test_vision_untracked_approach_lift_clears_on_tracked_lead_takeover():
   CP = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC)
   planner = LongitudinalPlanner(CP, init_v=25.0, init_a=0.5)
   now = 0.0
@@ -1331,12 +1330,10 @@ def test_vision_untracked_approach_lift_releases_after_hold_or_tracking():
     now += planner.dt
     planner.update_vision_untracked_approach_lift_cap(0.0, 0.5, 0.5, now, True)
 
-  previous_cap = planner.untracked_vision_approach_lift_cap
   now += planner.dt
-  releasing_cap = planner.update_vision_untracked_approach_lift_cap(None, 0.5, 0.5, now, False)
+  assert planner.update_vision_untracked_approach_lift_cap(0.0, 0.5, 0.5, now, False) is None
 
-  assert releasing_cap is not None
-  assert releasing_cap > previous_cap
+  assert planner.untracked_vision_approach_lift_cap is None
 
 
 def test_vision_slow_stopped_lead_cap_brakes_earlier_for_confident_stop():

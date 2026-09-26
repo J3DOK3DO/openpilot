@@ -572,8 +572,10 @@ class CarController(CarControllerBase):
           c5_obs_honda_sample = self.mvl_accord_mode
           c5_obs_honda_force = gas_pedal_force
           if self.mvl_accord_mode:
-            c5_obs_honda_brake_side = bool(mvl_radar_owned and CC.longActive and bosch_braking)
-            c5_obs_honda_brake_request = c5_obs_honda_brake_side
+            # Keep BrakeSide as the raw force-threshold provenance. The
+            # selected, debounced command is recorded separately below.
+            c5_obs_honda_brake_side = bool(CC.longActive and gas_pedal_force < min_gas)
+            c5_obs_honda_brake_request = bool(mvl_radar_owned and CC.longActive and bosch_braking)
             c5_obs_honda_gas_commanded = bool(
               mvl_radar_owned and CC.longActive and gas_pedal_force > min_gas and not bosch_braking
             )
