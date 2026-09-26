@@ -25,6 +25,8 @@ LongCtrlState = structs.CarControl.Actuators.LongControlState
 
 BOSCH_BRAKE_FORCE_ON = -0.12
 BOSCH_BRAKE_FORCE_RELEASE = -0.02
+ACCORD_BOSCH_RELEASE_CONFIRM_TICKS = 10
+ACCORD_BOSCH_CLEAR_RELEASE_FORCE = 0.10
 
 
 def update_honda_bosch_braking(braking: bool, gas_pedal_force: float, stopping: bool, long_active: bool) -> bool:
@@ -36,6 +38,34 @@ def update_honda_bosch_braking(braking: bool, gas_pedal_force: float, stopping: 
   if braking:
     return gas_pedal_force <= BOSCH_BRAKE_FORCE_RELEASE
   return gas_pedal_force < BOSCH_BRAKE_FORCE_ON
+
+
+def update_accord_bosch_braking(
+  braking: bool,
+  release_counter: int,
+  gas_pedal_force: float,
+  min_gas_accel: float,
+  original_accel: float,
+  stopping: bool,
+  long_active: bool,
+) -> tuple[bool, int]:
+  """Select the Accord crossover brake command with release-side debounce only."""
+  if not long_active:
+    return False, 0
+  # Brake entry must remain an immediate response to the existing crossover
+  # coordinate. Only release around min-gas is debounced.
+  if stopping or gas_pedal_force < min_gas_accel:
+    return True, 0
+  if not braking:
+    return False, 0
+  # A clearly positive requested acceleration or force is not a crossover pulse.
+  if original_accel >= 0.0 or gas_pedal_force >= min_gas_accel + ACCORD_BOSCH_CLEAR_RELEASE_FORCE:
+    return False, 0
+
+  release_counter += 1
+  if release_counter >= ACCORD_BOSCH_RELEASE_CONFIRM_TICKS:
+    return False, 0
+  return True, release_counter
 
 
 def get_civic_bosch_modified_torque_lpf_tau(torque_cmd: float, prev_torque_cmd: float, v_ego: float) -> float:
@@ -253,6 +283,8 @@ class CarController(CarControllerBase):
     self.steering_pressed_robust_prev = False
     self.bosch_last_gas = 0.0
     self.bosch_braking = False
+    self.accord_bosch_braking = False
+    self.accord_bosch_release_counter = 0
     self.bosch_gas_factor = self.param_store.get_float("HondaGasFactorParams", default=1.0)
     self.bosch_wind_factor = self.param_store.get_float("HondaWindFactorParams", default=1.0)
     self.bosch_wind_factor_before_brake = self.bosch_wind_factor
@@ -371,6 +403,9 @@ class CarController(CarControllerBase):
     # checksums stay synchronized. v3 deliberately uses an idle lane/object payload first; model-based
     # cluster rendering is deferred until the ownership/DTC handover is proven.
     mvl_radar_owned = self.mvl_accord_mode and CS.canfd_relay_open and not CS.stock_acc_alive
+    if self.mvl_accord_mode and not (mvl_radar_owned and CC.longActive):
+      self.accord_bosch_braking = False
+      self.accord_bosch_release_counter = 0
     if mvl_radar_owned and self.CP.openpilotLongitudinalControl:
       if CC.enabled and not self.last_acc_enabled:
         self.radar_hud_pulse = 30
@@ -517,17 +552,35 @@ class CarController(CarControllerBase):
 
           stopping = actuators.longControlState == LongCtrlState.stopping
           bosch_braking = None
-          if not self.mvl_accord_mode:
+          if self.mvl_accord_mode:
+            self.accord_bosch_braking, self.accord_bosch_release_counter = update_accord_bosch_braking(
+              self.accord_bosch_braking,
+              self.accord_bosch_release_counter,
+              gas_pedal_force,
+              min_gas,
+              accel,
+              stopping,
+              mvl_radar_owned and CC.longActive,
+            )
+            bosch_braking = self.accord_bosch_braking
+          else:
             self.bosch_braking = update_honda_bosch_braking(self.bosch_braking, gas_pedal_force, stopping, CC.longActive)
             bosch_braking = self.bosch_braking
           self.stopping_counter = self.stopping_counter + 1 if stopping else 0
-          # Snapshot the exact existing crossover decision after all current
-          # learning and command calculations; no stateful operation is repeated.
+          # Snapshot the selected Accord command after all current learning and
+          # command calculations; non-MVL telemetry remains source-compatible.
           c5_obs_honda_sample = self.mvl_accord_mode
           c5_obs_honda_force = gas_pedal_force
-          c5_obs_honda_brake_side = bool(CC.longActive and gas_pedal_force < min_gas)
-          c5_obs_honda_brake_request = bool(mvl_radar_owned and c5_obs_honda_brake_side)
-          c5_obs_honda_gas_commanded = bool(mvl_radar_owned and CC.longActive and gas_pedal_force > min_gas)
+          if self.mvl_accord_mode:
+            c5_obs_honda_brake_side = bool(mvl_radar_owned and CC.longActive and bosch_braking)
+            c5_obs_honda_brake_request = c5_obs_honda_brake_side
+            c5_obs_honda_gas_commanded = bool(
+              mvl_radar_owned and CC.longActive and gas_pedal_force > min_gas and not bosch_braking
+            )
+          else:
+            c5_obs_honda_brake_side = bool(CC.longActive and gas_pedal_force < min_gas)
+            c5_obs_honda_brake_request = bool(mvl_radar_owned and c5_obs_honda_brake_side)
+            c5_obs_honda_gas_commanded = bool(mvl_radar_owned and CC.longActive and gas_pedal_force > min_gas)
           if not self.mvl_accord_mode or mvl_radar_owned:
             can_sends.extend(
               hondacan.create_acc_commands(

@@ -12,7 +12,7 @@ import pytest
 from cereal import log
 from opendbc.car import gen_empty_fingerprint, structs
 from opendbc.car.honda import hondacan
-from opendbc.car.honda.carcontroller import CarController
+from opendbc.car.honda.carcontroller import CarController, update_accord_bosch_braking
 from opendbc.car.honda.hondacan import create_acc_commands as pack_acc_commands
 from opendbc.car.honda.interface import CarInterface
 from opendbc.car.honda.values import CAR, DBC
@@ -250,10 +250,10 @@ def test_c5a_negative_untracked_slow_lead_cap_remains_authoritative_over_lift_ca
   assert min(negative_slow_cap, nonnegative_lift_cap) == negative_slow_cap
 
 
-# C0/70 B_HIGH_C0_70, 13:54:57.699--13:55:00.259 UAE.  These are compacted
-# C5-OBS sample-side transitions: mono, vEgo, original/controller accel, pitch,
-# hill, wind factor/contribution, force, minGas, brakeSide, brakeRequest,
-# gasCommanded. The 18 rows retain all nine observed false->true brake-side rises.
+# C0/70 B_HIGH_C0_70, 13:54:57.699--13:55:00.259 UAE. These are compacted
+# pre-C5-B C5-OBS transitions: mono, vEgo, original/controller accel, pitch,
+# hill, wind factor/contribution, force, minGas, raw brake side, old brake
+# request, old gas command. Their sparse timing does not establish release cadence.
 B_HIGH_C0_70 = (
   (4262204832747, 26.6748714, -0.2350337, -0.2350337, .01792399, .17582490, .43771970, .08707219, .02786336, 0.0, False, False, True),
   (4262263766758, 26.6782322, -0.2666418, -0.2666418, .01670513, .16386969, .43745854, .08704188, -.01573018, 0.0, True, True, False),
@@ -290,11 +290,11 @@ def _controller_and_acc_capture(monkeypatch):
   return cp, controller, calls
 
 
-def _replay_crossover_sample(controller, calls, frame, sample):
-  _, v_ego, original_accel, controller_accel, pitch, hill, wind_factor, wind_contrib, force, min_gas, brake_side, brake_request, gas_commanded = sample
+def _replay_crossover_sample(controller, calls, frame, sample, long_active=True, radar_owned=True):
+  _, v_ego, original_accel, controller_accel, pitch, hill, wind_factor, wind_contrib, force, min_gas, brake_side, _, _ = sample
   cc = structs.CarControl.new_message()
   cc.enabled = True
-  cc.longActive = True  # Explicit same-cycle branch state; not a nearest CC join.
+  cc.longActive = long_active  # Explicit branch state; not a nearest CC join.
   cc.latActive = False
   cc.actuators.accel = original_accel
   cc.actuators.longControlState = LongCtrlState.pid
@@ -308,7 +308,7 @@ def _replay_crossover_sample(controller, calls, frame, sample):
   out.aEgo = original_accel
   out.cruiseState.available = True
   cs = SimpleNamespace(
-    out=out, v_cruise_factor=1.0, canfd_relay_open=True, stock_acc_alive=False,
+    out=out, v_cruise_factor=1.0, canfd_relay_open=radar_owned, stock_acc_alive=False,
     hud_tick=False, supp_tick=False, radar_50hz_tick=False, radar_5hz_tick=False,
     radar_ref_counter=0, is_metric=False, acc_hud={}, lkas_hud={"LKAS_READY": 0},
     cruise_buttons=0, cruise_setting=0, scm_ambient_light=0,
@@ -318,15 +318,95 @@ def _replay_crossover_sample(controller, calls, frame, sample):
   controller.frame = frame
   actuators, _ = controller.update(cc.as_reader(), cs, 0, _toggles())
   args, kwargs = calls[-1]
-  return actuators, args, kwargs, (controller_accel, hill, wind_contrib, force, min_gas, brake_side, brake_request, gas_commanded)
+  return actuators, args, kwargs, (controller_accel, hill, wind_contrib, force, min_gas, brake_side)
 
 
-def test_c5b_high_train_same_cycle_controller_replay_and_mutex(monkeypatch):
+def test_c5b_helper_enters_braking_immediately_and_resets_confirmation():
+  assert update_accord_bosch_braking(False, 7, -0.01, 0.0, -0.2, False, True) == (True, 0)
+
+
+def test_c5b_helper_stopping_and_inactive_reset():
+  assert update_accord_bosch_braking(False, 7, 0.05, 0.0, -0.2, True, True) == (True, 0)
+  assert update_accord_bosch_braking(True, 7, -0.01, 0.0, -0.2, False, False) == (False, 0)
+
+
+def test_c5b_controller_clears_state_on_radar_ownership_or_long_active_loss(monkeypatch):
+  _, controller, calls = _controller_and_acc_capture(monkeypatch)
+  _replay_crossover_sample(controller, calls, 100, B_HIGH_C0_70[1])
+  assert controller.accord_bosch_braking
+
+  _replay_crossover_sample(controller, calls, 102, B_HIGH_C0_70[1], radar_owned=False)
+  assert not controller.accord_bosch_braking
+  assert controller.accord_bosch_release_counter == 0
+
+  _replay_crossover_sample(controller, calls, 104, B_HIGH_C0_70[1])
+  assert controller.accord_bosch_braking
+  _replay_crossover_sample(controller, calls, 106, B_HIGH_C0_70[1], long_active=False)
+  assert not controller.accord_bosch_braking
+  assert controller.accord_bosch_release_counter == 0
+
+
+def test_c5b_helper_brake_side_recurrence_resets_release_confirmation():
+  braking, release_counter = update_accord_bosch_braking(True, 3, 0.01, 0.0, -0.2, False, True)
+  assert (braking, release_counter) == (True, 4)
+  assert update_accord_bosch_braking(braking, release_counter, -0.02, 0.0, -0.2, False, True) == (True, 0)
+
+
+def test_c5b_helper_releases_after_ten_consecutive_gas_side_opportunities():
+  braking, release_counter = True, 0
+  for _ in range(9):
+    braking, release_counter = update_accord_bosch_braking(braking, release_counter, 0.01, 0.0, -0.2, False, True)
+    assert (braking, release_counter) != (False, 0)
+  assert update_accord_bosch_braking(braking, release_counter, 0.01, 0.0, -0.2, False, True) == (False, 0)
+
+
+def test_c5b_helper_releases_immediately_for_clear_acceleration_request_or_force():
+  assert update_accord_bosch_braking(True, 4, 0.01, 0.0, 0.0, False, True) == (False, 0)
+  assert update_accord_bosch_braking(True, 4, 0.10, 0.0, -0.2, False, True) == (False, 0)
+
+
+def test_c5b_high_run_lengths_reduce_pulses_without_delaying_brake_entry():
+  # B_HIGH_C0_70's 139 50 Hz rows, reduced only to raw threshold-side runs.
+  raw_runs = (("G", 4), ("B", 5), ("G", 3), ("B", 25), ("G", 24), ("B", 3), ("G", 12), ("B", 3),
+              ("G", 5), ("B", 7), ("G", 2), ("B", 5), ("G", 8), ("B", 15), ("G", 2), ("B", 3),
+              ("G", 5), ("B", 8))
+  assert sum(length for _, length in raw_runs) == 139
+  assert sum(side == "B" and previous == "G" for (previous, _), (side, _) in zip(raw_runs, raw_runs[1:], strict=False)) == 9
+
+  cp = _accord_cp()
+  braking, release_counter, selected_rises = False, 0, 0
+
+  class FakePacker:
+    @staticmethod
+    def make_can_msg(name, bus, values):
+      return name, bus, values
+
+  for side, length in raw_runs:
+    for tick in range(length):
+      was_braking = braking
+      force = -0.02 if side == "B" else 0.01
+      braking, release_counter = update_accord_bosch_braking(
+        braking, release_counter, force, 0.0, -0.2, False, True,
+      )
+      if side == "B" and tick == 0 and not was_braking:
+        assert braking
+      selected_rises += braking and not was_braking
+
+      values = pack_acc_commands(
+        FakePacker(), SimpleNamespace(pt=1), True, True, -0.2, 500, 0, cp, gas_force=force, braking=braking,
+      )[-1][2]
+      assert not (values["GAS_COMMAND"] > 0 and values["BRAKE_REQUEST"] == 1)
+      assert not (values["GAS_COMMAND"] > 0 and values["BRAKE_LIGHTS"] == 1)
+
+  assert selected_rises <= 3
+
+
+def test_c5b_high_sparse_controller_replay_preserves_force_and_selected_command_mutex(monkeypatch):
   cp, controller, calls = _controller_and_acc_capture(monkeypatch)
   observed_sides = []
   for i, sample in enumerate(B_HIGH_C0_70):
     actuators, args, kwargs, observed = _replay_crossover_sample(controller, calls, 100 + 2 * i, sample)
-    controller_accel, hill, wind_contrib, force, min_gas, brake_side, brake_request, gas_commanded = observed
+    controller_accel, hill, wind_contrib, force, min_gas, brake_side = observed
 
     assert args[4] == pytest.approx(sample[2])  # original requested accel is the crossover input
     assert actuators.accel == pytest.approx(controller_accel)
@@ -339,8 +419,11 @@ def test_c5b_high_train_same_cycle_controller_replay_and_mutex(monkeypatch):
     assert actuators.c5ObsHondaWindContribution == pytest.approx(wind_contrib, abs=2e-6)
     assert kwargs["gas_force"] == pytest.approx(force, abs=3e-6)
     assert (kwargs["gas_force"] < min_gas) is brake_side
-    assert actuators.c5ObsHondaBrakeRequest is brake_request
-    assert actuators.c5ObsHondaGasCommanded is gas_commanded
+    selected_braking = kwargs["braking"]
+    assert bool(actuators.c5ObsHondaBrakeSide) is selected_braking
+    assert bool(actuators.c5ObsHondaBrakeRequest) is selected_braking
+    assert bool(actuators.c5ObsHondaBrakeLights) is selected_braking
+    assert bool(actuators.c5ObsHondaGasCommanded) is (kwargs["gas_force"] > min_gas and not selected_braking)
     observed_sides.append(brake_side)
 
     class FakePacker:
@@ -350,7 +433,7 @@ def test_c5b_high_train_same_cycle_controller_replay_and_mutex(monkeypatch):
 
     values = pack_acc_commands(FakePacker(), SimpleNamespace(pt=1), True, True, args[4], args[5], args[6], cp,
                                gas_force=kwargs["gas_force"], braking=kwargs["braking"])[-1][2]
-    assert bool(values["BRAKE_REQUEST"]) is brake_request
+    assert bool(values["BRAKE_REQUEST"]) is selected_braking
     assert not (values["GAS_COMMAND"] > 0 and values["BRAKE_REQUEST"] == 1)
     assert not (values["GAS_COMMAND"] > 0 and values["BRAKE_LIGHTS"] == 1)
 

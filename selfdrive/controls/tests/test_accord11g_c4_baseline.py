@@ -102,7 +102,7 @@ def test_accord_crossover_uses_original_requested_accel(monkeypatch):
   assert args[4] < requested_accel
   assert kwargs["gas_force"] == pytest.approx(requested_accel + get_honda_bosch_wind_brake_mps2(2.0))
   assert kwargs["gas_force"] > args[4]
-  assert kwargs["braking"] is None
+  assert kwargs["braking"] is True
 
 
 @pytest.mark.parametrize("active,accel,gas_force,braking", [
