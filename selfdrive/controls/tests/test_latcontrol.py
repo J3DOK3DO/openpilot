@@ -229,6 +229,47 @@ class TestLatControl:
     assert debug_state.frictionScale > 0.0
     assert debug_state.frictionJerkDeadzone > 0.0
     assert debug_state.lowSpeedFactor > 0.0
+    with custom.StarPilotLateralState.from_bytes(debug_state.to_bytes()) as reader:
+      assert reader.active
+      assert reader.frictionThreshold == pytest.approx(debug_state.frictionThreshold)
+
+  def test_pid_exposes_serializable_lateral_provenance_state(self):
+    controller, _, _, _, _ = self._build_pid_controller(HONDA.HONDA_ACCORD_11G)
+
+    state = controller.starpilot_lateral_state
+    state.c5ObsValid = True
+    state.c5ObsVEgo = 12.5
+    state.c5ObsLatActive = True
+    state.c5ObsModelActionCurvature = -0.012
+    state.c5ObsGuardReason = 7
+    state.c5ObsFinalDesired = -0.010
+
+    with custom.StarPilotLateralState.from_bytes(state.to_bytes()) as reader:
+      assert reader.c5ObsValid
+      assert reader.c5ObsVEgo == pytest.approx(12.5)
+      assert reader.c5ObsLatActive
+      assert reader.c5ObsModelActionCurvature == pytest.approx(-0.012)
+      assert reader.c5ObsGuardReason == 7
+      assert reader.c5ObsFinalDesired == pytest.approx(-0.010)
+
+  def test_pid_provenance_member_is_output_transparent(self):
+    observed, VM, CS, params, starpilot_toggles = self._build_pid_controller(HONDA.HONDA_ACCORD_11G)
+    pre_repair, pre_repair_VM, pre_repair_CS, pre_repair_params, pre_repair_toggles = self._build_pid_controller(HONDA.HONDA_ACCORD_11G)
+    delattr(pre_repair, "starpilot_lateral_state")
+
+    # Inactive, normal active, and reversing-curvature calls exercise the stateful
+    # PID branches while the second controller emulates the pre-repair object.
+    for active, desired_curvature in ((False, 0.004), (True, 0.004), (True, -0.004)):
+      output, angle, lac_log = observed.update(
+        active, CS, VM, params, False, desired_curvature, False, 0.2, None, None, starpilot_toggles,
+      )
+      pre_repair_output, pre_repair_angle, pre_repair_log = pre_repair.update(
+        active, pre_repair_CS, pre_repair_VM, pre_repair_params, False, desired_curvature, False, 0.2, None, None, pre_repair_toggles,
+      )
+
+      assert output == pre_repair_output
+      assert angle == pre_repair_angle
+      assert lac_log.to_bytes() == pre_repair_log.to_bytes()
 
   @staticmethod
   def _build_torque_controller(car_name, force_torque=False):

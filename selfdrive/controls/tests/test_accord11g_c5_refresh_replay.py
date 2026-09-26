@@ -450,10 +450,10 @@ def test_c5d_torque_path_has_lateral_provenance_builder():
   assert hasattr(LatControlTorque(cp.as_reader(), ci, 0.01), "starpilot_lateral_state")
 
 
-@pytest.mark.xfail(strict=True, reason="C5-D RED: PID has no controller-agnostic lateral provenance builder")
 def test_c5d_pid_path_publishes_controller_agnostic_lateral_provenance():
   cp = _accord_cp()
-  assert hasattr(LatControlPID(cp.as_reader(), SimpleNamespace(), 0.01), "starpilot_lateral_state")
+  ci = SimpleNamespace(get_steer_feedforward_function=lambda: lambda *_args: 0.0)
+  assert hasattr(LatControlPID(cp.as_reader(), ci, 0.01), "starpilot_lateral_state")
 
 
 def test_c5d_guard_observation_is_output_pure():
