@@ -401,6 +401,25 @@ def test_c5b_helper_releases_immediately_for_clear_acceleration_request_or_force
   assert update_accord_bosch_braking(True, 4, 0.10, 0.0, -0.2, False, True) == (False, 0)
 
 
+def test_c5b_road_regression_positive_request_near_zero_force_does_not_reenter_brake():
+  # Sep 29 C5 AIO road evidence, route 000000c8--b98b9baf9e, segment 42.
+  # The planner requested positive acceleration while road-load compensation left
+  # the crossover force only 0.000171 m/s^2 below min-gas. This produced a
+  # brake -> gas -> brake -> gas crossover pulse at highway speed.
+  assert update_accord_bosch_braking(
+    False, 0, -0.000170927, 0.0, 0.052252166, False, True,
+  ) == (False, 0)
+
+
+def test_c5b_positive_request_still_allows_brake_for_material_negative_force():
+  # Keep genuine downhill/road-load braking available: a positive requested
+  # vehicle acceleration must not globally override a materially negative
+  # road-load-adjusted force.
+  assert update_accord_bosch_braking(
+    False, 0, -0.05, 0.0, 0.05, False, True,
+  ) == (True, 0)
+
+
 def test_c5b_high_run_lengths_reduce_pulses_without_delaying_brake_entry():
   # B_HIGH_C0_70's 139 50 Hz rows, reduced only to raw threshold-side runs.
   raw_runs = (("G", 4), ("B", 5), ("G", 3), ("B", 25), ("G", 24), ("B", 3), ("G", 12), ("B", 3),

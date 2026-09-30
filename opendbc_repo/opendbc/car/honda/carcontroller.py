@@ -27,6 +27,8 @@ BOSCH_BRAKE_FORCE_ON = -0.12
 BOSCH_BRAKE_FORCE_RELEASE = -0.02
 ACCORD_BOSCH_RELEASE_CONFIRM_TICKS = 10
 ACCORD_BOSCH_CLEAR_RELEASE_FORCE = 0.10
+ACCORD_BOSCH_POSITIVE_REQUEST_ACCEL = 0.03
+ACCORD_BOSCH_POSITIVE_REQUEST_FORCE_MARGIN = 0.005
 
 
 def update_honda_bosch_braking(braking: bool, gas_pedal_force: float, stopping: bool, long_active: bool) -> bool:
@@ -52,9 +54,18 @@ def update_accord_bosch_braking(
   """Select the Accord crossover brake command with release-side debounce only."""
   if not long_active:
     return False, 0
-  # Brake entry must remain an immediate response to the existing crossover
-  # coordinate. Only release around min-gas is debounced.
-  if stopping or gas_pedal_force < min_gas_accel:
+  if stopping:
+    return True, 0
+  # Sep 29 road evidence showed a positive accel request could re-enter braking
+  # when road-load compensation left gas_pedal_force only a few milligals below
+  # min-gas. Suppress only this near-zero crossover case; materially negative
+  # force still enters braking immediately.
+  if (original_accel >= ACCORD_BOSCH_POSITIVE_REQUEST_ACCEL and
+      gas_pedal_force >= min_gas_accel - ACCORD_BOSCH_POSITIVE_REQUEST_FORCE_MARGIN):
+    return False, 0
+  # Brake entry otherwise remains an immediate response to the existing
+  # requested-accel crossover coordinate. Only release around min-gas is debounced.
+  if gas_pedal_force < min_gas_accel:
     return True, 0
   if not braking:
     return False, 0
