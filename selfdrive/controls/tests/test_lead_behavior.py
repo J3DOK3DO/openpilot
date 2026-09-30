@@ -207,6 +207,23 @@ def test_should_hold_tracked_vision_lead_releases_beyond_exit_gap():
   )
 
 
+def test_should_hold_tracked_vision_lead_keeps_closing_highway_road_case():
+  # Sep 29 C5 AIO route 000000c8--b98b9baf9e segment 19: this lead had
+  # already been tracked, remained centered/high-confidence, then trackingLead
+  # dropped while ego was closing from roughly 80 m.
+  assert should_hold_tracked_vision_lead(
+    True, 80.44, 315.65, 6.0, 30.26,
+    model_prob=0.993, y_rel=0.02, radar=False, v_lead=28.81,
+  )
+
+
+def test_should_hold_tracked_vision_lead_does_not_extend_highway_lead_pulling_away():
+  assert not should_hold_tracked_vision_lead(
+    True, 80.44, 315.65, 6.0, 30.26,
+    model_prob=0.993, y_rel=0.02, radar=False, v_lead=31.50,
+  )
+
+
 def test_should_hold_tracked_vision_lead_ignores_shortened_model_horizon_in_bolt_stutter_case():
   assert should_hold_tracked_vision_lead(
     True, 54.6, 40.0, 6.0, 19.4,

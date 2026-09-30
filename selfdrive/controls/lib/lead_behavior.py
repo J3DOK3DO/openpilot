@@ -17,6 +17,9 @@ VISION_LEAD_TRACK_CONTINUITY_MAX_LATERAL_OFFSET = 1.1
 VISION_LEAD_TRACK_CONTINUITY_TIME_GAP_GAIN = 0.55
 VISION_LEAD_TRACK_CONTINUITY_FULL_SPEED = 20.0
 VISION_LEAD_TRACK_CONTINUITY_FADE_SPEED = 25.0
+VISION_LEAD_TRACK_CONTINUITY_CLOSING_MIN_SPEED = 22.0
+VISION_LEAD_TRACK_CONTINUITY_CLOSING_GAIN = 0.20
+VISION_LEAD_TRACK_CONTINUITY_CLOSING_CAP = 0.40
 TRACKED_LEAD_CATCHUP_BIAS_MIN_HEADWAY_MARGIN = 0.40
 TRACKED_LEAD_CATCHUP_BIAS_FULL_HEADWAY_MARGIN = 0.70
 TRACKED_LEAD_CATCHUP_BIAS_MIN_FADE_START_MARGIN = 0.75
@@ -61,7 +64,8 @@ def should_track_lead(lead_status: bool, lead_distance: float, model_length: flo
 
 def should_hold_tracked_vision_lead(lead_status: bool, lead_distance: float, model_length: float, stop_distance: float,
                                     v_ego: float, *, model_prob: float,
-                                    y_rel: float, path_y: float = 0.0, radar: bool = False) -> bool:
+                                    y_rel: float, path_y: float = 0.0, radar: bool = False,
+                                    v_lead: float | None = None) -> bool:
   if not lead_status or radar or float(model_prob) < VISION_LEAD_TRACK_EXIT_MIN_MODEL_PROB:
     return False
   if abs(float(y_rel) + float(path_y)) > VISION_LEAD_TRACK_EXIT_MAX_LATERAL_OFFSET:
@@ -85,6 +89,12 @@ def should_hold_tracked_vision_lead(lead_status: bool, lead_distance: float, mod
     VISION_LEAD_TRACK_CONTINUITY_FADE_SPEED,
   )
   continuity_time_gap = VISION_LEAD_TRACK_EXIT_TIME_GAP + VISION_LEAD_TRACK_CONTINUITY_TIME_GAP_GAIN * speed_factor
+  if v_lead is not None and float(v_ego) >= VISION_LEAD_TRACK_CONTINUITY_CLOSING_MIN_SPEED:
+    closing_speed = max(0.0, float(v_ego) - float(v_lead))
+    continuity_time_gap += min(
+      closing_speed * VISION_LEAD_TRACK_CONTINUITY_CLOSING_GAIN,
+      VISION_LEAD_TRACK_CONTINUITY_CLOSING_CAP,
+    )
   continuity_exit_limit = max(VISION_LEAD_TRACK_MIN_DISTANCE,
                               float(v_ego) * continuity_time_gap + tracking_buffer)
   return float(lead_distance) < continuity_exit_limit
