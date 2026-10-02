@@ -1,8 +1,12 @@
 import numpy as np
 
 
+def is_honda_accord_11g(CP):
+  return getattr(CP, "brand", "") == "honda" and str(getattr(CP, "carFingerprint", "")) == "HONDA_ACCORD_11G"
+
+
 def get_honda_accord_11g_reduction_only_v_cruise(CP, stock_v_cruise, policy_v_cruise):
-  if getattr(CP, "brand", "") != "honda" or str(getattr(CP, "carFingerprint", "")) != "HONDA_ACCORD_11G":
+  if not is_honda_accord_11g(CP):
     return None
   if np.isfinite(policy_v_cruise) and policy_v_cruise >= 0.0:
     return float(min(stock_v_cruise, policy_v_cruise))

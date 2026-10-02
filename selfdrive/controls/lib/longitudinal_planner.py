@@ -22,6 +22,7 @@ from openpilot.selfdrive.controls.lib.lead_follow_policy import is_nonurgent_dup
 from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import (
   get_far_follow_output_slew_rates,
   get_follow_prebrake_min_headway,
+  is_honda_accord_11g,
   get_honda_accord_11g_reduction_only_v_cruise,
   get_honda_accord_lead_departure_tune,
   get_honda_accord_stop_go_accel_cap,
@@ -600,6 +601,7 @@ def get_accel_from_plan(speeds, accels, action_t=DT_MDL, vEgoStopping=0.05):
 class LongitudinalPlanner:
   def __init__(self, CP, init_v=0.0, init_a=0.0, dt=DT_MDL):
     self.CP = CP
+    self.is_honda_accord_11g = is_honda_accord_11g(CP)
     self.mpc = LongitudinalMpc(dt=dt, hold_stopped_lead_position=use_stopped_lead_position(CP),
                               sync_model_lead_filters=use_model_lead_filter_sync(CP))
     self.fcw = False
@@ -683,6 +685,7 @@ class LongitudinalPlanner:
     self.effective_t_follow = None
     self.vision_low_speed_stop_hold_until = 0.0
     self.vision_lead_approach_confirm_t = 0.0
+    self.close_lead_brake_hold_remaining = [0.0, 0.0]
     self.untracked_slow_lead_confirm_t = 0.0
     self.untracked_vision_approach_lift_confirm_t = 0.0
     self.untracked_vision_approach_lift_cap = None
@@ -779,7 +782,7 @@ class LongitudinalPlanner:
     ))
     return float(np.clip(a_launch, 0.0, accel_cap))
 
-  def get_close_lead_brake_cap(self, lead, v_ego, accel_min):
+  def get_close_lead_brake_demand(self, lead, v_ego):
     if lead is None or not lead.status:
       return None
 
@@ -796,11 +799,38 @@ class LongitudinalPlanner:
     projected_ttc = available_gap / max(projected_closing_speed, 0.1)
     if projected_ttc > CLOSE_LEAD_BRAKE_CAP_MAX_TTC:
       return None
-    required_decel = (projected_closing_speed ** 2) / (2.0 * available_gap) + 0.7 * lead_brake
-    if required_decel < 0.2:
+
+    return (projected_closing_speed ** 2) / (2.0 * available_gap) + 0.7 * lead_brake
+
+  def get_close_lead_brake_cap(self, lead, v_ego, accel_min):
+    required_decel = self.get_close_lead_brake_demand(lead, v_ego)
+    if required_decel is None or required_decel < 0.2:
+      return None
+    return max(accel_min, -required_decel)
+
+  def update_close_lead_brake_cap(self, lead, lead_index, v_ego, accel_min):
+    """Keep Accord 11G close-lead braking continuous across short aLeadK estimate dips."""
+    required_decel = self.get_close_lead_brake_demand(lead, v_ego)
+    if required_decel is None:
+      self.close_lead_brake_hold_remaining[lead_index] = 0.0
       return None
 
-    return max(accel_min, -required_decel)
+    if not self.is_honda_accord_11g:
+      self.close_lead_brake_hold_remaining[lead_index] = 0.0
+      return max(accel_min, -required_decel) if required_decel >= 0.2 else None
+
+    if required_decel >= 0.2:
+      self.close_lead_brake_hold_remaining[lead_index] = VISION_LEAD_APPROACH_CONFIRM_TIME
+      return max(accel_min, -required_decel)
+
+    if self.close_lead_brake_hold_remaining[lead_index] > 0.0:
+      self.close_lead_brake_hold_remaining[lead_index] = max(
+        0.0, self.close_lead_brake_hold_remaining[lead_index] - self.dt,
+      )
+      if self.close_lead_brake_hold_remaining[lead_index] > 1e-6:
+        return max(accel_min, -max(required_decel, VISION_LEAD_APPROACH_MIN_DECEL))
+
+    return None
 
   @staticmethod
   def get_inside_gap_closing_lead_accel_cap(lead, v_ego, accel_min, t_follow):
@@ -1395,6 +1425,19 @@ class LongitudinalPlanner:
       now_t < self.manual_stop_resume_override_until
     )
 
+  def is_basic_lead_depart_ready(self, lead, v_ego, standstill_nudge_gap):
+    if lead is None or not lead.status:
+      return False
+
+    lead_speed = max(float(getattr(lead, "vLead", 0.0)), 0.0)
+    if self.is_honda_accord_11g and lead_speed < float(v_ego):
+      return False
+
+    return bool(
+      lead_speed >= STANDSTILL_LEAD_DEPART_MIN_LEAD_SPEED and
+      float(getattr(lead, "dRel", 0.0)) >= standstill_nudge_gap + STANDSTILL_LEAD_DEPART_MIN_GAP_MARGIN
+    )
+
   def is_confident_lead_depart(self, lead, v_ego):
     if lead is None or not lead.status:
       return False
@@ -1430,6 +1473,8 @@ class LongitudinalPlanner:
     lead_gap = float(getattr(lead, "dRel", 0.0))
     lead_speed = max(float(getattr(lead, "vLead", 0.0)), 0.0)
     lead_accel = float(getattr(lead, "aLeadK", 0.0))
+    if self.is_honda_accord_11g and lead_speed < float(v_ego):
+      return False
     creep_tune = get_toyota_rav4_tss2_lead_creep_tune(self.CP)
     min_lead_speed, min_lead_accel = (
       (STANDSTILL_LEAD_CREEP_RELEASE_MIN_LEAD_SPEED,
@@ -2657,6 +2702,8 @@ class LongitudinalPlanner:
     tracked_vision_approach_caps = []
     vision_low_speed_stop_active = False
     vision_brake_cap_active = False
+    if not lead_control_active:
+      self.close_lead_brake_hold_remaining = [0.0, 0.0]
     if lead_control_active:
       if (not experimental_mode and
           not bool(getattr(sm['starpilotPlan'], 'forcingStop', False)) and
@@ -2668,13 +2715,13 @@ class LongitudinalPlanner:
         )
         if corolla_cap is not None:
           close_lead_caps.append(corolla_cap)
-      for lead in (self.lead_one, self.lead_two):
+      for lead_index, lead in enumerate((self.lead_one, self.lead_two)):
         rav4_early_lead_cap = get_toyota_rav4_tss2_early_lead_cap(
           self.CP, lead, v_ego, output_accel_min,
         )
         if rav4_early_lead_cap is not None:
           rav4_early_lead_caps.append(rav4_early_lead_cap)
-        cap = self.get_close_lead_brake_cap(lead, v_ego, output_accel_min)
+        cap = self.update_close_lead_brake_cap(lead, lead_index, v_ego, output_accel_min)
         if cap is not None:
           close_lead_caps.append(cap)
         cap = get_honda_crv_5g_low_speed_stopped_lead_cap(
@@ -2730,9 +2777,7 @@ class LongitudinalPlanner:
     confident_depart_detected = any(self.is_confident_lead_depart(lead, float(sm['carState'].vEgo))
                                     for lead in (self.lead_one, self.lead_two))
     lead_depart_ready = any(
-      lead.status and
-      lead.vLead >= STANDSTILL_LEAD_DEPART_MIN_LEAD_SPEED and
-      lead.dRel >= standstill_nudge_gap + STANDSTILL_LEAD_DEPART_MIN_GAP_MARGIN
+      self.is_basic_lead_depart_ready(lead, float(sm['carState'].vEgo), standstill_nudge_gap)
       for lead in (self.lead_one, self.lead_two)
     )
     depart_safety_veto = (not bool(getattr(starpilot_toggles, "radar_takeoffs", False))
