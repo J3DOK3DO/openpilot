@@ -22,6 +22,7 @@ from openpilot.selfdrive.controls.lib.lead_follow_policy import is_nonurgent_dup
 from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import (
   get_far_follow_output_slew_rates,
   get_follow_prebrake_min_headway,
+  get_honda_accord_11g_reduction_only_v_cruise,
   get_honda_accord_lead_departure_tune,
   get_honda_accord_stop_go_accel_cap,
   get_honda_accord_stop_go_accel_rise_rate,
@@ -59,7 +60,7 @@ from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import (
   get_tracked_lead_catchup_headway_margins,
 )
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
-from openpilot.selfdrive.car.cruise import V_CRUISE_UNSET
+from openpilot.selfdrive.car.cruise import V_CRUISE_MAX, V_CRUISE_UNSET
 from openpilot.common.swaglog import cloudlog
 from cereal import log
 
@@ -208,6 +209,23 @@ VISION_UNTRACKED_APPROACH_LIFT_CONFIRM_TIME = 0.30
 VISION_UNTRACKED_APPROACH_LIFT_HOLD_TIME = 0.75
 VISION_UNTRACKED_APPROACH_LIFT_RATE_DOWN = 0.35
 VISION_UNTRACKED_APPROACH_LIFT_RATE_UP = 0.25
+# C5-A: narrowly admit the two observed pretracking vision-lead geometries to
+# the existing positive-acceleration lift path. These are qualifiers only; the
+# cap calculation below remains the shared 0..MAX_ACCEL throttle-only path.
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_MODEL_PROB = 0.99
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_EGO_SPEED = 5.0
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_EGO_SPEED = 12.0
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_LATERAL_OFFSET = 0.75
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_DISTANCE = 8.0
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_DISTANCE = 35.0
+VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_CLOSING_SPEED = 0.4
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_MODEL_PROB = 0.85
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_EGO_SPEED = 24.0
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_LATERAL_OFFSET = 1.0
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_DISTANCE = 70.0
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_DISTANCE = 115.0
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_CLOSING_SPEED = 2.5
+VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_CLOSING_RATIO = 0.12
 VISION_SLOW_LEAD_MAX_SPEED = 5.0
 VISION_SLOW_LEAD_MIN_CLOSING_SPEED = 1.5
 VISION_SLOW_LEAD_TRIGGER_TTC = 4.5
@@ -605,6 +623,23 @@ class LongitudinalPlanner:
     self.v_model_error = 0.0
     self.output_a_target = 0.0
     self.output_should_stop = False
+    # Temporary C5 planner provenance defaults also cover test/replay callers
+    # that publish before an update cycle. These scalars have no control consumer.
+    self.c5_obs_base_t_follow = 0.0
+    self.c5_obs_effective_t_follow = 0.0
+    self.c5_obs_raw_mpc_accel = 0.0
+    self.c5_obs_policy_input = 0.0
+    self.c5_obs_policy_output = 0.0
+    self.c5_obs_gap_error = 0.0
+    self.c5_obs_catchup_cap = 0.0
+    self.c5_obs_catchup_cap_active = False
+    self.c5_obs_brake_floor = 0.0
+    self.c5_obs_brake_floor_active = False
+    self.c5_obs_accel_min = 0.0
+    self.c5_obs_accel_max = 0.0
+    self.c5_obs_tracking_lead = False
+    self.c5_obs_panic_bypass = False
+    self.c5_obs_post_departure = False
     self.far_follow_brake_slew_rate, self.far_follow_release_slew_rate = get_far_follow_output_slew_rates(CP)
     self.untracked_slow_lead_decel_scale = get_untracked_slow_lead_decel_scale(CP)
     self.tracked_lead_catchup_headway_margins = get_tracked_lead_catchup_headway_margins(CP)
@@ -964,23 +999,44 @@ class LongitudinalPlanner:
     """Trim throttle before a confident vision lead reaches the tracking window."""
     if lead is None or not lead.status or bool(getattr(lead, "radar", False)):
       return None
-    if float(v_ego) < VISION_UNTRACKED_APPROACH_LIFT_MIN_EGO_SPEED:
-      return None
 
+    v_ego = float(v_ego)
     lead_prob = float(getattr(lead, "modelProb", 0.0))
-    if lead_prob < VISION_UNTRACKED_APPROACH_LIFT_MIN_MODEL_PROB:
-      return None
-    if abs(float(getattr(lead, "yRel", 0.0))) > VISION_UNTRACKED_APPROACH_LIFT_MAX_LATERAL_OFFSET:
-      return None
-    if float(lead.dRel) > VISION_UNTRACKED_APPROACH_LIFT_MAX_DISTANCE:
-      return None
+    d_rel = float(lead.dRel)
+    lateral_offset = abs(float(getattr(lead, "yRel", 0.0)))
+    closing_speed = v_ego - float(lead.vLead)
+    closing_ratio = closing_speed / max(v_ego, 0.1)
 
-    closing_speed = float(v_ego) - float(lead.vLead)
-    if closing_speed < VISION_UNTRACKED_APPROACH_LIFT_MIN_CLOSING_SPEED:
+    standard_qualifier = (
+      v_ego >= VISION_UNTRACKED_APPROACH_LIFT_MIN_EGO_SPEED and
+      lead_prob >= VISION_UNTRACKED_APPROACH_LIFT_MIN_MODEL_PROB and
+      lateral_offset <= VISION_UNTRACKED_APPROACH_LIFT_MAX_LATERAL_OFFSET and
+      d_rel <= VISION_UNTRACKED_APPROACH_LIFT_MAX_DISTANCE and
+      closing_speed >= VISION_UNTRACKED_APPROACH_LIFT_MIN_CLOSING_SPEED
+    )
+    near_low_qualifier = (
+      VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_EGO_SPEED <= v_ego <= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_EGO_SPEED and
+      lead_prob >= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_MODEL_PROB and
+      lateral_offset <= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_LATERAL_OFFSET and
+      VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_DISTANCE <= d_rel <= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MAX_DISTANCE and
+      closing_speed >= VISION_UNTRACKED_APPROACH_LIFT_NEAR_LOW_MIN_CLOSING_SPEED
+    )
+    # Confidence is relaxed only for a centered lead with both a bounded far
+    # geometry, an evidenced ego-speed class, and substantially stronger closing
+    # evidence than the standard path.
+    far_closing_qualifier = (
+      VISION_UNTRACKED_APPROACH_LIFT_MIN_EGO_SPEED <= v_ego <= VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_EGO_SPEED and
+      lead_prob >= VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_MODEL_PROB and
+      lateral_offset <= VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_LATERAL_OFFSET and
+      VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_DISTANCE <= d_rel <= VISION_UNTRACKED_APPROACH_LIFT_FAR_MAX_DISTANCE and
+      closing_speed >= VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_CLOSING_SPEED and
+      closing_ratio >= VISION_UNTRACKED_APPROACH_LIFT_FAR_MIN_CLOSING_RATIO
+    )
+    if not (standard_qualifier or near_low_qualifier or far_closing_qualifier):
       return None
 
     desired_gap = float(desired_follow_distance(v_ego, lead.vLead, t_follow))
-    gap_excess = float(lead.dRel) - desired_gap
+    gap_excess = d_rel - desired_gap
     if gap_excess < VISION_UNTRACKED_APPROACH_LIFT_MIN_GAP_EXCESS:
       return 0.0
 
@@ -998,6 +1054,19 @@ class LongitudinalPlanner:
 
   def update_vision_untracked_approach_lift_cap(self, raw_cap, output_a_target, prev_output_a_target,
                                                 now_t, untracked):
+    # A lift cap is throttle-only. If the planner is already braking, discard
+    # pending/held state so this path cannot preserve or introduce a negative cap.
+    # This helper receives only the cap value, not enough lead identity or
+    # qualification state to distinguish a noisy qualifying sample from an
+    # opening/off-path lead. Do not retain a throttle cap once the qualifier
+    # disappears or normal lead tracking takes over.
+    if float(output_a_target) <= 0.0 or raw_cap is None or not untracked:
+      self.untracked_vision_approach_lift_confirm_t = 0.0
+      self.untracked_vision_approach_lift_cap = None
+      self.untracked_vision_approach_lift_target = None
+      self.untracked_vision_approach_lift_hold_until = 0.0
+      return None
+
     if untracked and raw_cap is not None:
       if self.untracked_vision_approach_lift_cap is None:
         self.untracked_vision_approach_lift_confirm_t = min(
@@ -1005,13 +1074,10 @@ class LongitudinalPlanner:
           VISION_UNTRACKED_APPROACH_LIFT_CONFIRM_TIME,
         )
         if self.untracked_vision_approach_lift_confirm_t >= VISION_UNTRACKED_APPROACH_LIFT_CONFIRM_TIME:
-          self.untracked_vision_approach_lift_cap = float(prev_output_a_target)
+          self.untracked_vision_approach_lift_cap = max(0.0, float(prev_output_a_target))
       if self.untracked_vision_approach_lift_cap is not None:
         self.untracked_vision_approach_lift_target = float(raw_cap)
         self.untracked_vision_approach_lift_hold_until = now_t + VISION_UNTRACKED_APPROACH_LIFT_HOLD_TIME
-    elif self.untracked_vision_approach_lift_cap is None:
-      self.untracked_vision_approach_lift_confirm_t = 0.0
-
     active_cap = self.untracked_vision_approach_lift_cap
     if active_cap is None:
       return None
@@ -1023,7 +1089,7 @@ class LongitudinalPlanner:
 
     lower = active_cap - VISION_UNTRACKED_APPROACH_LIFT_RATE_DOWN * self.dt
     upper = active_cap + VISION_UNTRACKED_APPROACH_LIFT_RATE_UP * self.dt
-    active_cap = float(np.clip(target, lower, upper))
+    active_cap = max(0.0, float(np.clip(target, lower, upper)))
     self.untracked_vision_approach_lift_cap = active_cap
 
     if not holding and active_cap >= float(output_a_target) - 1e-6:
@@ -2040,7 +2106,12 @@ class LongitudinalPlanner:
 
     v_ego = get_planner_v_ego(self.CP, sm['carState'])
     scene_v_ego = float(sm['carState'].vEgo)
-    v_cruise = sm['starpilotPlan'].vCruise
+    policy_v_cruise = float(sm['starpilotPlan'].vCruise)
+    stock_v_cruise = min(float(sm['carState'].vCruise), V_CRUISE_MAX) * CV.KPH_TO_MS
+    accord_11g_v_cruise = get_honda_accord_11g_reduction_only_v_cruise(
+      self.CP, stock_v_cruise, policy_v_cruise,
+    )
+    v_cruise = policy_v_cruise if accord_11g_v_cruise is None else accord_11g_v_cruise
     if not np.isfinite(v_cruise):
       cloudlog.error(f"Longitudinal planner received non-finite vCruise={v_cruise}, falling back to v_ego={v_ego:.2f}")
       v_cruise = max(v_ego, 0.0)
@@ -2958,6 +3029,7 @@ class LongitudinalPlanner:
     # Keep the normal catch-up cap on this car; urgent braking remains outside
     # this comfort policy and is still allowed through unchanged.
     post_departure_bypass = post_departure_active and not is_toyota_rav4_tss2_post_departure_tune(self.CP)
+    c5_policy_input = float(output_a_target)
     follow_result = apply_follow_policy(
       self.lead_one,
       self.lead_two,
@@ -3194,6 +3266,22 @@ class LongitudinalPlanner:
       self.a_desired = min(self.a_desired, accord_stop_go_target)
       output_a_target = accord_stop_go_target
 
+    # Scalar snapshots only: no container allocation or control feedback.
+    self.c5_obs_base_t_follow = float(sm['starpilotPlan'].tFollow)
+    self.c5_obs_effective_t_follow = float(effective_t_follow)
+    self.c5_obs_raw_mpc_accel = float(self.a_desired_trajectory[0])
+    self.c5_obs_policy_input = c5_policy_input
+    self.c5_obs_policy_output = float(follow_result.target)
+    self.c5_obs_gap_error = float(desired_gap - policy_lead.dRel) if desired_gap is not None and policy_lead.status else 0.0
+    self.c5_obs_catchup_cap = float(follow_result.accel_cap or 0.0)
+    self.c5_obs_catchup_cap_active = follow_result.accel_cap is not None
+    self.c5_obs_brake_floor = float(follow_result.brake_floor or 0.0)
+    self.c5_obs_brake_floor_active = follow_result.brake_floor is not None
+    self.c5_obs_accel_min = float(output_accel_min)
+    self.c5_obs_accel_max = float(output_accel_max)
+    self.c5_obs_tracking_lead = bool(tracking_lead)
+    self.c5_obs_panic_bypass = bool(panic_bypass)
+    self.c5_obs_post_departure = bool(post_departure_bypass)
     self.output_a_target = output_a_target
     self.output_should_stop = bool(output_should_stop or vision_low_speed_stop_active)
 
@@ -3224,6 +3312,22 @@ class LongitudinalPlanner:
     longitudinalPlan.leadTrajectoryV1 = self.mpc.lead_xv_1[:, 1].tolist()
 
     longitudinalPlan.aTarget = float(self.output_a_target)
+    longitudinalPlan.c5ObsValid = True
+    longitudinalPlan.c5ObsBaseTFollow = self.c5_obs_base_t_follow
+    longitudinalPlan.c5ObsEffectiveTFollow = self.c5_obs_effective_t_follow
+    longitudinalPlan.c5ObsRawMpcAccel = self.c5_obs_raw_mpc_accel
+    longitudinalPlan.c5ObsPolicyInput = self.c5_obs_policy_input
+    longitudinalPlan.c5ObsPolicyOutput = self.c5_obs_policy_output
+    longitudinalPlan.c5ObsGapError = self.c5_obs_gap_error
+    longitudinalPlan.c5ObsCatchupCap = self.c5_obs_catchup_cap
+    longitudinalPlan.c5ObsCatchupCapActive = self.c5_obs_catchup_cap_active
+    longitudinalPlan.c5ObsBrakeFloor = self.c5_obs_brake_floor
+    longitudinalPlan.c5ObsBrakeFloorActive = self.c5_obs_brake_floor_active
+    longitudinalPlan.c5ObsAccelMin = self.c5_obs_accel_min
+    longitudinalPlan.c5ObsAccelMax = self.c5_obs_accel_max
+    longitudinalPlan.c5ObsTrackingLead = self.c5_obs_tracking_lead
+    longitudinalPlan.c5ObsPanicBypass = self.c5_obs_panic_bypass
+    longitudinalPlan.c5ObsPostDeparture = self.c5_obs_post_departure
     force_stop_handoff = bool(
       sm['starpilotPlan'].forcingStop and (
         sm['starpilotPlan'].forcingStopLength < 1.0 or

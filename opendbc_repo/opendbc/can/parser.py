@@ -153,6 +153,10 @@ class CANParser:
     self.can_invalid_cnt: int = CAN_INVALID_CNT
     self.last_nonempty_nanos: int = 0
     self._last_update_nanos: int = 0
+    # Honda route replays query can_valid() on every frame. Keep the detailed
+    # Honda-only diagnostic useful without repeating it for one invalid spell.
+    self._prev_can_valid: bool = False
+    self._is_honda_or_acura_dbc = "honda" in dbc_name or "acura" in dbc_name
 
   def _add_message(self, name_or_addr: str | int, freq: int = None) -> None:
     if isinstance(name_or_addr, numbers.Number):
@@ -217,7 +221,20 @@ class CANParser:
 
     # TODO: probably only want to increment this once per update() call
     self.can_invalid_cnt = 0 if valid else min(self.can_invalid_cnt + 1, CAN_INVALID_CNT)
-    return self.can_invalid_cnt < CAN_INVALID_CNT and counters_valid
+    result = self.can_invalid_cnt < CAN_INVALID_CNT and counters_valid
+
+    # Keep the existing rate-limited warnings above intact. The detailed error
+    # is Honda/Acura-specific and describes a completed canValid falling edge,
+    # so initial invalid state and repeated queries do not flood carlogs.
+    if self._is_honda_or_acura_dbc and self._prev_can_valid and not result:
+      for state in self.message_states.values():
+        if state.counter_fail >= MAX_BAD_COUNTER:
+          carlog.error({"counter invalid - message": state, "bus": self.bus})
+        if not state.valid(self._last_update_nanos, bus_timeout):
+          carlog.error({"can invalid - message": state, "bus": self.bus})
+
+    self._prev_can_valid = result
+    return result
 
   def update(self, strings, sendcan: bool = False):
     if strings and not isinstance(strings[0], list | tuple):

@@ -25,6 +25,10 @@ LongCtrlState = structs.CarControl.Actuators.LongControlState
 
 BOSCH_BRAKE_FORCE_ON = -0.12
 BOSCH_BRAKE_FORCE_RELEASE = -0.02
+ACCORD_BOSCH_RELEASE_CONFIRM_TICKS = 10
+ACCORD_BOSCH_CLEAR_RELEASE_FORCE = 0.10
+ACCORD_BOSCH_POSITIVE_REQUEST_ACCEL = 0.03
+ACCORD_BOSCH_POSITIVE_REQUEST_FORCE_MARGIN = 0.005
 
 
 def update_honda_bosch_braking(braking: bool, gas_pedal_force: float, stopping: bool, long_active: bool) -> bool:
@@ -36,6 +40,43 @@ def update_honda_bosch_braking(braking: bool, gas_pedal_force: float, stopping: 
   if braking:
     return gas_pedal_force <= BOSCH_BRAKE_FORCE_RELEASE
   return gas_pedal_force < BOSCH_BRAKE_FORCE_ON
+
+
+def update_accord_bosch_braking(
+  braking: bool,
+  release_counter: int,
+  gas_pedal_force: float,
+  min_gas_accel: float,
+  original_accel: float,
+  stopping: bool,
+  long_active: bool,
+) -> tuple[bool, int]:
+  """Select the Accord crossover brake command with release-side debounce only."""
+  if not long_active:
+    return False, 0
+  if stopping:
+    return True, 0
+  # Sep 29 road evidence showed a positive accel request could re-enter braking
+  # when road-load compensation left gas_pedal_force only a few milligals below
+  # min-gas. Suppress only this near-zero crossover case; materially negative
+  # force still enters braking immediately.
+  if (original_accel >= ACCORD_BOSCH_POSITIVE_REQUEST_ACCEL and
+      gas_pedal_force >= min_gas_accel - ACCORD_BOSCH_POSITIVE_REQUEST_FORCE_MARGIN):
+    return False, 0
+  # Brake entry otherwise remains an immediate response to the existing
+  # requested-accel crossover coordinate. Only release around min-gas is debounced.
+  if gas_pedal_force < min_gas_accel:
+    return True, 0
+  if not braking:
+    return False, 0
+  # A clearly positive requested acceleration or force is not a crossover pulse.
+  if original_accel >= 0.0 or gas_pedal_force >= min_gas_accel + ACCORD_BOSCH_CLEAR_RELEASE_FORCE:
+    return False, 0
+
+  release_counter += 1
+  if release_counter >= ACCORD_BOSCH_RELEASE_CONFIRM_TICKS:
+    return False, 0
+  return True, release_counter
 
 
 def get_civic_bosch_modified_torque_lpf_tau(torque_cmd: float, prev_torque_cmd: float, v_ego: float) -> float:
@@ -253,6 +294,8 @@ class CarController(CarControllerBase):
     self.steering_pressed_robust_prev = False
     self.bosch_last_gas = 0.0
     self.bosch_braking = False
+    self.accord_bosch_braking = False
+    self.accord_bosch_release_counter = 0
     self.bosch_gas_factor = self.param_store.get_float("HondaGasFactorParams", default=1.0)
     self.bosch_wind_factor = self.param_store.get_float("HondaWindFactorParams", default=1.0)
     self.bosch_wind_factor_before_brake = self.bosch_wind_factor
@@ -263,6 +306,7 @@ class CarController(CarControllerBase):
     # MVL Bosch low-speed extra-brake integrator. Active only for Accord 11G MVL mode.
     self.mvl_brake_pid = PIDController(k_p=0.0, k_i=1.0, pos_limit=0.0, neg_limit=-2.0, rate=50)
     self.mvl_brake_pid.reset()
+    self.mvl_brake_rearm_confirmed = True
 
   def _modified_civic_standard_active(self) -> bool:
     return self.CP.carFingerprint == CAR.HONDA_CIVIC_BOSCH and bool(self.CP.flags & HondaFlags.EPS_MODIFIED)
@@ -295,6 +339,19 @@ class CarController(CarControllerBase):
     else:
       accel = 0.0
       gas, brake = 0.0, 0.0
+
+    # Temporary C5 observability defaults. Assigned only to returned actuator
+    # telemetry; they are never read by controller or CAN-command logic.
+    c5_obs_honda_sample = False
+    c5_obs_honda_wind_factor = 0.0
+    c5_obs_honda_wind_contribution = 0.0
+    c5_obs_honda_force = 0.0
+    c5_obs_honda_brake_side = False
+    c5_obs_honda_brake_request = False
+    c5_obs_honda_gas_commanded = False
+    c5_obs_honda_low_speed_eligible = False
+    c5_obs_honda_low_speed_addon = 0.0
+    c5_obs_honda_final_accel = 0.0
 
     torque_cmd = float(actuators.torque)
     filtered_steering_pressed = bool(CS.out.steeringPressed)
@@ -357,6 +414,9 @@ class CarController(CarControllerBase):
     # checksums stay synchronized. v3 deliberately uses an idle lane/object payload first; model-based
     # cluster rendering is deferred until the ownership/DTC handover is proven.
     mvl_radar_owned = self.mvl_accord_mode and CS.canfd_relay_open and not CS.stock_acc_alive
+    if self.mvl_accord_mode and not (mvl_radar_owned and CC.longActive):
+      self.accord_bosch_braking = False
+      self.accord_bosch_release_counter = 0
     if mvl_radar_owned and self.CP.openpilotLongitudinalControl:
       if CC.enabled and not self.last_acc_enabled:
         self.radar_hud_pulse = 30
@@ -427,20 +487,35 @@ class CarController(CarControllerBase):
         ts = self.frame * DT_CTRL
 
         if self.CP.carFingerprint in HONDA_BOSCH:
-          if self.mvl_accord_mode and (accel < min_gas) and (1e-3 < CS.out.vEgo < 3.0):
-            brake_addon = self.mvl_brake_pid.update(error=accel - CS.out.aEgo, speed=CS.out.vEgo)
-            target_accel = min(accel, accel + brake_addon)
+          c5_obs_honda_low_speed_eligible = self.mvl_accord_mode and (accel < min_gas) and (1e-3 < CS.out.vEgo < 3.0)
+          if c5_obs_honda_low_speed_eligible:
+            brake_error = accel - CS.out.aEgo
+            if brake_error < 0.0:
+              if self.mvl_brake_rearm_confirmed:
+                brake_addon = self.mvl_brake_pid.update(error=brake_error, speed=CS.out.vEgo)
+                target_accel = min(accel, accel + brake_addon)
+              else:
+                self.mvl_brake_rearm_confirmed = True
+                target_accel = accel
+            else:
+              self.mvl_brake_pid.reset()
+              self.mvl_brake_rearm_confirmed = False
+              target_accel = accel
           else:
             if self.mvl_accord_mode:
               self.mvl_brake_pid.reset()
             target_accel = accel
 
           self.accel = float(np.clip(target_accel, self.params.BOSCH_ACCEL_MIN, self.params.BOSCH_ACCEL_MAX))
+          c5_obs_honda_low_speed_addon = float(target_accel - accel)
+          c5_obs_honda_final_accel = self.accel
           # MVL uses requested accel (not extra-brake-adjusted accel) to decide propulsion crossover.
           gas_pedal_force = (accel if self.mvl_accord_mode else self.accel) + hill_brake
 
           if self.CP.carFingerprint not in HONDA_BOSCH_RADARLESS:
-            gas_pedal_force += wind_brake_mps2 * self.bosch_wind_factor
+            c5_obs_honda_wind_factor = self.bosch_wind_factor
+            c5_obs_honda_wind_contribution = wind_brake_mps2 * c5_obs_honda_wind_factor
+            gas_pedal_force += c5_obs_honda_wind_contribution
 
             if actuators.longControlState == LongCtrlState.pid and not CS.out.gasPressed:
               gas_error = (accel if self.mvl_accord_mode else self.accel) - CS.out.aEgo
@@ -488,10 +563,37 @@ class CarController(CarControllerBase):
 
           stopping = actuators.longControlState == LongCtrlState.stopping
           bosch_braking = None
-          if not self.mvl_accord_mode:
+          if self.mvl_accord_mode:
+            self.accord_bosch_braking, self.accord_bosch_release_counter = update_accord_bosch_braking(
+              self.accord_bosch_braking,
+              self.accord_bosch_release_counter,
+              gas_pedal_force,
+              min_gas,
+              accel,
+              stopping,
+              mvl_radar_owned and CC.longActive,
+            )
+            bosch_braking = self.accord_bosch_braking
+          else:
             self.bosch_braking = update_honda_bosch_braking(self.bosch_braking, gas_pedal_force, stopping, CC.longActive)
             bosch_braking = self.bosch_braking
           self.stopping_counter = self.stopping_counter + 1 if stopping else 0
+          # Snapshot the selected Accord command after all current learning and
+          # command calculations; non-MVL telemetry remains source-compatible.
+          c5_obs_honda_sample = self.mvl_accord_mode
+          c5_obs_honda_force = gas_pedal_force
+          if self.mvl_accord_mode:
+            # Keep BrakeSide as the raw force-threshold provenance. The
+            # selected, debounced command is recorded separately below.
+            c5_obs_honda_brake_side = bool(CC.longActive and gas_pedal_force < min_gas)
+            c5_obs_honda_brake_request = bool(mvl_radar_owned and CC.longActive and bosch_braking)
+            c5_obs_honda_gas_commanded = bool(
+              mvl_radar_owned and CC.longActive and gas_pedal_force > min_gas and not bosch_braking
+            )
+          else:
+            c5_obs_honda_brake_side = bool(CC.longActive and gas_pedal_force < min_gas)
+            c5_obs_honda_brake_request = bool(mvl_radar_owned and c5_obs_honda_brake_side)
+            c5_obs_honda_gas_commanded = bool(mvl_radar_owned and CC.longActive and gas_pedal_force > min_gas)
           if not self.mvl_accord_mode or mvl_radar_owned:
             can_sends.extend(
               hondacan.create_acc_commands(
@@ -610,6 +712,25 @@ class CarController(CarControllerBase):
     new_actuators.brake = self.brake
     new_actuators.torque = self.last_torque
     new_actuators.torqueOutputCan = apply_torque
+    # Temporary C5 crossover provenance; actuator telemetry only.
+    new_actuators.c5ObsHondaValid = self.mvl_accord_mode
+    new_actuators.c5ObsHondaSample = c5_obs_honda_sample
+    new_actuators.c5ObsHondaVEgo = float(CS.out.vEgo)
+    new_actuators.c5ObsHondaOriginalAccel = float(accel)
+    new_actuators.c5ObsHondaControllerAccel = float(self.accel)
+    new_actuators.c5ObsHondaPitch = float(self.pitch)
+    new_actuators.c5ObsHondaHillContribution = float(hill_brake)
+    new_actuators.c5ObsHondaWindFactor = float(c5_obs_honda_wind_factor)
+    new_actuators.c5ObsHondaWindContribution = float(c5_obs_honda_wind_contribution)
+    new_actuators.c5ObsHondaGasPedalForce = float(c5_obs_honda_force)
+    new_actuators.c5ObsHondaMinGasAccel = float(min_gas)
+    new_actuators.c5ObsHondaBrakeSide = c5_obs_honda_brake_side
+    new_actuators.c5ObsHondaBrakeRequest = c5_obs_honda_brake_request
+    new_actuators.c5ObsHondaBrakeLights = c5_obs_honda_brake_request
+    new_actuators.c5ObsHondaGasCommanded = c5_obs_honda_gas_commanded
+    new_actuators.c5ObsHondaLowSpeedEligible = c5_obs_honda_low_speed_eligible
+    new_actuators.c5ObsHondaLowSpeedAddon = float(c5_obs_honda_low_speed_addon)
+    new_actuators.c5ObsHondaFinalAccel = float(c5_obs_honda_final_accel)
 
     self.frame += 1
     return new_actuators, can_sends

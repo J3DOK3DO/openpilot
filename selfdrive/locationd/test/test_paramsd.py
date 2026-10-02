@@ -2,8 +2,8 @@ import random
 from types import SimpleNamespace
 import numpy as np
 
-from cereal import messaging
-from openpilot.selfdrive.locationd.paramsd import resolve_vehicle_model_params, retrieve_initial_vehicle_params, migrate_cached_vehicle_params_if_needed
+from cereal import car, messaging
+from openpilot.selfdrive.locationd.paramsd import MIN_ACTIVE_SPEED, VehicleParamsLearner, resolve_vehicle_model_params, retrieve_initial_vehicle_params, migrate_cached_vehicle_params_if_needed
 from openpilot.selfdrive.locationd.models.car_kf import CarKalman
 from openpilot.selfdrive.locationd.test.test_locationd_scenarios import TEST_ROUTE
 from openpilot.selfdrive.test.process_replay.migration import migrate, migrate_carParams
@@ -21,6 +21,41 @@ def get_random_live_parameters(CP):
 
 
 class TestParamsd:
+  def test_parameter_learning_is_inhibited_in_reverse_and_resumes_forward(self):
+    class FakeFilter:
+      def set_filter_time(self, _t):
+        pass
+
+      def reset_rewind(self):
+        pass
+
+    class FakeKalman:
+      def __init__(self):
+        self.filter = FakeFilter()
+        self.observations = []
+
+      def predict_and_observe(self, _t, kind, _measurement):
+        self.observations.append(kind)
+
+    learner = VehicleParamsLearner.__new__(VehicleParamsLearner)
+    learner.kf = FakeKalman()
+
+    def handle_car_state(gear_shifter):
+      msg = SimpleNamespace(vEgo=MIN_ACTIVE_SPEED + 1.0, steeringAngleDeg=0.0, gearShifter=gear_shifter)
+      learner.handle_log(0.0, 'carState', msg)
+
+    handle_car_state(car.CarState.GearShifter.drive)
+    assert learner.active
+    assert len(learner.kf.observations) == 2
+
+    handle_car_state(car.CarState.GearShifter.reverse)
+    assert not learner.active
+    assert len(learner.kf.observations) == 2
+
+    handle_car_state(car.CarState.GearShifter.drive)
+    assert learner.active
+    assert len(learner.kf.observations) == 4
+
   def test_force_auto_tune_off_locks_vehicle_model_params(self):
     toggles = SimpleNamespace(force_auto_tune_off=True, use_custom_steerRatio=True, steerRatio=16.8)
 

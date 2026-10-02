@@ -22,6 +22,7 @@ from openpilot.selfdrive.controls.lib.latcontrol_angle import (
   _ascent_angle_tracking_target,
   _ascent_low_speed_angle_target,
 )
+from openpilot.selfdrive.controls.lib.latcontrol_curvature import LatControlCurvature
 from openpilot.selfdrive.controls.lib.latcontrol_pid import (
   LatControlPID,
   get_civic_bosch_modified_pid_output_alpha,
@@ -229,6 +230,59 @@ class TestLatControl:
     assert debug_state.frictionScale > 0.0
     assert debug_state.frictionJerkDeadzone > 0.0
     assert debug_state.lowSpeedFactor > 0.0
+    with custom.StarPilotLateralState.from_bytes(debug_state.to_bytes()) as reader:
+      assert reader.active
+      assert reader.frictionThreshold == pytest.approx(debug_state.frictionThreshold)
+
+  def test_pid_exposes_serializable_lateral_provenance_state(self):
+    controller, _, _, _, _ = self._build_pid_controller(HONDA.HONDA_ACCORD_11G)
+
+    state = controller.starpilot_lateral_state
+    state.c5ObsValid = True
+    state.c5ObsVEgo = 12.5
+    state.c5ObsLatActive = True
+    state.c5ObsModelActionCurvature = -0.012
+    state.c5ObsGuardReason = 7
+    state.c5ObsFinalDesired = -0.010
+
+    with custom.StarPilotLateralState.from_bytes(state.to_bytes()) as reader:
+      assert reader.c5ObsValid
+      assert reader.c5ObsVEgo == pytest.approx(12.5)
+      assert reader.c5ObsLatActive
+      assert reader.c5ObsModelActionCurvature == pytest.approx(-0.012)
+      assert reader.c5ObsGuardReason == 7
+      assert reader.c5ObsFinalDesired == pytest.approx(-0.010)
+
+  def test_only_pid_and_torque_expose_lateral_provenance_state(self):
+    pid, _, _, _, _ = self._build_pid_controller(HONDA.HONDA_ACCORD_11G)
+    torque, _, _, _, _ = self._build_torque_controller(GM.CHEVROLET_BOLT_ACC_2022_2023)
+    CarInterface = interfaces[HONDA.HONDA_ACCORD_11G]
+    CP = CarInterface.get_non_essential_params(HONDA.HONDA_ACCORD_11G)
+    CI = CarInterface(CP, custom.StarPilotCarParams.new_message())
+
+    assert hasattr(pid, "starpilot_lateral_state")
+    assert hasattr(torque, "starpilot_lateral_state")
+    assert not hasattr(LatControlAngle(CP.as_reader(), CI, DT_CTRL), "starpilot_lateral_state")
+    assert not hasattr(LatControlCurvature(CP.as_reader(), CI, DT_CTRL), "starpilot_lateral_state")
+
+  def test_pid_provenance_member_is_output_transparent(self):
+    observed, VM, CS, params, starpilot_toggles = self._build_pid_controller(HONDA.HONDA_ACCORD_11G)
+    pre_repair, pre_repair_VM, pre_repair_CS, pre_repair_params, pre_repair_toggles = self._build_pid_controller(HONDA.HONDA_ACCORD_11G)
+    delattr(pre_repair, "starpilot_lateral_state")
+
+    # Inactive, normal active, and reversing-curvature calls exercise the stateful
+    # PID branches while the second controller emulates the pre-repair object.
+    for active, desired_curvature in ((False, 0.004), (True, 0.004), (True, -0.004)):
+      output, angle, lac_log = observed.update(
+        active, CS, VM, params, False, desired_curvature, False, 0.2, None, None, starpilot_toggles,
+      )
+      pre_repair_output, pre_repair_angle, pre_repair_log = pre_repair.update(
+        active, pre_repair_CS, pre_repair_VM, pre_repair_params, False, desired_curvature, False, 0.2, None, None, pre_repair_toggles,
+      )
+
+      assert output == pre_repair_output
+      assert angle == pre_repair_angle
+      assert lac_log.to_bytes() == pre_repair_log.to_bytes()
 
   @staticmethod
   def _build_torque_controller(car_name, force_torque=False):
