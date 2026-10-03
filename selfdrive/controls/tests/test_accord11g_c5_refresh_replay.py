@@ -12,7 +12,11 @@ import pytest
 from cereal import log
 from opendbc.car import gen_empty_fingerprint, structs
 from opendbc.car.honda import hondacan
-from opendbc.car.honda.carcontroller import CarController, update_accord_bosch_braking
+from opendbc.car.honda.carcontroller import (
+  CarController,
+  update_accord_bosch_braking,
+  update_accord_standstill_accel_command,
+)
 from opendbc.car.honda.hondacan import create_acc_commands as pack_acc_commands
 from opendbc.car.honda.interface import CarInterface
 from opendbc.car.honda.values import CAR, DBC
@@ -538,3 +542,41 @@ def test_c5d_guard_observation_is_output_pure():
   baseline = limit_curvature_to_plan(plan, .0155, 1.2)
   observation = SimpleNamespace()
   assert limit_curvature_to_plan(plan, .0155, 1.2, observation) == pytest.approx(baseline)
+
+
+def test_c6_standstill_accel_release_is_slew_limited_but_stronger_brake_is_immediate():
+  value, state = update_accord_standstill_accel_command(
+    -0.30, -0.50, 0.0, True, True, True, dt=0.10,
+  )
+  assert value == pytest.approx(-0.47)
+  assert state == pytest.approx(-0.47)
+
+  value, state = update_accord_standstill_accel_command(
+    -0.70, -0.47, 0.0, True, True, True, dt=0.10,
+  )
+  assert value == pytest.approx(-0.70)
+  assert state == pytest.approx(-0.70)
+
+
+def test_c6_standstill_accel_limiter_resets_immediately_on_release_or_motion():
+  assert update_accord_standstill_accel_command(
+    0.20, -0.40, 0.0, False, False, True, dt=0.10,
+  ) == (pytest.approx(0.20), None)
+  assert update_accord_standstill_accel_command(
+    -0.10, -0.40, 0.50, True, True, True, dt=0.10,
+  ) == (pytest.approx(-0.10), None)
+  assert update_accord_standstill_accel_command(
+    -0.10, -0.40, 0.0, True, True, False, dt=0.10,
+  ) == (pytest.approx(-0.10), None)
+
+
+def test_c6_standstill_accel_road_step_contract_caps_oct2_release_jump():
+  # Oct 2 standstill evidence included ~+0.179 m/s^2 relaxation in ~0.105 s.
+  # C6-04 limits that direction to the road-normal ~0.30 m/s^3 rate.
+  value, state = update_accord_standstill_accel_command(
+    -0.127503, -0.306405, 0.0, True, True, True, dt=0.104728,
+  )
+  expected = -0.306405 + 0.30 * 0.104728
+  assert value == pytest.approx(expected)
+  assert state == pytest.approx(expected)
+  assert value < -0.127503

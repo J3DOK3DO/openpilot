@@ -29,6 +29,28 @@ ACCORD_BOSCH_RELEASE_CONFIRM_TICKS = 10
 ACCORD_BOSCH_CLEAR_RELEASE_FORCE = 0.10
 ACCORD_BOSCH_POSITIVE_REQUEST_ACCEL = 0.03
 ACCORD_BOSCH_POSITIVE_REQUEST_FORCE_MARGIN = 0.005
+ACCORD_STANDSTILL_HOLD_MAX_SPEED = 0.35
+ACCORD_STANDSTILL_ACCEL_RELEASE_RATE = 0.30
+
+
+def update_accord_standstill_accel_command(command: float, previous: float | None, v_ego: float,
+                                           stopping: bool, braking: bool, long_active: bool,
+                                           dt: float = 2 * DT_CTRL) -> tuple[float, float | None]:
+  """Limit only standstill brake relaxation; stronger brake commands remain immediate."""
+  command = float(command)
+  eligible = (
+    long_active and stopping and braking and
+    0.0 <= float(v_ego) <= ACCORD_STANDSTILL_HOLD_MAX_SPEED
+  )
+  if not eligible:
+    return command, None
+  if previous is None:
+    return command, command
+
+  # Do not delay stronger braking. Limit only movement toward less-negative hold
+  # pressure to the road-observed ~0.30 m/s^3 relaxation rate.
+  smoothed = min(command, float(previous) + ACCORD_STANDSTILL_ACCEL_RELEASE_RATE * max(float(dt), 0.0))
+  return smoothed, smoothed
 
 
 def update_honda_bosch_braking(braking: bool, gas_pedal_force: float, stopping: bool, long_active: bool) -> bool:
@@ -296,6 +318,7 @@ class CarController(CarControllerBase):
     self.bosch_braking = False
     self.accord_bosch_braking = False
     self.accord_bosch_release_counter = 0
+    self.accord_standstill_accel_command = None
     self.bosch_gas_factor = self.param_store.get_float("HondaGasFactorParams", default=1.0)
     self.bosch_wind_factor = self.param_store.get_float("HondaWindFactorParams", default=1.0)
     self.bosch_wind_factor_before_brake = self.bosch_wind_factor
@@ -577,6 +600,20 @@ class CarController(CarControllerBase):
           else:
             self.bosch_braking = update_honda_bosch_braking(self.bosch_braking, gas_pedal_force, stopping, CC.longActive)
             bosch_braking = self.bosch_braking
+
+          if self.mvl_accord_mode:
+            self.accel, self.accord_standstill_accel_command = update_accord_standstill_accel_command(
+              self.accel,
+              self.accord_standstill_accel_command,
+              CS.out.vEgo,
+              stopping,
+              bool(bosch_braking),
+              mvl_radar_owned and CC.longActive,
+            )
+            c5_obs_honda_final_accel = self.accel
+          else:
+            self.accord_standstill_accel_command = None
+
           self.stopping_counter = self.stopping_counter + 1 if stopping else 0
           # Snapshot the selected Accord command after all current learning and
           # command calculations; non-MVL telemetry remains source-compatible.
