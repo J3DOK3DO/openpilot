@@ -311,6 +311,44 @@ class TestHondaFingerprint:
     assert controller.bosch_gas_factor == pytest.approx(1.25)
     assert controller.bosch_wind_factor == pytest.approx(0.85)
 
+  def test_honda_longitudinal_learning_persistence_is_nonblocking(self, monkeypatch):
+    toggles = get_test_toggles()
+    writes = []
+
+    class FakeParams:
+      def get_float(self, key, block=False, return_default=False, default=0.0):
+        return default
+
+      def put_nonblocking(self, key, value):
+        writes.append((key, value))
+
+      def put_float(self, key, value):
+        raise AssertionError(f"blocking persistence used for {key}")
+
+    monkeypatch.setattr("opendbc.car.honda.carcontroller.Params", lambda: FakeParams())
+
+    CP = CarInterface.get_params(CAR.HONDA_ACCORD_11G, gen_empty_fingerprint(), [], True, False, False, toggles)
+    controller = CarController(DBC[CP.carFingerprint], CP)
+    controller.bosch_gas_factor = 1.23
+    controller.bosch_wind_factor = 0.87
+    controller._persist_longitudinal_learning_nonblocking()
+
+    assert writes == [
+      ("HondaGasFactorParams", pytest.approx(1.23)),
+      ("HondaWindFactorParams", pytest.approx(0.87)),
+    ]
+
+  @pytest.mark.parametrize(("frame", "expected"), [
+    (0, False),
+    (1, False),
+    (5999, False),
+    (6000, True),
+    (6001, False),
+    (12000, True),
+  ])
+  def test_honda_longitudinal_learning_persistence_cadence_is_unchanged(self, frame, expected):
+    assert CarController._should_persist_longitudinal_learning(frame) is expected
+
   def test_honda_bosch_controller_does_not_deepen_planner_braking(self, monkeypatch):
     toggles = get_test_toggles()
     CP = CarInterface.get_params(CAR.HONDA_HRV_3G, gen_empty_fingerprint(), [], True, False, False, toggles)

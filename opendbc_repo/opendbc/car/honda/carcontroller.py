@@ -331,6 +331,14 @@ class CarController(CarControllerBase):
     self.mvl_brake_pid.reset()
     self.mvl_brake_rearm_confirmed = True
 
+  @staticmethod
+  def _should_persist_longitudinal_learning(frame: int) -> bool:
+    return frame > 0 and frame % 6000 == 0
+
+  def _persist_longitudinal_learning_nonblocking(self) -> None:
+    self.param_store.put_nonblocking("HondaGasFactorParams", float(self.bosch_gas_factor))
+    self.param_store.put_nonblocking("HondaWindFactorParams", float(self.bosch_wind_factor))
+
   def _modified_civic_standard_active(self) -> bool:
     return self.CP.carFingerprint == CAR.HONDA_CIVIC_BOSCH and bool(self.CP.flags & HondaFlags.EPS_MODIFIED)
 
@@ -738,9 +746,8 @@ class CarController(CarControllerBase):
         cruise_setting=cruise_setting, ambient_light=CS.scm_ambient_light, bus=self.CAN.camera,
       ))
 
-    if self.frame > 0 and self.frame % 6000 == 0:
-      self.param_store.put_float("HondaGasFactorParams", self.bosch_gas_factor)
-      self.param_store.put_float("HondaWindFactorParams", self.bosch_wind_factor)
+    if self._should_persist_longitudinal_learning(self.frame):
+      self._persist_longitudinal_learning_nonblocking()
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed
