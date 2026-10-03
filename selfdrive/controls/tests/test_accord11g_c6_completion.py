@@ -20,6 +20,16 @@ from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import (
 from openpilot.starpilot.controls.lib.starpilot_following import StarPilotFollowing
 
 
+class SubMasterLike:
+  """Match the real messaging.SubMaster access contract: __getitem__, no dict.get()."""
+
+  def __init__(self, data):
+    self.data = data
+
+  def __getitem__(self, key):
+    return self.data[key]
+
+
 def make_lead(*, d_rel, v_lead, a_lead=0.0, model_prob=1.0, radar=False, y_rel=0.0):
   lead = log.RadarState.LeadData.new_message()
   lead.status = True
@@ -121,7 +131,7 @@ def test_c6_accord_untracked_highway_coast_enters_holds_and_releases():
   )
   following = StarPilotFollowing(planner_stub)
   following.t_follow = 1.45
-  sm = {"carParams": accord}
+  sm = SubMasterLike({"carParams": accord})
 
   for _ in range(5):
     assert not following.update_untracked_vision_coast(True, 31.007, sm)

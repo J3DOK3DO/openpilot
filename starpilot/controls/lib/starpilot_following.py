@@ -159,7 +159,10 @@ class StarPilotFollowing:
 
   def update_untracked_vision_coast(self, long_control_active, v_ego, sm):
     lead = self.starpilot_planner.lead_one
-    car_params = sm.get("carParams") if hasattr(sm, "get") else None
+    try:
+      car_params = sm["carParams"]
+    except (KeyError, TypeError, AttributeError):
+      car_params = None
     try:
       lane_change_active = sm["modelV2"].meta.laneChangeState in LANE_CHANGE_ACTIVE_STATES
     except (KeyError, TypeError, AttributeError):
