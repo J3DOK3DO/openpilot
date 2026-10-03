@@ -274,6 +274,7 @@ class StarPilotPlanner:
         y_rel=float(getattr(self.lead_one, "yRel", 0.0)),
         path_y=self.lead_path_y,
         radar=bool(getattr(self.lead_one, "radar", False)),
+        v_lead=float(getattr(self.lead_one, "vLead", v_ego)),
       )
     now_t = time.monotonic()
     lead_radar = bool(getattr(self.lead_one, "radar", False))

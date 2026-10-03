@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 
 from cereal import log
@@ -6,6 +8,7 @@ from opendbc.car.honda.values import CAR
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import STOP_DISTANCE
 from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
 from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import is_honda_accord_11g
+from openpilot.starpilot.controls.lib.starpilot_following import StarPilotFollowing
 
 
 def make_lead(*, d_rel, v_lead, a_lead=0.0, model_prob=1.0, radar=False, y_rel=0.0):
@@ -97,3 +100,47 @@ def test_c6_close_lead_brake_hold_releases_after_short_transient():
   held = [planner.update_close_lead_brake_cap(mild, 0, 5.0, -1.0) for _ in range(6)]
   assert any(cap is not None for cap in held[:5])
   assert held[-1] is None
+
+
+def test_c6_accord_untracked_highway_coast_enters_holds_and_releases():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner_stub = SimpleNamespace(
+    lead_one=make_lead(d_rel=105.318, v_lead=27.911, model_prob=0.957, y_rel=-0.648),
+    tracking_lead=False,
+    lead_path_y=0.0,
+    starpilot_weather=SimpleNamespace(weather_id=0, increase_following_distance=0.0),
+  )
+  following = StarPilotFollowing(planner_stub)
+  following.t_follow = 1.45
+  sm = {"carParams": accord}
+
+  for _ in range(5):
+    assert not following.update_untracked_vision_coast(True, 31.007, sm)
+  assert following.update_untracked_vision_coast(True, 31.007, sm)
+  assert following.untracked_vision_coast_hold_remaining > 0.0
+
+  # Keep a credible closing lead but move outside the raw <=6 s coast-entry window;
+  # the short hold should prevent a one-frame throttle re-entry.
+  planner_stub.lead_one.dRel = 110.0
+  planner_stub.lead_one.vLead = 29.5
+  planner_stub.lead_one.vLeadK = 29.5
+  assert following.update_untracked_vision_coast(True, 31.007, sm)
+
+  # Confidence loss is an immediate release condition, not something the hold masks.
+  planner_stub.lead_one.modelProb = 0.50
+  assert not following.update_untracked_vision_coast(True, 31.007, sm)
+  assert following.untracked_vision_coast_hold_remaining == 0.0
+
+
+def test_c6_untracked_highway_coast_is_accord11g_scoped():
+  civic = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC)
+  planner_stub = SimpleNamespace(
+    lead_one=make_lead(d_rel=105.318, v_lead=27.911, model_prob=0.99, y_rel=0.0),
+    tracking_lead=False,
+    lead_path_y=0.0,
+    starpilot_weather=SimpleNamespace(weather_id=0, increase_following_distance=0.0),
+  )
+  following = StarPilotFollowing(planner_stub)
+  following.t_follow = 1.45
+
+  assert not following.update_untracked_vision_coast(True, 31.007, {"carParams": civic})

@@ -4,8 +4,15 @@ import numpy as np
 from cereal import log
 from openpilot.common.constants import CV
 from openpilot.common.realtime import DT_MDL
-from openpilot.selfdrive.controls.lib.lead_behavior import should_disable_far_lead_throttle
+from openpilot.selfdrive.controls.lib.lead_behavior import (
+  UNTRACKED_VISION_COAST_CONFIRM_TIME,
+  UNTRACKED_VISION_COAST_HOLD_TIME,
+  is_untracked_vision_coast_credible,
+  should_disable_far_lead_throttle,
+  should_disable_untracked_vision_throttle,
+)
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, LEAD_DANGER_FACTOR, desired_follow_distance, get_jerk_factor, get_T_FOLLOW
+from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import is_honda_accord_11g
 
 from openpilot.starpilot.common.longitudinal_personality_profiles import active_personality_id, interpolate_category_curve, resolve_personality_category
 from openpilot.starpilot.common.starpilot_variables import CITY_SPEED_LIMIT, MAX_T_FOLLOW
@@ -40,6 +47,8 @@ class StarPilotFollowing:
     self.starpilot_planner = StarPilotPlanner
 
     self.disable_throttle = False
+    self.untracked_vision_coast_confirm_t = 0.0
+    self.untracked_vision_coast_hold_remaining = 0.0
     self.following_lead = False
     self.slower_lead = False
 
@@ -132,17 +141,82 @@ class StarPilotFollowing:
 
     self.disable_throttle = False
     if self.starpilot_planner.tracking_lead and self.starpilot_planner.lead_one.status:
+      self.untracked_vision_coast_confirm_t = 0.0
+      self.untracked_vision_coast_hold_remaining = 0.0
       lead_distance = self.starpilot_planner.lead_one.dRel
       v_lead = self.starpilot_planner.lead_one.vLead
       closing_speed = max(0.0, v_ego - v_lead)
       desired_gap = float(desired_follow_distance(v_ego, v_lead, self.t_follow))
       self.disable_throttle = should_disable_far_lead_throttle(v_ego, lead_distance, desired_gap, closing_speed, self.following_lead)
+    else:
+      self.disable_throttle = self.update_untracked_vision_coast(long_control_active, v_ego, sm)
 
     if long_control_active and self.starpilot_planner.tracking_lead:
       self.update_follow_values(self.starpilot_planner.lead_one.dRel, v_ego, self.starpilot_planner.lead_one.vLead, starpilot_toggles)
       self.desired_follow_distance = int(desired_follow_distance(v_ego, self.starpilot_planner.lead_one.vLead, self.t_follow))
     else:
       self.desired_follow_distance = 0
+
+  def update_untracked_vision_coast(self, long_control_active, v_ego, sm):
+    lead = self.starpilot_planner.lead_one
+    car_params = sm.get("carParams") if hasattr(sm, "get") else None
+    try:
+      lane_change_active = sm["modelV2"].meta.laneChangeState in LANE_CHANGE_ACTIVE_STATES
+    except (KeyError, TypeError, AttributeError):
+      lane_change_active = False
+
+    if (
+      not long_control_active or
+      self.starpilot_planner.tracking_lead or
+      not lead.status or
+      not is_honda_accord_11g(car_params) or
+      lane_change_active
+    ):
+      self.untracked_vision_coast_confirm_t = 0.0
+      self.untracked_vision_coast_hold_remaining = 0.0
+      return False
+
+    coast_t_follow = max(float(self.t_follow), 1.45)
+    desired_gap = float(desired_follow_distance(v_ego, lead.vLead, coast_t_follow))
+    coast_credible = is_untracked_vision_coast_credible(
+      lead.status,
+      v_ego,
+      lead.dRel,
+      lead.vLead,
+      model_prob=float(getattr(lead, "modelProb", 0.0)),
+      y_rel=float(getattr(lead, "yRel", 0.0)),
+      path_y=float(getattr(self.starpilot_planner, "lead_path_y", 0.0)),
+      radar=bool(getattr(lead, "radar", False)),
+    )
+    raw_untracked_coast = should_disable_untracked_vision_throttle(
+      lead.status,
+      v_ego,
+      lead.dRel,
+      lead.vLead,
+      desired_gap,
+      model_prob=float(getattr(lead, "modelProb", 0.0)),
+      y_rel=float(getattr(lead, "yRel", 0.0)),
+      path_y=float(getattr(self.starpilot_planner, "lead_path_y", 0.0)),
+      radar=bool(getattr(lead, "radar", False)),
+    )
+
+    if raw_untracked_coast:
+      self.untracked_vision_coast_confirm_t = min(
+        UNTRACKED_VISION_COAST_CONFIRM_TIME,
+        self.untracked_vision_coast_confirm_t + DT_MDL,
+      )
+      if self.untracked_vision_coast_confirm_t + 1e-6 >= UNTRACKED_VISION_COAST_CONFIRM_TIME:
+        self.untracked_vision_coast_hold_remaining = UNTRACKED_VISION_COAST_HOLD_TIME
+    else:
+      self.untracked_vision_coast_confirm_t = 0.0
+      if coast_credible and self.untracked_vision_coast_hold_remaining > 0.0:
+        self.untracked_vision_coast_hold_remaining = max(
+          0.0, self.untracked_vision_coast_hold_remaining - DT_MDL,
+        )
+      else:
+        self.untracked_vision_coast_hold_remaining = 0.0
+
+    return self.untracked_vision_coast_hold_remaining > 0.0
 
   def update_lane_change_gap(self, long_control_active, v_ego, sm, starpilot_toggles):
     # Hold a shorter follow distance while signalling out of the lane so openpilot

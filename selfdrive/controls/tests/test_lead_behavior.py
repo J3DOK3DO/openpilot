@@ -4,6 +4,7 @@ from openpilot.selfdrive.controls.lib.lead_behavior import (
   should_hold_tracked_vision_lead,
   should_track_lead,
   should_disable_far_lead_throttle,
+  should_disable_untracked_vision_throttle,
 )
 
 
@@ -243,3 +244,74 @@ def test_radarless_matched_follow_window_keeps_default_low_speed_guard():
 
 def test_radarless_matched_follow_window_accepts_lower_speed_when_requested():
   assert is_radarless_matched_follow_window(14.4, 25.4, 16.2, 1.25, radar=False, lead_brake=0.0, lead_prob=1.0, min_speed=12.0)
+
+
+def test_c6_untracked_vision_coast_matches_oct2_highway_full_lift_case():
+  # Oct 2 route 000000cd--bad473e8d1 seg44: ~111.6 km/h ego,
+  # high-confidence centered vision lead, ~5.8 s to desired gap, not yet tracking.
+  assert should_disable_untracked_vision_throttle(
+    True, 31.007, 105.318, 27.911, 87.439,
+    model_prob=0.957, y_rel=-0.648, path_y=0.0, radar=False,
+  )
+
+
+
+def test_c6_untracked_vision_coast_remains_bounded_for_far_slow_closure():
+  # High confidence alone is insufficient: a gentle closure that is still
+  # >10 s from the requested gap should not unnecessarily suppress throttle.
+  assert not should_disable_untracked_vision_throttle(
+    True, 30.0, 110.0, 28.5, 90.0,
+    model_prob=0.99, y_rel=0.05, path_y=0.0, radar=False,
+  )
+  # C6 also keeps the road-proven far-awareness envelope bounded to 115 m.
+  assert not should_disable_untracked_vision_throttle(
+    True, 30.0, 116.0, 27.0, 90.0,
+    model_prob=0.99, y_rel=0.05, path_y=0.0, radar=False,
+  )
+
+
+def test_c6_untracked_vision_coast_rejects_offpath_or_radar_lead():
+  assert not should_disable_untracked_vision_throttle(
+    True, 31.0, 105.0, 27.9, 87.0,
+    model_prob=0.99, y_rel=1.4, path_y=0.0, radar=False,
+  )
+  assert not should_disable_untracked_vision_throttle(
+    True, 31.0, 105.0, 27.9, 87.0,
+    model_prob=0.99, y_rel=0.0, path_y=0.0, radar=True,
+  )
+
+
+def test_c6_untracked_vision_coast_rejects_opening_or_low_confidence_lead():
+  assert not should_disable_untracked_vision_throttle(
+    True, 31.0, 105.0, 31.5, 87.0,
+    model_prob=0.99, y_rel=0.0, path_y=0.0, radar=False,
+  )
+  assert not should_disable_untracked_vision_throttle(
+    True, 31.0, 105.0, 27.9, 87.0,
+    model_prob=0.90, y_rel=0.0, path_y=0.0, radar=False,
+  )
+
+
+def test_c6_highway_continuity_preserves_sep29_tracked_closing_lead():
+  assert should_hold_tracked_vision_lead(
+    True, 80.44, 318.0, 6.0, 30.3,
+    model_prob=0.993, y_rel=0.05, radar=False, v_lead=28.8,
+  )
+
+
+def test_c6_highway_continuity_does_not_expand_initial_acquisition():
+  assert not should_track_lead(
+    True, 80.44, 318.0, 6.0, 30.3,
+    v_lead=28.8, radar=False,
+  )
+
+
+def test_c6_highway_continuity_remains_bounded():
+  assert not should_hold_tracked_vision_lead(
+    True, 95.0, 318.0, 6.0, 30.3,
+    model_prob=0.999, y_rel=0.05, radar=False, v_lead=28.8,
+  )
+  assert not should_hold_tracked_vision_lead(
+    True, 80.44, 318.0, 6.0, 30.3,
+    model_prob=0.999, y_rel=0.05, radar=False, v_lead=31.2,
+  )

@@ -47,7 +47,12 @@ sys.modules["openpilot.common.constants"] = _module(
 )
 sys.modules["openpilot.common.realtime"] = _module("openpilot.common.realtime", DT_MDL=0.05)
 sys.modules["openpilot.selfdrive.controls.lib.lead_behavior"] = _module(
-  "openpilot.selfdrive.controls.lib.lead_behavior", should_disable_far_lead_throttle=lambda *_args: False,
+  "openpilot.selfdrive.controls.lib.lead_behavior",
+  UNTRACKED_VISION_COAST_CONFIRM_TIME=0.30,
+  UNTRACKED_VISION_COAST_HOLD_TIME=0.75,
+  is_untracked_vision_coast_credible=lambda *_args, **_kwargs: False,
+  should_disable_far_lead_throttle=lambda *_args: False,
+  should_disable_untracked_vision_throttle=lambda *_args, **_kwargs: False,
 )
 sys.modules["openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc"] = _module(
   "openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc",
