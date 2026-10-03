@@ -30,7 +30,7 @@ class SubMasterLike:
     return self.data[key]
 
 
-def make_lead(*, d_rel, v_lead, a_lead=0.0, model_prob=1.0, radar=False, y_rel=0.0):
+def make_lead(*, d_rel, v_lead, a_lead=0.0, model_prob=1.0, radar=False, radar_track_id=-1, y_rel=0.0):
   lead = log.RadarState.LeadData.new_message()
   lead.status = True
   lead.dRel = d_rel
@@ -40,6 +40,7 @@ def make_lead(*, d_rel, v_lead, a_lead=0.0, model_prob=1.0, radar=False, y_rel=0
   lead.aLeadK = a_lead
   lead.modelProb = model_prob
   lead.radar = radar
+  lead.radarTrackId = radar_track_id
   lead.yRel = y_rel
   return lead
 
@@ -121,6 +122,88 @@ def test_c6_close_lead_brake_hold_releases_after_short_transient():
   assert held[-1] is None
 
 
+def test_c6_close_lead_brake_hold_does_not_transfer_to_materially_replaced_same_slot_lead():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=5.06)
+  braking_lead = make_lead(d_rel=12.320465, v_lead=4.405433, a_lead=-0.315703, radar=True, radar_track_id=101)
+  replacement = make_lead(d_rel=20.0, v_lead=4.0, a_lead=-0.10, model_prob=0.91, radar=False)
+
+  assert planner.get_close_lead_brake_demand(braking_lead, 5.059412) >= 0.20
+  assert planner.update_close_lead_brake_cap(braking_lead, 0, 5.059412, -1.0) is not None
+
+  replacement_demand = planner.get_close_lead_brake_demand(replacement, 5.059412)
+  assert replacement_demand is not None
+  assert 0.0 < replacement_demand < 0.20
+  assert planner.update_close_lead_brake_cap(replacement, 0, 5.059412, -1.0) is None
+
+
+def test_c6_close_lead_brake_hold_does_not_transfer_to_different_radar_track():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=5.06)
+  braking_lead = make_lead(d_rel=12.320465, v_lead=4.405433, a_lead=-0.315703, radar=True, radar_track_id=101)
+  replacement = make_lead(d_rel=20.0, v_lead=4.0, a_lead=-0.10, radar=True, radar_track_id=202)
+
+  assert planner.update_close_lead_brake_cap(braking_lead, 0, 5.059412, -1.0) is not None
+
+  replacement_demand = planner.get_close_lead_brake_demand(replacement, 5.059412)
+  assert replacement_demand is not None
+  assert 0.0 < replacement_demand < 0.20
+  assert planner.update_close_lead_brake_cap(replacement, 0, 5.059412, -1.0) is None
+
+
+def test_c6_close_lead_replacement_preserves_stronger_current_braking_immediately():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=5.06)
+  prior_lead = make_lead(d_rel=12.320465, v_lead=4.405433, a_lead=-0.315703, radar=True, radar_track_id=101)
+  stronger_replacement = make_lead(d_rel=8.0, v_lead=2.5, a_lead=-0.80, radar=True, radar_track_id=202)
+
+  assert planner.update_close_lead_brake_cap(prior_lead, 0, 5.059412, -3.0) is not None
+  replacement_demand = planner.get_close_lead_brake_demand(stronger_replacement, 5.059412)
+  assert replacement_demand is not None
+  assert replacement_demand >= 0.20
+  cap = planner.update_close_lead_brake_cap(stronger_replacement, 0, 5.059412, -3.0)
+  assert cap == pytest.approx(max(-3.0, -replacement_demand))
+  assert planner.close_lead_brake_hold_remaining[0] == pytest.approx(0.25)
+  assert planner.close_lead_brake_hold_provenance[0]["radar_track_id"] == 202
+
+
+def test_c6_close_lead_brake_hold_invalid_radar_id_uses_material_geometry_fallback():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=5.06)
+  braking_lead = make_lead(d_rel=12.320465, v_lead=4.405433, a_lead=-0.315703, radar=True)
+  replacement = make_lead(d_rel=21.0, v_lead=4.0, a_lead=-0.10, radar=True)
+
+  assert planner.update_close_lead_brake_cap(braking_lead, 0, 5.059412, -1.0) is not None
+  replacement_demand = planner.get_close_lead_brake_demand(replacement, 5.059412)
+  assert replacement_demand is not None
+  assert 0.0 < replacement_demand < 0.20
+  assert planner.update_close_lead_brake_cap(replacement, 0, 5.059412, -1.0) is None
+
+
+def test_c6_close_lead_brake_hold_does_not_transfer_to_materially_replaced_vision_lead():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=5.06)
+  braking_lead = make_lead(d_rel=12.320465, v_lead=4.405433, a_lead=-0.315703)
+  replacement = make_lead(d_rel=21.0, v_lead=3.50, a_lead=-0.10)
+
+  assert planner.update_close_lead_brake_cap(braking_lead, 0, 5.059412, -1.0) is not None
+  replacement_demand = planner.get_close_lead_brake_demand(replacement, 5.0)
+  assert replacement_demand is not None
+  assert 0.0 < replacement_demand < 0.20
+  assert planner.update_close_lead_brake_cap(replacement, 0, 5.0, -1.0) is None
+
+
+def test_c6_close_lead_brake_hold_keeps_ordinary_vision_lead_frame_motion():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=5.06)
+  braking_lead = make_lead(d_rel=12.320465, v_lead=4.405433, a_lead=-0.315703)
+  mild = make_lead(d_rel=12.3, v_lead=4.50, a_lead=-0.02, y_rel=0.1)
+
+  assert planner.update_close_lead_brake_cap(braking_lead, 0, 5.059412, -1.0) is not None
+  assert planner.get_close_lead_brake_demand(mild, 5.0) < 0.20
+  assert planner.update_close_lead_brake_cap(mild, 0, 5.0, -1.0) is not None
+
+
 def test_c6_accord_untracked_highway_coast_enters_holds_and_releases():
   accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
   planner_stub = SimpleNamespace(
@@ -148,6 +231,35 @@ def test_c6_accord_untracked_highway_coast_enters_holds_and_releases():
   # Confidence loss is an immediate release condition, not something the hold masks.
   planner_stub.lead_one.modelProb = 0.50
   assert not following.update_untracked_vision_coast(True, 31.007, sm)
+  assert following.untracked_vision_coast_hold_remaining == 0.0
+
+
+@pytest.mark.parametrize("blinker", ["leftBlinker", "rightBlinker"])
+def test_c6_accord_untracked_highway_coast_cancels_immediately_on_physical_blinker(blinker):
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner_stub = SimpleNamespace(
+    lead_one=make_lead(d_rel=105.318, v_lead=27.911, model_prob=0.957, y_rel=-0.648),
+    tracking_lead=False,
+    lead_path_y=0.0,
+    starpilot_weather=SimpleNamespace(weather_id=0, increase_following_distance=0.0),
+  )
+  following = StarPilotFollowing(planner_stub)
+  following.t_follow = 1.45
+  car_state = SimpleNamespace(leftBlinker=False, rightBlinker=False)
+  sm = SubMasterLike({
+    "carParams": accord,
+    "carState": car_state,
+    "modelV2": SimpleNamespace(meta=SimpleNamespace(laneChangeState=log.LaneChangeState.off)),
+  })
+
+  for _ in range(6):
+    following.update_untracked_vision_coast(True, 31.007, sm)
+  assert following.untracked_vision_coast_confirm_t > 0.0
+  assert following.untracked_vision_coast_hold_remaining > 0.0
+
+  setattr(car_state, blinker, True)
+  assert not following.update_untracked_vision_coast(True, 31.007, sm)
+  assert following.untracked_vision_coast_confirm_t == 0.0
   assert following.untracked_vision_coast_hold_remaining == 0.0
 
 

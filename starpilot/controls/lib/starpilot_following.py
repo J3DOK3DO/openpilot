@@ -167,13 +167,19 @@ class StarPilotFollowing:
       lane_change_active = sm["modelV2"].meta.laneChangeState in LANE_CHANGE_ACTIVE_STATES
     except (KeyError, TypeError, AttributeError):
       lane_change_active = False
+    try:
+      car_state = sm["carState"]
+      physical_blinker_active = bool(car_state.leftBlinker or car_state.rightBlinker)
+    except (KeyError, TypeError, AttributeError):
+      physical_blinker_active = False
 
     if (
       not long_control_active or
       self.starpilot_planner.tracking_lead or
       not lead.status or
       not is_honda_accord_11g(car_params) or
-      lane_change_active
+      lane_change_active or
+      physical_blinker_active
     ):
       self.untracked_vision_coast_confirm_t = 0.0
       self.untracked_vision_coast_hold_remaining = 0.0

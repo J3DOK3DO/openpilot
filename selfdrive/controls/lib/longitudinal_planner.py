@@ -686,6 +686,7 @@ class LongitudinalPlanner:
     self.vision_low_speed_stop_hold_until = 0.0
     self.vision_lead_approach_confirm_t = 0.0
     self.close_lead_brake_hold_remaining = [0.0, 0.0]
+    self.close_lead_brake_hold_provenance = [None, None]
     self.untracked_slow_lead_confirm_t = 0.0
     self.untracked_vision_approach_lift_confirm_t = 0.0
     self.untracked_vision_approach_lift_cap = None
@@ -808,19 +809,61 @@ class LongitudinalPlanner:
       return None
     return max(accel_min, -required_decel)
 
+  def clear_close_lead_brake_hold(self, lead_index):
+    self.close_lead_brake_hold_remaining[lead_index] = 0.0
+    self.close_lead_brake_hold_provenance[lead_index] = None
+
+  @staticmethod
+  def get_close_lead_brake_provenance(lead):
+    return {
+      "radar": bool(getattr(lead, "radar", False)),
+      "radar_track_id": int(getattr(lead, "radarTrackId", -1)),
+      "d_rel": float(getattr(lead, "dRel", 0.0)),
+      "v_lead": float(getattr(lead, "vLead", 0.0)),
+      "y_rel": float(getattr(lead, "yRel", 0.0)),
+    }
+
+  def close_lead_brake_hold_replaced(self, lead, lead_index):
+    previous = self.close_lead_brake_hold_provenance[lead_index]
+    if previous is None:
+      return False
+
+    current = self.get_close_lead_brake_provenance(lead)
+    if current["radar"] != previous["radar"]:
+      return True
+    if current["radar"] and current["radar_track_id"] >= 0 and previous["radar_track_id"] >= 0:
+      return current["radar_track_id"] != previous["radar_track_id"]
+
+    # Without a stable object ID (vision-only, or radar with an unavailable track ID),
+    # these broad frame-to-frame limits only reject an obvious replacement, leaving
+    # normal 20 Hz motion and model/radar jitter intact.
+    return (
+      abs(current["d_rel"] - previous["d_rel"]) > 8.0 or
+      abs(current["v_lead"] - previous["v_lead"]) > 5.0 or
+      abs(current["y_rel"] - previous["y_rel"]) > 2.5
+    )
+
+  def update_close_lead_brake_hold_provenance(self, lead, lead_index):
+    self.close_lead_brake_hold_provenance[lead_index] = self.get_close_lead_brake_provenance(lead)
+
   def update_close_lead_brake_cap(self, lead, lead_index, v_ego, accel_min):
     """Keep Accord 11G close-lead braking continuous across short aLeadK estimate dips."""
     required_decel = self.get_close_lead_brake_demand(lead, v_ego)
     if required_decel is None:
-      self.close_lead_brake_hold_remaining[lead_index] = 0.0
+      self.clear_close_lead_brake_hold(lead_index)
       return None
 
     if not self.is_honda_accord_11g:
-      self.close_lead_brake_hold_remaining[lead_index] = 0.0
+      self.clear_close_lead_brake_hold(lead_index)
       return max(accel_min, -required_decel) if required_decel >= 0.2 else None
+
+    replacement = self.close_lead_brake_hold_replaced(lead, lead_index)
+    if replacement:
+      self.clear_close_lead_brake_hold(lead_index)
 
     if required_decel >= 0.2:
       self.close_lead_brake_hold_remaining[lead_index] = VISION_LEAD_APPROACH_CONFIRM_TIME
+      self.update_close_lead_brake_hold_provenance(lead, lead_index)
       return max(accel_min, -required_decel)
 
     if self.close_lead_brake_hold_remaining[lead_index] > 0.0:
@@ -828,8 +871,10 @@ class LongitudinalPlanner:
         0.0, self.close_lead_brake_hold_remaining[lead_index] - self.dt,
       )
       if self.close_lead_brake_hold_remaining[lead_index] > 1e-6:
+        self.update_close_lead_brake_hold_provenance(lead, lead_index)
         return max(accel_min, -max(required_decel, VISION_LEAD_APPROACH_MIN_DECEL))
 
+    self.clear_close_lead_brake_hold(lead_index)
     return None
 
   @staticmethod
@@ -2703,7 +2748,8 @@ class LongitudinalPlanner:
     vision_low_speed_stop_active = False
     vision_brake_cap_active = False
     if not lead_control_active:
-      self.close_lead_brake_hold_remaining = [0.0, 0.0]
+      for lead_index in range(2):
+        self.clear_close_lead_brake_hold(lead_index)
     if lead_control_active:
       if (not experimental_mode and
           not bool(getattr(sm['starpilotPlan'], 'forcingStop', False)) and
