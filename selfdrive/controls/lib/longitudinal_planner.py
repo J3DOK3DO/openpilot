@@ -835,8 +835,12 @@ class LongitudinalPlanner:
       return current["radar_track_id"] != previous["radar_track_id"]
 
     # Without a stable object ID (vision-only, or radar with an unavailable track ID),
-    # these broad frame-to-frame limits only reject an obvious replacement, leaving
-    # normal 20 Hz motion and model/radar jitter intact.
+    # reject non-finite geometry and compare against the strong-brake anchor.
+    # The anchor is deliberately not refreshed by mild held frames, so cumulative
+    # sub-threshold drift cannot transfer the old hold to a different lead.
+    if not all(np.isfinite(value) for provenance in (current, previous)
+               for value in (provenance["d_rel"], provenance["v_lead"], provenance["y_rel"])):
+      return True
     return (
       abs(current["d_rel"] - previous["d_rel"]) > 8.0 or
       abs(current["v_lead"] - previous["v_lead"]) > 5.0 or
@@ -862,8 +866,15 @@ class LongitudinalPlanner:
       self.clear_close_lead_brake_hold(lead_index)
 
     if required_decel >= 0.2:
-      self.close_lead_brake_hold_remaining[lead_index] = VISION_LEAD_APPROACH_CONFIRM_TIME
-      self.update_close_lead_brake_hold_provenance(lead, lead_index)
+      provenance = self.get_close_lead_brake_provenance(lead)
+      # A usable radar ID is sufficient identity. Fallback identity needs finite
+      # geometry; otherwise serve this strong sample but leave no inherited hold.
+      if (provenance["radar"] and provenance["radar_track_id"] >= 0) or all(
+          np.isfinite(provenance[value]) for value in ("d_rel", "v_lead", "y_rel")):
+        self.close_lead_brake_hold_remaining[lead_index] = VISION_LEAD_APPROACH_CONFIRM_TIME
+        self.close_lead_brake_hold_provenance[lead_index] = provenance
+      else:
+        self.clear_close_lead_brake_hold(lead_index)
       return max(accel_min, -required_decel)
 
     if self.close_lead_brake_hold_remaining[lead_index] > 0.0:
@@ -871,7 +882,6 @@ class LongitudinalPlanner:
         0.0, self.close_lead_brake_hold_remaining[lead_index] - self.dt,
       )
       if self.close_lead_brake_hold_remaining[lead_index] > 1e-6:
-        self.update_close_lead_brake_hold_provenance(lead, lead_index)
         return max(accel_min, -max(required_decel, VISION_LEAD_APPROACH_MIN_DECEL))
 
     self.clear_close_lead_brake_hold(lead_index)

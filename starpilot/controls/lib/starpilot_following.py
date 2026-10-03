@@ -167,10 +167,37 @@ class StarPilotFollowing:
       lane_change_active = sm["modelV2"].meta.laneChangeState in LANE_CHANGE_ACTIVE_STATES
     except (KeyError, TypeError, AttributeError):
       lane_change_active = False
+    car_state_available = False
     try:
       car_state = sm["carState"]
-      physical_blinker_active = bool(car_state.leftBlinker or car_state.rightBlinker)
+      car_state_available = True
     except (KeyError, TypeError, AttributeError):
+      car_state = None
+
+    # The untracked-vision coast path is optional: do not retain it when the
+    # physical car-state input is unavailable. SubMaster supplies all three
+    # health maps, while lightweight callers may intentionally omit them.
+    if car_state_available:
+      for health_map_name in ("seen", "alive", "valid"):
+        try:
+          health_map = getattr(sm, health_map_name)
+        except AttributeError:
+          continue
+        except (KeyError, TypeError):
+          car_state_available = False
+          break
+        try:
+          if not health_map["carState"]:
+            car_state_available = False
+            break
+        except (KeyError, TypeError, AttributeError):
+          car_state_available = False
+          break
+
+    try:
+      physical_blinker_active = bool(car_state.leftBlinker or car_state.rightBlinker)
+    except (TypeError, AttributeError):
+      car_state_available = False
       physical_blinker_active = False
 
     if (
@@ -179,6 +206,7 @@ class StarPilotFollowing:
       not lead.status or
       not is_honda_accord_11g(car_params) or
       lane_change_active or
+      not car_state_available or
       physical_blinker_active
     ):
       self.untracked_vision_coast_confirm_t = 0.0

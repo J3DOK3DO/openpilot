@@ -23,8 +23,14 @@ from openpilot.starpilot.controls.lib.starpilot_following import StarPilotFollow
 class SubMasterLike:
   """Match the real messaging.SubMaster access contract: __getitem__, no dict.get()."""
 
-  def __init__(self, data):
+  def __init__(self, data, *, seen=None, alive=None, valid=None):
     self.data = data
+    # These are the health maps exposed by messaging.SubMaster. Keeping them on
+    # the test double lets fail-closed callers distinguish an unavailable service
+    # from a healthy message with all fields false.
+    self.seen = seen if seen is not None else {name: True for name in data}
+    self.alive = alive if alive is not None else {name: True for name in data}
+    self.valid = valid if valid is not None else {name: True for name in data}
 
   def __getitem__(self, key):
     return self.data[key]
@@ -204,6 +210,53 @@ def test_c6_close_lead_brake_hold_keeps_ordinary_vision_lead_frame_motion():
   assert planner.update_close_lead_brake_cap(mild, 0, 5.0, -1.0) is not None
 
 
+def test_c6_close_lead_brake_hold_idless_provenance_stays_anchored_at_entry():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=5.06)
+  braking_lead = make_lead(d_rel=12.320465, v_lead=4.405433, a_lead=-0.315703, y_rel=0.0)
+
+  assert planner.update_close_lead_brake_cap(braking_lead, 0, 5.059412, -1.0) is not None
+
+  # Each sample moves less than the 2.5 m replacement bound from its predecessor,
+  # but the final sample has moved materially from the lead that opened the hold.
+  for y_rel in (1.3, 2.6):
+    mild = make_lead(d_rel=12.3, v_lead=4.50, a_lead=-0.02, y_rel=y_rel)
+    assert 0.0 < planner.get_close_lead_brake_demand(mild, 5.0) < 0.20
+    cap = planner.update_close_lead_brake_cap(mild, 0, 5.0, -1.0)
+
+  assert cap is None
+  assert planner.close_lead_brake_hold_remaining[0] == 0.0
+  assert planner.close_lead_brake_hold_provenance[0] is None
+
+
+def test_c6_close_lead_brake_hold_idless_nonfinite_provenance_fails_closed():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=5.06)
+  braking_lead = make_lead(d_rel=12.320465, v_lead=4.405433, a_lead=-0.315703, y_rel=0.0)
+  mild = make_lead(d_rel=12.3, v_lead=4.50, a_lead=-0.02, y_rel=float("nan"))
+
+  assert planner.update_close_lead_brake_cap(braking_lead, 0, 5.059412, -1.0) is not None
+  assert 0.0 < planner.get_close_lead_brake_demand(mild, 5.0) < 0.20
+  assert planner.update_close_lead_brake_cap(mild, 0, 5.0, -1.0) is None
+  assert planner.close_lead_brake_hold_remaining[0] == 0.0
+  assert planner.close_lead_brake_hold_provenance[0] is None
+
+
+def test_c6_lead_control_disable_clear_routine_resets_both_slots_and_provenance():
+  """The update() lead-control-disable branch delegates this reset to this routine."""
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=5.06)
+  braking_lead = make_lead(d_rel=12.320465, v_lead=4.405433, a_lead=-0.315703)
+
+  for lead_index in range(2):
+    assert planner.update_close_lead_brake_cap(braking_lead, lead_index, 5.059412, -1.0) is not None
+    assert planner.close_lead_brake_hold_provenance[lead_index] is not None
+    planner.clear_close_lead_brake_hold(lead_index)
+
+  assert planner.close_lead_brake_hold_remaining == [0.0, 0.0]
+  assert planner.close_lead_brake_hold_provenance == [None, None]
+
+
 def test_c6_accord_untracked_highway_coast_enters_holds_and_releases():
   accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
   planner_stub = SimpleNamespace(
@@ -214,7 +267,10 @@ def test_c6_accord_untracked_highway_coast_enters_holds_and_releases():
   )
   following = StarPilotFollowing(planner_stub)
   following.t_follow = 1.45
-  sm = SubMasterLike({"carParams": accord})
+  sm = SubMasterLike({
+    "carParams": accord,
+    "carState": SimpleNamespace(leftBlinker=False, rightBlinker=False),
+  })
 
   for _ in range(5):
     assert not following.update_untracked_vision_coast(True, 31.007, sm)
@@ -231,6 +287,113 @@ def test_c6_accord_untracked_highway_coast_enters_holds_and_releases():
   # Confidence loss is an immediate release condition, not something the hold masks.
   planner_stub.lead_one.modelProb = 0.50
   assert not following.update_untracked_vision_coast(True, 31.007, sm)
+  assert following.untracked_vision_coast_hold_remaining == 0.0
+
+
+def test_c6_accord_untracked_highway_coast_missing_carstate_fails_closed():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner_stub = SimpleNamespace(
+    lead_one=make_lead(d_rel=105.318, v_lead=27.911, model_prob=0.957, y_rel=-0.648),
+    tracking_lead=False,
+    lead_path_y=0.0,
+    starpilot_weather=SimpleNamespace(weather_id=0, increase_following_distance=0.0),
+  )
+  following = StarPilotFollowing(planner_stub)
+  following.t_follow = 1.45
+  healthy_sm = SubMasterLike({
+    "carParams": accord,
+    "carState": SimpleNamespace(leftBlinker=False, rightBlinker=False),
+  })
+
+  for _ in range(6):
+    following.update_untracked_vision_coast(True, 31.007, healthy_sm)
+  assert following.untracked_vision_coast_hold_remaining > 0.0
+
+  assert not following.update_untracked_vision_coast(True, 31.007, SubMasterLike({"carParams": accord}))
+  assert following.untracked_vision_coast_confirm_t == 0.0
+  assert following.untracked_vision_coast_hold_remaining == 0.0
+
+
+@pytest.mark.parametrize(("health", "value"), [("seen", False), ("alive", False), ("valid", False)])
+def test_c6_accord_untracked_highway_coast_unhealthy_carstate_fails_closed(health, value):
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner_stub = SimpleNamespace(
+    lead_one=make_lead(d_rel=105.318, v_lead=27.911, model_prob=0.957, y_rel=-0.648),
+    tracking_lead=False,
+    lead_path_y=0.0,
+    starpilot_weather=SimpleNamespace(weather_id=0, increase_following_distance=0.0),
+  )
+  following = StarPilotFollowing(planner_stub)
+  following.t_follow = 1.45
+  health_maps = {
+    "seen": {"carParams": True, "carState": True},
+    "alive": {"carParams": True, "carState": True},
+    "valid": {"carParams": True, "carState": True},
+  }
+  health_maps[health]["carState"] = value
+  sm = SubMasterLike({
+    "carParams": accord,
+    "carState": SimpleNamespace(leftBlinker=False, rightBlinker=False),
+  }, seen=health_maps["seen"], alive=health_maps["alive"], valid=health_maps["valid"])
+
+  following.untracked_vision_coast_confirm_t = 0.10
+  following.untracked_vision_coast_hold_remaining = 0.20
+  assert not following.update_untracked_vision_coast(True, 31.007, sm)
+  assert following.untracked_vision_coast_confirm_t == 0.0
+  assert following.untracked_vision_coast_hold_remaining == 0.0
+
+
+def test_c6_accord_untracked_highway_coast_mapless_valid_carstate_remains_compatible():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner_stub = SimpleNamespace(
+    lead_one=make_lead(d_rel=105.318, v_lead=27.911, model_prob=0.957, y_rel=-0.648),
+    tracking_lead=False,
+    lead_path_y=0.0,
+    starpilot_weather=SimpleNamespace(weather_id=0, increase_following_distance=0.0),
+  )
+  following = StarPilotFollowing(planner_stub)
+  following.t_follow = 1.45
+  sm = {
+    "carParams": accord,
+    "carState": SimpleNamespace(leftBlinker=False, rightBlinker=False),
+  }
+
+  for _ in range(6):
+    following.update_untracked_vision_coast(True, 31.007, sm)
+
+  assert following.untracked_vision_coast_hold_remaining > 0.0
+  assert following.update_untracked_vision_coast(True, 31.007, sm)
+
+
+@pytest.mark.parametrize("bad_car_state", [
+  None,
+  SimpleNamespace(),
+  SimpleNamespace(leftBlinker=False),
+  SimpleNamespace(rightBlinker=False),
+])
+def test_c6_accord_untracked_highway_coast_mapless_unreadable_blinkers_fail_closed(bad_car_state):
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner_stub = SimpleNamespace(
+    lead_one=make_lead(d_rel=105.318, v_lead=27.911, model_prob=0.957, y_rel=-0.648),
+    tracking_lead=False,
+    lead_path_y=0.0,
+    starpilot_weather=SimpleNamespace(weather_id=0, increase_following_distance=0.0),
+  )
+  following = StarPilotFollowing(planner_stub)
+  following.t_follow = 1.45
+
+  healthy_sm = {
+    "carParams": accord,
+    "carState": SimpleNamespace(leftBlinker=False, rightBlinker=False),
+  }
+  for _ in range(6):
+    following.update_untracked_vision_coast(True, 31.007, healthy_sm)
+  assert following.untracked_vision_coast_hold_remaining > 0.0
+
+  assert not following.update_untracked_vision_coast(
+    True, 31.007, {"carParams": accord, "carState": bad_car_state},
+  )
+  assert following.untracked_vision_coast_confirm_t == 0.0
   assert following.untracked_vision_coast_hold_remaining == 0.0
 
 
