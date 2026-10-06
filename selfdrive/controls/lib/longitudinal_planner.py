@@ -133,6 +133,17 @@ STANDSTILL_STOPPED_LEAD_GUARD_MAX_BRAKE = 0.26
 LEAD_DEPART_ACCEL_HOLD_TIME = 1.2
 LEAD_DEPART_ACCEL_HOLD_MAX_EGO_SPEED = 2.0
 CLOSE_LEAD_BRAKE_CAP_MAX_TTC = 25.0
+# C6-12: vision-only braking inferred from aLeadK can spike well before the
+# ordinary follow target needs braking. Require brief persistence only in a
+# comfortably nonurgent envelope; all urgent/radar/MPC-braking cases bypass.
+CLOSE_LEAD_VISION_CONFIRM_TIME = 0.15
+CLOSE_LEAD_VISION_CONFIRM_MIN_HEADWAY = 2.0
+CLOSE_LEAD_VISION_CONFIRM_MIN_EGO_SPEED = 1.0
+CLOSE_LEAD_VISION_CONFIRM_MIN_TTC = 9.0
+CLOSE_LEAD_VISION_CONFIRM_MAX_CLOSING_SPEED = 2.0
+CLOSE_LEAD_VISION_CONFIRM_MIN_MODEL_PROB = 0.95
+CLOSE_LEAD_VISION_CONFIRM_MIN_RAW_MPC_ACCEL = 0.0
+CLOSE_LEAD_VISION_CONFIRM_MAX_REQUIRED_DECEL = 1.20
 INSIDE_GAP_CLOSING_MIN_EGO_SPEED = 8.0
 INSIDE_GAP_CLOSING_MIN_LEAD_SPEED = 5.0
 INSIDE_GAP_CLOSING_MIN_SPEED = 0.5
@@ -687,6 +698,8 @@ class LongitudinalPlanner:
     self.vision_lead_approach_confirm_t = 0.0
     self.close_lead_brake_hold_remaining = [0.0, 0.0]
     self.close_lead_brake_hold_provenance = [None, None]
+    self.close_lead_brake_confirm_t = [0.0, 0.0]
+    self.close_lead_brake_confirm_provenance = [None, None]
     self.untracked_slow_lead_confirm_t = 0.0
     self.untracked_vision_approach_lift_confirm_t = 0.0
     self.untracked_vision_approach_lift_cap = None
@@ -783,7 +796,7 @@ class LongitudinalPlanner:
     ))
     return float(np.clip(a_launch, 0.0, accel_cap))
 
-  def get_close_lead_brake_demand(self, lead, v_ego):
+  def get_close_lead_brake_context(self, lead, v_ego):
     if lead is None or not lead.status:
       return None
 
@@ -801,7 +814,12 @@ class LongitudinalPlanner:
     if projected_ttc > CLOSE_LEAD_BRAKE_CAP_MAX_TTC:
       return None
 
-    return (projected_closing_speed ** 2) / (2.0 * available_gap) + 0.7 * lead_brake
+    required_decel = (projected_closing_speed ** 2) / (2.0 * available_gap) + 0.7 * lead_brake
+    return required_decel, projected_ttc, closing_speed
+
+  def get_close_lead_brake_demand(self, lead, v_ego):
+    context = self.get_close_lead_brake_context(lead, v_ego)
+    return None if context is None else context[0]
 
   def get_close_lead_brake_cap(self, lead, v_ego, accel_min):
     required_decel = self.get_close_lead_brake_demand(lead, v_ego)
@@ -813,6 +831,34 @@ class LongitudinalPlanner:
     self.close_lead_brake_hold_remaining[lead_index] = 0.0
     self.close_lead_brake_hold_provenance[lead_index] = None
 
+  def clear_close_lead_brake_confirmation(self, lead_index):
+    self.close_lead_brake_confirm_t[lead_index] = 0.0
+    self.close_lead_brake_confirm_provenance[lead_index] = None
+
+  def nonurgent_vision_close_lead_brake(self, lead, v_ego, context, raw_mpc_accel):
+    if raw_mpc_accel is None or bool(getattr(lead, "radar", False)):
+      return False
+
+    required_decel, projected_ttc, closing_speed = context
+    lead_prob = float(getattr(lead, "modelProb", 0.0))
+    values = (
+      required_decel, projected_ttc, closing_speed, float(v_ego), float(lead.dRel),
+      float(lead.vLead), float(getattr(lead, "yRel", 0.0)), float(raw_mpc_accel), lead_prob,
+    )
+    if not all(np.isfinite(value) for value in values):
+      return False
+
+    actual_headway = float(lead.dRel) / max(float(v_ego), 1e-3)
+    return bool(
+      lead_prob >= CLOSE_LEAD_VISION_CONFIRM_MIN_MODEL_PROB and
+      float(v_ego) >= CLOSE_LEAD_VISION_CONFIRM_MIN_EGO_SPEED and
+      actual_headway >= CLOSE_LEAD_VISION_CONFIRM_MIN_HEADWAY and
+      projected_ttc >= CLOSE_LEAD_VISION_CONFIRM_MIN_TTC and
+      closing_speed <= CLOSE_LEAD_VISION_CONFIRM_MAX_CLOSING_SPEED and
+      float(raw_mpc_accel) >= CLOSE_LEAD_VISION_CONFIRM_MIN_RAW_MPC_ACCEL and
+      required_decel < CLOSE_LEAD_VISION_CONFIRM_MAX_REQUIRED_DECEL
+    )
+
   @staticmethod
   def get_close_lead_brake_provenance(lead):
     return {
@@ -823,21 +869,17 @@ class LongitudinalPlanner:
       "y_rel": float(getattr(lead, "yRel", 0.0)),
     }
 
-  def close_lead_brake_hold_replaced(self, lead, lead_index):
-    previous = self.close_lead_brake_hold_provenance[lead_index]
+  @staticmethod
+  def close_lead_brake_provenance_replaced(current, previous):
     if previous is None:
       return False
-
-    current = self.get_close_lead_brake_provenance(lead)
     if current["radar"] != previous["radar"]:
       return True
     if current["radar"] and current["radar_track_id"] >= 0 and previous["radar_track_id"] >= 0:
       return current["radar_track_id"] != previous["radar_track_id"]
 
     # Without a stable object ID (vision-only, or radar with an unavailable track ID),
-    # reject non-finite geometry and compare against the strong-brake anchor.
-    # The anchor is deliberately not refreshed by mild held frames, so cumulative
-    # sub-threshold drift cannot transfer the old hold to a different lead.
+    # reject non-finite geometry and compare against the state-entry anchor.
     if not all(np.isfinite(value) for provenance in (current, previous)
                for value in (provenance["d_rel"], provenance["v_lead"], provenance["y_rel"])):
       return True
@@ -847,25 +889,63 @@ class LongitudinalPlanner:
       abs(current["y_rel"] - previous["y_rel"]) > 2.5
     )
 
+  def close_lead_brake_hold_replaced(self, lead, lead_index):
+    return self.close_lead_brake_provenance_replaced(
+      self.get_close_lead_brake_provenance(lead),
+      self.close_lead_brake_hold_provenance[lead_index],
+    )
+
+  def close_lead_brake_confirmation_replaced(self, lead, lead_index):
+    return self.close_lead_brake_provenance_replaced(
+      self.get_close_lead_brake_provenance(lead),
+      self.close_lead_brake_confirm_provenance[lead_index],
+    )
+
   def update_close_lead_brake_hold_provenance(self, lead, lead_index):
     self.close_lead_brake_hold_provenance[lead_index] = self.get_close_lead_brake_provenance(lead)
 
-  def update_close_lead_brake_cap(self, lead, lead_index, v_ego, accel_min):
-    """Keep Accord 11G close-lead braking continuous across short aLeadK estimate dips."""
-    required_decel = self.get_close_lead_brake_demand(lead, v_ego)
-    if required_decel is None:
+  def update_close_lead_brake_cap(self, lead, lead_index, v_ego, accel_min, *, raw_mpc_accel=None):
+    """Keep Accord 11G close-lead braking continuous without reacting to single nonurgent vision spikes."""
+    context = self.get_close_lead_brake_context(lead, v_ego)
+    if context is None:
       self.clear_close_lead_brake_hold(lead_index)
+      self.clear_close_lead_brake_confirmation(lead_index)
       return None
 
+    required_decel = context[0]
     if not self.is_honda_accord_11g:
       self.clear_close_lead_brake_hold(lead_index)
+      self.clear_close_lead_brake_confirmation(lead_index)
       return max(accel_min, -required_decel) if required_decel >= 0.2 else None
 
     replacement = self.close_lead_brake_hold_replaced(lead, lead_index)
     if replacement:
       self.clear_close_lead_brake_hold(lead_index)
+      self.clear_close_lead_brake_confirmation(lead_index)
 
     if required_decel >= 0.2:
+      needs_confirmation = bool(
+        self.close_lead_brake_hold_remaining[lead_index] <= 1e-6 and
+        self.nonurgent_vision_close_lead_brake(lead, v_ego, context, raw_mpc_accel)
+      )
+      if needs_confirmation:
+        if self.close_lead_brake_confirmation_replaced(lead, lead_index):
+          self.clear_close_lead_brake_confirmation(lead_index)
+        if self.close_lead_brake_confirm_provenance[lead_index] is None:
+          self.close_lead_brake_confirm_provenance[lead_index] = self.get_close_lead_brake_provenance(lead)
+        self.close_lead_brake_confirm_t[lead_index] = min(
+          self.close_lead_brake_confirm_t[lead_index] + self.dt,
+          CLOSE_LEAD_VISION_CONFIRM_TIME,
+        )
+        if self.close_lead_brake_confirm_t[lead_index] + 1e-9 < CLOSE_LEAD_VISION_CONFIRM_TIME:
+          self.clear_close_lead_brake_hold(lead_index)
+          return None
+      else:
+        self.clear_close_lead_brake_confirmation(lead_index)
+
+      # Once a nonurgent vision demand persists for the confirmation window, it
+      # receives the same full cap and existing continuity hold as before.
+      self.clear_close_lead_brake_confirmation(lead_index)
       provenance = self.get_close_lead_brake_provenance(lead)
       # A usable radar ID is sufficient identity. Fallback identity needs finite
       # geometry; otherwise serve this strong sample but leave no inherited hold.
@@ -877,6 +957,7 @@ class LongitudinalPlanner:
         self.clear_close_lead_brake_hold(lead_index)
       return max(accel_min, -required_decel)
 
+    self.clear_close_lead_brake_confirmation(lead_index)
     if self.close_lead_brake_hold_remaining[lead_index] > 0.0:
       self.close_lead_brake_hold_remaining[lead_index] = max(
         0.0, self.close_lead_brake_hold_remaining[lead_index] - self.dt,
@@ -2760,6 +2841,7 @@ class LongitudinalPlanner:
     if not lead_control_active:
       for lead_index in range(2):
         self.clear_close_lead_brake_hold(lead_index)
+        self.clear_close_lead_brake_confirmation(lead_index)
     if lead_control_active:
       if (not experimental_mode and
           not bool(getattr(sm['starpilotPlan'], 'forcingStop', False)) and
@@ -2777,7 +2859,13 @@ class LongitudinalPlanner:
         )
         if rav4_early_lead_cap is not None:
           rav4_early_lead_caps.append(rav4_early_lead_cap)
-        cap = self.update_close_lead_brake_cap(lead, lead_index, v_ego, output_accel_min)
+        cap = self.update_close_lead_brake_cap(
+          lead,
+          lead_index,
+          v_ego,
+          output_accel_min,
+          raw_mpc_accel=float(self.a_desired_trajectory[0]),
+        )
         if cap is not None:
           close_lead_caps.append(cap)
         cap = get_honda_crv_5g_low_speed_stopped_lead_cap(

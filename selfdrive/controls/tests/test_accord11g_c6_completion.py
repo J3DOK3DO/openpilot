@@ -520,3 +520,167 @@ def test_c6_accord11g_catchup_fades_for_closing_or_offset_lead():
   assert centered > 0.0
   assert offset == 0.0
   assert closing < centered
+
+
+def test_c612_wide_gap_vision_brake_requires_short_confirmation():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=6.70)
+  # Oct 5 seg132 17:59:14: gap was ~5.2 m outside desired, raw MPC +0.25,
+  # while vision aLeadK drove the close-lead safety cap to the brake side.
+  lead = make_lead(d_rel=16.49, v_lead=5.96, a_lead=-1.053, model_prob=0.999, radar=False)
+
+  caps = [
+    planner.update_close_lead_brake_cap(
+      lead, 0, 6.70, -0.5, raw_mpc_accel=0.25,
+    )
+    for _ in range(3)
+  ]
+
+  assert caps[:2] == [None, None]
+  assert caps[2] is not None and caps[2] < 0.0
+
+
+def test_c612_transient_wide_gap_vision_brake_does_not_arm_future_pulse():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=6.70)
+  strong = make_lead(d_rel=16.49, v_lead=5.96, a_lead=-1.053, model_prob=0.999, radar=False)
+  neutral = make_lead(d_rel=16.49, v_lead=5.96, a_lead=0.0, model_prob=0.999, radar=False)
+
+  assert planner.update_close_lead_brake_cap(
+    strong, 0, 6.70, -0.5, raw_mpc_accel=0.25,
+  ) is None
+  assert planner.update_close_lead_brake_cap(
+    neutral, 0, 6.70, -0.5, raw_mpc_accel=0.25,
+  ) is None
+
+  # Confirmation must restart after the transient disappears.
+  assert planner.update_close_lead_brake_cap(
+    strong, 0, 6.70, -0.5, raw_mpc_accel=0.25,
+  ) is None
+
+
+def test_c612_radar_close_lead_braking_remains_immediate():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=6.70)
+  lead = make_lead(
+    d_rel=16.49, v_lead=5.96, a_lead=-1.053, model_prob=1.0,
+    radar=True, radar_track_id=77,
+  )
+
+  cap = planner.update_close_lead_brake_cap(
+    lead, 0, 6.70, -0.5, raw_mpc_accel=0.25,
+  )
+  assert cap is not None and cap < 0.0
+
+
+def test_c612_near_target_gap_vision_braking_remains_immediate():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=8.948)
+  # Oct 5 seg134 18:01:31 geometry: effectively at the desired gap.
+  lead = make_lead(d_rel=14.894, v_lead=8.241, a_lead=-1.376, model_prob=0.99999, radar=False)
+
+  cap = planner.update_close_lead_brake_cap(
+    lead, 0, 8.948, -0.5, raw_mpc_accel=0.20,
+  )
+  assert cap is not None and cap < 0.0
+
+
+def test_c612_high_closing_vision_braking_remains_immediate():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=16.002)
+  # Oct 5 seg134 18:01:20: wide gap but ~3.4 m/s closing; preserve immediate authority.
+  lead = make_lead(d_rel=36.277, v_lead=12.587, a_lead=-0.964, model_prob=0.999905, radar=False)
+
+  cap = planner.update_close_lead_brake_cap(
+    lead, 0, 16.002, -0.5, raw_mpc_accel=0.314,
+  )
+  assert cap is not None and cap < 0.0
+
+
+def test_c612_raw_mpc_braking_bypasses_vision_confirmation():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=6.70)
+  lead = make_lead(d_rel=16.49, v_lead=5.96, a_lead=-1.053, model_prob=0.999, radar=False)
+
+  cap = planner.update_close_lead_brake_cap(
+    lead, 0, 6.70, -0.5, raw_mpc_accel=-0.20,
+  )
+  assert cap is not None and cap < 0.0
+
+
+def test_c612_extreme_vision_brake_demand_bypasses_confirmation():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=6.70)
+  lead = make_lead(d_rel=24.0, v_lead=5.96, a_lead=-2.0, model_prob=0.999, radar=False)
+  assert planner.get_close_lead_brake_demand(lead, 6.70) > 1.2
+
+  cap = planner.update_close_lead_brake_cap(
+    lead, 0, 6.70, -2.0, raw_mpc_accel=0.25,
+  )
+  assert cap is not None and cap < 0.0
+
+
+def test_c612_confirmation_does_not_transfer_to_replaced_vision_lead():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=6.70)
+  first = make_lead(d_rel=16.49, v_lead=5.96, a_lead=-1.053, model_prob=0.999, radar=False)
+  replacement = make_lead(d_rel=25.0, v_lead=5.0, a_lead=-0.60, model_prob=0.999, radar=False)
+
+  assert planner.update_close_lead_brake_cap(first, 0, 6.70, -0.5, raw_mpc_accel=0.25) is None
+  assert planner.update_close_lead_brake_cap(first, 0, 6.70, -0.5, raw_mpc_accel=0.25) is None
+
+  # The replacement is also nonurgent, but it must begin its own confirmation window.
+  assert planner.update_close_lead_brake_cap(replacement, 0, 6.70, -0.5, raw_mpc_accel=0.25) is None
+
+
+def test_c612_near_standstill_vision_braking_bypasses_confirmation():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=0.8)
+  lead = make_lead(d_rel=7.0, v_lead=0.3, a_lead=-1.0, model_prob=0.999, radar=False)
+
+  cap = planner.update_close_lead_brake_cap(lead, 0, 0.8, -1.0, raw_mpc_accel=0.10)
+  assert cap is not None and cap < 0.0
+
+
+def test_c612_lower_confidence_vision_braking_bypasses_confirmation():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=6.70)
+  lead = make_lead(d_rel=16.49, v_lead=5.96, a_lead=-1.053, model_prob=0.90, radar=False)
+
+  cap = planner.update_close_lead_brake_cap(lead, 0, 6.70, -0.5, raw_mpc_accel=0.25)
+  assert cap is not None and cap < 0.0
+
+
+def test_c612_confirmed_vision_brake_keeps_existing_c6_hold_through_mild_dip():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=6.70)
+  strong = make_lead(d_rel=16.49, v_lead=5.96, a_lead=-1.053, model_prob=0.999, radar=False)
+  mild = make_lead(d_rel=16.4, v_lead=6.1, a_lead=-0.05, model_prob=0.999, radar=False)
+
+  caps = [
+    planner.update_close_lead_brake_cap(strong, 0, 6.70, -0.5, raw_mpc_accel=0.25)
+    for _ in range(3)
+  ]
+  assert caps[2] is not None
+  held = planner.update_close_lead_brake_cap(mild, 0, 6.70, -0.5, raw_mpc_accel=0.25)
+  assert held is not None and held <= -0.15
+
+
+def test_c612_short_ttc_vision_braking_bypasses_confirmation():
+  accord = CarInterface.get_non_essential_params(CAR.HONDA_ACCORD_11G)
+  planner = LongitudinalPlanner(accord, init_v=10.0)
+  # Otherwise inside the comfort envelope: vision-only, high confidence,
+  # 2.0 s headway, modest <2 m/s closing, raw MPC positive, non-extreme demand.
+  # Projected TTC is <9 s, so braking must remain immediate.
+  lead = make_lead(d_rel=20.0, v_lead=8.1, a_lead=-0.50, model_prob=0.999, radar=False)
+  context = planner.get_close_lead_brake_context(lead, 10.0)
+  assert context is not None
+  required_decel, projected_ttc, closing_speed = context
+  assert required_decel < 1.20
+  assert projected_ttc < 9.0
+  assert closing_speed < 2.0
+
+  cap = planner.update_close_lead_brake_cap(
+    lead, 0, 10.0, -1.0, raw_mpc_accel=0.25,
+  )
+  assert cap is not None and cap < 0.0
