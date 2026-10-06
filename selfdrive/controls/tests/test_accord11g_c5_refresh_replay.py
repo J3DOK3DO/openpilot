@@ -580,3 +580,51 @@ def test_c6_standstill_accel_road_step_contract_caps_oct2_release_jump():
   assert value == pytest.approx(expected)
   assert state == pytest.approx(expected)
   assert value < -0.127503
+
+
+def test_c611_standstill_limiter_preserves_state_across_road_observed_tiny_negative_vego():
+  # Oct 5 C6-10 road evidence: +0.00235 -> -0.001107 m/s estimator sign-crossing
+  # exposed an unsmoothed -0.7148 -> -0.5516 relaxation in ~19.8 ms.
+  previous = -0.7148
+  command = -0.5516
+  dt = 0.0198
+
+  value, state = update_accord_standstill_accel_command(
+    command, previous, -0.001107, True, True, True, dt=dt,
+  )
+
+  expected = previous + 0.30 * dt
+  assert value == pytest.approx(expected)
+  assert state == pytest.approx(expected)
+
+
+def test_c611_standstill_limiter_covers_observed_negative_vego_envelope():
+  # Across both Oct 5 routes, the most-negative vEgo while stopping + brake
+  # request + longActive was -0.047750875 m/s.
+  value, state = update_accord_standstill_accel_command(
+    -0.30, -0.50, -0.047750875, True, True, True, dt=0.10,
+  )
+
+  assert value == pytest.approx(-0.47)
+  assert state == pytest.approx(-0.47)
+
+
+def test_c611_standstill_limiter_keeps_stronger_braking_immediate_inside_negative_tolerance():
+  value, state = update_accord_standstill_accel_command(
+    -0.80, -0.50, -0.001, True, True, True, dt=0.10,
+  )
+
+  assert value == pytest.approx(-0.80)
+  assert state == pytest.approx(-0.80)
+
+
+def test_c611_standstill_limiter_resets_for_meaningful_reverse_motion():
+  assert update_accord_standstill_accel_command(
+    -0.30, -0.50, -0.10, True, True, True, dt=0.10,
+  ) == (pytest.approx(-0.30), None)
+
+
+def test_c611_standstill_limiter_negative_tolerance_is_strictly_bounded():
+  assert update_accord_standstill_accel_command(
+    -0.30, -0.50, -0.051, True, True, True, dt=0.10,
+  ) == (pytest.approx(-0.30), None)

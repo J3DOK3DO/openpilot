@@ -29,6 +29,8 @@ ACCORD_BOSCH_RELEASE_CONFIRM_TICKS = 10
 ACCORD_BOSCH_CLEAR_RELEASE_FORCE = 0.10
 ACCORD_BOSCH_POSITIVE_REQUEST_ACCEL = 0.03
 ACCORD_BOSCH_POSITIVE_REQUEST_FORCE_MARGIN = 0.005
+# Oct 5 road logs observed stationary vEgo estimator noise down to -0.04775 m/s.
+ACCORD_STANDSTILL_HOLD_MIN_SPEED = -0.05
 ACCORD_STANDSTILL_HOLD_MAX_SPEED = 0.35
 ACCORD_STANDSTILL_ACCEL_RELEASE_RATE = 0.30
 
@@ -40,7 +42,7 @@ def update_accord_standstill_accel_command(command: float, previous: float | Non
   command = float(command)
   eligible = (
     long_active and stopping and braking and
-    0.0 <= float(v_ego) <= ACCORD_STANDSTILL_HOLD_MAX_SPEED
+    ACCORD_STANDSTILL_HOLD_MIN_SPEED <= float(v_ego) <= ACCORD_STANDSTILL_HOLD_MAX_SPEED
   )
   if not eligible:
     return command, None
