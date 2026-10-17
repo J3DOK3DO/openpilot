@@ -1,0 +1,341 @@
+{
+  "timestamp": "2026-10-17T07:58:38.978321+00:00",
+  "method": "git patch-id --stable computed from actual first-parent per-commit Git diffs; duplicates reflect patch equivalence, not final-feature equivalence",
+  "total_commits": 288,
+  "patch_id_multi_match_groups": 28,
+  "patch_id_duplicated_commit_records": 56,
+  "old_current_equivalent_patch_groups": 21,
+  "old_current_equivalents": [
+    {
+      "patch_id": "13f715eb5652b036fadbace70963af4ee8933da1",
+      "records": [
+        "MVL-CURRENT-014",
+        "MVL-HISTORICAL-001"
+      ],
+      "shas": [
+        "45814e331381c2c132912fae0807cfb783bec0a2",
+        "b1ddbea02690bacc30c89161a59976999bf2ce23"
+      ],
+      "titles": [
+        "modeld_v2: spatial features (#1934)",
+        "modeld_v2: spatial features (PR-1934)"
+      ]
+    },
+    {
+      "patch_id": "f46443c80bc0a24d6bf6db1808a0fbf7faf16dc6",
+      "records": [
+        "MVL-CURRENT-091",
+        "MVL-HISTORICAL-003"
+      ],
+      "shas": [
+        "d2818176f0632c32e9d75efe5ef50412397c6d5c",
+        "73495a37aa97a7cf0a65be7b268382a37f6b69f8"
+      ],
+      "titles": [
+        "widen threshold for bad mount",
+        "widen threshold for bad mount"
+      ]
+    },
+    {
+      "patch_id": "601dcf210ce1fb1091c7e0762dcea15ce9b0fbee",
+      "records": [
+        "MVL-CURRENT-092",
+        "MVL-HISTORICAL-004"
+      ],
+      "shas": [
+        "e2d85763723e595f595d179aaab85866e4c10cc1",
+        "f76101aa616e7d8178d081fbf4140b56c912eb20"
+      ],
+      "titles": [
+        "don't need Hardware w mount override",
+        "don't need Hardware w mount override"
+      ]
+    },
+    {
+      "patch_id": "5c19d77976eaada5eba3438ad6fb1dcd10e044dd",
+      "records": [
+        "MVL-CURRENT-093",
+        "MVL-HISTORICAL-005"
+      ],
+      "shas": [
+        "a5a55bcff897af73af768b6df807767868d433fc",
+        "5ebca0f7fe8a347d8ea35da2c2c550ae93614fe2"
+      ],
+      "titles": [
+        "add buymeacoffeelink",
+        "add buymeacoffeelink"
+      ]
+    },
+    {
+      "patch_id": "6b0f7278b3220b3e2c79a4ff9987177bbea9dc3d",
+      "records": [
+        "MVL-CURRENT-094",
+        "MVL-HISTORICAL-006"
+      ],
+      "shas": [
+        "6c809223622c6aff7b5966d662280ae6544a189d",
+        "8051924117b8b37a5bcbb75f367088de4246d557"
+      ],
+      "titles": [
+        "Add buymeacoffee link - comma four",
+        "Add buymeacoffee link - comma four"
+      ]
+    },
+    {
+      "patch_id": "baf007a2065282bc82417e60c05042f361e313b0",
+      "records": [
+        "MVL-CURRENT-095",
+        "MVL-HISTORICAL-007"
+      ],
+      "shas": [
+        "7d684778143a835dd66d7dd17e6354020e0a0af0",
+        "08abcbad526cfb278168dda1e4b10feedbeceeda"
+      ],
+      "titles": [
+        "vibration tolerance",
+        "vibration tolerance"
+      ]
+    },
+    {
+      "patch_id": "a9c3b33bfcf0e524ee7dc8fa07d181221fa9364f",
+      "records": [
+        "MVL-CURRENT-096",
+        "MVL-HISTORICAL-008"
+      ],
+      "shas": [
+        "dc4c26b05531f0ed021e39b7dcf85fdff8857a8d",
+        "9e6d977e11b0c95310f5de5fdf46b034b0b7d505"
+      ],
+      "titles": [
+        "camera offset up/down script",
+        "camera offset up/down script"
+      ]
+    },
+    {
+      "patch_id": "941eda4d36f922261d1feb84a0fedbc43b3a588f",
+      "records": [
+        "MVL-CURRENT-097",
+        "MVL-HISTORICAL-009"
+      ],
+      "shas": [
+        "2393043feb2c61da60eed94f0ada872f4d9619e2",
+        "91d206288a7a55cef0a2508783242540b35cb4b5"
+      ],
+      "titles": [
+        "Change decrement value from 0.02 to 0.01",
+        "Change decrement value from 0.02 to 0.01"
+      ]
+    },
+    {
+      "patch_id": "49d517a801422fed8101904ea787a02fd9cd7044",
+      "records": [
+        "MVL-CURRENT-098",
+        "MVL-HISTORICAL-010"
+      ],
+      "shas": [
+        "c0d58b1a3f07f2686bf2269256418edf6b92acb1",
+        "2fd9ca4960a95b06a2fe4e39639fc0459dfbe2d1"
+      ],
+      "titles": [
+        "Change increment value from 0.02 to 0.01",
+        "Change increment value from 0.02 to 0.01"
+      ]
+    },
+    {
+      "patch_id": "9f2e2a7a99afcd71a2117f6a1ef81723ac020474",
+      "records": [
+        "MVL-CURRENT-099",
+        "MVL-HISTORICAL-011"
+      ],
+      "shas": [
+        "3fc1105c481f63f9aee29cc6085c276ffa45f5b1",
+        "41629925cd6d84bddb23c0e6941b08dc5c930bc4"
+      ],
+      "titles": [
+        "Fix lint failures in scripts/plus.sh and scripts/minus.sh",
+        "Fix lint failures in scripts/plus.sh and scripts/minus.sh"
+      ]
+    },
+    {
+      "patch_id": "fa02937d9c4d134104b0aa95e4aa8adb70acc651",
+      "records": [
+        "MVL-CURRENT-100",
+        "MVL-HISTORICAL-013"
+      ],
+      "shas": [
+        "fccae2f6d51b55124354aa30568631a371f6e60a",
+        "9660b435898ea21e6dc0d2f8ae3c674c581b1c8b"
+      ],
+      "titles": [
+        "Add Honda Nidec stock longitudinal settings to vehicle configuration",
+        "Add Honda Nidec stock longitudinal settings to vehicle configuration"
+      ]
+    },
+    {
+      "patch_id": "6d5ac5f0bd28a048a0a7764cb64f8304dcd095f6",
+      "records": [
+        "MVL-CURRENT-101",
+        "MVL-HISTORICAL-014"
+      ],
+      "shas": [
+        "64303ea50abf3e427e63dd64aa711bb5b4725b98",
+        "42261376dff86a5e2cef6603f20e57fd53303b33"
+      ],
+      "titles": [
+        "init",
+        "init"
+      ]
+    },
+    {
+      "patch_id": "72c94d0afce2ad50413d9bb11a18f67894875cc0",
+      "records": [
+        "MVL-CURRENT-102",
+        "MVL-HISTORICAL-015"
+      ],
+      "shas": [
+        "5697161cfa7a655b63a813c682a6e79cf81d5cb7",
+        "1a77d268bd62cb02145374a88ccc324e9dfcabc9"
+      ],
+      "titles": [
+        "c3x toggle it",
+        "c3x toggle it"
+      ]
+    },
+    {
+      "patch_id": "7ea7d54be6bdadf67b90bae411732ccd2dbc16d9",
+      "records": [
+        "MVL-CURRENT-103",
+        "MVL-HISTORICAL-016"
+      ],
+      "shas": [
+        "e334aca26a41755fefdc99b33e926ed3dd51b9bd",
+        "91354677f4cf95d28ed4c65d0374837aedf27905"
+      ],
+      "titles": [
+        "Add modelV2 to SubMaster and apply method",
+        "Add modelV2 to SubMaster and apply method"
+      ]
+    },
+    {
+      "patch_id": "450f6ad45d0820a1ccd79eef66132138ef84936b",
+      "records": [
+        "MVL-CURRENT-104",
+        "MVL-HISTORICAL-017"
+      ],
+      "shas": [
+        "401bbc3cfe8e7ef3e51460830fa927f2c895c511",
+        "c17fce56f0872235d7aab5106b29f01c623acf8a"
+      ],
+      "titles": [
+        "controls: port confidence-gated lane centering from StarPilot",
+        "controls: port confidence-gated lane centering from StarPilot"
+      ]
+    },
+    {
+      "patch_id": "d3a38144fd3fb753174f6f9952a6be9b77adf0a3",
+      "records": [
+        "MVL-CURRENT-105",
+        "MVL-HISTORICAL-018"
+      ],
+      "shas": [
+        "5f739d8de099ebd7c9914d758cd37338f5fe56b9",
+        "1fe90644aee9a34f08b134134c22dd07d1b3a99c"
+      ],
+      "titles": [
+        "ui: add SLC settings to developer menus",
+        "ui: add SLC settings to developer menus"
+      ]
+    },
+    {
+      "patch_id": "9ecb61d29bc840d903a47c790aa58b19a66956c0",
+      "records": [
+        "MVL-CURRENT-106",
+        "MVL-HISTORICAL-019"
+      ],
+      "shas": [
+        "5616e772b60e7604f8a207180635d9898b27cb83",
+        "7202298f5773ea6ccb09c7dc9a3be9d14f04ca0d"
+      ],
+      "titles": [
+        "sunnylink: add SLC section to developer settings",
+        "sunnylink: add SLC section to developer settings"
+      ]
+    },
+    {
+      "patch_id": "06cc600c287e689963f0abab9dec73ebbe4422c4",
+      "records": [
+        "MVL-CURRENT-107",
+        "MVL-HISTORICAL-020"
+      ],
+      "shas": [
+        "86894d1df5081db8129c52be9349db98c3507f8b",
+        "8a9739e88bfc113ef0ba21fbd6f6236005777fdc"
+      ],
+      "titles": [
+        "ui, sunnylink: rename SLC labels to SPLC",
+        "ui, sunnylink: rename SLC labels to SPLC"
+      ]
+    },
+    {
+      "patch_id": "61b9c7bfbfeb38461c7db67ddc4f6fa7ed872ba4",
+      "records": [
+        "MVL-CURRENT-109",
+        "MVL-HISTORICAL-022"
+      ],
+      "shas": [
+        "a57edd6fc1629b513958c60fd7642ce2d53bd0ab",
+        "68a9a17aef3fc416a2c59a31c62055eb316a02e5"
+      ],
+      "titles": [
+        "Scroll to download after branch switch",
+        "Scroll to download after branch switch"
+      ]
+    },
+    {
+      "patch_id": "5cc7d724bfc9164f98eb576668083996f67856a3",
+      "records": [
+        "MVL-CURRENT-110",
+        "MVL-HISTORICAL-012"
+      ],
+      "shas": [
+        "5dbe51bff6894f66496218ac5a644330ca2c86d8",
+        "aa2912d3a6e13483bc9b2a31759f6b20277e1e54"
+      ],
+      "titles": [
+        "Add HondaGasFactorParams and HondaWindFactorParams keys",
+        "Add HondaGasFactorParams and HondaWindFactorParams keys"
+      ]
+    },
+    {
+      "patch_id": "81bd1007ebc0337f0748c1577a0572be3661d7fe",
+      "records": [
+        "MVL-CURRENT-116",
+        "MVL-HISTORICAL-024"
+      ],
+      "shas": [
+        "0e61342acb83cae83c0b1b9a9ebb7ca418e05e92",
+        "8df11707ceaaa0ad39c8759659e03395871ae4ba"
+      ],
+      "titles": [
+        "updated: make agnos.json resolution resilient across branch layouts",
+        "updated: make agnos.json resolution resilient across branch layouts"
+      ]
+    }
+  ],
+  "panda_patch_id_groups": {
+    "1f2267dc2b93492d47cc779f0be812899b5860e8": [
+      "95e3f0815b12",
+      "99b32f0cf32a"
+    ],
+    "f9631ac531895a122b59ac768ed216602251b714": [
+      "fa4f4184c60d",
+      "bc2602860c62"
+    ],
+    "b33d17e6c5021a2c2e501dde1d2f7f0faf23f454": [
+      "42643dec1521",
+      "74a0adced421"
+    ]
+  },
+  "number_empty_diffs": 1,
+  "number_no_patch_id": 0
+}

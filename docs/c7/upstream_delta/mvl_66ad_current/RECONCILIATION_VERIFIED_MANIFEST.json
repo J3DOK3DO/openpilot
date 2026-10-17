@@ -1,0 +1,53 @@
+{
+  "verified_at_utc": "2026-10-17T08:07:04.055423+00:00",
+  "complete_288_sha_inventory": true,
+  "complete_honda_native_safety_qualification": false,
+  "per_sha_decisions": {
+    "PORT": 0,
+    "DEFER": 157,
+    "EXCLUDE": 131
+  },
+  "old_current_identical_patch_groups": 21,
+  "corrected_prior_commit_to_feature_mappings": 5,
+  "protected": [
+    {
+      "repo": "C6_12",
+      "actual_sha": "7b4db9a26010ba9899eef242d3ca49b33cbcca9c",
+      "clean": true
+    },
+    {
+      "repo": "PROTECTED_C7",
+      "actual_sha": "48bd4c1d88f2a964cc9d2f0f58aca9d43681149d",
+      "clean": true
+    },
+    {
+      "repo": "C7_DOM_REFRESH",
+      "actual_sha": "e997a36ac211cf71a0c03ab5b99c2e3d6385291d",
+      "clean": true
+    }
+  ],
+  "source_modified": false,
+  "vehicle_modified": false,
+  "evidence_files": {
+    "MVL_288_COMMIT_DECISIONS.csv": {
+      "sha256": "f743499f8d4d8bfd6d45f534870e2d19a0d54b1ade7021c5c427bf94fd5890b8",
+      "bytes": 248244
+    },
+    "MVL_288_FULL_RECONCILED.json": {
+      "sha256": "9faa99bda52e6db970929130c98c9f5bbdd4a3d4c9b874d60051dbe0d3d6f203",
+      "bytes": 1067797
+    },
+    "PATCH_EQUIVALENCE.json": {
+      "sha256": "dedfe0e4ae59c4d992a285a54a68e435276231f7cd44560b65888fda00a1cdec",
+      "bytes": 9469
+    },
+    "MVL_66AD_TO_CURRENT_FINAL_RECONCILIATION_2026-10-17.md": {
+      "sha256": "f61230b6e7d5789e0be7b565314f7cfd23bd5edd8d28a85fffe12ef2da2786af",
+      "bytes": 10928
+    },
+    "MVL_288_PER_COMMIT_APPENDIX_2026-10-17.md": {
+      "sha256": "9fc7a95ef98ae51c5dd3e4d3db2bc47e2a1d67b6665a5cc5f7a36e9381bc71c0",
+      "bytes": 140848
+    }
+  }
+}
