@@ -11,6 +11,7 @@ from openpilot.selfdrive.controls.lib.lead_behavior import (
   should_disable_far_lead_throttle,
   should_disable_untracked_vision_throttle,
 )
+from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import get_far_lead_coast_headway_floor
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, LEAD_DANGER_FACTOR, desired_follow_distance, get_jerk_factor, get_T_FOLLOW
 from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import is_honda_accord_11g
 
@@ -147,8 +148,16 @@ class StarPilotFollowing:
       v_lead = self.starpilot_planner.lead_one.vLead
       closing_speed = max(0.0, v_ego - v_lead)
       desired_gap = float(desired_follow_distance(v_ego, v_lead, self.t_follow))
-      self.disable_throttle = should_disable_far_lead_throttle(v_ego, lead_distance, desired_gap, closing_speed, self.following_lead)
+      try:
+        car_params = sm["carParams"]
+      except (KeyError, TypeError, AttributeError):
+        car_params = None
+      self.disable_throttle = should_disable_far_lead_throttle(
+        v_ego, lead_distance, desired_gap, closing_speed, self.following_lead,
+        get_far_lead_coast_headway_floor(car_params),
+      )
     else:
+      # Preserve C6-12 derived untracked vision-lead coast logic.
       self.disable_throttle = self.update_untracked_vision_coast(long_control_active, v_ego, sm)
 
     if long_control_active and self.starpilot_planner.tracking_lead:
