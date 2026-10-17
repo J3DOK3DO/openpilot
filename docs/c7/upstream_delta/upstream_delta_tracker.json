@@ -1,0 +1,5187 @@
+{
+  "head": {
+    "date": "2026-10-17T06:38:12.921860+00:00",
+    "repo": "J3DOK3DO/openpilot",
+    "c7_sha": "4ba1dde4e4d8e8abfca390f25a48d3d9ba9153bf",
+    "dom_sha": "823a5d5674ec6635b51dd989884dfbd661f90dc4",
+    "merge_base": "5c3ddd58e1b25cf1cf65ebac826f0aefb5f5ec8c",
+    "c7_unique": 16,
+    "dom_unique": 34,
+    "dom_aggregate_files": 263,
+    "c7_aggregate_files": 41,
+    "overlap_file_count": 13,
+    "overlap_paths": [
+      "cereal/custom.capnp",
+      "selfdrive/controls/lib/latcontrol_pid.py",
+      "selfdrive/controls/lib/lead_behavior.py",
+      "selfdrive/controls/lib/longitudinal_planner.py",
+      "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+      "selfdrive/controls/tests/test_latcontrol.py",
+      "selfdrive/controls/tests/test_lead_behavior.py",
+      "selfdrive/controls/tests/test_longcontrol.py",
+      "selfdrive/controls/tests/test_longitudinal_planner.py",
+      "selfdrive/controls/tests/test_starpilot_acceleration.py",
+      "starpilot/controls/lib/starpilot_following.py",
+      "starpilot/controls/starpilot_planner.py",
+      "starpilot/controls/tests/test_personality_following_profiles.py"
+    ]
+  },
+  "classification_counts": {
+    "DEFER": 18,
+    "REVIEW_P2": 4,
+    "EXCLUDE": 7,
+    "REVIEW_P1": 5
+  },
+  "commits": [
+    {
+      "index": 1,
+      "sha": "0857acfc502e10d8b7af5cfda5a75e803090dea7",
+      "abbrev": "0857acfc50",
+      "date": "2026-10-02T14:24:05-04:00",
+      "subject": "big ui text size polish",
+      "body": "",
+      "files": 3,
+      "changed_lines": 272,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+        "selfdrive/ui/layouts/settings/starpilot/driving_model.py",
+        "selfdrive/ui/layouts/settings/starpilot/lateral.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+          "add": 93,
+          "delete": 91,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/driving_model.py",
+          "add": 46,
+          "delete": 39,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/lateral.py",
+          "add": 1,
+          "delete": 2,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "UI settings typography only",
+      "observed_changes": "Three StarPilot settings panels; no native/control/safety code changed",
+      "next_action": "No C7 driving relevance; optional later UI-only visual acceptance",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/0857acfc502e10d8b7af5cfda5a75e803090dea7"
+    },
+    {
+      "index": 2,
+      "sha": "1aefe9dc82ae563ac43aad0cd8d7d9accc1c9a5d",
+      "abbrev": "1aefe9dc82",
+      "date": "2026-10-02T20:03:46-04:00",
+      "subject": "more font size polish",
+      "body": "",
+      "files": 3,
+      "changed_lines": 17,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+        "selfdrive/ui/layouts/settings/starpilot/maps.py",
+        "selfdrive/ui/layouts/settings/starpilot/navigation.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+          "add": 2,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/maps.py",
+          "add": 0,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/navigation.py",
+          "add": 0,
+          "delete": 9,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "UI font polish",
+      "observed_changes": "Settings typography/maps/navigation; no control logic",
+      "next_action": "Defer until UI refresh; screenshot/visual regression only",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/1aefe9dc82ae563ac43aad0cd8d7d9accc1c9a5d"
+    },
+    {
+      "index": 3,
+      "sha": "4ac874f6b43042f952351eb18c1a7c8f63229db3",
+      "abbrev": "4ac874f6b4",
+      "date": "2026-10-02T20:30:33-04:00",
+      "subject": "polish",
+      "body": "",
+      "files": 5,
+      "changed_lines": 52,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+        "selfdrive/ui/layouts/settings/starpilot/navigation.py",
+        "selfdrive/ui/layouts/settings/starpilot/sounds.py",
+        "selfdrive/ui/layouts/settings/starpilot/system_settings.py",
+        "selfdrive/ui/layouts/settings/starpilot/vehicle.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+          "add": 4,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/navigation.py",
+          "add": 1,
+          "delete": 7,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/sounds.py",
+          "add": 4,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/system_settings.py",
+          "add": 10,
+          "delete": 8,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/vehicle.py",
+          "add": 6,
+          "delete": 6,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "UI settings polish",
+      "observed_changes": "Aethergrid, navigation, sounds, system settings and vehicle panels",
+      "next_action": "Defer; no Honda behavior evidence",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/4ac874f6b43042f952351eb18c1a7c8f63229db3"
+    },
+    {
+      "index": 4,
+      "sha": "d2cd3fd0edf80ba229792c894c09300dfe5b1bb2",
+      "abbrev": "d2cd3fd0ed",
+      "date": "2026-10-02T21:03:49-05:00",
+      "subject": "Quintessence: A Quest",
+      "body": "",
+      "files": 11,
+      "changed_lines": 320,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "opendbc_repo/opendbc/car/volvo/carcontroller.py",
+        "opendbc_repo/opendbc/car/volvo/tests/test_controller.py",
+        "opendbc_repo/opendbc/car/volvo/volvocan.py",
+        "opendbc_repo/opendbc/safety/modes/volvo.h",
+        "opendbc_repo/opendbc/safety/tests/test_volvo.py",
+        "selfdrive/controls/lib/latcontrol_pid.py",
+        "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_honda_crv_pid_gain.py",
+        "selfdrive/controls/tests/test_latcontrol.py",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py"
+      ],
+      "numstat": [
+        {
+          "path": "opendbc_repo/opendbc/car/volvo/carcontroller.py",
+          "add": 3,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/volvo/tests/test_controller.py",
+          "add": 25,
+          "delete": 9,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/volvo/volvocan.py",
+          "add": 4,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/modes/volvo.h",
+          "add": 41,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/tests/test_volvo.py",
+          "add": 62,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_pid.py",
+          "add": 6,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+          "add": 9,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_honda_crv_pid_gain.py",
+          "add": 61,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_latcontrol.py",
+          "add": 35,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 52,
+          "delete": 4,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/lib/latcontrol_pid.py",
+        "selfdrive/controls/tests/test_latcontrol.py"
+      ],
+      "flags": [
+        "panda_or_safety",
+        "core_control",
+        "runtime_tests_or_common",
+        "other_vehicle"
+      ],
+      "decision": "REVIEW_P2",
+      "risk": "Medium",
+      "review_topic": "Honda CR-V 5G PID gain, plus Volvo and Ford",
+      "observed_changes": "Adds CR-V stock-EPS low-speed near-center PID Kp scaling and tests; also Volvo CAN/safety and Ford lateral",
+      "next_action": "Review Honda-specific code only; verify CR-V 5G guard cannot affect Accord fingerprint, stock/modded EPS and latcontrol tests; no direct Accord tune port",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/d2cd3fd0edf80ba229792c894c09300dfe5b1bb2"
+    },
+    {
+      "index": 5,
+      "sha": "3293a3421917b23770e4a7a514b7bdfa28151c16",
+      "abbrev": "3293a34219",
+      "date": "2026-10-02T21:04:12-05:00",
+      "subject": "build",
+      "body": "",
+      "files": 56,
+      "changed_lines": 4,
+      "binary_count": 54,
+      "binary_paths": [
+        "panda/board/obj/body_h7.bin.signed",
+        "panda/board/obj/body_h7/main.bin",
+        "panda/board/obj/body_h7/main.elf",
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_remote.bin.signed",
+        "panda/board/obj/panda_h7_remote/main.bin",
+        "panda/board/obj/panda_h7_remote/main.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/panda_hkg_remote.bin.signed",
+        "panda/board/obj/panda_hkg_remote/main.bin",
+        "panda/board/obj/panda_hkg_remote/main.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_jungle_h7.bin.signed",
+        "panda/board/obj/panda_jungle_h7/main.bin",
+        "panda/board/obj/panda_jungle_h7/main.elf",
+        "panda/board/obj/panda_remote.bin.signed",
+        "panda/board/obj/panda_remote/main.bin",
+        "panda/board/obj/panda_remote/main.elf",
+        "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_tesla_wake.bin.signed",
+        "panda/board/obj/panda_tesla_wake/main.bin",
+        "panda/board/obj/panda_tesla_wake/main.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf"
+      ],
+      "paths": [
+        "panda/board/obj/body_h7.bin.signed",
+        "panda/board/obj/body_h7/main.bin",
+        "panda/board/obj/body_h7/main.elf",
+        "panda/board/obj/gitversion.h",
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_remote.bin.signed",
+        "panda/board/obj/panda_h7_remote/main.bin",
+        "panda/board/obj/panda_h7_remote/main.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/panda_hkg_remote.bin.signed",
+        "panda/board/obj/panda_hkg_remote/main.bin",
+        "panda/board/obj/panda_hkg_remote/main.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_jungle_h7.bin.signed",
+        "panda/board/obj/panda_jungle_h7/main.bin",
+        "panda/board/obj/panda_jungle_h7/main.elf",
+        "panda/board/obj/panda_remote.bin.signed",
+        "panda/board/obj/panda_remote/main.bin",
+        "panda/board/obj/panda_remote/main.elf",
+        "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_tesla_wake.bin.signed",
+        "panda/board/obj/panda_tesla_wake/main.bin",
+        "panda/board/obj/panda_tesla_wake/main.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/version"
+      ],
+      "numstat": [
+        {
+          "path": "panda/board/obj/body_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/gitversion.h",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "panda/board/obj/panda.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/version",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "panda_or_safety"
+      ],
+      "decision": "EXCLUDE",
+      "risk": "High",
+      "review_topic": "Generated Panda/firmware binaries",
+      "observed_changes": "54 binary artifacts in a 56-file build commit",
+      "next_action": "Do not cherry-pick binaries; independently attest source, board target, signature and firmware before any change",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/3293a3421917b23770e4a7a514b7bdfa28151c16"
+    },
+    {
+      "index": 6,
+      "sha": "2efe6017bfe14cee4807833e05f9a7f6ba255cdb",
+      "abbrev": "2efe6017bf",
+      "date": "2026-10-02T22:12:32-04:00",
+      "subject": "polish",
+      "body": "",
+      "files": 3,
+      "changed_lines": 28,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+        "selfdrive/ui/layouts/settings/starpilot/navigation.py",
+        "selfdrive/ui/layouts/settings/starpilot/sounds.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+          "add": 9,
+          "delete": 5,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/navigation.py",
+          "add": 0,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/sounds.py",
+          "add": 10,
+          "delete": 1,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "StarPilot UI cosmetics",
+      "observed_changes": "Settings panel polish",
+      "next_action": "No immediate control/safety value; UI review only",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/2efe6017bfe14cee4807833e05f9a7f6ba255cdb"
+    },
+    {
+      "index": 7,
+      "sha": "189f2aafbb3baccc3097fb07fc0791799a756c04",
+      "abbrev": "189f2aafbb",
+      "date": "2026-10-03T01:40:36-04:00",
+      "subject": "polish",
+      "body": "",
+      "files": 11,
+      "changed_lines": 136,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/layouts/settings/device.py",
+        "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+        "selfdrive/ui/layouts/settings/starpilot/driving_model.py",
+        "selfdrive/ui/layouts/settings/starpilot/lateral.py",
+        "selfdrive/ui/layouts/settings/starpilot/longitudinal.py",
+        "selfdrive/ui/layouts/settings/starpilot/maps.py",
+        "selfdrive/ui/layouts/settings/starpilot/navigation.py",
+        "selfdrive/ui/layouts/settings/starpilot/system_settings.py",
+        "selfdrive/ui/layouts/settings/starpilot/vehicle.py",
+        "selfdrive/ui/onroad/starpilot/navigation_card.py",
+        "selfdrive/ui/tests/test_aethergrid.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/layouts/settings/device.py",
+          "add": 2,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+          "add": 34,
+          "delete": 21,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/driving_model.py",
+          "add": 2,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/lateral.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/longitudinal.py",
+          "add": 4,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/maps.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/navigation.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/system_settings.py",
+          "add": 4,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/vehicle.py",
+          "add": 6,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/navigation_card.py",
+          "add": 9,
+          "delete": 6,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_aethergrid.py",
+          "add": 29,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "Settings / navigation UI",
+      "observed_changes": "Settings pages, navigation card and aethergrid test",
+      "next_action": "Hold outside C7 runtime; optional UI regression",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/189f2aafbb3baccc3097fb07fc0791799a756c04"
+    },
+    {
+      "index": 8,
+      "sha": "12947fd616b64507eea878c9f4fbde6a11acccd7",
+      "abbrev": "12947fd616",
+      "date": "2026-10-03T15:15:06-04:00",
+      "subject": "Big Smooshed SLC Stuff (lots)",
+      "body": "",
+      "files": 30,
+      "changed_lines": 4470,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "cereal/custom.capnp",
+        "selfdrive/car/tests/test_cruise_speed.py",
+        "selfdrive/controls/tests/test_speed_limit_controller.py",
+        "selfdrive/controls/tests/test_starpilot_acceleration.py",
+        "selfdrive/controls/tests/test_starpilot_vcruise.py",
+        "selfdrive/ui/layouts/settings/starpilot/longitudinal.py",
+        "selfdrive/ui/onroad/starpilot/slc_speed_limit.py",
+        "selfdrive/ui/onroad/starpilot/starpilot_onroad_view.py",
+        "selfdrive/ui/onroad/starpilot/unified_speed_presentation.py",
+        "selfdrive/ui/onroad/starpilot/widget_layout_manager.py",
+        "selfdrive/ui/onroad/starpilot/widgets/__init__.py",
+        "selfdrive/ui/onroad/starpilot/widgets/set_speed.py",
+        "selfdrive/ui/onroad/starpilot/widgets/speed_limit.py",
+        "selfdrive/ui/onroad/starpilot/widgets/unified_speed.py",
+        "selfdrive/ui/tests/test_onroad_render_layers.py",
+        "selfdrive/ui/tests/test_slc_sources_bubble.py",
+        "selfdrive/ui/tests/test_unified_speed_presentation.py",
+        "selfdrive/ui/tests/test_unified_speed_widget.py",
+        "selfdrive/ui/tests/test_widget_layout_manager.py",
+        "starpilot/common/assets/device_settings_layout.json",
+        "starpilot/common/starpilot_variables.py",
+        "starpilot/controls/lib/mapbox_speed_limit.py",
+        "starpilot/controls/lib/speed_limit_controller.py",
+        "starpilot/controls/lib/starpilot_acceleration.py",
+        "starpilot/controls/lib/starpilot_events.py",
+        "starpilot/controls/lib/starpilot_vcruise.py",
+        "starpilot/controls/starpilot_card.py",
+        "starpilot/controls/starpilot_planner.py",
+        "starpilot/controls/tests/test_personality_longitudinal_profiles.py",
+        "starpilot/controls/tests/test_starpilot_card.py"
+      ],
+      "numstat": [
+        {
+          "path": "cereal/custom.capnp",
+          "add": 2,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/car/tests/test_cruise_speed.py",
+          "add": 9,
+          "delete": 6,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_speed_limit_controller.py",
+          "add": 601,
+          "delete": 989,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_starpilot_acceleration.py",
+          "add": 1,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_starpilot_vcruise.py",
+          "add": 47,
+          "delete": 8,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/longitudinal.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/slc_speed_limit.py",
+          "add": 50,
+          "delete": 285,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/starpilot_onroad_view.py",
+          "add": 9,
+          "delete": 15,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/unified_speed_presentation.py",
+          "add": 60,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widget_layout_manager.py",
+          "add": 2,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widgets/__init__.py",
+          "add": 2,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widgets/set_speed.py",
+          "add": 0,
+          "delete": 72,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widgets/speed_limit.py",
+          "add": 0,
+          "delete": 67,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widgets/unified_speed.py",
+          "add": 337,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_onroad_render_layers.py",
+          "add": 1,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_slc_sources_bubble.py",
+          "add": 10,
+          "delete": 30,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_unified_speed_presentation.py",
+          "add": 186,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_unified_speed_widget.py",
+          "add": 549,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_widget_layout_manager.py",
+          "add": 32,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/assets/device_settings_layout.json",
+          "add": 4,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/starpilot_variables.py",
+          "add": 2,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/lib/mapbox_speed_limit.py",
+          "add": 130,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/lib/speed_limit_controller.py",
+          "add": 342,
+          "delete": 489,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/lib/starpilot_acceleration.py",
+          "add": 0,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/lib/starpilot_events.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/lib/starpilot_vcruise.py",
+          "add": 21,
+          "delete": 24,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/starpilot_card.py",
+          "add": 25,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/starpilot_planner.py",
+          "add": 3,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/tests/test_personality_longitudinal_profiles.py",
+          "add": 2,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/tests/test_starpilot_card.py",
+          "add": 32,
+          "delete": 1,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "cereal/custom.capnp",
+        "selfdrive/controls/tests/test_starpilot_acceleration.py",
+        "starpilot/controls/starpilot_planner.py"
+      ],
+      "flags": [
+        "core_control",
+        "runtime_tests_or_common",
+        "ui_speed_limits"
+      ],
+      "decision": "REVIEW_P1",
+      "risk": "High",
+      "review_topic": "SLC/control-target and UI schema refactor",
+      "observed_changes": "Adds cereal StarPilotPlan fields @43/@44, refactors speed limit controller and vCruise timing, SLC button confirmation vs CSC accel override, planner output and unified speed UI",
+      "next_action": "Safety/behavior compatibility: evaluate schema readers/writers, CSC/SLC override ordering, map speed source, confirmed/pending speed targets and conflicts with C7 numerical curve patch; unit + replay tests before any selective port",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/12947fd616b64507eea878c9f4fbde6a11acccd7"
+    },
+    {
+      "index": 9,
+      "sha": "7b06ec2ae67097d20bad7471518d1ddb3b26432b",
+      "abbrev": "7b06ec2ae6",
+      "date": "2026-10-03T15:30:50-04:00",
+      "subject": "Polish",
+      "body": "",
+      "files": 25,
+      "changed_lines": 466,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/layouts/settings/settings.py",
+        "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+        "selfdrive/ui/layouts/settings/starpilot/longitudinal.py",
+        "selfdrive/ui/layouts/settings/starpilot/maps.py",
+        "selfdrive/ui/layouts/settings/starpilot/simple_download_manager.py",
+        "selfdrive/ui/layouts/settings/starpilot/vehicle.py",
+        "selfdrive/ui/onroad/starpilot/navigation_card.py",
+        "selfdrive/ui/tests/test_aethergrid.py",
+        "selfdrive/ui/tests/test_simple_download_manager.py",
+        "selfdrive/ui/translations/app.pot",
+        "selfdrive/ui/translations/app_ar.po",
+        "selfdrive/ui/translations/app_de.po",
+        "selfdrive/ui/translations/app_en.po",
+        "selfdrive/ui/translations/app_es.po",
+        "selfdrive/ui/translations/app_fr.po",
+        "selfdrive/ui/translations/app_ja.po",
+        "selfdrive/ui/translations/app_ko.po",
+        "selfdrive/ui/translations/app_pt-BR.po",
+        "selfdrive/ui/translations/app_th.po",
+        "selfdrive/ui/translations/app_tr.po",
+        "selfdrive/ui/translations/app_uk.po",
+        "selfdrive/ui/translations/app_zh-CHS.po",
+        "selfdrive/ui/translations/app_zh-CHT.po",
+        "selfdrive/ui/widgets/drive_stats.py",
+        "selfdrive/ui/widgets/pairing_dialog.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/layouts/settings/settings.py",
+          "add": 11,
+          "delete": 8,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/aethergrid.py",
+          "add": 6,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/longitudinal.py",
+          "add": 10,
+          "delete": 10,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/maps.py",
+          "add": 10,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/simple_download_manager.py",
+          "add": 13,
+          "delete": 62,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/vehicle.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/navigation_card.py",
+          "add": 2,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_aethergrid.py",
+          "add": 31,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_simple_download_manager.py",
+          "add": 53,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app.pot",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_ar.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_de.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_en.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_es.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_fr.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_ja.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_ko.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_pt-BR.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_th.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_tr.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_uk.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_zh-CHS.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/translations/app_zh-CHT.po",
+          "add": 16,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/widgets/drive_stats.py",
+          "add": 3,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/widgets/pairing_dialog.py",
+          "add": 6,
+          "delete": 6,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "UI settings and translations",
+      "observed_changes": "Aethergrid, widgets, pairing/stats and language catalogs",
+      "next_action": "Defer visual/localization work; no native release gate improvement",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/7b06ec2ae67097d20bad7471518d1ddb3b26432b"
+    },
+    {
+      "index": 10,
+      "sha": "e60595ccc31b05a7645b374ead816c98851b3d75",
+      "abbrev": "e60595ccc3",
+      "date": "2026-10-03T16:13:33-04:00",
+      "subject": "Try vert more",
+      "body": "",
+      "files": 2,
+      "changed_lines": 92,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/onroad/starpilot/widgets/unified_speed.py",
+        "selfdrive/ui/tests/test_unified_speed_widget.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widgets/unified_speed.py",
+          "add": 48,
+          "delete": 16,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_unified_speed_widget.py",
+          "add": 19,
+          "delete": 9,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "Unified speed vertical UI",
+      "observed_changes": "Unified speed display/test-only styling",
+      "next_action": "Defer; UI visual tests",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/e60595ccc31b05a7645b374ead816c98851b3d75"
+    },
+    {
+      "index": 11,
+      "sha": "f973d151c6718a81c25668d3646534bb50395a76",
+      "abbrev": "f973d151c6",
+      "date": "2026-10-03T16:39:20-04:00",
+      "subject": "Try vert more",
+      "body": "",
+      "files": 2,
+      "changed_lines": 38,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/onroad/starpilot/widgets/unified_speed.py",
+        "selfdrive/ui/tests/test_unified_speed_widget.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widgets/unified_speed.py",
+          "add": 24,
+          "delete": 9,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_unified_speed_widget.py",
+          "add": 4,
+          "delete": 1,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "Unified speed follow-up styling",
+      "observed_changes": "Another unified speed widget/test adjustment",
+      "next_action": "Defer with commit #10 as an optional UI bundle",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/f973d151c6718a81c25668d3646534bb50395a76"
+    },
+    {
+      "index": 12,
+      "sha": "385428f6ea1c183de4ddcd8604f294abec02a9e8",
+      "abbrev": "385428f6ea",
+      "date": "2026-10-03T16:44:36-05:00",
+      "subject": "gv70",
+      "body": "",
+      "files": 3,
+      "changed_lines": 110,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/controls/lib/latcontrol_torque.py",
+        "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_latcontrol.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/controls/lib/latcontrol_torque.py",
+          "add": 17,
+          "delete": 16,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+          "add": 2,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_latcontrol.py",
+          "add": 73,
+          "delete": 2,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/tests/test_latcontrol.py"
+      ],
+      "flags": [
+        "core_control",
+        "runtime_tests_or_common"
+      ],
+      "decision": "DEFER",
+      "risk": "Medium",
+      "review_topic": "Genesis GV70 torque tuning",
+      "observed_changes": "Torque/lateral vehicle tune and latcontrol tests for GV70",
+      "next_action": "Non-Honda; preserve Honda tuning; consider only for shared-control test compatibility",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/385428f6ea1c183de4ddcd8604f294abec02a9e8"
+    },
+    {
+      "index": 13,
+      "sha": "cede5ddc9d2ef3f52264353cfcc00f6a44d3898a",
+      "abbrev": "cede5ddc9d",
+      "date": "2026-10-03T18:09:42-04:00",
+      "subject": "Drawer",
+      "body": "",
+      "files": 8,
+      "changed_lines": 484,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/onroad/starpilot/slc_speed_limit.py",
+        "selfdrive/ui/onroad/starpilot/speed_source_drawer.py",
+        "selfdrive/ui/onroad/starpilot/starpilot_onroad_view.py",
+        "selfdrive/ui/onroad/starpilot/widget_style.py",
+        "selfdrive/ui/onroad/starpilot/widgets/base.py",
+        "selfdrive/ui/onroad/starpilot/widgets/unified_speed.py",
+        "selfdrive/ui/tests/test_speed_source_drawer.py",
+        "selfdrive/ui/tests/test_unified_speed_widget.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/onroad/starpilot/slc_speed_limit.py",
+          "add": 34,
+          "delete": 93,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/speed_source_drawer.py",
+          "add": 133,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/starpilot_onroad_view.py",
+          "add": 5,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widget_style.py",
+          "add": 1,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widgets/base.py",
+          "add": 3,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/onroad/starpilot/widgets/unified_speed.py",
+          "add": 60,
+          "delete": 15,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_speed_source_drawer.py",
+          "add": 89,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/tests/test_unified_speed_widget.py",
+          "add": 48,
+          "delete": 2,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "Speed source drawer UI",
+      "observed_changes": "SLC speed-source drawer, widgets and UI tests",
+      "next_action": "Optional independent UI bundle, avoid partial import without #8 SLC contract",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/cede5ddc9d2ef3f52264353cfcc00f6a44d3898a"
+    },
+    {
+      "index": 14,
+      "sha": "c2109496a72e85ca702ecef7aff53ff45adcfb8c",
+      "abbrev": "c2109496a7",
+      "date": "2026-10-03T23:14:12-05:00",
+      "subject": "Compatibility Shim",
+      "body": "",
+      "files": 3,
+      "changed_lines": 311,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "starpilot/common/cache_compat.py",
+        "starpilot/common/tests/test_cache_compat.py",
+        "system/manager/manager.py"
+      ],
+      "numstat": [
+        {
+          "path": "starpilot/common/cache_compat.py",
+          "add": 145,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/tests/test_cache_compat.py",
+          "add": 162,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "system/manager/manager.py",
+          "add": 4,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "runtime_tests_or_common"
+      ],
+      "decision": "REVIEW_P1",
+      "risk": "High",
+      "review_topic": "Params/cache compatibility on branch switching",
+      "observed_changes": "Adds cache_compat.py and 162-line tests; manager_init archives and removes foreign-prefixed cache keys with symlink/ownership/locking checks",
+      "next_action": "Highly relevant to C6-12\u2194C7 transitions; potential destructive cache migration. Run isolated temp Params namespace tests, symlink/race/fault injection and rollback; never activate blindly",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/c2109496a72e85ca702ecef7aff53ff45adcfb8c"
+    },
+    {
+      "index": 15,
+      "sha": "15c7110647a157d0ce25eaed606ca335eecf5ea8",
+      "abbrev": "15c7110647",
+      "date": "2026-10-04T21:24:41-05:00",
+      "subject": "The Bell",
+      "body": "",
+      "files": 11,
+      "changed_lines": 591,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "opendbc_repo/opendbc/car/hyundai/carstate.py",
+        "opendbc_repo/opendbc/car/hyundai/tests/test_hyundai.py",
+        "opendbc_repo/opendbc/car/toyota/carcontroller.py",
+        "opendbc_repo/opendbc/car/toyota/tests/test_toyota.py",
+        "opendbc_repo/opendbc/safety/tests/test_ford.py",
+        "selfdrive/car/card.py",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py",
+        "starpilot/common/assets/device_settings_layout.json",
+        "starpilot/controls/starpilot_card.py",
+        "starpilot/controls/tests/test_starpilot_card.py"
+      ],
+      "numstat": [
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/carstate.py",
+          "add": 45,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/tests/test_hyundai.py",
+          "add": 68,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/carcontroller.py",
+          "add": 30,
+          "delete": 10,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/tests/test_toyota.py",
+          "add": 187,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/tests/test_ford.py",
+          "add": 12,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/car/card.py",
+          "add": 4,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 11,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 124,
+          "delete": 6,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/assets/device_settings_layout.json",
+          "add": 2,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/starpilot_card.py",
+          "add": 12,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/tests/test_starpilot_card.py",
+          "add": 71,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "panda_or_safety",
+        "runtime_tests_or_common",
+        "ui_speed_limits",
+        "other_vehicle"
+      ],
+      "decision": "DEFER",
+      "risk": "Medium",
+      "review_topic": "Hyundai/Toyota/Ford behaviors and UI",
+      "observed_changes": "Hyundai state, Toyota controller, Ford lateral and related safety tests",
+      "next_action": "Non-Accord vehicle specifics; no direct cherry-pick. Only shared API compatibility review if necessary",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/15c7110647a157d0ce25eaed606ca335eecf5ea8"
+    },
+    {
+      "index": 16,
+      "sha": "c582bd3f2d7bf03dc0d81c963bb054bb5e402735",
+      "abbrev": "c582bd3f2d",
+      "date": "2026-10-04T23:03:42-05:00",
+      "subject": "Reckoning of Bell",
+      "body": "",
+      "files": 3,
+      "changed_lines": 159,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "opendbc_repo/opendbc/safety/tests/test_ford.py",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py"
+      ],
+      "numstat": [
+        {
+          "path": "opendbc_repo/opendbc/safety/tests/test_ford.py",
+          "add": 27,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 22,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 104,
+          "delete": 2,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "panda_or_safety",
+        "other_vehicle"
+      ],
+      "decision": "DEFER",
+      "risk": "Medium",
+      "review_topic": "Ford lateral/safety refinement",
+      "observed_changes": "Ford lateral control/tuning and safety tests",
+      "next_action": "Exclude from Accord-specific integration absent shared regression evidence",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/c582bd3f2d7bf03dc0d81c963bb054bb5e402735"
+    },
+    {
+      "index": 17,
+      "sha": "5e8501002de1bd5fa033ca67dedbce723e513b74",
+      "abbrev": "5e8501002d",
+      "date": "2026-10-05T11:50:06-05:00",
+      "subject": "Fire Sauce",
+      "body": "",
+      "files": 17,
+      "changed_lines": 733,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "common/params_keys.h",
+        "opendbc_repo/opendbc/car/tesla/carstate.py",
+        "opendbc_repo/opendbc/car/tesla/interface.py",
+        "opendbc_repo/opendbc/car/tesla/tests/test_screen_button.py",
+        "opendbc_repo/opendbc/car/tesla/values.py",
+        "opendbc_repo/opendbc/dbc/tesla_model3_vehicle.dbc",
+        "opendbc_repo/opendbc/safety/modes/tesla.h",
+        "opendbc_repo/opendbc/safety/tests/test_tesla_screen_button.py",
+        "selfdrive/controls/lib/longitudinal_planner.py",
+        "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_longitudinal_planner.py",
+        "selfdrive/controls/tests/test_niro_lead_follow.py",
+        "starpilot/common/assets/device_settings_layout.json",
+        "starpilot/common/starpilot_variables.py",
+        "starpilot/controls/starpilot_card.py",
+        "starpilot/controls/tests/test_starpilot_card.py",
+        "starpilot/system/the_galaxy/tests/test_device_settings_layout.py"
+      ],
+      "numstat": [
+        {
+          "path": "common/params_keys.h",
+          "add": 1,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/tesla/carstate.py",
+          "add": 32,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/tesla/interface.py",
+          "add": 10,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/tesla/tests/test_screen_button.py",
+          "add": 126,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/tesla/values.py",
+          "add": 4,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/dbc/tesla_model3_vehicle.dbc",
+          "add": 3,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/modes/tesla.h",
+          "add": 36,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/tests/test_tesla_screen_button.py",
+          "add": 160,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/longitudinal_planner.py",
+          "add": 12,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+          "add": 19,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_longitudinal_planner.py",
+          "add": 2,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_niro_lead_follow.py",
+          "add": 132,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/assets/device_settings_layout.json",
+          "add": 12,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/starpilot_variables.py",
+          "add": 7,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/starpilot_card.py",
+          "add": 37,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/tests/test_starpilot_card.py",
+          "add": 114,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/system/the_galaxy/tests/test_device_settings_layout.py",
+          "add": 10,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/lib/longitudinal_planner.py",
+        "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_longitudinal_planner.py"
+      ],
+      "flags": [
+        "panda_or_safety",
+        "core_control",
+        "runtime_tests_or_common",
+        "ui_speed_limits",
+        "other_vehicle"
+      ],
+      "decision": "REVIEW_P2",
+      "risk": "Medium",
+      "review_topic": "Kia Niro lead follow in shared longitudinal planner",
+      "observed_changes": "Adds Kia Niro EV lead acceptance and follow-slew minimum; extends shared longitudinal planner and vehicle tunes, Tesla safety/UI",
+      "next_action": "Check make/fingerprint gating and lead-control interaction with protected C6-12 Honda follow/coast patches; selective utility tests only, no whole commit",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/5e8501002de1bd5fa033ca67dedbce723e513b74"
+    },
+    {
+      "index": 18,
+      "sha": "d9bd49fb8afd81323177d426e841f77b318aabed",
+      "abbrev": "d9bd49fb8a",
+      "date": "2026-10-05T11:54:18-05:00",
+      "subject": "build",
+      "body": "",
+      "files": 58,
+      "changed_lines": 4,
+      "binary_count": 56,
+      "binary_paths": [
+        "common/libcommon.a",
+        "common/params_pyx.so",
+        "panda/board/obj/body_h7.bin.signed",
+        "panda/board/obj/body_h7/main.bin",
+        "panda/board/obj/body_h7/main.elf",
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_remote.bin.signed",
+        "panda/board/obj/panda_h7_remote/main.bin",
+        "panda/board/obj/panda_h7_remote/main.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/panda_hkg_remote.bin.signed",
+        "panda/board/obj/panda_hkg_remote/main.bin",
+        "panda/board/obj/panda_hkg_remote/main.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_jungle_h7.bin.signed",
+        "panda/board/obj/panda_jungle_h7/main.bin",
+        "panda/board/obj/panda_jungle_h7/main.elf",
+        "panda/board/obj/panda_remote.bin.signed",
+        "panda/board/obj/panda_remote/main.bin",
+        "panda/board/obj/panda_remote/main.elf",
+        "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_tesla_wake.bin.signed",
+        "panda/board/obj/panda_tesla_wake/main.bin",
+        "panda/board/obj/panda_tesla_wake/main.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf"
+      ],
+      "paths": [
+        "common/libcommon.a",
+        "common/params_pyx.so",
+        "panda/board/obj/body_h7.bin.signed",
+        "panda/board/obj/body_h7/main.bin",
+        "panda/board/obj/body_h7/main.elf",
+        "panda/board/obj/gitversion.h",
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_remote.bin.signed",
+        "panda/board/obj/panda_h7_remote/main.bin",
+        "panda/board/obj/panda_h7_remote/main.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/panda_hkg_remote.bin.signed",
+        "panda/board/obj/panda_hkg_remote/main.bin",
+        "panda/board/obj/panda_hkg_remote/main.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_jungle_h7.bin.signed",
+        "panda/board/obj/panda_jungle_h7/main.bin",
+        "panda/board/obj/panda_jungle_h7/main.elf",
+        "panda/board/obj/panda_remote.bin.signed",
+        "panda/board/obj/panda_remote/main.bin",
+        "panda/board/obj/panda_remote/main.elf",
+        "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_tesla_wake.bin.signed",
+        "panda/board/obj/panda_tesla_wake/main.bin",
+        "panda/board/obj/panda_tesla_wake/main.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/version"
+      ],
+      "numstat": [
+        {
+          "path": "common/libcommon.a",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "common/params_pyx.so",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/gitversion.h",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "panda/board/obj/panda.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/version",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "panda_or_safety",
+        "runtime_tests_or_common"
+      ],
+      "decision": "EXCLUDE",
+      "risk": "High",
+      "review_topic": "Panda and native compiled outputs",
+      "observed_changes": "56 binary products out of 58 changed files, including Params binary",
+      "next_action": "Treat generated binaries as nonportable and unsigned for this target; never upstream-merge into source-built C7",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/d9bd49fb8afd81323177d426e841f77b318aabed"
+    },
+    {
+      "index": 19,
+      "sha": "34ecbf9204f74719f6c9310e8552d89192389da4",
+      "abbrev": "34ecbf9204",
+      "date": "2026-10-05T22:50:38-05:00",
+      "subject": "Cabo",
+      "body": "",
+      "files": 9,
+      "changed_lines": 325,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "opendbc_repo/opendbc/car/toyota/carcontroller.py",
+        "opendbc_repo/opendbc/car/toyota/interface.py",
+        "opendbc_repo/opendbc/car/toyota/tests/test_toyota.py",
+        "opendbc_repo/opendbc/car/toyota/values.py",
+        "selfdrive/controls/lib/latcontrol_torque.py",
+        "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_latcontrol.py",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py"
+      ],
+      "numstat": [
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/carcontroller.py",
+          "add": 4,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/interface.py",
+          "add": 2,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/tests/test_toyota.py",
+          "add": 122,
+          "delete": 13,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/values.py",
+          "add": 8,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_torque.py",
+          "add": 6,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+          "add": 13,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_latcontrol.py",
+          "add": 68,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 11,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 69,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/tests/test_latcontrol.py"
+      ],
+      "flags": [
+        "core_control",
+        "runtime_tests_or_common",
+        "other_vehicle"
+      ],
+      "decision": "DEFER",
+      "risk": "Medium",
+      "review_topic": "Toyota and Ford lateral refinements",
+      "observed_changes": "Toyota controller/vehicle tuning plus shared torque helpers and tests",
+      "next_action": "No Accord tune change; defer vehicle-specific code",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/34ecbf9204f74719f6c9310e8552d89192389da4"
+    },
+    {
+      "index": 20,
+      "sha": "6de77049b3c3dc77c7275e9ff724a96f9e72a19d",
+      "abbrev": "6de77049b3",
+      "date": "2026-10-06T21:41:21-05:00",
+      "subject": "Potato Ole",
+      "body": "",
+      "files": 14,
+      "changed_lines": 628,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "docs/CARS.md",
+        "opendbc_repo/docs/CARS.md",
+        "opendbc_repo/opendbc/car/gps.py",
+        "opendbc_repo/opendbc/car/hyundai/tests/test_hyundai.py",
+        "opendbc_repo/opendbc/car/hyundai/values.py",
+        "opendbc_repo/opendbc/car/volkswagen/carstate.py",
+        "opendbc_repo/opendbc/car/volkswagen/tests/test_gps.py",
+        "opendbc_repo/opendbc/dbc/vw_mqb.dbc",
+        "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_latcontrol.py",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py",
+        "starpilot/system/the_galaxy/tests/test_fingerprint_catalog.py",
+        "system/manager/test/test_process_config.py"
+      ],
+      "numstat": [
+        {
+          "path": "docs/CARS.md",
+          "add": 3,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/docs/CARS.md",
+          "add": 2,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/gps.py",
+          "add": 60,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/tests/test_hyundai.py",
+          "add": 31,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/values.py",
+          "add": 2,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/volkswagen/carstate.py",
+          "add": 31,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/volkswagen/tests/test_gps.py",
+          "add": 196,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/dbc/vw_mqb.dbc",
+          "add": 30,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+          "add": 18,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_latcontrol.py",
+          "add": 84,
+          "delete": 6,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 32,
+          "delete": 5,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 91,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/system/the_galaxy/tests/test_fingerprint_catalog.py",
+          "add": 16,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "system/manager/test/test_process_config.py",
+          "add": 14,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/tests/test_latcontrol.py"
+      ],
+      "flags": [
+        "core_control",
+        "runtime_tests_or_common",
+        "other_vehicle",
+        "docs"
+      ],
+      "decision": "DEFER",
+      "risk": "Medium",
+      "review_topic": "Volkswagen GPS and cross-car lateral testing",
+      "observed_changes": "Adds VW GPS decoding/DBC, Hyundai state tests, Subaru/Ford tuning and lateral tests",
+      "next_action": "No Honda GPS process identified; defer except reuse neutral tests when needed",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/6de77049b3c3dc77c7275e9ff724a96f9e72a19d"
+    },
+    {
+      "index": 21,
+      "sha": "e75470f2e8bd791f29d3740abd0eaba7b709fc00",
+      "abbrev": "e75470f2e8",
+      "date": "2026-10-07T23:46:25-05:00",
+      "subject": "Overrun",
+      "body": "",
+      "files": 6,
+      "changed_lines": 132,
+      "binary_count": 1,
+      "binary_paths": [
+        "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/libacados_ocp_solver_long.so"
+      ],
+      "paths": [
+        "selfdrive/controls/lib/longitudinal_mpc_lib/SConscript",
+        "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/libacados_ocp_solver_long.so",
+        "selfdrive/controls/lib/longitudinal_mpc_lib/long_mpc.py",
+        "selfdrive/controls/tests/test_longitudinal_planner.py",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/controls/lib/longitudinal_mpc_lib/SConscript",
+          "add": 2,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/libacados_ocp_solver_long.so",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "selfdrive/controls/lib/longitudinal_mpc_lib/long_mpc.py",
+          "add": 9,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_longitudinal_planner.py",
+          "add": 24,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 15,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 81,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/tests/test_longitudinal_planner.py"
+      ],
+      "flags": [
+        "core_control",
+        "runtime_tests_or_common",
+        "other_vehicle"
+      ],
+      "decision": "REVIEW_P1",
+      "risk": "High",
+      "review_topic": "Longitudinal MPC terminal constraints",
+      "observed_changes": "Adds acados con_h_expr_e, terminal lh_e/uh_e/idxsh_e, terminal slack costs and inclusive N+1 Zl cost update; adds generated solver binary",
+      "next_action": "CURRENT C7 long_mpc lacks terminal constraints; F8 re-generated solver from older source. Review dynamics/constraints/feasibility and solver source, regenerate with verified Acados toolchain, test source-built latency/status and 217 higher-decel replay contexts. NEVER copy binary",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/e75470f2e8bd791f29d3740abd0eaba7b709fc00"
+    },
+    {
+      "index": 22,
+      "sha": "934dadbcdbaaaac78dd6badd09a1ebadd298bae8",
+      "abbrev": "934dadbcdb",
+      "date": "2026-10-08T07:49:05-05:00",
+      "subject": "Toyota Hold",
+      "body": "",
+      "files": 3,
+      "changed_lines": 175,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "opendbc_repo/opendbc/car/toyota/carcontroller.py",
+        "opendbc_repo/opendbc/car/toyota/tests/test_toyota.py",
+        "starpilot/common/assets/device_settings_layout.json"
+      ],
+      "numstat": [
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/carcontroller.py",
+          "add": 3,
+          "delete": 19,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/tests/test_toyota.py",
+          "add": 74,
+          "delete": 75,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/assets/device_settings_layout.json",
+          "add": 2,
+          "delete": 2,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "runtime_tests_or_common",
+        "ui_speed_limits",
+        "other_vehicle"
+      ],
+      "decision": "DEFER",
+      "risk": "Medium",
+      "review_topic": "Toyota hold feature",
+      "observed_changes": "Toyota controller/testing and device layout value",
+      "next_action": "Non-Honda; no direct port",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/934dadbcdbaaaac78dd6badd09a1ebadd298bae8"
+    },
+    {
+      "index": 23,
+      "sha": "ebd62915a25c644833d457b6adf5979bc65f986a",
+      "abbrev": "ebd62915a2",
+      "date": "2026-10-08T14:43:21-05:00",
+      "subject": "Alan, My Boi",
+      "body": "",
+      "files": 5,
+      "changed_lines": 49,
+      "binary_count": 2,
+      "binary_paths": [
+        "common/libcommon.a",
+        "common/params_pyx.so"
+      ],
+      "paths": [
+        "common/libcommon.a",
+        "common/params_keys.h",
+        "common/params_pyx.so",
+        "starpilot/common/starpilot_variables.py",
+        "starpilot/common/tests/test_starpilot_variables.py"
+      ],
+      "numstat": [
+        {
+          "path": "common/libcommon.a",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "common/params_keys.h",
+          "add": 1,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "common/params_pyx.so",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "starpilot/common/starpilot_variables.py",
+          "add": 14,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/tests/test_starpilot_variables.py",
+          "add": 34,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "runtime_tests_or_common"
+      ],
+      "decision": "DEFER",
+      "risk": "Medium",
+      "review_topic": "Sonata Hybrid LKAS button migration",
+      "observed_changes": "Adds Sonata-only param key and one-time button mapping migration; checked-in Params binaries",
+      "next_action": "Other vehicle and generated binaries; no Accord mapping change",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/ebd62915a25c644833d457b6adf5979bc65f986a"
+    },
+    {
+      "index": 24,
+      "sha": "15bbbf3cc4ad251c173abf01fff931951202331a",
+      "abbrev": "15bbbf3cc4",
+      "date": "2026-10-08T15:10:09-05:00",
+      "subject": "Quaker Oats",
+      "body": "",
+      "files": 9,
+      "changed_lines": 324,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "opendbc_repo/opendbc/car/ford/carcontroller.py",
+        "opendbc_repo/opendbc/car/ford/interface.py",
+        "opendbc_repo/opendbc/car/ford/tests/test_ford.py",
+        "opendbc_repo/opendbc/car/toyota/interface.py",
+        "opendbc_repo/opendbc/car/toyota/tests/test_toyota.py",
+        "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_latcontrol.py",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py"
+      ],
+      "numstat": [
+        {
+          "path": "opendbc_repo/opendbc/car/ford/carcontroller.py",
+          "add": 19,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/ford/interface.py",
+          "add": 2,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/ford/tests/test_ford.py",
+          "add": 81,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/interface.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/tests/test_toyota.py",
+          "add": 38,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+          "add": 9,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_latcontrol.py",
+          "add": 69,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 20,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 74,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/tests/test_latcontrol.py"
+      ],
+      "flags": [
+        "core_control",
+        "runtime_tests_or_common",
+        "other_vehicle"
+      ],
+      "decision": "DEFER",
+      "risk": "Medium",
+      "review_topic": "Ford/Toyota lateral control",
+      "observed_changes": "Ford/Toyota vehicle-specific controller changes, latcontrol shared tunes/tests",
+      "next_action": "Defer absent evidence for Accord; no generic latcontrol replacement",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/15bbbf3cc4ad251c173abf01fff931951202331a"
+    },
+    {
+      "index": 25,
+      "sha": "51d09a6274c337b520f6e7d40c96b2bb9580c3cd",
+      "abbrev": "51d09a6274",
+      "date": "2026-10-08T17:37:57-04:00",
+      "subject": "Boot logo refresh on panel open",
+      "body": "",
+      "files": 5,
+      "changed_lines": 224,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "selfdrive/ui/layouts/settings/starpilot/appearance.py",
+        "selfdrive/ui/layouts/settings/starpilot/simple_download_manager.py",
+        "starpilot/assets/tests/test_theme_catalog_refresh.py",
+        "starpilot/assets/theme_manager.py",
+        "starpilot/common/starpilot_download_utilities.py"
+      ],
+      "numstat": [
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/appearance.py",
+          "add": 14,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/layouts/settings/starpilot/simple_download_manager.py",
+          "add": 5,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/assets/tests/test_theme_catalog_refresh.py",
+          "add": 176,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/assets/theme_manager.py",
+          "add": 13,
+          "delete": 12,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/starpilot_download_utilities.py",
+          "add": 1,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "runtime_tests_or_common",
+        "ui_speed_limits"
+      ],
+      "decision": "DEFER",
+      "risk": "Low",
+      "review_topic": "Theme boot logo refresh",
+      "observed_changes": "Appearance/theme download behavior and tests",
+      "next_action": "Visual side-feature; isolate from C7 safety work",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/51d09a6274c337b520f6e7d40c96b2bb9580c3cd"
+    },
+    {
+      "index": 26,
+      "sha": "956aceaf0ab96afcd737ffdc0758ace7eb9dad48",
+      "abbrev": "956aceaf0a",
+      "date": "2026-10-08T22:55:06-05:00",
+      "subject": "hiya peach",
+      "body": "",
+      "files": 15,
+      "changed_lines": 514,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "opendbc_repo/opendbc/car/tesla/carstate.py",
+        "opendbc_repo/opendbc/car/tesla/tests/test_screen_button.py",
+        "opendbc_repo/opendbc/safety/modes/tesla.h",
+        "opendbc_repo/opendbc/safety/tests/test_tesla_screen_button.py",
+        "selfdrive/controls/lib/lead_behavior.py",
+        "selfdrive/controls/lib/longcontrol_vehicle_tunes.py",
+        "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_conditional_experimental_mode.py",
+        "selfdrive/controls/tests/test_lead_behavior.py",
+        "selfdrive/controls/tests/test_longcontrol.py",
+        "starpilot/controls/lib/conditional_experimental_mode.py",
+        "starpilot/controls/lib/starpilot_following.py",
+        "starpilot/controls/starpilot_card.py",
+        "starpilot/controls/tests/test_personality_following_profiles.py",
+        "starpilot/controls/tests/test_starpilot_card.py"
+      ],
+      "numstat": [
+        {
+          "path": "opendbc_repo/opendbc/car/tesla/carstate.py",
+          "add": 9,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/tesla/tests/test_screen_button.py",
+          "add": 29,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/modes/tesla.h",
+          "add": 23,
+          "delete": 5,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/tests/test_tesla_screen_button.py",
+          "add": 98,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/lead_behavior.py",
+          "add": 3,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/longcontrol_vehicle_tunes.py",
+          "add": 18,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+          "add": 11,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_conditional_experimental_mode.py",
+          "add": 72,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_lead_behavior.py",
+          "add": 31,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_longcontrol.py",
+          "add": 77,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/lib/conditional_experimental_mode.py",
+          "add": 13,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/lib/starpilot_following.py",
+          "add": 9,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/starpilot_card.py",
+          "add": 11,
+          "delete": 8,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/tests/test_personality_following_profiles.py",
+          "add": 24,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/tests/test_starpilot_card.py",
+          "add": 65,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/lib/lead_behavior.py",
+        "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_lead_behavior.py",
+        "selfdrive/controls/tests/test_longcontrol.py",
+        "starpilot/controls/lib/starpilot_following.py",
+        "starpilot/controls/tests/test_personality_following_profiles.py"
+      ],
+      "flags": [
+        "panda_or_safety",
+        "core_control",
+        "runtime_tests_or_common",
+        "ui_speed_limits",
+        "other_vehicle"
+      ],
+      "decision": "REVIEW_P1",
+      "risk": "High",
+      "review_topic": "Stop-light model target vs lead and following/coast",
+      "observed_changes": "Conditional experimental mode may prioritize model stop target before a detected lead; GM-specific headway-floor and Ford Mach-E stop shaping use shared lead/following APIs; Tesla screen-button safety",
+      "next_action": "Directly relevant to reported stop-light distance/lead behavior. Compare with C6-12 protected semantics and test conflicts in starpilot_following, run recorded Honda stop/lead replay, guard non-Honda paths; no blanket port",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/956aceaf0ab96afcd737ffdc0758ace7eb9dad48"
+    },
+    {
+      "index": 27,
+      "sha": "61fd19556f985ef462bda9c103396108ea69ad14",
+      "abbrev": "61fd19556f",
+      "date": "2026-10-08T23:00:01-05:00",
+      "subject": "panda",
+      "body": "",
+      "files": 92,
+      "changed_lines": 4,
+      "binary_count": 90,
+      "binary_paths": [
+        "panda/board/obj/body_h7.bin.signed",
+        "panda/board/obj/body_h7/bootstub.elf",
+        "panda/board/obj/body_h7/main.bin",
+        "panda/board/obj/body_h7/main.elf",
+        "panda/board/obj/bootstub.body_h7.bin",
+        "panda/board/obj/bootstub.panda.bin",
+        "panda/board/obj/bootstub.panda_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_h7.bin",
+        "panda/board/obj/bootstub.panda_h7_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_h7_hkg_remote.bin",
+        "panda/board/obj/bootstub.panda_h7_hkg_remote_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_h7_remote.bin",
+        "panda/board/obj/bootstub.panda_h7_remote_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_h7_tesla_wake.bin",
+        "panda/board/obj/bootstub.panda_h7_tesla_wake_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_hkg_remote.bin",
+        "panda/board/obj/bootstub.panda_hkg_remote_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_jungle_h7.bin",
+        "panda/board/obj/bootstub.panda_remote.bin",
+        "panda/board/obj/bootstub.panda_remote_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_tesla_wake.bin",
+        "panda/board/obj/bootstub.panda_tesla_wake_can_ignition_only.bin",
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/bootstub.elf",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/bootstub.elf",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote/bootstub.elf",
+        "panda/board/obj/panda_h7_hkg_remote/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_remote.bin.signed",
+        "panda/board/obj/panda_h7_remote/bootstub.elf",
+        "panda/board/obj/panda_h7_remote/main.bin",
+        "panda/board/obj/panda_h7_remote/main.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake/bootstub.elf",
+        "panda/board/obj/panda_h7_tesla_wake/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/panda_hkg_remote.bin.signed",
+        "panda/board/obj/panda_hkg_remote/bootstub.elf",
+        "panda/board/obj/panda_hkg_remote/main.bin",
+        "panda/board/obj/panda_hkg_remote/main.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_jungle_h7.bin.signed",
+        "panda/board/obj/panda_jungle_h7/bootstub.elf",
+        "panda/board/obj/panda_jungle_h7/main.bin",
+        "panda/board/obj/panda_jungle_h7/main.elf",
+        "panda/board/obj/panda_remote.bin.signed",
+        "panda/board/obj/panda_remote/bootstub.elf",
+        "panda/board/obj/panda_remote/main.bin",
+        "panda/board/obj/panda_remote/main.elf",
+        "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_remote_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_tesla_wake.bin.signed",
+        "panda/board/obj/panda_tesla_wake/bootstub.elf",
+        "panda/board/obj/panda_tesla_wake/main.bin",
+        "panda/board/obj/panda_tesla_wake/main.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf"
+      ],
+      "paths": [
+        "panda/board/obj/body_h7.bin.signed",
+        "panda/board/obj/body_h7/bootstub.elf",
+        "panda/board/obj/body_h7/main.bin",
+        "panda/board/obj/body_h7/main.elf",
+        "panda/board/obj/bootstub.body_h7.bin",
+        "panda/board/obj/bootstub.panda.bin",
+        "panda/board/obj/bootstub.panda_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_h7.bin",
+        "panda/board/obj/bootstub.panda_h7_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_h7_hkg_remote.bin",
+        "panda/board/obj/bootstub.panda_h7_hkg_remote_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_h7_remote.bin",
+        "panda/board/obj/bootstub.panda_h7_remote_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_h7_tesla_wake.bin",
+        "panda/board/obj/bootstub.panda_h7_tesla_wake_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_hkg_remote.bin",
+        "panda/board/obj/bootstub.panda_hkg_remote_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_jungle_h7.bin",
+        "panda/board/obj/bootstub.panda_remote.bin",
+        "panda/board/obj/bootstub.panda_remote_can_ignition_only.bin",
+        "panda/board/obj/bootstub.panda_tesla_wake.bin",
+        "panda/board/obj/bootstub.panda_tesla_wake_can_ignition_only.bin",
+        "panda/board/obj/gitversion.h",
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/bootstub.elf",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/bootstub.elf",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote/bootstub.elf",
+        "panda/board/obj/panda_h7_hkg_remote/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_remote.bin.signed",
+        "panda/board/obj/panda_h7_remote/bootstub.elf",
+        "panda/board/obj/panda_h7_remote/main.bin",
+        "panda/board/obj/panda_h7_remote/main.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake/bootstub.elf",
+        "panda/board/obj/panda_h7_tesla_wake/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/panda_hkg_remote.bin.signed",
+        "panda/board/obj/panda_hkg_remote/bootstub.elf",
+        "panda/board/obj/panda_hkg_remote/main.bin",
+        "panda/board/obj/panda_hkg_remote/main.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_jungle_h7.bin.signed",
+        "panda/board/obj/panda_jungle_h7/bootstub.elf",
+        "panda/board/obj/panda_jungle_h7/main.bin",
+        "panda/board/obj/panda_jungle_h7/main.elf",
+        "panda/board/obj/panda_remote.bin.signed",
+        "panda/board/obj/panda_remote/bootstub.elf",
+        "panda/board/obj/panda_remote/main.bin",
+        "panda/board/obj/panda_remote/main.elf",
+        "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_remote_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_tesla_wake.bin.signed",
+        "panda/board/obj/panda_tesla_wake/bootstub.elf",
+        "panda/board/obj/panda_tesla_wake/main.bin",
+        "panda/board/obj/panda_tesla_wake/main.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/bootstub.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/version"
+      ],
+      "numstat": [
+        {
+          "path": "panda/board/obj/body_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.body_h7.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_can_ignition_only.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_h7.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_h7_can_ignition_only.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_h7_hkg_remote.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_h7_hkg_remote_can_ignition_only.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_h7_remote.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_h7_remote_can_ignition_only.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_h7_tesla_wake.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_h7_tesla_wake_can_ignition_only.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_hkg_remote.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_hkg_remote_can_ignition_only.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_jungle_h7.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_remote.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_remote_can_ignition_only.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_tesla_wake.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/bootstub.panda_tesla_wake_can_ignition_only.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/gitversion.h",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "panda/board/obj/panda.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only/bootstub.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/version",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "panda_or_safety"
+      ],
+      "decision": "EXCLUDE",
+      "risk": "High",
+      "review_topic": "Panda signed firmware build snapshot",
+      "observed_changes": "90 of 92 files are binary Panda targets, bootstubs and signed images",
+      "next_action": "Do not copy firmware artifacts; physical Panda attestation and source-qualified build first",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/61fd19556f985ef462bda9c103396108ea69ad14"
+    },
+    {
+      "index": 28,
+      "sha": "83f914fc5cc5e1f9a18dfd7ed3c3b41b5759344b",
+      "abbrev": "83f914fc5c",
+      "date": "2026-10-11T00:55:10-04:00",
+      "subject": "Disable random events on boot if enabled",
+      "body": "",
+      "files": 1,
+      "changed_lines": 4,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "system/manager/manager.py"
+      ],
+      "numstat": [
+        {
+          "path": "system/manager/manager.py",
+          "add": 4,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "runtime_tests_or_common"
+      ],
+      "decision": "REVIEW_P2",
+      "risk": "Low",
+      "review_topic": "Disable random events on boot",
+      "observed_changes": "Manager init forces RandomEvents false in primary/cache Params when enabled",
+      "next_action": "Small startup-stability candidate; determine C7 current RandomEvents defaults and owner intent, add isolated manager init guard tests and verify no undesired user preference override",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/83f914fc5cc5e1f9a18dfd7ed3c3b41b5759344b"
+    },
+    {
+      "index": 29,
+      "sha": "88c73987d0a5a471576932896738764036da9984",
+      "abbrev": "88c73987d0",
+      "date": "2026-10-12T19:32:28-05:00",
+      "subject": "Green Garden",
+      "body": "",
+      "files": 38,
+      "changed_lines": 1569,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "THIRD_PARTY_NOTICES.md",
+        "common/params_keys.h",
+        "docs/TOYOTA_RAV4_RADAR.md",
+        "opendbc_repo/opendbc/car/gm/carcontroller.py",
+        "opendbc_repo/opendbc/car/gm/tests/test_carcontroller.py",
+        "opendbc_repo/opendbc/car/hyundai/radar_interface.py",
+        "opendbc_repo/opendbc/car/hyundai/tests/test_hyundai.py",
+        "opendbc_repo/opendbc/car/hyundai/values.py",
+        "opendbc_repo/opendbc/car/toyota/ars510_acc_target.py",
+        "opendbc_repo/opendbc/car/toyota/ars510_radar.py",
+        "opendbc_repo/opendbc/car/toyota/interface.py",
+        "opendbc_repo/opendbc/car/toyota/radar_interface.py",
+        "opendbc_repo/opendbc/car/toyota/tests/test_ars510.py",
+        "opendbc_repo/opendbc/car/toyota/values.py",
+        "opendbc_repo/opendbc/dbc/toyota_tss2_ars510.dbc",
+        "panda/board/comms_definitions.h",
+        "panda/board/drivers/spi.h",
+        "panda/board/drivers/spi_can_replay.h",
+        "panda/board/main_comms.h",
+        "selfdrive/controls/lib/latcontrol_torque.py",
+        "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+        "selfdrive/controls/lib/longitudinal_planner.py",
+        "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_latcontrol.py",
+        "selfdrive/controls/tests/test_longitudinal_planner.py",
+        "selfdrive/pandad/panda_comms.h",
+        "selfdrive/pandad/spi.cc",
+        "selfdrive/ui/ui_state.py",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py",
+        "starpilot/common/assets/device_settings_layout.json",
+        "starpilot/common/starpilot_variables.py",
+        "starpilot/common/tests/test_screen_device_runtime.py",
+        "starpilot/controls/starpilot_card.py",
+        "starpilot/controls/tests/test_starpilot_card.py",
+        "starpilot/docs/screen_settings.md",
+        "starpilot/system/stinger_object_shadow.py",
+        "starpilot/system/the_galaxy/tests/test_device_settings_layout.py"
+      ],
+      "numstat": [
+        {
+          "path": "THIRD_PARTY_NOTICES.md",
+          "add": 28,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "common/params_keys.h",
+          "add": 2,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "docs/TOYOTA_RAV4_RADAR.md",
+          "add": 36,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/gm/carcontroller.py",
+          "add": 17,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/gm/tests/test_carcontroller.py",
+          "add": 145,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/radar_interface.py",
+          "add": 7,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/tests/test_hyundai.py",
+          "add": 101,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/values.py",
+          "add": 1,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/ars510_acc_target.py",
+          "add": 56,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/ars510_radar.py",
+          "add": 230,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/interface.py",
+          "add": 12,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/radar_interface.py",
+          "add": 11,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/tests/test_ars510.py",
+          "add": 206,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/values.py",
+          "add": 3,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/dbc/toyota_tss2_ars510.dbc",
+          "add": 104,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "panda/board/comms_definitions.h",
+          "add": 5,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "panda/board/drivers/spi.h",
+          "add": 4,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "panda/board/drivers/spi_can_replay.h",
+          "add": 34,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "panda/board/main_comms.h",
+          "add": 8,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_torque.py",
+          "add": 28,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+          "add": 91,
+          "delete": 9,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/longitudinal_planner.py",
+          "add": 2,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+          "add": 21,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_latcontrol.py",
+          "add": 54,
+          "delete": 11,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_longitudinal_planner.py",
+          "add": 93,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/pandad/panda_comms.h",
+          "add": 6,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/pandad/spi.cc",
+          "add": 30,
+          "delete": 7,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/ui/ui_state.py",
+          "add": 8,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 25,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/assets/device_settings_layout.json",
+          "add": 28,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/starpilot_variables.py",
+          "add": 1,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/common/tests/test_screen_device_runtime.py",
+          "add": 54,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/starpilot_card.py",
+          "add": 4,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "starpilot/controls/tests/test_starpilot_card.py",
+          "add": 50,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/docs/screen_settings.md",
+          "add": 2,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/system/stinger_object_shadow.py",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/system/the_galaxy/tests/test_device_settings_layout.py",
+          "add": 12,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/lib/longitudinal_planner.py",
+        "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_latcontrol.py",
+        "selfdrive/controls/tests/test_longitudinal_planner.py"
+      ],
+      "flags": [
+        "panda_or_safety",
+        "core_control",
+        "runtime_tests_or_common",
+        "ui_speed_limits",
+        "other_vehicle",
+        "docs"
+      ],
+      "decision": "REVIEW_P1",
+      "risk": "Critical",
+      "review_topic": "Panda SPI sequenced CAN-write protocol and control changes",
+      "observed_changes": "Introduces firmware endpoint 0x83 with sequence token/replay guard; host pandad negotiates support and checks reply lengths; also Toyota/GM/Hyundai and shared tune/UI code",
+      "next_action": "Critical host\u2194Panda firmware compatibility / double-transmit risk; evaluate board type, firmware ABI, ACK loss/retry semantics, noOutput and controlsAllowed behavior. Require source+firmware integration tests, NEVER deploy by mixing versions; other vehicle tunes excluded",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/88c73987d0a5a471576932896738764036da9984"
+    },
+    {
+      "index": 30,
+      "sha": "3ccae7b88de336bff5a0f9fc9be925dac0c65de6",
+      "abbrev": "3ccae7b88d",
+      "date": "2026-10-12T20:26:21-05:00",
+      "subject": "build",
+      "body": "",
+      "files": 60,
+      "changed_lines": 40,
+      "binary_count": 56,
+      "binary_paths": [
+        "common/libcommon.a",
+        "common/params_pyx.so",
+        "panda/board/obj/body_h7.bin.signed",
+        "panda/board/obj/body_h7/main.bin",
+        "panda/board/obj/body_h7/main.elf",
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_remote.bin.signed",
+        "panda/board/obj/panda_h7_remote/main.bin",
+        "panda/board/obj/panda_h7_remote/main.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/panda_hkg_remote.bin.signed",
+        "panda/board/obj/panda_hkg_remote/main.bin",
+        "panda/board/obj/panda_hkg_remote/main.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_jungle_h7.bin.signed",
+        "panda/board/obj/panda_jungle_h7/main.bin",
+        "panda/board/obj/panda_jungle_h7/main.elf",
+        "panda/board/obj/panda_remote.bin.signed",
+        "panda/board/obj/panda_remote/main.bin",
+        "panda/board/obj/panda_remote/main.elf",
+        "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_tesla_wake.bin.signed",
+        "panda/board/obj/panda_tesla_wake/main.bin",
+        "panda/board/obj/panda_tesla_wake/main.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf"
+      ],
+      "paths": [
+        "common/libcommon.a",
+        "common/params_pyx.so",
+        "opendbc_repo/opendbc/car/toyota/ars510_acc_target.py",
+        "opendbc_repo/opendbc/car/toyota/tests/test_ars510.py",
+        "panda/board/obj/body_h7.bin.signed",
+        "panda/board/obj/body_h7/main.bin",
+        "panda/board/obj/body_h7/main.elf",
+        "panda/board/obj/gitversion.h",
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote/main.elf",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_remote.bin.signed",
+        "panda/board/obj/panda_h7_remote/main.bin",
+        "panda/board/obj/panda_h7_remote/main.elf",
+        "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake/main.elf",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/panda_hkg_remote.bin.signed",
+        "panda/board/obj/panda_hkg_remote/main.bin",
+        "panda/board/obj/panda_hkg_remote/main.elf",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_jungle_h7.bin.signed",
+        "panda/board/obj/panda_jungle_h7/main.bin",
+        "panda/board/obj/panda_jungle_h7/main.elf",
+        "panda/board/obj/panda_remote.bin.signed",
+        "panda/board/obj/panda_remote/main.bin",
+        "panda/board/obj/panda_remote/main.elf",
+        "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+        "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+        "panda/board/obj/panda_tesla_wake.bin.signed",
+        "panda/board/obj/panda_tesla_wake/main.bin",
+        "panda/board/obj/panda_tesla_wake/main.elf",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+        "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf",
+        "panda/board/obj/version"
+      ],
+      "numstat": [
+        {
+          "path": "common/libcommon.a",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "common/params_pyx.so",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/ars510_acc_target.py",
+          "add": 4,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/toyota/tests/test_ars510.py",
+          "add": 31,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "panda/board/obj/body_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/body_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/gitversion.h",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "panda/board/obj/panda.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_hkg_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_tesla_wake_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_hkg_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_jungle_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_remote_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_tesla_wake_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/version",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "panda_or_safety",
+        "runtime_tests_or_common",
+        "other_vehicle"
+      ],
+      "decision": "EXCLUDE",
+      "risk": "High",
+      "review_topic": "Generated Panda/Params binaries + Toyota ARS tweaks",
+      "observed_changes": "56 binary files of 60; Toyota radar ACC target tests",
+      "next_action": "Never port compiled objects; Toyota-only source changes not Accord-relevant",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/3ccae7b88de336bff5a0f9fc9be925dac0c65de6"
+    },
+    {
+      "index": 31,
+      "sha": "b220a37f4bd119e402225a7aa16a7cd84878d0af",
+      "abbrev": "b220a37f4b",
+      "date": "2026-10-13T23:05:10-05:00",
+      "subject": "Sea Turtles",
+      "body": "",
+      "files": 15,
+      "changed_lines": 690,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "opendbc_repo/opendbc/car/hyundai/interface.py",
+        "opendbc_repo/opendbc/car/hyundai/tests/test_ray_pedal.py",
+        "opendbc_repo/opendbc/dbc/hyundai_kia_ray_pedal.dbc",
+        "selfdrive/controls/lib/latcontrol_torque.py",
+        "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+        "selfdrive/controls/lib/longitudinal_planner.py",
+        "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_latcontrol.py",
+        "selfdrive/controls/tests/test_longcontrol.py",
+        "selfdrive/controls/tests/test_longitudinal_speed.py",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py",
+        "starpilot/system/stinger_object_tracks.py",
+        "system/manager/test/test_process_config.py",
+        "system/manager/test/test_stinger_object_shadow.py"
+      ],
+      "numstat": [
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/interface.py",
+          "add": 5,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/tests/test_ray_pedal.py",
+          "add": 14,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/dbc/hyundai_kia_ray_pedal.dbc",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_torque.py",
+          "add": 8,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/latcontrol_vehicle_tunes.py",
+          "add": 21,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/longitudinal_planner.py",
+          "add": 1,
+          "delete": 16,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+          "add": 20,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_latcontrol.py",
+          "add": 126,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_longcontrol.py",
+          "add": 26,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "selfdrive/controls/tests/test_longitudinal_speed.py",
+          "add": 26,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 23,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 122,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "starpilot/system/stinger_object_tracks.py",
+          "add": 74,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "system/manager/test/test_process_config.py",
+          "add": 18,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "system/manager/test/test_stinger_object_shadow.py",
+          "add": 176,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [
+        "selfdrive/controls/lib/longitudinal_planner.py",
+        "selfdrive/controls/lib/longitudinal_vehicle_tunes.py",
+        "selfdrive/controls/tests/test_latcontrol.py",
+        "selfdrive/controls/tests/test_longcontrol.py"
+      ],
+      "flags": [
+        "core_control",
+        "runtime_tests_or_common",
+        "other_vehicle"
+      ],
+      "decision": "REVIEW_P2",
+      "risk": "Medium",
+      "review_topic": "Shared planner vEgo relocation and other-make control",
+      "observed_changes": "Moves get_planner_v_ego to vehicle tunes with Kia Ray/GM guards; Ford/Hyundai torque tuning and adds read-only Stinger object decoding/tests",
+      "next_action": "Check source API semantic equality for Honda and existing C6-12 follow behavior; read-only stinger tool not Honda. Favor targeted tests only, defer other-make additions",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/b220a37f4bd119e402225a7aa16a7cd84878d0af"
+    },
+    {
+      "index": 32,
+      "sha": "807acc05227339a5e377e0f3cfae64bc1de2c4a9",
+      "abbrev": "807acc0522",
+      "date": "2026-10-15T15:32:22-07:00",
+      "subject": "update README.md",
+      "body": "",
+      "files": 1,
+      "changed_lines": 48,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "README.md"
+      ],
+      "numstat": [
+        {
+          "path": "README.md",
+          "add": 27,
+          "delete": 21,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [],
+      "decision": "EXCLUDE",
+      "risk": "Low",
+      "review_topic": "README-only change",
+      "observed_changes": "Readme description update only",
+      "next_action": "No implementation or release relevance; documentation may be referenced independently",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/807acc05227339a5e377e0f3cfae64bc1de2c4a9"
+    },
+    {
+      "index": 33,
+      "sha": "1391d3a39c04b800f6ff19c2288f1fbff91f7052",
+      "abbrev": "1391d3a39c",
+      "date": "2026-10-15T15:43:10-07:00",
+      "subject": "update README.md",
+      "body": "",
+      "files": 1,
+      "changed_lines": 7,
+      "binary_count": 0,
+      "binary_paths": [],
+      "paths": [
+        "README.md"
+      ],
+      "numstat": [
+        {
+          "path": "README.md",
+          "add": 2,
+          "delete": 5,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [],
+      "decision": "EXCLUDE",
+      "risk": "Low",
+      "review_topic": "README follow-up",
+      "observed_changes": "Additional README-only change",
+      "next_action": "No implementation or release relevance",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/1391d3a39c04b800f6ff19c2288f1fbff91f7052"
+    },
+    {
+      "index": 34,
+      "sha": "823a5d5674ec6635b51dd989884dfbd661f90dc4",
+      "abbrev": "823a5d5674",
+      "date": "2026-10-15T18:09:34-05:00",
+      "subject": "Waffles",
+      "body": "",
+      "files": 31,
+      "changed_lines": 474,
+      "binary_count": 12,
+      "binary_paths": [
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf"
+      ],
+      "paths": [
+        "opendbc_repo/opendbc/car/hyundai/carcontroller.py",
+        "opendbc_repo/opendbc/car/hyundai/tests/test_ray_pedal.py",
+        "opendbc_repo/opendbc/car/subaru/carcontroller.py",
+        "opendbc_repo/opendbc/car/subaru/carstate.py",
+        "opendbc_repo/opendbc/car/subaru/interface.py",
+        "opendbc_repo/opendbc/car/subaru/subarucan.py",
+        "opendbc_repo/opendbc/car/subaru/tests/test_subaru.py",
+        "opendbc_repo/opendbc/car/subaru/values.py",
+        "opendbc_repo/opendbc/dbc/generator/subaru/_subaru_global.dbc",
+        "opendbc_repo/opendbc/dbc/subaru_global_2017_generated.dbc",
+        "opendbc_repo/opendbc/dbc/subaru_global_2020_hybrid_generated.dbc",
+        "opendbc_repo/opendbc/safety/modes/hyundai.h",
+        "opendbc_repo/opendbc/safety/modes/subaru.h",
+        "opendbc_repo/opendbc/safety/tests/test_hyundai_ray_pedal.py",
+        "opendbc_repo/opendbc/safety/tests/test_subaru.py",
+        "panda/board/obj/gitversion.h",
+        "panda/board/obj/panda.bin.signed",
+        "panda/board/obj/panda/main.bin",
+        "panda/board/obj/panda/main.elf",
+        "panda/board/obj/panda_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_can_ignition_only/main.bin",
+        "panda/board/obj/panda_can_ignition_only/main.elf",
+        "panda/board/obj/panda_h7.bin.signed",
+        "panda/board/obj/panda_h7/main.bin",
+        "panda/board/obj/panda_h7/main.elf",
+        "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+        "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+        "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+        "panda/board/obj/version",
+        "starpilot/car/ford/lateral.py",
+        "starpilot/car/ford/tests/test_lateral.py"
+      ],
+      "numstat": [
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/carcontroller.py",
+          "add": 30,
+          "delete": 20,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/hyundai/tests/test_ray_pedal.py",
+          "add": 91,
+          "delete": 4,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/subaru/carcontroller.py",
+          "add": 15,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/subaru/carstate.py",
+          "add": 5,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/subaru/interface.py",
+          "add": 5,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/subaru/subarucan.py",
+          "add": 12,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/subaru/tests/test_subaru.py",
+          "add": 82,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/car/subaru/values.py",
+          "add": 2,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/dbc/generator/subaru/_subaru_global.dbc",
+          "add": 6,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/dbc/subaru_global_2017_generated.dbc",
+          "add": 6,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/dbc/subaru_global_2020_hybrid_generated.dbc",
+          "add": 6,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/modes/hyundai.h",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/modes/subaru.h",
+          "add": 16,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/tests/test_hyundai_ray_pedal.py",
+          "add": 21,
+          "delete": 2,
+          "binary": false
+        },
+        {
+          "path": "opendbc_repo/opendbc/safety/tests/test_subaru.py",
+          "add": 27,
+          "delete": 0,
+          "binary": false
+        },
+        {
+          "path": "panda/board/obj/gitversion.h",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "panda/board/obj/panda.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only.bin.signed",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.bin",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/panda_h7_can_ignition_only/main.elf",
+          "add": null,
+          "delete": null,
+          "binary": true
+        },
+        {
+          "path": "panda/board/obj/version",
+          "add": 1,
+          "delete": 1,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/lateral.py",
+          "add": 19,
+          "delete": 3,
+          "binary": false
+        },
+        {
+          "path": "starpilot/car/ford/tests/test_lateral.py",
+          "add": 94,
+          "delete": 0,
+          "binary": false
+        }
+      ],
+      "overlap_paths": [],
+      "flags": [
+        "panda_or_safety",
+        "other_vehicle"
+      ],
+      "decision": "EXCLUDE",
+      "risk": "High",
+      "review_topic": "Hyundai/Subaru behavior and Panda binary image refresh",
+      "observed_changes": "Other vehicle controller, safety tests, and 12 binary Panda image/version files",
+      "next_action": "Do not import as a whole; other-make implementation not C7 Accord scoped and signed Panda images must not be reused without matching source/firmware",
+      "commit_url": "https://github.com/J3DOK3DO/openpilot/commit/823a5d5674ec6635b51dd989884dfbd661f90dc4"
+    }
+  ]
+}
