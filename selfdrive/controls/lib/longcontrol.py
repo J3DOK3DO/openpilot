@@ -6,6 +6,7 @@ from openpilot.common.pid import PIDController
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.selfdrive.controls.lib.longcontrol_vehicle_tunes import LongControlVehicleTuning
+from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import is_honda_accord_11g
 
 CONTROL_N_T_IDX = ModelConstants.T_IDXS[:CONTROL_N]
 clip = np.clip
@@ -130,6 +131,8 @@ class LongControl:
     self.pedal_override_active = False
     self.pedal_override_release_frames = 0
     self.vehicle_tuning = LongControlVehicleTuning(CP)
+    # Preserve C6-12 target-following stop ramp only for the Honda Accord 11G.
+    self.accord_stop_semantics = is_honda_accord_11g(CP)
 
   def update_mpc_mode(self, experimental_mode):
     new_mode = 'blended' if experimental_mode else 'acc'
@@ -264,10 +267,11 @@ class LongControl:
 
     elif self.long_control_state == LongCtrlState.stopping:
       output_accel = self.last_output_accel
-      if output_accel > starpilot_toggles.stopAccel and output_accel >= a_target:
+      if output_accel > starpilot_toggles.stopAccel and (output_accel >= a_target or not self.accord_stop_semantics):
         output_accel = min(output_accel, 0.0)
         output_accel -= starpilot_toggles.stoppingDecelRate * DT_CTRL
-      elif should_stop and CS.vEgo > 0.0 and not CS.cruiseState.standstill and a_target > output_accel:
+      elif (self.accord_stop_semantics and should_stop and CS.vEgo > 0.0 and not CS.cruiseState.standstill and
+            a_target > output_accel):
         output_accel = min(a_target, 0.0, output_accel + starpilot_toggles.stoppingDecelRate * DT_CTRL)
       output_accel = self.vehicle_tuning.shape_stopping_accel(
         output_accel, a_target, should_stop, CS.vEgo, has_lead, starpilot_toggles.stopAccel, leads=leads,

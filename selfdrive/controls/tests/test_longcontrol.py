@@ -922,7 +922,7 @@ def test_stopping_state_follows_stronger_moving_stop_target():
 
 def test_accord_c4_ls004_stale_stopping_output_recovers_toward_relaxed_target():
   """Exact C2 LS004 oracle, exercised against the current Dom stopping path."""
-  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5)
+  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5, brand="honda", carFingerprint="HONDA_ACCORD_11G")
   CP.longitudinalTuning.kpBP = [0.0]
   CP.longitudinalTuning.kpV = [0.1]
   CP.longitudinalTuning.kiBP = [0.0]
@@ -945,6 +945,25 @@ def test_accord_c4_ls004_stale_stopping_output_recovers_toward_relaxed_target():
   assert all(later >= earlier for earlier, later in zip(outputs, outputs[1:]))
   assert outputs[-1] <= -0.186
 
+
+
+def test_c6_stop_semantics_do_not_leak_to_other_platforms():
+  """Ford and other makes preserve Dom's stopping control instead of Accord's ramp."""
+  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5, brand="toyota", carFingerprint="TOYOTA_RAV4_TSS2")
+  CP.longitudinalTuning.kpBP = [0.0]
+  CP.longitudinalTuning.kpV = [0.1]
+  CP.longitudinalTuning.kiBP = [0.0]
+  CP.longitudinalTuning.kiV = [0.03]
+  lc = LongControl(CP)
+  assert not lc.accord_stop_semantics
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = -1.0
+  CS = car.CarState.new_message(vEgo=0.2, aEgo=-1.0, brakePressed=False)
+  outputs = [lc.update(active=True, CS=CS, a_target=-0.186, should_stop=True, accel_limits=(-3.0, 2.0),
+                       starpilot_toggles=make_toggles(stopAccel=-2.0, stoppingDecelRate=0.8), has_lead=True)
+             for _ in range(5)]
+  assert all(later <= earlier for earlier, later in zip(outputs, outputs[1:], strict=False))
+  assert outputs[-1] <= -0.186
 
 def test_elantra_lead_stop_releases_stale_hard_brake_after_target_eases():
   CP = make_longcontrol_cp(brand="hyundai", carFingerprint="HYUNDAI_ELANTRA_2021")

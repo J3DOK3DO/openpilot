@@ -23,8 +23,8 @@ from openpilot.starpilot.controls.starpilot_planner import get_force_stop_jerk_s
 
 SOURCE_PINS = {
   "starpilot/controls/lib/curve_speed_controller.py": "9e1a9d2ddfbdd7e9324d83bb2cdf10dac8daec1e97a9f9c9f627bb828feedf92",
-  "selfdrive/controls/lib/latcontrol_vehicle_tunes.py": "367e966fc7935956668fe46f926da73fb94f9c80104b747db8de5a9758803544",
-  "starpilot/controls/starpilot_planner.py": "089da01cc34961c4f704f991102497a4609fab182e664fe0bb24161bc42028f1",
+  "selfdrive/controls/lib/latcontrol_vehicle_tunes.py": "d132f3ea858747d5bdb5c50163afad4971d033f265b1d2c9fd58c9dd73102b28",
+  "starpilot/controls/starpilot_planner.py": "8c5011f484b05f5ff729fd243b420ba1cae4fda857824cfb4ac26411ec3ecdc2",
 }
 
 
