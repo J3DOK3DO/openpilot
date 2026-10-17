@@ -204,3 +204,25 @@ def test_preap_aol_explicit_authorization_boundary(isolated_settings):
   sequence.step(True, frames=20)
   sequence.preap_authorized = False
   sequence.step(False, frames=120)
+
+
+def test_honda_accord_11g_aol_policy_positive_synthetic_only(isolated_settings):
+  """Policy/latch coverage only: empty fingerprint, no CAN, safety, or actuation evidence."""
+  cp, fp, toggles = fleet_config("HONDA_ACCORD_11G", "engage")
+  assert cp.brand == "honda"
+  assert spc.always_on_lateral_available(cp)
+  assert not cp.dashcamOnly
+  assert not cp.notCar
+
+  sequence = Sequence(cp, fp, toggles)
+  sequence.step(False, frames=20)
+  sequence.engage()
+  sequence.step(True, frames=20)
+
+  sequence.sm["selfdriveState"].alertType = f"controlsMismatch/{spc.ET.IMMEDIATE_DISABLE}"
+  sequence.step(False, frames=20)
+  sequence.sm["selfdriveState"].alertType = ""
+  sequence.step(True, frames=20)
+
+  sequence.cs.gearShifter = spc.GearShifter.reverse
+  sequence.step(False, frames=20)

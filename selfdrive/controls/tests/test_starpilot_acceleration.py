@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from cereal import log
 from openpilot.common.constants import CV
 from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN
 from openpilot.starpilot.common.accel_profile import A_CRUISE_MAX_BP_CUSTOM, ACCELERATION_PROFILES, DECELERATION_PROFILES
@@ -64,6 +65,7 @@ def make_sm(*, set_speed_kph=100.0, lead_one=None, lead_two=None, standstill=Fal
     "carState": SimpleNamespace(vCruise=set_speed_kph, standstill=standstill, vEgoCluster=v_ego_cluster),
     "carControl": SimpleNamespace(orientationNED=[0.0, pitch, 0.0]),
     "controlsState": SimpleNamespace(forceDecel=force_decel),
+    "selfdriveState": SimpleNamespace(personality=log.LongitudinalPersonality.standard),
     "radarState": SimpleNamespace(
       leadOne=lead_one or make_lead(),
       leadTwo=lead_two or make_lead(),

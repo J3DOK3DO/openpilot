@@ -46,6 +46,8 @@ CSC_FARFIELD_GAIN = 1.23
 
 MIN_CURVATURE = 0.0005
 MAX_CURVATURE = 0.02
+# Upper bound for curvature used in target-speed math (see below). MAX_CURVATURE only bounds the learning buckets.
+MAX_TARGET_CURVATURE = 0.1  # = PROFILE_MAX_CURVATURE in starpilot_utilities (R = 10 m)
 CURVATURE_BUCKETS = 24
 ROUNDING_PRECISION = 6
 CURVATURE_GRID = MIN_CURVATURE * np.power(MAX_CURVATURE / MIN_CURVATURE,
@@ -380,7 +382,9 @@ class CurveSpeedController:
   def _correct_far_field(curvatures, distances):
     """Undo the model's known under-read of distant curvature, where the reading is firm."""
     firm = (curvatures >= CSC_FARFIELD_MIN_CURVATURE) & (distances >= CSC_FARFIELD_MIN_DISTANCE)
-    return np.minimum(np.where(firm, curvatures * CSC_FARFIELD_GAIN, curvatures), MAX_CURVATURE)
+    # Boost firm far-field readings (gain capped at MAX_CURVATURE), but never reduce a reading below its raw value.
+    corrected = np.where(firm, np.maximum(curvatures, np.minimum(curvatures * CSC_FARFIELD_GAIN, MAX_CURVATURE)), curvatures)
+    return np.minimum(corrected, MAX_TARGET_CURVATURE)
 
   def reset(self, v_cruise):
     self.target = float(v_cruise)

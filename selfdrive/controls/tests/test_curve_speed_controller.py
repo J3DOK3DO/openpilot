@@ -545,3 +545,15 @@ def test_stale_param_from_a_previous_build_is_republished_without_training():
   controller.log_data(0.0, make_sm())
 
   assert planner.params.values["CalibratedLateralAcceleration"] <= CSC_LAT_ACCEL_MAX
+
+
+@pytest.mark.parametrize("radius", [40.0, 30.0, 25.0, 20.0, 15.0, 10.0])
+def test_tight_curve_target_never_exceeds_lateral_cap(radius):
+  # Accord 11G regression: ramps/loops tighter than 50 m must still respect CSC_MAX_LATERAL_ACCEL
+  # (the 0.02 learning-bucket clip must not leak into the target-speed math).
+  curvature = 1.0 / radius
+  _, controller = make_controller(curve_profile=(np.full(33, curvature), np.linspace(0.0, 100.0, 33)))
+
+  target = converge(controller, 15.0, 30.0)
+
+  assert target**2 * curvature <= CSC_MAX_LATERAL_ACCEL + 0.05

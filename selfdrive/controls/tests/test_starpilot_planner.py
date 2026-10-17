@@ -44,7 +44,7 @@ def make_toggles(**overrides):
 
 def test_force_stop_jerk_scale_is_platform_specific():
   assert get_force_stop_jerk_scale(SimpleNamespace(carFingerprint="HYUNDAI_ELANTRA_2021")) == 0.80
-  assert get_force_stop_jerk_scale(SimpleNamespace(carFingerprint="OTHER_CAR")) == 0.32
+  assert get_force_stop_jerk_scale(SimpleNamespace(carFingerprint="OTHER_CAR")) == 0.20  # source lowered 0.32 -> 0.20 in 5882bd23 (Force Stop: Fast Approach)
 
 
 def test_lead_follow_jerk_scale_is_platform_specific():
