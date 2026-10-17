@@ -1,0 +1,147 @@
+{
+  "utc": "2026-10-17T09:53:29.995109+00:00",
+  "stage": "C7_F83_F9_OFFLINE_NATIVE_INTEGRATION_HONDA_PREPARATION",
+  "code_head": "3643477dfb938c8933c383f2fbbda4c7dc1eccd7",
+  "dom_base": "e997a36ac211cf71a0c03ab5b99c2e3d6385291d",
+  "MVL_288_new_ports": 0,
+  "changed_source_since_dom_base": [
+    "selfdrive/controls/tests/test_hyundai_button_sequences.py"
+  ],
+  "arm64": {
+    "new_ELF_artifacts": 13,
+    "artifacts": [
+      {
+        "item": "cereal",
+        "path": "build/f8/lib/libcereal_f8.so",
+        "sha256": "b044388e0959f223e1fbb4b041696f72d3dbac34cec6e2d83691fae6360e9d77",
+        "bytes": 696904
+      },
+      {
+        "item": "params",
+        "path": "build/f8/lib/libparams_f8.so",
+        "sha256": "66f95b38d541ac7cfb867ca72d53dd596a30ff9aec83c3f123be8977c0c3e0a5",
+        "bytes": 735584
+      },
+      {
+        "item": "messaging",
+        "path": "build/f8/lib/libmessaging_f8.so",
+        "sha256": "be6c276c6da157d8c29b247caa8427910de0b71b4220e78aa99b1047da63da7c",
+        "bytes": 1317440
+      },
+      {
+        "item": "pose",
+        "path": "build/f8/lib/liblocationd_pose_f8.so",
+        "sha256": "f6a88db164d5feb75302bd9bd963dc7bb3ff9e8503ee66a767742c3847e91afd",
+        "bytes": 233840
+      },
+      {
+        "item": "EKF",
+        "path": "build/f8/lib/libekf_car_f8.so",
+        "sha256": "996834faf8467abfd8cc36c615cbc514564b3c1b58bb3e2dce9bc45f770969bb",
+        "bytes": 238128
+      },
+      {
+        "item": "safety",
+        "path": "build/f8/lib/libsafety_f8.so",
+        "sha256": "ce7b7e9037ce2711667d38adec090146969845e6097e11113f94bf1b327af495",
+        "bytes": 207240
+      },
+      {
+        "item": "Params_py",
+        "path": "build/f8/python/openpilot/common/params_pyx.so",
+        "sha256": "a5f21357ac0e070c0d757940cfc9fb6ce6b7b8cada941cd8aaf107701f6a67d2",
+        "bytes": 902336
+      },
+      {
+        "item": "IPC_py",
+        "path": "build/f8/python/msgq/ipc_pyx.so",
+        "sha256": "dd88739a5ebb737dffd96b161ecb8ea468a21f13dd924f7afc9480bd8f42c04c",
+        "bytes": 1484888
+      },
+      {
+        "item": "Rednose_py",
+        "path": "build/f8/python/rednose/helpers/ekf_sym_pyx.so",
+        "sha256": "2db560dbdf1add139fd73ff0dfd68a0948535b2ce469893566fec673dae5b23f",
+        "bytes": 1065088
+      },
+      {
+        "item": "Long_MPC",
+        "path": "build/dom_mpc_long/lib/libacados_ocp_solver_long.so",
+        "sha256": "49dc14cac7300626d1726990085fd9768fccb589fe04bd26627729fc1db5ee72",
+        "bytes": 159928
+      },
+      {
+        "item": "Long_MPC_py",
+        "path": "build/dom_mpc_long/python/acados_ocp_solver_pyx.so",
+        "sha256": "53b675880acac4c27d714f25bd1f6b72d8e12fa85baf3478e2d6b236136fc70a",
+        "bytes": 542432
+      },
+      {
+        "item": "Lat_MPC",
+        "path": "build/dom_mpc_lat/lib/libacados_ocp_solver_lat.so",
+        "sha256": "cfa5742748250e1de74ee428f783b760ff5835f6708662d7c023f6a17edbff2b",
+        "bytes": 87744
+      },
+      {
+        "item": "Lat_MPC_py",
+        "path": "build/dom_mpc_lat/python/acados_ocp_solver_pyx.so",
+        "sha256": "32b653970ba33f6a73b12cb089b497f2558729d6f34f9b51de530877694bba07",
+        "bytes": 542416
+      }
+    ],
+    "combined_process": "SCOPED_PASS",
+    "long_mpc_synthetic_four_statuses": 0,
+    "lat_mpc_synthetic_status": 0,
+    "full_AGNOS_service_install": "HOLD"
+  },
+  "host": {
+    "minimal_SCons": "PASS",
+    "MPC_binaries_source_built_replaced_in_scratch_only": true,
+    "full_44_source_identity": true,
+    "results": {
+      "tests": 3726,
+      "passed": 3645,
+      "failures": 9,
+      "skipped": 72,
+      "errors": 0
+    },
+    "can_test": "53 pass, 602 subtests pass"
+  },
+  "Honda": {
+    "F7_initial_curve_selected": {
+      "complete": 5993,
+      "active_longitudinal": 0
+    },
+    "archive_screening": {
+      "sampled": 24,
+      "with_active": 11
+    },
+    "active_5_segment": {
+      "aligned": 5996,
+      "longActive": 4564,
+      "negativeAccelRequest": 1060,
+      "redLightActive": 386,
+      "forcingStopActive": 376,
+      "radarLeadActive": 1423,
+      "below2_mps_active": 55
+    },
+    "logged_sendcan_frames": 137759,
+    "logged_received_can_frames": 1374866,
+    "real_C7_controller_replay": "PENDING",
+    "historic_log_is_not_C7_output": true
+  },
+  "hard_release_blockers": [
+    "The AGNOS 19.8.1 ARM64 complete application and real service startup/recovery graph was not built and tested as a whole.",
+    "Minimal host SCons build retained checked-in model artifacts; two MPC solvers required explicit source-built replacement in the disposable host test checkout.",
+    "Synthetic MPC smoke and isolated native interop do not prove representative Honda vehicle motion or brake response.",
+    "Six Ford Mach-E stop and three non-Honda lateral-calibration tests remain failed; 72 fleet AOL skips and 39 historical patch dispositions remain unapproved.",
+    "C7 Dom longitudinal/following/SLC/CSC policies have not been recomputed with complete reconstructed Honda state and compared command by command.",
+    "Logged sendcan frames are historical outgoing requests, not verified Panda delivery or hydraulic brake feedback.",
+    "F7 curve segments had zero active longitudinal output; the active cohort has only 55 aligned under-2-m/s frames.",
+    "Persisted CurvatureData, mode toggles, exact calibration, road friction and production Panda safety ABI are not reconstructed.",
+    "Independent safety review, physical Panda checks, reversible parked qualification, release approval and on-road safety validation are not complete."
+  ],
+  "protected_clean": true,
+  "vehicle_access": false,
+  "overall": "OFFLINE_SCOPED_PASS_RELEASE_HOLD"
+}
