@@ -920,6 +920,88 @@ def test_stopping_state_follows_stronger_moving_stop_target():
   assert output_accel < -1.43
 
 
+def test_accord_c4_ls004_stale_stopping_output_recovers_toward_relaxed_target():
+  """Exact C2 LS004 oracle, exercised against the current Dom stopping path."""
+  CP = car.CarParams.new_message(startingState=True, vEgoStarting=0.5, brand="honda", carFingerprint="HONDA_ACCORD_11G")
+  CP.longitudinalTuning.kpBP = [0.0]
+  CP.longitudinalTuning.kpV = [0.1]
+  CP.longitudinalTuning.kiBP = [0.0]
+  CP.longitudinalTuning.kiV = [0.03]
+  lc = LongControl(CP)
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = -2.0
+  CS = car.CarState.new_message(vEgo=0.2, aEgo=-1.5, brakePressed=False)
+  CS.cruiseState.standstill = False
+
+  outputs = []
+  for _ in range(5):
+    outputs.append(lc.update(
+      active=True, CS=CS, a_target=-0.186, should_stop=True, accel_limits=(-3.0, 2.0),
+      starpilot_toggles=make_toggles(stopAccel=-2.0, stoppingDecelRate=0.8), has_lead=True,
+    ))
+
+  assert lc.long_control_state == LongCtrlState.stopping
+  assert outputs[0] > -2.0
+  assert all(later >= earlier for earlier, later in zip(outputs, outputs[1:]))
+  assert outputs[-1] <= -0.186
+
+
+def test_c7_ls004_recovery_is_accord_only_and_other_cars_keep_dom_stop_ramp():
+  """C7: LS004 must not leak to other cars; Dom's stopping ramp reaches stopAccel."""
+  toggles = make_toggles(stopAccel=-2.0, stoppingDecelRate=0.8)
+  CS = car.CarState.new_message(vEgo=0.2, aEgo=-1.5, brakePressed=False)
+  CS.cruiseState.standstill = False
+
+  # Same CarParams as the LS004 oracle, without the Accord identity (no vehicle stop shaping).
+  generic = LongControl(car.CarParams.new_message(startingState=True, vEgoStarting=0.5))
+  generic.long_control_state = LongCtrlState.stopping
+  generic.last_output_accel = -1.0
+  outputs = [generic.update(True, CS, -0.186, True, (-3.0, 2.0), toggles, has_lead=True) for _ in range(5)]
+  # Dom behavior: a relaxed planner target never pulls a moving stop's output upward.
+  assert all(later <= earlier for earlier, later in zip(outputs, outputs[1:]))
+  assert outputs[-1] < -1.0
+
+
+@pytest.mark.parametrize(("brand", "fingerprint"), (("", ""), ("ford", "FORD_MUSTANG_MACH_E_MK1")))
+def test_c7_non_accord_standstill_hold_reaches_stop_accel(brand, fingerprint):
+  """C7 regression: once stopped, non-Accord hold pressure must still ramp to stopAccel."""
+  lc = LongControl(make_longcontrol_cp(brand=brand, carFingerprint=fingerprint))
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = -0.3
+  CS = car.CarState.new_message(vEgo=0.0, aEgo=0.0, standstill=True)
+  toggles = make_toggles(stopAccel=-2.0, stoppingDecelRate=0.8)
+  output = 0.0
+  for _ in range(400):
+    output = lc.update(True, CS, -0.3, True, (-3.5, 2.0), toggles)
+  assert output == pytest.approx(-2.0, abs=0.01)
+
+
+@pytest.mark.parametrize("v_ego_noise", ([0.0], [0.00235, -0.001107, 0.0]))
+def test_c7_accord_standstill_hold_reaches_stop_accel(v_ego_noise):
+  """C7 (review F-03): at standstill, including C6-11 road vEgo noise, the Accord hold ramps to stopAccel."""
+  lc = LongControl(car.CarParams.new_message(brand="honda", carFingerprint="HONDA_ACCORD_11G"))
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = -0.45
+  toggles = make_toggles(stopAccel=-2.0, stoppingDecelRate=0.3)
+  output = 0.0
+  for i in range(800):
+    CS = car.CarState.new_message(vEgo=v_ego_noise[i % len(v_ego_noise)], aEgo=0.0, standstill=True)
+    output = lc.update(True, CS, -0.05, True, (-3.5, 2.0), toggles, has_lead=True)
+  assert output == pytest.approx(-2.0, abs=0.01)
+
+
+def test_c7_accord_rolling_stop_never_relaxes_toward_a_positive_nudge_target():
+  """C7 (review F-03): LS004 recovery needs a negative target; a +0.05 nudge must not relax the stop."""
+  lc = LongControl(car.CarParams.new_message(brand="honda", carFingerprint="HONDA_ACCORD_11G"))
+  lc.long_control_state = LongCtrlState.stopping
+  lc.last_output_accel = -1.2
+  toggles = make_toggles(stopAccel=-2.0, stoppingDecelRate=0.3)
+  CS = car.CarState.new_message(vEgo=0.2, aEgo=-0.5)
+  outputs = [lc.update(True, CS, 0.05, True, (-3.5, 2.0), toggles, has_lead=True) for _ in range(200)]
+  assert all(later <= earlier + 1e-9 for earlier, later in zip(outputs, outputs[1:]))
+  assert outputs[-1] < -1.2
+
+
 def test_elantra_lead_stop_releases_stale_hard_brake_after_target_eases():
   CP = make_longcontrol_cp(brand="hyundai", carFingerprint="HYUNDAI_ELANTRA_2021")
   tuning = vehicle_tunes.LongControlVehicleTuning(CP)

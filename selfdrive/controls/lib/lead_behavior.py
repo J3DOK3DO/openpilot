@@ -15,8 +15,16 @@ VISION_LEAD_TRACK_EXIT_MIN_MODEL_PROB = 0.70
 VISION_LEAD_TRACK_CONTINUITY_MIN_MODEL_PROB = 0.95
 VISION_LEAD_TRACK_CONTINUITY_MAX_LATERAL_OFFSET = 1.1
 VISION_LEAD_TRACK_CONTINUITY_TIME_GAP_GAIN = 0.55
+VISION_LEAD_TRACK_CONTINUITY_HIGHWAY_TIME_GAP = 2.70
+VISION_LEAD_TRACK_CONTINUITY_HIGHWAY_MAX_DISTANCE = 90.0
+VISION_LEAD_TRACK_CONTINUITY_MAX_OPENING_SPEED = 0.50
 VISION_LEAD_TRACK_CONTINUITY_FULL_SPEED = 20.0
 VISION_LEAD_TRACK_CONTINUITY_FADE_SPEED = 25.0
+UNTRACKED_VISION_COAST_MIN_CLOSING_SPEED = 0.75
+UNTRACKED_VISION_COAST_MAX_DISTANCE = 115.0
+UNTRACKED_VISION_COAST_MAX_TIME_TO_DESIRED_GAP = 6.0
+UNTRACKED_VISION_COAST_CONFIRM_TIME = 0.30
+UNTRACKED_VISION_COAST_HOLD_TIME = 0.75
 TRACKED_LEAD_CATCHUP_BIAS_MIN_HEADWAY_MARGIN = 0.40
 TRACKED_LEAD_CATCHUP_BIAS_FULL_HEADWAY_MARGIN = 0.70
 TRACKED_LEAD_CATCHUP_BIAS_MIN_FADE_START_MARGIN = 0.75
@@ -61,7 +69,8 @@ def should_track_lead(lead_status: bool, lead_distance: float, model_length: flo
 
 def should_hold_tracked_vision_lead(lead_status: bool, lead_distance: float, model_length: float, stop_distance: float,
                                     v_ego: float, *, model_prob: float,
-                                    y_rel: float, path_y: float = 0.0, radar: bool = False) -> bool:
+                                    y_rel: float, path_y: float = 0.0, radar: bool = False,
+                                    v_lead: float | None = None) -> bool:
   if not lead_status or radar or float(model_prob) < VISION_LEAD_TRACK_EXIT_MIN_MODEL_PROB:
     return False
   if abs(float(y_rel) + float(path_y)) > VISION_LEAD_TRACK_EXIT_MAX_LATERAL_OFFSET:
@@ -85,8 +94,15 @@ def should_hold_tracked_vision_lead(lead_status: bool, lead_distance: float, mod
     VISION_LEAD_TRACK_CONTINUITY_FADE_SPEED,
   )
   continuity_time_gap = VISION_LEAD_TRACK_EXIT_TIME_GAP + VISION_LEAD_TRACK_CONTINUITY_TIME_GAP_GAIN * speed_factor
-  continuity_exit_limit = max(VISION_LEAD_TRACK_MIN_DISTANCE,
-                              float(v_ego) * continuity_time_gap + tracking_buffer)
+  continuity_max_distance = float("inf")
+  if (float(v_ego) >= HIGHWAY_LEAD_BEHAVIOR_MIN_SPEED and v_lead is not None and
+      float(v_lead) - float(v_ego) <= VISION_LEAD_TRACK_CONTINUITY_MAX_OPENING_SPEED):
+    continuity_time_gap = max(continuity_time_gap, VISION_LEAD_TRACK_CONTINUITY_HIGHWAY_TIME_GAP)
+    continuity_max_distance = VISION_LEAD_TRACK_CONTINUITY_HIGHWAY_MAX_DISTANCE
+  continuity_exit_limit = min(
+    continuity_max_distance,
+    max(VISION_LEAD_TRACK_MIN_DISTANCE, float(v_ego) * continuity_time_gap + tracking_buffer),
+  )
   return float(lead_distance) < continuity_exit_limit
 
 
@@ -167,6 +183,39 @@ def get_tracked_lead_catchup_bias(v_ego: float, lead_distance: float, desired_ga
     bias_cap = max(10.0, TRACKED_LEAD_CATCHUP_BIAS_SPEED_FACTOR * v_ego)
   return (min(gap_error * max(0.0, float(bias_gain)), float(bias_cap)) * speed_factor * cruise_factor *
           entry_factor * exit_factor * closing_factor * lateral_factor)
+
+
+def is_untracked_vision_coast_credible(lead_status: bool, v_ego: float, lead_distance: float,
+                                      v_lead: float, *, model_prob: float, y_rel: float,
+                                      path_y: float = 0.0, radar: bool = False) -> bool:
+  if not lead_status or radar or float(v_ego) <= HIGHWAY_LEAD_BEHAVIOR_MIN_SPEED:
+    return False
+  if float(model_prob) < VISION_LEAD_TRACK_CONTINUITY_MIN_MODEL_PROB:
+    return False
+  if abs(float(y_rel) + float(path_y)) > VISION_LEAD_TRACK_CONTINUITY_MAX_LATERAL_OFFSET:
+    return False
+  if float(lead_distance) <= 0.0 or float(lead_distance) > UNTRACKED_VISION_COAST_MAX_DISTANCE:
+    return False
+  return float(v_ego) - float(v_lead) >= UNTRACKED_VISION_COAST_MIN_CLOSING_SPEED
+
+
+def should_disable_untracked_vision_throttle(lead_status: bool, v_ego: float, lead_distance: float,
+                                             v_lead: float, desired_gap: float, *, model_prob: float,
+                                             y_rel: float, path_y: float = 0.0, radar: bool = False) -> bool:
+  if not is_untracked_vision_coast_credible(
+    lead_status, v_ego, lead_distance, v_lead,
+    model_prob=model_prob, y_rel=y_rel, path_y=path_y, radar=radar,
+  ):
+    return False
+
+  closing_speed = float(v_ego) - float(v_lead)
+  gap_excess = float(lead_distance) - float(desired_gap)
+  if gap_excess <= FAR_LEAD_COAST_MIN_GAP:
+    return True
+
+  time_to_desired_gap = gap_excess / max(closing_speed, 1e-3)
+  return time_to_desired_gap <= UNTRACKED_VISION_COAST_MAX_TIME_TO_DESIRED_GAP
+
 
 
 def should_disable_far_lead_throttle(v_ego: float, lead_distance: float, desired_gap: float,

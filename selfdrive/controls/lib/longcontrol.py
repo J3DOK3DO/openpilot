@@ -6,6 +6,7 @@ from openpilot.common.pid import PIDController
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.selfdrive.controls.lib.longcontrol_vehicle_tunes import LongControlVehicleTuning
+from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import is_honda_accord_11g
 
 CONTROL_N_T_IDX = ModelConstants.T_IDXS[:CONTROL_N]
 clip = np.clip
@@ -18,6 +19,9 @@ MOVING_STOP_FOLLOW_MIN_GAP = 0.25
 NEGATIVE_TARGET_CREEP_GUARD_SPEED = 0.35
 NEGATIVE_TARGET_CREEP_GUARD_DECEL = 0.40
 MODE_TRANSITION_MAX_DECEL = 4.0
+# C2 LS004 (Accord 11G): stale-output recovery only while clearly rolling. Above the
+# road-observed stationary vEgo noise (C6-11: |vEgo| < 0.05 m/s) and below the 0.2 m/s LS004 oracle.
+ACCORD_LS004_MIN_RECOVERY_SPEED = 0.15
 TESLA_PEDAL_RELEASE_GUARD_TIME = 0.15
 TESLA_PEDAL_RELEASE_GUARD_MAX_DECEL = 0.35
 
@@ -130,6 +134,7 @@ class LongControl:
     self.pedal_override_active = False
     self.pedal_override_release_frames = 0
     self.vehicle_tuning = LongControlVehicleTuning(CP)
+    self.is_honda_accord_11g = is_honda_accord_11g(CP)
 
   def update_mpc_mode(self, experimental_mode):
     new_mode = 'blended' if experimental_mode else 'acc'
@@ -264,7 +269,19 @@ class LongControl:
 
     elif self.long_control_state == LongCtrlState.stopping:
       output_accel = self.last_output_accel
-      if output_accel > starpilot_toggles.stopAccel:
+      # C2 LS004 (Accord 11G only): while clearly rolling toward a stop, a stale stopping
+      # output may recover toward a relaxed but still negative planner target. At or near
+      # standstill, or for a non-negative target, Dom's ramp to stopAccel applies, so the
+      # standstill hold request always reaches stopAccel. Other cars always use Dom's ramp.
+      ls004_recovery = bool(
+        self.is_honda_accord_11g and should_stop and
+        not CS.standstill and not CS.cruiseState.standstill and
+        CS.vEgo > ACCORD_LS004_MIN_RECOVERY_SPEED and
+        output_accel < a_target < 0.0
+      )
+      if ls004_recovery:
+        output_accel = min(a_target, output_accel + starpilot_toggles.stoppingDecelRate * DT_CTRL)
+      elif output_accel > starpilot_toggles.stopAccel:
         output_accel = min(output_accel, 0.0)
         output_accel -= starpilot_toggles.stoppingDecelRate * DT_CTRL
       output_accel = self.vehicle_tuning.shape_stopping_accel(

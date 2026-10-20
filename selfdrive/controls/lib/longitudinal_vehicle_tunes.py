@@ -1,6 +1,18 @@
 import numpy as np
 
 
+def is_honda_accord_11g(CP):
+  return getattr(CP, "brand", "") == "honda" and str(getattr(CP, "carFingerprint", "")) == "HONDA_ACCORD_11G"
+
+
+def get_honda_accord_11g_reduction_only_v_cruise(CP, stock_v_cruise, policy_v_cruise):
+  if not is_honda_accord_11g(CP):
+    return None
+  if np.isfinite(policy_v_cruise) and policy_v_cruise >= 0.0:
+    return float(min(stock_v_cruise, policy_v_cruise))
+  return float(stock_v_cruise)
+
+
 HONDA_HRV_3G_FAR_FOLLOW_BRAKE_SLEW_RATE = 3.0
 HONDA_HRV_3G_FAR_FOLLOW_RELEASE_SLEW_RATE = 2.0
 HONDA_CRV_5G_FAR_FOLLOW_BRAKE_SLEW_RATE = 1.5
@@ -55,6 +67,12 @@ HONDA_CRV_5G_TRACKED_LEAD_CATCHUP_BIAS_CAP = 65.0
 HONDA_CRV_5G_TRACKED_LEAD_CATCHUP_SPEED_RANGE = (10.0, 18.0)
 HONDA_CRV_5G_TRACKED_LEAD_CATCHUP_FADE_MARGINS = (0.75, 6.5)
 HONDA_CRV_5G_TRACKED_LEAD_CATCHUP_CRUISE_ERROR_FULL = 0.75
+HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_MIN_HEADWAY_MARGIN = 0.15
+HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_FULL_HEADWAY_MARGIN = 0.45
+HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_BIAS_GAIN = 0.75
+HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_SPEED_RANGE = (4.5, 10.0)
+HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_FADE_MARGINS = (0.75, 1.75)
+HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_CRUISE_ERROR_FULL = 0.75
 FORD_LIGHTNING_FAR_FOLLOW_BRAKE_SLEW_RATE = 2.5
 FORD_LIGHTNING_FAR_FOLLOW_RELEASE_SLEW_RATE = 1.75
 FORD_LIGHTNING_STANDSTILL_GUARD_DISTANCE_MARGIN = 5.0
@@ -434,6 +452,11 @@ def get_standstill_stopped_lead_guard_max_ego_speed(CP, default):
 
 
 def get_tracked_lead_catchup_headway_margins(CP):
+  if is_honda_accord_11g(CP):
+    return (
+      HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_MIN_HEADWAY_MARGIN,
+      HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_FULL_HEADWAY_MARGIN,
+    )
   if is_honda_crv_5g(CP):
     return (
       HONDA_CRV_5G_TRACKED_LEAD_CATCHUP_MIN_HEADWAY_MARGIN,
@@ -448,6 +471,8 @@ def get_tracked_lead_catchup_headway_margins(CP):
 
 
 def get_tracked_lead_catchup_bias_gain(CP):
+  if is_honda_accord_11g(CP):
+    return HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_BIAS_GAIN
   if is_honda_crv_5g(CP):
     return HONDA_CRV_5G_TRACKED_LEAD_CATCHUP_BIAS_GAIN
   if is_ford_f150_lightning(CP):
@@ -462,18 +487,24 @@ def get_tracked_lead_catchup_bias_cap(CP):
 
 
 def get_tracked_lead_catchup_speed_range(CP):
+  if is_honda_accord_11g(CP):
+    return HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_SPEED_RANGE
   if is_honda_crv_5g(CP):
     return HONDA_CRV_5G_TRACKED_LEAD_CATCHUP_SPEED_RANGE
   return None
 
 
 def get_tracked_lead_catchup_fade_margins(CP):
+  if is_honda_accord_11g(CP):
+    return HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_FADE_MARGINS
   if is_honda_crv_5g(CP):
     return HONDA_CRV_5G_TRACKED_LEAD_CATCHUP_FADE_MARGINS
   return None
 
 
 def get_tracked_lead_catchup_cruise_error_full(CP):
+  if is_honda_accord_11g(CP):
+    return HONDA_ACCORD_11G_TRACKED_LEAD_CATCHUP_CRUISE_ERROR_FULL
   if is_honda_crv_5g(CP):
     return HONDA_CRV_5G_TRACKED_LEAD_CATCHUP_CRUISE_ERROR_FULL
   return None

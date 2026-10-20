@@ -18,7 +18,7 @@ from openpilot.selfdrive.controls.lib.lead_behavior import (
   should_track_lead,
 )
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, DANGER_ZONE_COST, J_EGO_COST, STOP_DISTANCE
-from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import get_lead_follow_jerk_scale
+from openpilot.selfdrive.controls.lib.longitudinal_vehicle_tunes import get_lead_follow_jerk_scale, is_honda_accord_11g
 
 from openpilot.starpilot.common.starpilot_utilities import calculate_lane_width, calculate_road_curvature, extract_curve_profile
 from openpilot.starpilot.common.starpilot_variables import CRUISING_SPEED, MINIMUM_LATERAL_ACCELERATION, PLANNER_TIME, THRESHOLD
@@ -83,6 +83,7 @@ class StarPilotPlanner:
     self.raw_model_stopped = False
     self.road_curvature_detected = False
     self.tracking_lead = False
+    self.is_honda_accord_11g = False
     self._last_gps_memory_state = ""
     self._last_gps_memory_write = 0.0
     self._prev_gps_bearing = 0
@@ -216,6 +217,11 @@ class StarPilotPlanner:
 
     self.road_curvature_detected = (1 / abs(self.road_curvature))**0.5 < v_ego > CRUISING_SPEED and not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
 
+    try:
+      self.is_honda_accord_11g = is_honda_accord_11g(sm["carParams"])
+    except (KeyError, IndexError, TypeError, AttributeError):
+      self.is_honda_accord_11g = False
+
     if not sm["carState"].standstill:
       self.tracking_lead = self.update_lead_status(v_ego)
 
@@ -274,6 +280,8 @@ class StarPilotPlanner:
         y_rel=float(getattr(self.lead_one, "yRel", 0.0)),
         path_y=self.lead_path_y,
         radar=bool(getattr(self.lead_one, "radar", False)),
+        # C6 highway continuity extension is Accord 11G-only; other cars keep Dom's exit limit.
+        v_lead=float(getattr(self.lead_one, "vLead", v_ego)) if self.is_honda_accord_11g else None,
       )
     now_t = time.monotonic()
     lead_radar = bool(getattr(self.lead_one, "radar", False))
