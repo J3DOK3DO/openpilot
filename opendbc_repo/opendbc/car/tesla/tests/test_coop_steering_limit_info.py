@@ -69,7 +69,9 @@ def get_limit_info(controller):
 
 
 def legacy_actuator_dict(actuators):
-  return actuators.to_dict()
+  # The pinned baseline predates the C5 provenance fields appended to CarControl.Actuators (c5Obs*).
+  # They are additive and never set by Tesla; compare the legacy fields only.
+  return {key: value for key, value in actuators.to_dict().items() if not key.startswith("c5Obs")}
 
 
 def test_steering_limit_info_defaults_to_invalid():

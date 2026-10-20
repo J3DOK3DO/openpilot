@@ -1,6 +1,6 @@
 import math
 
-from cereal import log
+from cereal import custom, log
 from opendbc.car.honda.carcontroller import get_civic_bosch_modified_steering_pressed
 from opendbc.car.honda.values import CAR as HONDA, HondaFlags
 from openpilot.starpilot.common.testing_grounds import testing_ground
@@ -92,6 +92,9 @@ def get_civic_bosch_modified_pid_output_alpha(desired_angle_deg: float, desired_
 class LatControlPID(LatControl):
   def __init__(self, CP, CI, dt):
     super().__init__(CP, CI, dt)
+    if CP.carFingerprint == HONDA.HONDA_ACCORD_11G:
+      # Accord 11G C5 lateral provenance; other PID cars do not publish starpilotLateralState.
+      self.starpilot_lateral_state = custom.StarPilotLateralState.new_message()
     self.base_kp_bp = [float(value) for value in CP.lateralTuning.pid.kpBP]
     self.base_kp_v = [float(value) for value in CP.lateralTuning.pid.kpV]
     self.base_ki_bp = [float(value) for value in CP.lateralTuning.pid.kiBP]
