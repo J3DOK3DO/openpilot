@@ -40,6 +40,16 @@ class TestLogmessaged:
     assert len(m) == len(msgs)
     assert len(self._get_log_files()) >= 1
 
+  def test_msgq_boundary_oversize_log_is_not_published_or_fatal(self):
+    # Below the historical 2 MiB guard, but above msgq's ~85 KiB native payload limit.
+    msg = "a" * 90_000
+    cloudlog.info(msg)
+    time.sleep(0.5)
+
+    assert messaging.drain_sock(self.sock) == []
+    assert managed_processes['logmessaged'].proc is not None
+    assert managed_processes['logmessaged'].proc.is_alive()
+
   def test_big_log(self):
     n = 10
     msg = "a"*3*1024*1024
