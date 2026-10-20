@@ -88,11 +88,59 @@ LAT_SMOOTH_SECONDS = 0.1
 LONG_SMOOTH_SECONDS = 0.3
 SMOOTH_SECONDS_STEP = 0.005
 
+# Accord 11G C6 low-speed near-straight model-action stabilizer. C5-D road
+# telemetry showed repeated sign reversals originating in modelActionCurvature
+# below ~25 km/h while PID remained unsaturated. Keep the extra filtering
+# bounded to the observed near-straight curvature envelope and fade it out
+# with speed so normal curves remain on the existing Dom path.
+ACCORD11G_LOW_SPEED_LAT_STABILIZER_TAU = 0.15
+ACCORD11G_LOW_SPEED_LAT_STABILIZER_FULL_SPEED = 4.0
+ACCORD11G_LOW_SPEED_LAT_STABILIZER_OFF_SPEED = 10.0
+ACCORD11G_LOW_SPEED_LAT_STABILIZER_MAX_CURVATURE = 0.0021
+
 def _model_smooth_seconds(params, key, default):
   if not params.get_bool("DeveloperUI") or params.get_bool("SafeMode"):
     return default
   value = params.get_float(key, return_default=True, default=default)
   return round(min(max(value, SMOOTH_SECONDS_STEP), 2.0) / SMOOTH_SECONDS_STEP) * SMOOTH_SECONDS_STEP
+
+
+def accord11g_low_speed_lat_stabilizer_tau(v_ego: float) -> float:
+  return float(np.interp(
+    max(float(v_ego), 0.0),
+    [0.0, ACCORD11G_LOW_SPEED_LAT_STABILIZER_FULL_SPEED, ACCORD11G_LOW_SPEED_LAT_STABILIZER_OFF_SPEED],
+    [ACCORD11G_LOW_SPEED_LAT_STABILIZER_TAU, ACCORD11G_LOW_SPEED_LAT_STABILIZER_TAU, 0.0],
+  ))
+
+
+def should_stabilize_accord11g_low_speed_curvature(car_fingerprint: str, lat_active: bool,
+                                                   steering_pressed: bool, left_blinker: bool,
+                                                   right_blinker: bool, lane_change_active: bool) -> bool:
+  return bool(
+    str(car_fingerprint) == "HONDA_ACCORD_11G" and
+    lat_active and
+    not steering_pressed and
+    not left_blinker and
+    not right_blinker and
+    not lane_change_active
+  )
+
+
+def stabilize_accord11g_low_speed_curvature(curvature: float, previous: float, v_ego: float,
+                                            enabled: bool, dt: float = DT_MDL) -> float:
+  curvature = float(curvature)
+  previous = float(previous)
+  if (
+    not enabled or
+    not np.isfinite(curvature) or
+    not np.isfinite(previous) or
+    abs(curvature) > ACCORD11G_LOW_SPEED_LAT_STABILIZER_MAX_CURVATURE or
+    abs(previous) > ACCORD11G_LOW_SPEED_LAT_STABILIZER_MAX_CURVATURE
+  ):
+    return curvature
+
+  tau = accord11g_low_speed_lat_stabilizer_tau(v_ego)
+  return float(smooth_value(curvature, previous, tau, dt)) if tau > 0.0 else curvature
 
 
 def _should_publish_model_output(model_output, vipc_dropped_frames: int, external_gpu_active: bool = False) -> bool:
@@ -1243,6 +1291,7 @@ def main(demo=False):
   long_smooth_seconds = _model_smooth_seconds(params, "LongSmoothSeconds", LONG_SMOOTH_SECONDS)
   long_delay = CP.longitudinalActuatorDelay + long_smooth_seconds
   prev_action = log.ModelDataV2.Action()
+  accord11g_lateral_stabilized_curvature = None
 
   DH = DesireHelper()
 
@@ -1503,6 +1552,28 @@ def main(demo=False):
           v_ego, model.mlsim, model.is_v9, model.is_v14, model.is_v15, starpilot_toggles,
           lat_smooth_seconds, long_smooth_seconds, is_v16=model.is_v16,
         )
+
+      accord11g_lateral_stabilizer_enabled = should_stabilize_accord11g_low_speed_curvature(
+        CP.carFingerprint,
+        sm["carControl"].latActive,
+        sm["carState"].steeringPressed,
+        sm["carState"].leftBlinker,
+        sm["carState"].rightBlinker,
+        DH.lane_change_state != log.LaneChangeState.off,
+      )
+      previous_stabilized_curvature = (
+        float(action.desiredCurvature)
+        if accord11g_lateral_stabilized_curvature is None
+        else accord11g_lateral_stabilized_curvature
+      )
+      accord11g_lateral_stabilized_curvature = stabilize_accord11g_low_speed_curvature(
+        action.desiredCurvature,
+        previous_stabilized_curvature,
+        v_ego,
+        accord11g_lateral_stabilizer_enabled,
+      )
+      action.desiredCurvature = accord11g_lateral_stabilized_curvature
+
       prev_action = action
       fill_model_msg(drivingdata_send, modelv2_send, model_output, action,
                      publish_state, meta_main.frame_id, meta_extra.frame_id, frame_id,
