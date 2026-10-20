@@ -25,6 +25,34 @@ LongCtrlState = structs.CarControl.Actuators.LongControlState
 
 BOSCH_BRAKE_FORCE_ON = -0.12
 BOSCH_BRAKE_FORCE_RELEASE = -0.02
+ACCORD_BOSCH_RELEASE_CONFIRM_TICKS = 10
+ACCORD_BOSCH_CLEAR_RELEASE_FORCE = 0.10
+ACCORD_BOSCH_POSITIVE_REQUEST_ACCEL = 0.03
+ACCORD_BOSCH_POSITIVE_REQUEST_FORCE_MARGIN = 0.005
+# Oct 5 road logs observed stationary vEgo estimator noise down to -0.04775 m/s.
+ACCORD_STANDSTILL_HOLD_MIN_SPEED = -0.05
+ACCORD_STANDSTILL_HOLD_MAX_SPEED = 0.35
+ACCORD_STANDSTILL_ACCEL_RELEASE_RATE = 0.30
+
+
+def update_accord_standstill_accel_command(command: float, previous: float | None, v_ego: float,
+                                           stopping: bool, braking: bool, long_active: bool,
+                                           dt: float = 2 * DT_CTRL) -> tuple[float, float | None]:
+  """Limit only standstill brake relaxation; stronger brake commands remain immediate."""
+  command = float(command)
+  eligible = (
+    long_active and stopping and braking and
+    ACCORD_STANDSTILL_HOLD_MIN_SPEED <= float(v_ego) <= ACCORD_STANDSTILL_HOLD_MAX_SPEED
+  )
+  if not eligible:
+    return command, None
+  if previous is None:
+    return command, command
+
+  # Do not delay stronger braking. Limit only movement toward less-negative hold
+  # pressure to the road-observed ~0.30 m/s^3 relaxation rate.
+  smoothed = min(command, float(previous) + ACCORD_STANDSTILL_ACCEL_RELEASE_RATE * max(float(dt), 0.0))
+  return smoothed, smoothed
 
 
 def update_honda_bosch_braking(braking: bool, gas_pedal_force: float, stopping: bool, long_active: bool) -> bool:
@@ -36,6 +64,43 @@ def update_honda_bosch_braking(braking: bool, gas_pedal_force: float, stopping: 
   if braking:
     return gas_pedal_force <= BOSCH_BRAKE_FORCE_RELEASE
   return gas_pedal_force < BOSCH_BRAKE_FORCE_ON
+
+
+def update_accord_bosch_braking(
+  braking: bool,
+  release_counter: int,
+  gas_pedal_force: float,
+  min_gas_accel: float,
+  original_accel: float,
+  stopping: bool,
+  long_active: bool,
+) -> tuple[bool, int]:
+  """Select the Accord crossover brake command with release-side debounce only."""
+  if not long_active:
+    return False, 0
+  if stopping:
+    return True, 0
+  # Sep 29 road evidence showed a positive accel request could re-enter braking
+  # when road-load compensation left gas_pedal_force only a few milligals below
+  # min-gas. Suppress only this near-zero crossover case; materially negative
+  # force still enters braking immediately.
+  if (original_accel >= ACCORD_BOSCH_POSITIVE_REQUEST_ACCEL and
+      gas_pedal_force >= min_gas_accel - ACCORD_BOSCH_POSITIVE_REQUEST_FORCE_MARGIN):
+    return False, 0
+  # Brake entry otherwise remains an immediate response to the existing
+  # requested-accel crossover coordinate. Only release around min-gas is debounced.
+  if gas_pedal_force < min_gas_accel:
+    return True, 0
+  if not braking:
+    return False, 0
+  # A clearly positive requested acceleration or force is not a crossover pulse.
+  if original_accel >= 0.0 or gas_pedal_force >= min_gas_accel + ACCORD_BOSCH_CLEAR_RELEASE_FORCE:
+    return False, 0
+
+  release_counter += 1
+  if release_counter >= ACCORD_BOSCH_RELEASE_CONFIRM_TICKS:
+    return False, 0
+  return True, release_counter
 
 
 def get_civic_bosch_modified_torque_lpf_tau(torque_cmd: float, prev_torque_cmd: float, v_ego: float) -> float:
@@ -253,6 +318,9 @@ class CarController(CarControllerBase):
     self.steering_pressed_robust_prev = False
     self.bosch_last_gas = 0.0
     self.bosch_braking = False
+    self.accord_bosch_braking = False
+    self.accord_bosch_release_counter = 0
+    self.accord_standstill_accel_command = None
     self.bosch_gas_factor = self.param_store.get_float("HondaGasFactorParams", default=1.0)
     self.bosch_wind_factor = self.param_store.get_float("HondaWindFactorParams", default=1.0)
     self.bosch_wind_factor_before_brake = self.bosch_wind_factor
@@ -263,6 +331,15 @@ class CarController(CarControllerBase):
     # MVL Bosch low-speed extra-brake integrator. Active only for Accord 11G MVL mode.
     self.mvl_brake_pid = PIDController(k_p=0.0, k_i=1.0, pos_limit=0.0, neg_limit=-2.0, rate=50)
     self.mvl_brake_pid.reset()
+    self.mvl_brake_rearm_confirmed = True
+
+  @staticmethod
+  def _should_persist_longitudinal_learning(frame: int) -> bool:
+    return frame > 0 and frame % 6000 == 0
+
+  def _persist_longitudinal_learning_nonblocking(self) -> None:
+    self.param_store.put_nonblocking("HondaGasFactorParams", float(self.bosch_gas_factor))
+    self.param_store.put_nonblocking("HondaWindFactorParams", float(self.bosch_wind_factor))
 
   def _modified_civic_standard_active(self) -> bool:
     return self.CP.carFingerprint == CAR.HONDA_CIVIC_BOSCH and bool(self.CP.flags & HondaFlags.EPS_MODIFIED)
@@ -357,6 +434,9 @@ class CarController(CarControllerBase):
     # checksums stay synchronized. v3 deliberately uses an idle lane/object payload first; model-based
     # cluster rendering is deferred until the ownership/DTC handover is proven.
     mvl_radar_owned = self.mvl_accord_mode and CS.canfd_relay_open and not CS.stock_acc_alive
+    if self.mvl_accord_mode and not (mvl_radar_owned and CC.longActive):
+      self.accord_bosch_braking = False
+      self.accord_bosch_release_counter = 0
     if mvl_radar_owned and self.CP.openpilotLongitudinalControl:
       if CC.enabled and not self.last_acc_enabled:
         self.radar_hud_pulse = 30
@@ -427,9 +507,20 @@ class CarController(CarControllerBase):
         ts = self.frame * DT_CTRL
 
         if self.CP.carFingerprint in HONDA_BOSCH:
-          if self.mvl_accord_mode and (accel < min_gas) and (1e-3 < CS.out.vEgo < 3.0):
-            brake_addon = self.mvl_brake_pid.update(error=accel - CS.out.aEgo, speed=CS.out.vEgo)
-            target_accel = min(accel, accel + brake_addon)
+          mvl_low_speed_eligible = self.mvl_accord_mode and (accel < min_gas) and (1e-3 < CS.out.vEgo < 3.0)
+          if mvl_low_speed_eligible:
+            brake_error = accel - CS.out.aEgo
+            if brake_error < 0.0:
+              if self.mvl_brake_rearm_confirmed:
+                brake_addon = self.mvl_brake_pid.update(error=brake_error, speed=CS.out.vEgo)
+                target_accel = min(accel, accel + brake_addon)
+              else:
+                self.mvl_brake_rearm_confirmed = True
+                target_accel = accel
+            else:
+              self.mvl_brake_pid.reset()
+              self.mvl_brake_rearm_confirmed = False
+              target_accel = accel
           else:
             if self.mvl_accord_mode:
               self.mvl_brake_pid.reset()
@@ -488,9 +579,33 @@ class CarController(CarControllerBase):
 
           stopping = actuators.longControlState == LongCtrlState.stopping
           bosch_braking = None
-          if not self.mvl_accord_mode:
+          if self.mvl_accord_mode:
+            self.accord_bosch_braking, self.accord_bosch_release_counter = update_accord_bosch_braking(
+              self.accord_bosch_braking,
+              self.accord_bosch_release_counter,
+              gas_pedal_force,
+              min_gas,
+              accel,
+              stopping,
+              mvl_radar_owned and CC.longActive,
+            )
+            bosch_braking = self.accord_bosch_braking
+          else:
             self.bosch_braking = update_honda_bosch_braking(self.bosch_braking, gas_pedal_force, stopping, CC.longActive)
             bosch_braking = self.bosch_braking
+
+          if self.mvl_accord_mode:
+            self.accel, self.accord_standstill_accel_command = update_accord_standstill_accel_command(
+              self.accel,
+              self.accord_standstill_accel_command,
+              CS.out.vEgo,
+              stopping,
+              bool(bosch_braking),
+              mvl_radar_owned and CC.longActive,
+            )
+          else:
+            self.accord_standstill_accel_command = None
+
           self.stopping_counter = self.stopping_counter + 1 if stopping else 0
           if not self.mvl_accord_mode or mvl_radar_owned:
             can_sends.extend(
@@ -599,9 +714,8 @@ class CarController(CarControllerBase):
         cruise_setting=cruise_setting, ambient_light=CS.scm_ambient_light, bus=self.CAN.camera,
       ))
 
-    if self.frame > 0 and self.frame % 6000 == 0:
-      self.param_store.put_float("HondaGasFactorParams", self.bosch_gas_factor)
-      self.param_store.put_float("HondaWindFactorParams", self.bosch_wind_factor)
+    if self._should_persist_longitudinal_learning(self.frame):
+      self._persist_longitudinal_learning_nonblocking()
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed
