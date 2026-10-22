@@ -122,6 +122,10 @@ STANDSTILL_LEAD_CREEP_RELEASE_MIN_ACCEL = 0.18
 STANDSTILL_LEAD_CREEP_RELEASE_CONFIRM_TIME = 0.30
 RADAR_STANDSTILL_GAP_SETTLE_ACCEL = 0.18
 LEAD_DEPART_CONFIDENT_CONFIRM_TIME = 0.35
+# A negative MPC vote may only be released after two consecutive credible
+# moving-lead observations. The current observation must also satisfy one of
+# the existing, stronger confident/creep departure predicates below.
+MPC_BRAKE_DEPART_EVIDENCE_CONFIRM_TIME = 0.10
 LEAD_DEPART_RELEASE_HOLD_TIME = 1.5
 LEAD_DEPART_RELEASE_HOLD_CONFIRM_TIME = 0.15
 STANDSTILL_STOPPED_LEAD_GUARD_MAX_EGO_SPEED = 0.5
@@ -557,6 +561,11 @@ VISION_CLOSE_RELEASE_HOLD_MAX_BRAKE = 0.40
 # prediction before the stop request is allowed to reassert.
 MANUAL_STOP_RESUME_OVERRIDE_TIME = 6.0
 MANUAL_STOP_RESUME_OVERRIDE_MAX_SPEED = 2.0
+# A pedal value may remain latched in SubMaster after its publisher dies. The
+# alive timeout is service-frequency dependent, so apply a tighter explicit
+# bound before treating either planner pedal source as a new driver command.
+MANUAL_STOP_RESUME_SOURCE_MAX_AGE = 0.5
+MANUAL_STOP_RESUME_SOURCE_FUTURE_TOLERANCE = 0.1
 
 def get_accel_from_plan_classic(CP, speeds, accels, vEgoStopping):
   if len(speeds) == CONTROL_N:
@@ -649,6 +658,7 @@ class LongitudinalPlanner:
     self.model_launch_stop_seen = False
     self.confident_lead_depart_elapsed = 0.0
     self.slow_creep_lead_depart_elapsed = 0.0
+    self.mpc_brake_depart_evidence_elapsed = 0.0
     self.lead_depart_release_candidate_elapsed = 0.0
     self.lead_depart_release_pending = False
     self.lead_depart_release_hold_remaining = 0.0
@@ -1609,18 +1619,50 @@ class LongitudinalPlanner:
     brake_floor = -hold_brake
     return brake_floor if accel_min >= 0.0 else max(accel_min, brake_floor)
 
-  def _update_manual_stop_resume_override(self, sm):
-    now_t = time.monotonic()
-    lead = sm["radarState"].leadOne
-    no_lead = not bool(getattr(lead, "status", False))
+  @staticmethod
+  def _manual_resume_source_fresh(sm, service, now_t):
+    alive = getattr(sm, "alive", None)
+    valid = getattr(sm, "valid", None)
+    log_mono_time = getattr(sm, "logMonoTime", None)
+
+    # Unit tests historically pass a plain dictionary representing one
+    # synchronous planner snapshot. Preserve that explicit fixture contract;
+    # SubMaster-like objects with any health metadata must provide all of it.
+    if alive is None and valid is None and log_mono_time is None:
+      return isinstance(sm, dict)
+    if alive is None or valid is None or log_mono_time is None:
+      return False
+
+    try:
+      source_time = float(log_mono_time[service]) / 1e9
+      source_age = float(now_t) - source_time
+      return bool(
+        alive[service] and
+        valid[service] and
+        source_time > 0.0 and
+        np.isfinite(source_age) and
+        -MANUAL_STOP_RESUME_SOURCE_FUTURE_TOLERANCE <= source_age <= MANUAL_STOP_RESUME_SOURCE_MAX_AGE
+      )
+    except (KeyError, IndexError, AttributeError, TypeError, ValueError, OverflowError):
+      return False
+
+  def _manual_resume_pedal_pressed(self, sm, now_t):
     try:
       starpilot_car_state = sm["starpilotCarState"]
     except KeyError:
       starpilot_car_state = None
-    accel_pressed = bool(
-      getattr(starpilot_car_state, "accelPressed", False) or
-      getattr(sm["carState"], "gasPressed", False)
+    return bool(
+      (getattr(starpilot_car_state, "accelPressed", False) and
+       self._manual_resume_source_fresh(sm, "starpilotCarState", now_t)) or
+      (getattr(sm["carState"], "gasPressed", False) and
+       self._manual_resume_source_fresh(sm, "carState", now_t))
     )
+
+  def _update_manual_stop_resume_override(self, sm):
+    now_t = time.monotonic()
+    lead = sm["radarState"].leadOne
+    no_lead = not bool(getattr(lead, "status", False))
+    accel_pressed = self._manual_resume_pedal_pressed(sm, now_t)
     model_should_stop = bool(getattr(sm["modelV2"].action, "shouldStop", False))
     standstill = bool(getattr(sm["carState"], "standstill", False))
     forcing_stop = bool(getattr(sm["starpilotPlan"], "forcingStop", False))
@@ -1698,6 +1740,22 @@ class LongitudinalPlanner:
       lead_accel >= min_lead_accel
     )
 
+  @staticmethod
+  def is_mpc_brake_depart_evidence(lead, v_ego, standstill_nudge_gap):
+    """Return whether a lead is credible evidence of motion away from standstill."""
+    if lead is None or not bool(getattr(lead, "status", False)):
+      return False
+
+    radar = bool(getattr(lead, "radar", False))
+    model_prob = float(getattr(lead, "modelProb", 1.0 if radar else 0.0))
+    return bool(
+      float(v_ego) <= STANDSTILL_LEAD_DEPART_MAX_EGO_SPEED and
+      (radar or model_prob >= STANDSTILL_STOPPED_LEAD_GUARD_MIN_MODEL_PROB) and
+      abs(float(getattr(lead, "yRel", 0.0))) <= STANDSTILL_STOPPED_LEAD_GUARD_MAX_LATERAL_OFFSET and
+      float(getattr(lead, "dRel", 0.0)) >= standstill_nudge_gap and
+      float(getattr(lead, "vLead", 0.0)) > STANDSTILL_STOPPED_LEAD_GUARD_MAX_LEAD_SPEED
+    )
+
   def get_safe_depart_release_hold_lead(self, v_ego):
     credible_leads = [
       lead for lead in (self.lead_one, self.lead_two)
@@ -1726,8 +1784,10 @@ class LongitudinalPlanner:
     )
     return None if stopped_conflict else selected_lead
 
-  def get_vehicle_far_follow_slew_target(self, v_ego, prev_target, target, output_should_stop, panic_bypass):
-    if self.far_follow_brake_slew_rate <= 0.0 or self.far_follow_release_slew_rate <= 0.0 or output_should_stop or panic_bypass:
+  def get_vehicle_far_follow_slew_target(self, v_ego, prev_target, target, output_should_stop, panic_bypass,
+                                         stop_context=False):
+    if (self.far_follow_brake_slew_rate <= 0.0 or self.far_follow_release_slew_rate <= 0.0 or
+        output_should_stop or panic_bypass or stop_context):
       self.far_follow_output_slew_active = False
       return target
 
@@ -2403,6 +2463,18 @@ class LongitudinalPlanner:
       self.a_desired = np.clip(sm['carState'].aEgo, accel_limits[0], accel_limits[1])
       self.model_allow_throttle = True
       self.model_allow_throttle_transition_t = 0.0
+      self.confident_lead_depart_elapsed = 0.0
+      self.slow_creep_lead_depart_elapsed = 0.0
+      self.mpc_brake_depart_evidence_elapsed = 0.0
+      self.lead_depart_release_candidate_elapsed = 0.0
+      self.lead_depart_release_pending = False
+      self.lead_depart_release_hold_remaining = 0.0
+      self.radar_standstill_gap_settle_elapsed = 0.0
+      self.radar_standstill_gap_settle_active = False
+      self.lead_depart_accel_hold_until = 0.0
+      self.lead_depart_accel_hold_floor = None
+      self.post_departure_follow_settle_until = 0.0
+      self.manual_stop_resume_override_until = 0.0
 
     # Prevent divergence, smooth in current v_ego
     self.v_desired_filter.x = max(0.0, self.v_desired_filter.update(v_ego))
@@ -2826,6 +2898,20 @@ class LongitudinalPlanner:
         self.v_desired_trajectory, self.a_desired_trajectory,
         action_t=action_t, vEgoStopping=starpilot_toggles.vEgoStopping)
 
+    # Keep the MPC arbitration candidate before any departure comfort floors.
+    # A negative value at standstill is a braking vote, even when model
+    # shouldStop is already false.
+    mpc_departure_brake_target = float(output_a_target)
+
+    # These are explicit, source-backed stop signals. Unlike output_should_stop,
+    # which Dom may intentionally release for a confirmed departing lead, they
+    # must survive all later comfort/departure arbitration in this cycle.
+    stop_context = bool(
+      getattr(sm['starpilotPlan'], 'forcingStop', False) or
+      getattr(sm['starpilotPlan'], 'redLight', False) or
+      getattr(sm['starpilotPlan'], 'stopSignConfirmed', False)
+    )
+
     comfort_output_accel_min = get_vehicle_min_accel(self.CP, v_ego) if experimental_mlsim else accel_limits_turns[0]
     vision_cap_accel_min = min(comfort_output_accel_min, get_vehicle_min_accel(self.CP, v_ego))
     output_accel_min = comfort_output_accel_min
@@ -3024,12 +3110,12 @@ class LongitudinalPlanner:
                           and self.has_offcenter_radar_depart_conflict(sm))
     safe_depart_release_hold_lead = self.get_safe_depart_release_hold_lead(float(sm['carState'].vEgo))
     depart_release_hold_context = bool(
+      not reset_state and
       lead_control_active and
       float(sm['carState'].vEgo) <= STANDSTILL_LEAD_DEPART_MAX_EGO_SPEED and
       not depart_safety_veto and
       not bool(getattr(sm['carState'], 'brakePressed', False)) and
-      not bool(getattr(sm['starpilotPlan'], 'forcingStop', False)) and
-      not bool(getattr(sm['starpilotPlan'], 'redLight', False)) and
+      not stop_context and
       safe_depart_release_hold_lead is not None
     )
     if depart_release_hold_context:
@@ -3048,9 +3134,9 @@ class LongitudinalPlanner:
     if (
       lead_control_active and
       sm['carState'].standstill and
+      not reset_state and
       not depart_safety_veto and
-      not bool(getattr(sm['starpilotPlan'], 'forcingStop', False)) and
-      not bool(getattr(sm['starpilotPlan'], 'redLight', False)) and
+      not stop_context and
       confident_depart_detected
     ):
       self.confident_lead_depart_elapsed = min(
@@ -3070,9 +3156,9 @@ class LongitudinalPlanner:
     if (
       lead_control_active and
       sm['carState'].standstill and
+      not reset_state and
       not depart_safety_veto and
-      not bool(getattr(sm['starpilotPlan'], 'forcingStop', False)) and
-      not bool(getattr(sm['starpilotPlan'], 'redLight', False)) and
+      not stop_context and
       slow_creep_depart_detected
     ):
       self.slow_creep_lead_depart_elapsed = min(
@@ -3085,8 +3171,31 @@ class LongitudinalPlanner:
       slow_creep_depart_detected and
       self.slow_creep_lead_depart_elapsed >= STANDSTILL_LEAD_CREEP_RELEASE_CONFIRM_TIME
     )
+    mpc_brake_depart_evidence_detected = any(
+      self.is_mpc_brake_depart_evidence(lead, float(sm['carState'].vEgo), standstill_nudge_gap)
+      for lead in (self.lead_one, self.lead_two)
+    )
+    if (
+      lead_control_active and
+      float(sm['carState'].vEgo) <= STANDSTILL_LEAD_DEPART_MAX_EGO_SPEED and
+      not reset_state and
+      not depart_safety_veto and
+      not stop_context and
+      not bool(getattr(sm['carState'], 'brakePressed', False)) and
+      mpc_brake_depart_evidence_detected
+    ):
+      self.mpc_brake_depart_evidence_elapsed = min(
+        MPC_BRAKE_DEPART_EVIDENCE_CONFIRM_TIME,
+        self.mpc_brake_depart_evidence_elapsed + self.dt,
+      )
+    else:
+      self.mpc_brake_depart_evidence_elapsed = 0.0
+    mpc_brake_depart_evidence_ready = bool(
+      mpc_brake_depart_evidence_detected and
+      self.mpc_brake_depart_evidence_elapsed + 1e-6 >= MPC_BRAKE_DEPART_EVIDENCE_CONFIRM_TIME
+    )
     radar_gap_settle_active = False
-    if allow_radar_standstill_gap_settle(self.CP) or allow_honda_crv_5g_vision_gap_settle(self.CP):
+    if (allow_radar_standstill_gap_settle(self.CP) or allow_honda_crv_5g_vision_gap_settle(self.CP)) and not stop_context and not reset_state:
       radar_gap_settle_active = self.update_radar_standstill_gap_settle(
         sm,
         standstill_nudge_gap,
@@ -3097,12 +3206,31 @@ class LongitudinalPlanner:
       self.radar_standstill_gap_settle_elapsed = 0.0
       self.radar_standstill_gap_settle_active = False
 
+    departure_brake_hold_active = bool(
+      lead_control_active and
+      sm['carState'].standstill and
+      mpc_departure_brake_target < 0.0 and
+      (
+        # Do not override even a mild MPC braking demand while the model
+        # continues to request a stop; this avoids a tunable discontinuity.
+        bool(getattr(sm['modelV2'].action, 'shouldStop', False)) or
+        not (
+          confident_depart_ready or
+          (confident_depart_detected and mpc_brake_depart_evidence_ready) or
+          slow_creep_depart_ready or
+          (slow_creep_depart_detected and mpc_brake_depart_evidence_ready) or
+          radar_gap_settle_active
+        )
+      )
+    )
+
     standstill_stopped_lead_guard_cap = None
     standstill_guard_lead_present = any(bool(getattr(lead, "status", False)) for lead in (self.lead_one, self.lead_two))
     if standstill_guard_lead_present and (bool(sm['carState'].standstill) or float(sm['carState'].vEgo) <= STANDSTILL_STOPPED_LEAD_GUARD_MAX_EGO_SPEED):
       release_ready = bool(
-        lead_depart_ready or confident_depart_ready or slow_creep_depart_ready or
-        radar_gap_settle_active or depart_release_hold_active
+        not reset_state and
+        (lead_depart_ready or confident_depart_ready or slow_creep_depart_ready or
+         radar_gap_settle_active or depart_release_hold_active)
       )
       standstill_stopped_lead_guard_caps = [
         cap for cap in (
@@ -3128,16 +3256,18 @@ class LongitudinalPlanner:
         standstill_stopped_lead_guard_cap = min(standstill_stopped_lead_guard_caps)
         output_should_stop = True
 
-    if lead_control_active and sm['carState'].standstill and moving_leads and not depart_safety_veto:
+    if (lead_control_active and sm['carState'].standstill and moving_leads and not depart_safety_veto and
+        not reset_state and not stop_context and not departure_brake_hold_active):
       output_a_target = max(output_a_target, STANDSTILL_LEAD_NUDGE_ACCEL)
 
     if (
       lead_control_active and
       sm['carState'].standstill and
       (confident_depart_ready or lead_depart_ready or slow_creep_depart_ready) and
+      not reset_state and
       not depart_safety_veto and
-      not bool(getattr(sm['starpilotPlan'], 'forcingStop', False)) and
-      not bool(getattr(sm['starpilotPlan'], 'redLight', False)) and
+      not stop_context and
+      not departure_brake_hold_active and
       (confident_depart_ready or slow_creep_depart_ready or model_desired_accel >= STANDSTILL_LEAD_DEPART_MIN_MODEL_ACCEL)
     ):
       vision_low_speed_stop_active = False
@@ -3167,7 +3297,9 @@ class LongitudinalPlanner:
       output_should_stop = False
       self.post_departure_follow_settle_until = now_t + POST_DEPARTURE_FOLLOW_SETTLE_LATCH_TIME
 
-    if lead_control_active and lead_depart_ready and not depart_safety_veto and not output_should_stop and float(sm['carState'].vEgo) <= STANDSTILL_LEAD_DEPART_MAX_EGO_SPEED:
+    if (lead_control_active and lead_depart_ready and not reset_state and not depart_safety_veto and not output_should_stop and
+        not departure_brake_hold_active and
+        not stop_context and float(sm['carState'].vEgo) <= STANDSTILL_LEAD_DEPART_MAX_EGO_SPEED):
       output_a_target = max(output_a_target, STANDSTILL_LEAD_DEPART_MIN_ACCEL)
       self.post_departure_follow_settle_until = now_t + POST_DEPARTURE_FOLLOW_SETTLE_LATCH_TIME
 
@@ -3180,12 +3312,13 @@ class LongitudinalPlanner:
     confirmed_lead_release = bool(confident_depart_ready or lead_depart_ready or slow_creep_depart_ready)
     model_launch_allowed = bool(
       model_launch_accel is not None and
+      not reset_state and
       not output_should_stop and
       not vision_low_speed_stop_active and
       not bool(getattr(sm['carState'], 'brakePressed', False)) and
-      not bool(getattr(sm['starpilotPlan'], 'forcingStop', False)) and
-      not bool(getattr(sm['starpilotPlan'], 'redLight', False)) and
+      not stop_context and
       not depart_safety_veto and
+      not departure_brake_hold_active and
       (
         (lead_present and lead_control_active and confirmed_lead_release) or
         (not lead_present and (self.mode != 'acc' or self.model_launch_stop_seen))
@@ -3194,13 +3327,14 @@ class LongitudinalPlanner:
     if model_launch_allowed:
       output_a_target = max(output_a_target, model_launch_accel)
 
-    if depart_safety_veto or output_should_stop or bool(getattr(sm['starpilotPlan'], 'forcingStop', False)) or bool(getattr(sm['starpilotPlan'], 'redLight', False)):
+    if depart_safety_veto or output_should_stop or stop_context:
       self.lead_depart_accel_hold_until = 0.0
       self.lead_depart_accel_hold_floor = None
 
     lead_depart_accel_floor = None
     lead_depart_accel_floor_reused = False
-    if lead_control_active and not output_should_stop and not depart_safety_veto:
+    if (lead_control_active and not reset_state and not output_should_stop and not depart_safety_veto and not stop_context and
+        not departure_brake_hold_active):
       lead_depart_accel_floors = [
         floor for floor in (
           self.get_lead_depart_accel_floor(self.lead_one, scene_v_ego, model_desired_accel),
@@ -3305,8 +3439,10 @@ class LongitudinalPlanner:
       output_accel_min = min(output_accel_min, vision_cap_accel_min)
 
     policy_lead = self.lead_two if self.mpc.source == "lead1" else self.lead_one
-    post_departure_active = self.post_departure_follow_settle_active(
-      policy_lead, scene_v_ego, effective_t_follow,
+    post_departure_active = bool(
+      not reset_state and self.post_departure_follow_settle_active(
+        policy_lead, scene_v_ego, effective_t_follow,
+      )
     )
     # The RAV4's post-departure path used to bypass the ordinary follow cap for
     # the entire settle latch. When a slow lead changed lanes, that let the
@@ -3326,11 +3462,6 @@ class LongitudinalPlanner:
     # limiter can no longer soften stopping, while its catch-up cap and the model-backed
     # brake floor below stay in force.
     follow_policy_blocked = bool(output_should_stop or vision_low_speed_stop_active or close_lead_caps)
-    stop_context = bool(
-      getattr(sm['starpilotPlan'], 'forcingStop', False) or
-      getattr(sm['starpilotPlan'], 'redLight', False) or
-      getattr(sm['starpilotPlan'], 'stopSignConfirmed', False)
-    )
     stop_priority_veto = bool(follow_policy_blocked or stop_context)
     c5_policy_input = float(output_a_target)
     follow_result = apply_follow_policy(
@@ -3420,7 +3551,8 @@ class LongitudinalPlanner:
       (bool(sm['carState'].standstill) or float(sm['carState'].vEgo) <= STANDSTILL_STOPPED_LEAD_GUARD_MAX_EGO_SPEED) and
       output_should_stop and
       accelerating_nudge_lead and
-      not depart_safety_veto
+      not depart_safety_veto and
+      not stop_context
     ):
       output_a_target = max(output_a_target, STANDSTILL_LEAD_NUDGE_ACCEL)
 
@@ -3436,7 +3568,32 @@ class LongitudinalPlanner:
     if force_stop_handoff:
       output_should_stop = True
 
+    # One basic moving-lead sample is insufficient to turn an MPC braking
+    # candidate into a positive takeoff request. Confirmed/creep departure and
+    # the separately timed radar-gap settle paths are the bounded exceptions.
+    if departure_brake_hold_active:
+      output_a_target = min(output_a_target, mpc_departure_brake_target)
+      output_should_stop = True
+
+    # An old manual-resume latch must not autonomously defeat a new stop
+    # context. Preserve an intentional CURRENT accelerator-pedal request at
+    # standstill (existing driver-override behavior), but never a stale latch.
     manual_stop_resume_override = self._update_manual_stop_resume_override(sm)
+    traffic_control_stop = bool(
+      getattr(sm['starpilotPlan'], 'redLight', False) or
+      getattr(sm['starpilotPlan'], 'stopSignConfirmed', False)
+    )
+    if traffic_control_stop:
+      self.manual_stop_resume_override_until = 0.0
+      manual_stop_resume_override = False
+    elif stop_context and manual_stop_resume_override:
+      fresh_driver_resume = bool(
+        sm['carState'].standstill and
+        self._manual_resume_pedal_pressed(sm, time.monotonic())
+      )
+      if not fresh_driver_resume:
+        self.manual_stop_resume_override_until = 0.0
+        manual_stop_resume_override = False
     if manual_stop_resume_override:
       output_a_target = max(output_a_target, MANUAL_STOP_RESUME_OVERRIDE_MIN_ACCEL)
       output_should_stop = False
@@ -3464,8 +3621,7 @@ class LongitudinalPlanner:
         now_t < self.experimental_release_accel_until and
         not output_should_stop and
         not vision_low_speed_stop_active and
-        not getattr(sm['starpilotPlan'], 'forcingStop', False) and
-        not getattr(sm['starpilotPlan'], 'redLight', False)
+        not stop_context
       ),
     )
     if experimental_release_accel_target is not None:
@@ -3481,6 +3637,7 @@ class LongitudinalPlanner:
       output_a_target,
       bool(output_should_stop or vision_low_speed_stop_active),
       panic_bypass,
+      stop_context=stop_context,
     )
 
     far_lead_coast_allowed = (
@@ -3530,9 +3687,7 @@ class LongitudinalPlanner:
     lc_merge_floor = self.get_lane_change_merge_accel_floor(
       sm, starpilot_toggles, scene_v_ego, v_cruise, action_t,
       blocked=bool(
-        output_should_stop or vision_low_speed_stop_active or depart_safety_veto or
-        getattr(sm['starpilotPlan'], 'forcingStop', False) or
-        getattr(sm['starpilotPlan'], 'redLight', False)
+        output_should_stop or vision_low_speed_stop_active or depart_safety_veto or stop_context
       ),
     )
     if lc_merge_floor is not None:
@@ -3559,8 +3714,7 @@ class LongitudinalPlanner:
       vision_low_speed_stop_active or
       depart_safety_veto or
       radar_gap_settle_active or
-      getattr(sm['starpilotPlan'], 'forcingStop', False) or
-      getattr(sm['starpilotPlan'], 'redLight', False) or
+      stop_context or
       driver_accel_pressed
     )
     accord_stop_go_target = self.get_honda_accord_stop_go_accel_target(
@@ -3569,6 +3723,13 @@ class LongitudinalPlanner:
     if accord_stop_go_target < output_a_target:
       self.a_desired = min(self.a_desired, accord_stop_go_target)
       output_a_target = accord_stop_go_target
+
+    # Final output safety arbitration: a later comfort/departure action must
+    # not undo a braking-MPC hold, including pre-armed release latches and
+    # radar-gap settling. Direct verified driver takeover remains separate.
+    if departure_brake_hold_active and not manual_stop_resume_override:
+      output_a_target = min(output_a_target, mpc_departure_brake_target)
+      output_should_stop = True
 
     # Scalar snapshots only: no container allocation or control feedback.
     self.c5_obs_base_t_follow = float(sm['starpilotPlan'].tFollow)
