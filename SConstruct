@@ -181,7 +181,13 @@ lenv = {
 
   "ACADOS_SOURCE_DIR": Dir("#third_party/acados").abspath,
   "ACADOS_PYTHON_INTERFACE_PATH": Dir("#third_party/acados/acados_template").abspath,
-  "TERA_PATH": Dir("#").abspath + f"/third_party/acados/{arch}/t_renderer"
+  # Cross-build orchestration runs generators on the host even though every
+  # compiled output targets larch64. Allow the host-native Acados renderer to
+  # be selected without replacing the tracked target renderer.
+  "TERA_PATH": os.environ.get(
+    "SP_TERA_PATH",
+    Dir("#").abspath + f"/third_party/acados/{arch}/t_renderer",
+  )
 }
 
 # Allow callers to override cache/temp dirs used by subprocesses (e.g. tinygrad model compilation).
