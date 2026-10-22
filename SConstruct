@@ -235,9 +235,17 @@ if arch == "larch64":
   # On non-aarch64 hosts (e.g. Docker on macOS), force clang cross-targeting.
   if platform.machine() not in ("aarch64", "arm64"):
     cross_target = os.environ.get("SP_CROSS_TARGET", "aarch64-linux-gnu")
-    cflags += [f"--target={cross_target}"]
-    cxxflags += [f"--target={cross_target}"]
-    arch_ldflags += [f"--target={cross_target}"]
+    cross_flags = [f"--target={cross_target}"]
+    if tici_sysroot := os.environ.get("SP_TICI_SYSROOT", "").strip().rstrip("/"):
+      cross_flags += [f"--sysroot={tici_sysroot}"]
+      cxxflags += [
+        "-nostdinc++",
+        "-isystem", os.path.join(tici_sysroot, "usr/include/c++/13"),
+        "-isystem", os.path.join(tici_sysroot, "usr/include/aarch64-linux-gnu/c++/13"),
+      ]
+    cflags += cross_flags
+    cxxflags += cross_flags
+    arch_ldflags += cross_flags
   rpath += ["/usr/local/lib"]
 else:
   cflags = []
