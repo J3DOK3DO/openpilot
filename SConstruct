@@ -250,6 +250,8 @@ if arch == "larch64":
     cflags += cross_flags
     cxxflags += cross_flags
     arch_ldflags += cross_flags
+    if cross_gcc_toolchain := os.environ.get("SP_CROSS_GCC_TOOLCHAIN", "").strip():
+      arch_ldflags += [f"--gcc-toolchain={cross_gcc_toolchain}"]
     if cross_linker := os.environ.get("SP_CROSS_LINKER", "").strip():
       arch_ldflags += [f"--ld-path={cross_linker}"]
   rpath += ["/usr/local/lib"]
