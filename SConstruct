@@ -251,7 +251,8 @@ if arch == "larch64":
     cxxflags += cross_flags
     arch_ldflags += cross_flags
     if cross_gcc_toolchain := os.environ.get("SP_CROSS_GCC_TOOLCHAIN", "").strip():
-      arch_ldflags += [f"--gcc-toolchain={cross_gcc_toolchain}"]
+      cross_gcc_lib = os.path.join(cross_gcc_toolchain, "usr/lib/gcc/aarch64-linux-gnu/13")
+      arch_ldflags += [f"-B{cross_gcc_lib}", f"-L{cross_gcc_lib}"]
     if cross_linker := os.environ.get("SP_CROSS_LINKER", "").strip():
       arch_ldflags += [f"--ld-path={cross_linker}"]
   rpath += ["/usr/local/lib"]
