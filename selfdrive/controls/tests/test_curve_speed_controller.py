@@ -240,6 +240,20 @@ def test_distant_sharp_curvature_is_never_softened_by_far_field_gain():
   assert np.all(np.sqrt(CSC_MAX_LATERAL_ACCEL / corrected) <= np.sqrt(CSC_MAX_LATERAL_ACCEL / measured))
 
 
+def test_full_model_curvature_profile_respects_hard_lateral_acceleration_cap():
+  _, controller = make_controller()
+  # extract_curve_profile bounds production model curvature to [0, 0.1].
+  measured = np.array([0.0, 0.0039, 0.004, 0.01, MAX_CURVATURE, 0.03, 0.1])
+  distances = np.array([0.0, 29.9, 30.0, 100.0, 30.0, 50.0, 300.0])
+  corrected = controller._correct_far_field(measured, distances)
+  curve_speeds = controller._curve_speed_for_curvature(corrected)
+  curvature_floor = np.maximum(corrected, 1e-4)
+
+  assert np.all(np.isfinite(curve_speeds))
+  assert np.all(curve_speeds**2 * curvature_floor <= CSC_MAX_LATERAL_ACCEL + 1e-12)
+  assert corrected[-2:] == pytest.approx(measured[-2:])
+
+
 def test_sharp_curve_target_floors_at_min_speed():
   _, controller = make_controller(curve_profile=(np.full(33, 0.1), np.linspace(0.0, 100.0, 33)))
 
@@ -376,6 +390,33 @@ def test_invalid_curve_profile_is_ignored():
   assert distances.size == 0
 
   curvatures, distances = extract_curve_profile(SimpleNamespace())
+
+  assert curvatures.size == 0
+  assert distances.size == 0
+
+
+@pytest.mark.parametrize("field,value", [
+  ("orientation", float("nan")),
+  ("orientation", float("inf")),
+  ("velocity", float("nan")),
+  ("velocity", float("-inf")),
+  ("distance", float("nan")),
+  ("distance", float("inf")),
+])
+def test_non_finite_curve_profile_is_rejected_as_a_whole(field, value):
+  values = {
+    "orientation": [0.01, 0.02],
+    "velocity": [10.0, 10.0],
+    "distance": [20.0, 40.0],
+  }
+  values[field][1] = value
+  model = SimpleNamespace(
+    orientationRate=SimpleNamespace(z=values["orientation"]),
+    velocity=SimpleNamespace(x=values["velocity"]),
+    position=SimpleNamespace(x=values["distance"]),
+  )
+
+  curvatures, distances = extract_curve_profile(model)
 
   assert curvatures.size == 0
   assert distances.size == 0

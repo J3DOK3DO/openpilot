@@ -391,6 +391,13 @@ class CurveSpeedController:
     corrected = np.minimum(curvatures * CSC_FARFIELD_GAIN, MAX_CURVATURE)
     return np.where(firm, corrected, curvatures)
 
+  def _curve_speed_for_curvature(self, curvatures):
+    """Return per-point curve speeds with the non-negotiable lateral-acceleration cap."""
+    curvature_floor = np.maximum(curvatures, 1e-4)
+    comfort_speeds = np.sqrt(np.maximum(self.lat_accel_for_curvature(curvature_floor), 0.0) / curvature_floor)
+    hard_cap_speeds = np.sqrt(CSC_MAX_LATERAL_ACCEL / curvature_floor)
+    return np.minimum(np.maximum(comfort_speeds, CSC_MIN_SPEED), hard_cap_speeds)
+
   def reset(self, v_cruise):
     self.target = float(v_cruise)
     self.release_timer = 0.0
@@ -408,13 +415,8 @@ class CurveSpeedController:
       self.binding_distance = 0.0
     else:
       curvatures = self._correct_far_field(curvatures, distances)
-      lat_accel = self.lat_accel_for_curvature(curvatures)
       curvature_floor = np.maximum(curvatures, 1e-4)
-      point_speeds = np.sqrt(lat_accel / curvature_floor)
-      point_speeds = np.minimum(
-        np.maximum(point_speeds, CSC_MIN_SPEED),
-        np.sqrt(CSC_MAX_LATERAL_ACCEL / curvature_floor),
-      )
+      point_speeds = self._curve_speed_for_curvature(curvatures)
       allowed_speeds = np.sqrt(point_speeds**2 + 2.0 * CSC_APPROACH_DECEL * np.maximum(distances, 0.0))
       binding_index = int(np.argmin(allowed_speeds))
       raw_target = min(float(allowed_speeds[binding_index]), float(v_cruise))
