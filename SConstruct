@@ -205,12 +205,16 @@ def tici_libpath(path: str) -> str:
   return os.path.join(tici_sysroot, path.lstrip("/"))
 
 if arch == "larch64":
+  extra_cross_includes = [
+    path for path in os.environ.get("SP_TICI_EXTRA_INCLUDE_DIRS", "").split(os.pathsep)
+    if path
+  ]
   cpppath = [
     "#third_party/opencl/include",
     tici_libpath("/usr/local/include"),
     tici_libpath("/usr/include"),
     tici_libpath("/usr/include/aarch64-linux-gnu"),
-  ]
+  ] + extra_cross_includes
 
   libpath = [
     tici_libpath("/usr/local/lib"),
