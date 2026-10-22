@@ -380,7 +380,13 @@ class CurveSpeedController:
   def _correct_far_field(curvatures, distances):
     """Undo the model's known under-read of distant curvature, where the reading is firm."""
     firm = (curvatures >= CSC_FARFIELD_MIN_CURVATURE) & (distances >= CSC_FARFIELD_MIN_DISTANCE)
-    return np.minimum(np.where(firm, curvatures * CSC_FARFIELD_GAIN, curvatures), MAX_CURVATURE)
+    # MAX_CURVATURE bounds the learned comfort curve and the far-field gain,
+    # not the road curvature itself. Clipping the whole profile here turns a
+    # genuinely sharp near-field curve into a gentler 0.02 1/m curve and can
+    # recommend a speed above CSC_MAX_LATERAL_ACCEL. Preserve measured sharp
+    # curvature while keeping the model under-read correction bounded.
+    corrected = np.minimum(curvatures * CSC_FARFIELD_GAIN, MAX_CURVATURE)
+    return np.where(firm, corrected, curvatures)
 
   def reset(self, v_cruise):
     self.target = float(v_cruise)
