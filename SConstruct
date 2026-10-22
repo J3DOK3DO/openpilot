@@ -436,8 +436,13 @@ else:
 Export('messaging')
 
 
-# Build other submodules
-SConscript(['panda/SConscript'])
+# Offline application cross-builds must not regenerate, sign, or otherwise
+# touch Panda firmware. Panda remains part of normal/default builds; the
+# explicit opt-out is used only by evidence builds whose scope forbids it.
+if os.environ.get("SP_SKIP_PANDA_BUILD", "").lower() not in {"1", "true", "yes", "on"}:
+  SConscript(['panda/SConscript'])
+else:
+  print("Skipping Panda firmware build by explicit request")
 
 # Build rednose library
 SConscript(['rednose/SConscript'])
