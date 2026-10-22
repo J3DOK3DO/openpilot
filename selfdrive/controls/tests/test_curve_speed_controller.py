@@ -229,6 +229,17 @@ def test_target_does_not_ratchet_down_with_ego_speed():
   assert controller.target == pytest.approx(target, abs=0.2)
 
 
+def test_distant_sharp_curvature_is_never_softened_by_far_field_gain():
+  # High actual curvature must be preserved whether seen near or at distance.
+  # Clipping it to MAX_CURVATURE would raise the admissible lateral-speed cap.
+  _, controller = make_controller()
+  measured = np.array([0.03, 0.10, 0.10], dtype=float)
+  distances = np.array([30.0, 50.0, 100.0], dtype=float)
+  corrected = controller._correct_far_field(measured, distances)
+  assert np.allclose(corrected, measured)
+  assert np.all(np.sqrt(CSC_MAX_LATERAL_ACCEL / corrected) <= np.sqrt(CSC_MAX_LATERAL_ACCEL / measured))
+
+
 def test_sharp_curve_target_floors_at_min_speed():
   _, controller = make_controller(curve_profile=(np.full(33, 0.1), np.linspace(0.0, 100.0, 33)))
 

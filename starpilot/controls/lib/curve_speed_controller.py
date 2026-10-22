@@ -385,6 +385,9 @@ class CurveSpeedController:
     # genuinely sharp near-field curve into a gentler 0.02 1/m curve and can
     # recommend a speed above CSC_MAX_LATERAL_ACCEL. Preserve measured sharp
     # curvature while keeping the model under-read correction bounded.
+    # Readings already sharper than MAX_CURVATURE must never be softened.
+    # The limit applies only to the amplification, not to measured curvature.
+    firm &= curvatures <= MAX_CURVATURE
     corrected = np.minimum(curvatures * CSC_FARFIELD_GAIN, MAX_CURVATURE)
     return np.where(firm, corrected, curvatures)
 
