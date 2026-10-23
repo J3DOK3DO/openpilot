@@ -79,12 +79,20 @@ g8_activate_staged_update() {
 
   # GNU --no-clobber: a concurrently created backup must never be overwritten.
   if ! mv -T -n -- "$active" "$backup"; then
-    echo "g8: initial backup rename failed" >&2
-    return 20
+    if _g8_same_inode "$active" "$old_id"; then
+      echo "g8: initial backup rename failed; original app remains active" >&2
+      return 20
+    fi
+    echo "g8: CRITICAL: first rename failed and old app identity is unverified" >&2
+    return 40
   fi
   if ! _g8_same_inode "$backup" "$old_id" || [[ -e "$active" || -L "$active" ]]; then
-    echo "g8: backup rename postcondition failed (possible race); refusing promotion" >&2
-    return 20
+    if _g8_same_inode "$active" "$old_id"; then
+      echo "g8: first rename postcondition failed; old app remains active" >&2
+      return 20
+    fi
+    echo "g8: CRITICAL: first rename postcondition left unknown active state" >&2
+    return 40
   fi
 
   # This is NOT atomic across both renames or durable across power loss.
