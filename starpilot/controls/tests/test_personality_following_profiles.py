@@ -1,11 +1,11 @@
 import ast
-import sys
 from enum import IntEnum
 from pathlib import Path
 from types import CodeType, FunctionType, ModuleType, SimpleNamespace
 
 import pytest
 
+from module_stubs import scoped_module_stubs
 from openpilot.starpilot.common.longitudinal_personality_profiles import default_personality_profiles, profile_document
 
 
@@ -38,15 +38,16 @@ class LaneChangeDirection(IntEnum):
   right = 2
 
 
-sys.modules["cereal"] = _module(
+_STUBS = {}
+_STUBS["cereal"] = _module(
   "cereal",
   log=SimpleNamespace(LaneChangeState=LaneChangeState, LaneChangeDirection=LaneChangeDirection),
 )
-sys.modules["openpilot.common.constants"] = _module(
+_STUBS["openpilot.common.constants"] = _module(
   "openpilot.common.constants", CV=SimpleNamespace(MPH_TO_MS=0.44704),
 )
-sys.modules["openpilot.common.realtime"] = _module("openpilot.common.realtime", DT_MDL=0.05)
-sys.modules["openpilot.selfdrive.controls.lib.lead_behavior"] = _module(
+_STUBS["openpilot.common.realtime"] = _module("openpilot.common.realtime", DT_MDL=0.05)
+_STUBS["openpilot.selfdrive.controls.lib.lead_behavior"] = _module(
   "openpilot.selfdrive.controls.lib.lead_behavior",
   UNTRACKED_VISION_COAST_CONFIRM_TIME=0.30,
   UNTRACKED_VISION_COAST_HOLD_TIME=0.75,
@@ -55,7 +56,7 @@ sys.modules["openpilot.selfdrive.controls.lib.lead_behavior"] = _module(
   should_disable_far_lead_throttle=lambda *_args: False,
   should_disable_untracked_vision_throttle=lambda *_args, **_kwargs: False,
 )
-sys.modules["openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc"] = _module(
+_STUBS["openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc"] = _module(
   "openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc",
   COMFORT_BRAKE=2.5,
   LEAD_DANGER_FACTOR=0.8,
@@ -63,11 +64,14 @@ sys.modules["openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc"] = 
   get_jerk_factor=lambda *_args: (1.0, 1.0, 1.0),
   get_T_FOLLOW=_faithful_get_t_follow,
 )
-sys.modules["openpilot.starpilot.common.starpilot_variables"] = _module(
+_STUBS["openpilot.starpilot.common.starpilot_variables"] = _module(
   "openpilot.starpilot.common.starpilot_variables", CITY_SPEED_LIMIT=11.176, MAX_T_FOLLOW=3.0,
 )
 
-import openpilot.starpilot.controls.lib.starpilot_following as following_module
+# The stubs exist only while the controller is imported (see module_stubs.py); the
+# imported class keeps the stub-bound globals, other test modules see the real ones.
+with scoped_module_stubs(_STUBS, purge=("openpilot.starpilot.controls.lib.starpilot_following",)):
+  import openpilot.starpilot.controls.lib.starpilot_following as following_module
 
 StarPilotFollowing = following_module.StarPilotFollowing
 

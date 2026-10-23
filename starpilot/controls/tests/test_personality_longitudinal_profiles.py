@@ -1,10 +1,10 @@
 import math
-import sys
 from enum import IntEnum
 from types import ModuleType, SimpleNamespace
 
 import pytest
 
+from module_stubs import scoped_module_stubs
 from openpilot.starpilot.common.accel_profile import ACCELERATION_PROFILES, DECELERATION_PROFILES, get_accel_profile_curve_values
 from openpilot.starpilot.common.longitudinal_personality_profiles import default_personality_profiles, profile_document
 
@@ -27,24 +27,29 @@ class _Params:
     self.writes.append((key, value))
 
 
-sys.modules["openpilot.common.constants"] = _module(
-  "openpilot.common.constants", CV=SimpleNamespace(KPH_TO_MS=1 / 3.6, MPH_TO_MS=0.44704),
-)
-sys.modules["openpilot.common.params"] = _module("openpilot.common.params", Params=_Params)
-sys.modules["openpilot.selfdrive.car.cruise"] = _module(
-  "openpilot.selfdrive.car.cruise", V_CRUISE_MAX=145, V_CRUISE_UNSET=255,
-)
-sys.modules["openpilot.selfdrive.controls.lib.longitudinal_planner"] = _module(
-  "openpilot.selfdrive.controls.lib.longitudinal_planner", A_CRUISE_MIN=-1.0, get_max_accel=lambda _v_ego: 2.0,
-)
-sys.modules["openpilot.starpilot.controls.lib.starpilot_vcruise"] = _module(
-  "openpilot.starpilot.controls.lib.starpilot_vcruise",
-  get_active_slc_control_target=lambda enabled, target, offset, overridden_speed, *_args, **_kwargs: (
-    float(overridden_speed or target) + float(offset) if enabled else 0.0
+_STUBS = {
+  "openpilot.common.constants": _module(
+    "openpilot.common.constants", CV=SimpleNamespace(KPH_TO_MS=1 / 3.6, MPH_TO_MS=0.44704),
   ),
-)
+  "openpilot.common.params": _module("openpilot.common.params", Params=_Params),
+  "openpilot.selfdrive.car.cruise": _module(
+    "openpilot.selfdrive.car.cruise", V_CRUISE_MAX=145, V_CRUISE_UNSET=255,
+  ),
+  "openpilot.selfdrive.controls.lib.longitudinal_planner": _module(
+    "openpilot.selfdrive.controls.lib.longitudinal_planner", A_CRUISE_MIN=-1.0, get_max_accel=lambda _v_ego: 2.0,
+  ),
+  "openpilot.starpilot.controls.lib.starpilot_vcruise": _module(
+    "openpilot.starpilot.controls.lib.starpilot_vcruise",
+    get_active_slc_control_target=lambda enabled, target, offset, overridden_speed, *_args, **_kwargs: (
+      float(overridden_speed or target) + float(offset) if enabled else 0.0
+    ),
+  ),
+}
 
-from openpilot.starpilot.controls.lib.starpilot_acceleration import StarPilotAcceleration
+# The stubs exist only while the controller is imported (see module_stubs.py); the
+# imported class keeps the stub-bound globals, other test modules see the real ones.
+with scoped_module_stubs(_STUBS, purge=("openpilot.starpilot.controls.lib.starpilot_acceleration",)):
+  from openpilot.starpilot.controls.lib.starpilot_acceleration import StarPilotAcceleration
 
 
 class Personality(IntEnum):

@@ -1,21 +1,24 @@
 """Host-only regression: real controller, explicit synthetic Params/messages.
 
-Run separately from following tests (their native import stubs are incompatible).
 The oracle is the unmodified Dom controller at 249b03a3f5, not a reimplementation.
+Both controllers are built against the same synthetic module stubs, installed only
+while each is imported (module_stubs.py), so collection order cannot change them.
 """
 from pathlib import Path
 
 import pytest
 
+from module_stubs import scoped_module_stubs
 from test_personality_longitudinal_profiles import (
-  StarPilotAcceleration, _document, _planner, _sm, _toggles,
+  StarPilotAcceleration, _STUBS, _document, _planner, _sm, _toggles,
 )
 
 
 def _upstream():
   path = Path(__file__).parent / "fixtures/dom_249b03a3_starpilot_acceleration.py.txt"
   namespace = {"__name__": "dom_249b03a3_acceleration"}
-  exec(compile(path.read_text(), str(path), "exec"), namespace)
+  with scoped_module_stubs(_STUBS):
+    exec(compile(path.read_text(), str(path), "exec"), namespace)
   return namespace["StarPilotAcceleration"]
 
 

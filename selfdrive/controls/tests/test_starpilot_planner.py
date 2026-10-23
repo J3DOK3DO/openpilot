@@ -44,7 +44,13 @@ def make_toggles(**overrides):
 
 def test_force_stop_jerk_scale_is_platform_specific():
   assert get_force_stop_jerk_scale(SimpleNamespace(carFingerprint="HYUNDAI_ELANTRA_2021")) == 0.80
-  assert get_force_stop_jerk_scale(SimpleNamespace(carFingerprint="OTHER_CAR")) == 0.32
+  # Fast Approach (5882bd23ba, Aug 2026) intentionally changed the default
+  # from 0.32 to 0.20 and applied it through the far-approach envelope. This
+  # pins the existing behavior; Honda stop-distance/comfort validation remains
+  # a separate release gate and is NOT established by this assertion.
+  assert get_force_stop_jerk_scale(SimpleNamespace(carFingerprint="OTHER_CAR")) == 0.20
+  assert get_force_stop_jerk_scale(SimpleNamespace(carFingerprint="HONDA_ACCORD")) == 0.20
+  assert get_force_stop_jerk_scale(None) == 0.20
 
 
 def test_lead_follow_jerk_scale_is_platform_specific():

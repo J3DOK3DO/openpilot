@@ -1079,7 +1079,10 @@ class TestLatControl:
     assert high_speed > center_overshoot
 
   def test_genesis_g70_center_chatter_tune(self):
-    base = get_standard_friction_threshold(25.0)
+    # G70 blends its base friction threshold 1.0x -> 2.0x over 10-20 m/s (pinned by
+    # test_g70_friction_threshold.py::test_speed_blend); the centre/curve contrast
+    # below is relative to that speed-scaled base, with the original tolerance.
+    base = get_standard_friction_threshold(25.0) * 2.0
     center = get_genesis_g70_friction_threshold(25.0, 0.0, 0.0)
     curve = get_genesis_g70_friction_threshold(25.0, 0.8, 0.8)
     center_deadzone = get_genesis_g70_friction_jerk_deadzone(25.0, 0.0)
@@ -1100,8 +1103,14 @@ class TestLatControl:
     assert get_genesis_g70_angle_output_scale(85.0, -1.0) == pytest.approx(1.0)
     assert get_genesis_g70_friction_jerk_deadzone(25.0, 0.0) > 0.25
     hwy_unwind_deadzone = get_genesis_g70_friction_jerk_deadzone(68.0 * 0.44704, 0.8, -0.6, 1.0)
+    hwy_unwind_no_overshoot = get_genesis_g70_friction_jerk_deadzone(68.0 * 0.44704, 0.8, -0.6, 0.8)
     hwy_turn_in_deadzone = get_genesis_g70_friction_jerk_deadzone(68.0 * 0.44704, 0.8, 0.6, 0.5)
-    assert hwy_unwind_deadzone > hwy_turn_in_deadzone
+    hwy_turn_in_no_jerk = get_genesis_g70_friction_jerk_deadzone(68.0 * 0.44704, 0.8, 0.0, 0.5)
+    # Since the Sep 2026 overshoot-gated unwind and turn-in updates, these are
+    # separate mechanisms, not a fixed unwind > turn-in ordering. Verify each
+    # activates only under its specified triggering conditions.
+    assert hwy_unwind_deadzone > hwy_unwind_no_overshoot
+    assert hwy_turn_in_deadzone > hwy_turn_in_no_jerk
     assert hwy_unwind_deadzone > 0.08
     assert get_genesis_g70_unwind_ff_scale(-0.7, -0.95, 0.5, 25.0) < 0.90
     assert get_genesis_g70_unwind_ff_scale(-0.7, -0.95, -0.5, 25.0) == 1.0
