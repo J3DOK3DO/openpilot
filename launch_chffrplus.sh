@@ -89,25 +89,37 @@ function launch {
   #    that completed successfully and synced to disk.
 
   if [ -f "${DIR}/.overlay_init" ]; then
-    find ${DIR}/.git -newer ${DIR}/.overlay_init | grep -q '.' 2> /dev/null
+    find "$DIR/.git" -newer "$DIR/.overlay_init" | grep -q '.' 2> /dev/null
     if [ $? -eq 0 ]; then
       echo "${DIR} has been modified, skipping overlay update installation"
     else
       if [ -f "${STAGING_ROOT}/finalized/.overlay_consistent" ]; then
-        if [ ! -d /data/safe_staging/old_openpilot ]; then
-          echo "Valid overlay update found, installing"
-          LAUNCHER_LOCATION="${BASH_SOURCE[0]}"
-
-          mv $DIR /data/safe_staging/old_openpilot
-          mv "${STAGING_ROOT}/finalized" $DIR
-          cd $DIR
-
-          echo "Restarting launch script ${LAUNCHER_LOCATION}"
+        # Immediate command-failure recovery only. Power-loss/startup rollback
+        # requires an independent supervisor outside /data/openpilot.
+        if ! source "$DIR/system/updated/activation_guard.sh"; then
+          echo "G8 activation helper unavailable; continuing old application without activating update" >&2
+        elif g8_activate_staged_update "$DIR" "$STAGING_ROOT"; then
+          echo "Restarting the activated application"
+          cd "$DIR" || exit 1
           unset AGNOS_VERSION
-          exec "${LAUNCHER_LOCATION}"
+          exec "$DIR/launch_chffrplus.sh"
+          echo "CRITICAL: launch after activation failed; external recovery required" >&2
+          exit 1
         else
-          echo "openpilot backup found, not updating"
-          # TODO: restore backup? This means the updater didn't start after swapping
+          G8_ACTIVATION_RC=$?
+          case "$G8_ACTIVATION_RC" in
+            10|20|30)
+              echo "G8 activation deferred/recovered (rc=$G8_ACTIVATION_RC); retaining existing app" >&2
+              if [ ! -x "$DIR/launch_chffrplus.sh" ]; then
+                echo "CRITICAL: existing launcher not available; external recovery required" >&2
+                exit 1
+              fi
+              ;;
+            *)
+              echo "CRITICAL: activation left unknown state (rc=$G8_ACTIVATION_RC); refusing app startup" >&2
+              exit 1
+              ;;
+          esac
         fi
       fi
     fi
