@@ -79,11 +79,18 @@ def read_canonical_json(raw: bytes, *, max_bytes: int = MAX_JSON_BYTES) -> dict[
   try:
     value = json.loads(raw.decode("utf-8"), object_pairs_hook=_no_duplicate_pairs,
                        parse_constant=lambda value: (_ for _ in ()).throw(EvidenceError(f"invalid constant: {value}")))
-  except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+  except EvidenceError:
+    raise
+  except (UnicodeDecodeError, ValueError, RecursionError) as exc:
+    # ValueError covers json.JSONDecodeError and the interpreter's integer-digit limit.
     raise EvidenceError("invalid UTF-8 JSON") from exc
   if type(value) is not dict:
     raise EvidenceError("top-level JSON must be an object")
-  if raw != canonical_json(value):
+  try:
+    canonical = canonical_json(value)
+  except (UnicodeEncodeError, RecursionError, ValueError) as exc:
+    raise EvidenceError("JSON cannot be canonicalized") from exc
+  if raw != canonical:
     raise EvidenceError("JSON is not canonical")
   return value
 

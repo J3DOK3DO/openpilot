@@ -79,6 +79,14 @@ def test_rejects_bad_canonical_inputs(raw):
     read_canonical_json(raw)
 
 
+@pytest.mark.parametrize(("raw"), [b'{"a":' + b"9" * 5000 + b"}\n",
+                                   b'{"a":' + b"[" * 100000 + b"]" * 100000 + b"}\n",
+                                   br'{"a":"\ud800"}' + b'\n'])
+def test_parser_failures_are_always_evidence_errors(raw):
+  with pytest.raises(EvidenceError):
+    read_canonical_json(raw)
+
+
 def test_canonical_round_trip(evidence):
   assert read_canonical_json(canonical_json(evidence)) == evidence
 
