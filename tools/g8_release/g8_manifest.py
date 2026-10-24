@@ -117,14 +117,18 @@ def scan_tree(root, with_elf_detail=True):
 
 
 def build_manifest(root, source_commit, target_machine="AArch64", foreign_elf_globs=(),
-                   dangling_symlink_allow=None, provenance=None, with_elf_detail=True):
+                   dangling_symlink_allow=None, provenance=None, with_elf_detail=True,
+                   release_sequence=None):
   """dangling_symlink_allow: {path: reason}. foreign_elf_globs: {glob: reason}."""
   entries = scan_tree(root, with_elf_detail)
-  return {
+  manifest = {
     "schema": SCHEMA, "source_commit": source_commit, "target_machine": target_machine,
     "foreign_elf_allow": dict(foreign_elf_globs), "dangling_symlink_allow": dict(dangling_symlink_allow or {}),
     "provenance": provenance or {}, "entries": entries,
   }
+  if release_sequence is not None:
+    manifest["release_sequence"] = release_sequence
+  return manifest
 
 
 # ----------------------------------------------------------------------- signing
@@ -199,6 +203,9 @@ def check_manifest_structure(m):
       f.append(("MANIFEST_BAD_TYPE", p, str(e.get("type"))))
   if not m.get("source_commit"):
     f.append(("MANIFEST_NO_SOURCE_COMMIT", "", ""))
+  sequence = m.get("release_sequence")
+  if sequence is not None and (isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 0):
+    f.append(("MANIFEST_BAD_RELEASE_SEQUENCE", "", str(sequence)))
   return f
 
 
