@@ -1,6 +1,7 @@
 """F8 host-only negative/boundary guards; no path, device, Panda, CAN or boot calls."""
 import ast
 import copy
+import hashlib
 import json
 
 import pytest
@@ -29,23 +30,26 @@ def manifest():
   }
 
 
-def evidence(control):
+def evidence(control, manifest_sha256):
   synthetic = control in f8.HARDWARE_CONTROLS
   return {
     "control": control,
-    "evidence_type": "SOFTWARE_SIGNED_SYNTHETIC" if synthetic else "SOURCE_DERIVED",
+    "evidence_type": "CALLER_ASSERTED_SYNTHETIC" if synthetic else "SOURCE_DERIVED",
     "claim": True, "issued_at": NOW - 10, "expires_at": NOW + 10, "slot": "_a",
-    "boot_nonce": NONCE, "counter": 7, "attempt": 2, "image_digest": DIGEST,
+    "boot_nonce": NONCE, "counter": 7, "attempt": 2,
+    "manifest_sha256": manifest_sha256,
   }
 
 
 def bundle():
+  runtime_manifest = manifest()
+  manifest_sha256 = hashlib.sha256(f8.canonical(runtime_manifest)).hexdigest()
   return {
     "schema": f8.BUNDLE_SCHEMA, "marker": f8.OFFLINE_MARKER,
     "f7_reference": f8.F7_REFERENCE, "assessment_time": NOW,
     "observed": copy.deepcopy(f8.OBSERVED_LIMITS),
-    "contract_evidence": [evidence(c) for c in f8.REQUIRED_CONTROLS],
-    "runtime_manifest": manifest(),
+    "contract_evidence": [evidence(c, manifest_sha256) for c in f8.REQUIRED_CONTROLS],
+    "runtime_manifest": runtime_manifest,
   }
 
 
@@ -53,14 +57,18 @@ def assess(value=None):
   return f8.assess_canonical_bundle(f8.canonical(bundle() if value is None else value))
 
 
-def test_complete_docs_are_only_conditionally_prepared_and_never_go():
+def test_complete_synthetic_bundle_is_simulation_only_hold_and_never_go():
   result = assess()
-  assert result.docs_prepared
-  assert result.offline_preintegration == "CONDITIONALLY_PREPARED"
+  assert not result.docs_prepared
+  assert result.offline_preintegration == "SIMULATION_ONLY_HOLD"
   assert not result.hardware_qualified
   assert not result.production_release_go
   assert not result.installation_authorized
   assert not result.device_actions_authorized
+  assert result.synthetic_exercised_controls == tuple(sorted(f8.REQUIRED_CONTROLS))
+  assert "accepted_controls" not in result.as_dict()
+  assert "ALL_ASSERTIONS_CALLER_SUPPLIED_AND_UNAUTHENTICATED" in result.reason_codes
+  assert "ASSESSMENT_TIME_AND_ORDERING_ARE_SYNTHETIC" in result.reason_codes
   assert "HARDWARE_ROOTED_ATTESTATION_NOT_DEMONSTRATED" in result.reason_codes
 
 
@@ -172,24 +180,24 @@ def test_valid_format_nonce_mismatch_rejected():
     assess(value)
 
 
-def test_counter_rollback_across_claims_rejected():
+def test_counter_mismatch_across_claims_rejected():
   value = bundle()
   value["contract_evidence"][1]["counter"] = 6
-  with pytest.raises(f8.AssessmentError, match="rollback"):
+  with pytest.raises(f8.AssessmentError, match="binding"):
     assess(value)
 
 
-def test_attempt_rollback_across_claims_rejected():
+def test_attempt_mismatch_across_claims_rejected():
   value = bundle()
   value["contract_evidence"][1]["attempt"] = 1
-  with pytest.raises(f8.AssessmentError, match="rollback"):
+  with pytest.raises(f8.AssessmentError, match="binding"):
     assess(value)
 
 
-def test_image_digest_mismatch_across_claims_rejected():
+def test_manifest_digest_mismatch_across_claims_rejected():
   value = bundle()
-  value["contract_evidence"][1]["image_digest"] = "c" * 64
-  with pytest.raises(f8.AssessmentError, match="binding"):
+  value["contract_evidence"][1]["manifest_sha256"] = "c" * 64
+  with pytest.raises(f8.AssessmentError, match="manifest"):
     assess(value)
 
 
@@ -199,7 +207,7 @@ def test_image_digest_mismatch_across_claims_rejected():
 def test_stale_future_or_expired_claim_rejected(issued, expires):
   value = bundle()
   value["contract_evidence"][0].update(issued_at=issued, expires_at=expires)
-  with pytest.raises(f8.AssessmentError, match="stale"):
+  with pytest.raises(f8.AssessmentError, match="time window"):
     assess(value)
 
 
@@ -234,8 +242,8 @@ def test_unknown_control_rejected():
 
 def test_bad_digest_rejected():
   value = bundle()
-  value["contract_evidence"][0]["image_digest"] = "A" * 64
-  with pytest.raises(f8.AssessmentError, match="digest"):
+  value["contract_evidence"][0]["manifest_sha256"] = "A" * 64
+  with pytest.raises(f8.AssessmentError, match="SHA-256"):
     assess(value)
 
 
@@ -277,9 +285,83 @@ def test_observed_boundary_cannot_be_upgraded():
     assess(value)
 
 
+@pytest.mark.parametrize("field", ["root_read_only", "data_read_only",
+                                    "launcher_early_set_success_observed"])
+def test_observed_boolean_rejects_integer_one_or_zero(field):
+  value = bundle()
+  value["observed"][field] = int(value["observed"][field])
+  with pytest.raises(f8.AssessmentError, match="observed"):
+    assess(value)
+
+
+def test_observed_integer_rejects_boolean():
+  value = bundle()
+  value["observed"]["root_free_mb"] = True
+  with pytest.raises(f8.AssessmentError, match="observed"):
+    assess(value)
+
+
+@pytest.mark.parametrize("mutation", ["digest", "executable", "component"])
+def test_manifest_mutation_without_evidence_update_rejected(mutation):
+  value = bundle()
+  if mutation == "digest":
+    value["runtime_manifest"]["components"][0]["sha256"] = "c" * 64
+  elif mutation == "executable":
+    value["runtime_manifest"]["components"].append(
+      component("asset", "asset", executable=False))
+  else:
+    value["runtime_manifest"]["components"].append(component("helper", "helper"))
+  with pytest.raises(f8.AssessmentError, match="bound to runtime manifest"):
+    assess(value)
+
+
+def test_all_components_non_executable_rejected():
+  value = bundle()
+  for item in value["runtime_manifest"]["components"]:
+    item["executable"] = False
+  with pytest.raises(f8.AssessmentError, match="not executable"):
+    assess(value)
+
+
+def test_named_interpreter_and_loader_roles_cannot_be_swapped():
+  value = bundle()
+  python = next(x for x in value["runtime_manifest"]["components"] if x["name"] == "python")
+  loader = next(x for x in value["runtime_manifest"]["components"] if x["name"] == "ld-linux")
+  python["role"], loader["role"] = loader["role"], python["role"]
+  with pytest.raises(f8.AssessmentError, match="interpreter role"):
+    assess(value)
+
+
+@pytest.mark.parametrize("role", ["application", "interpreter", "loader", "crypto"])
+def test_duplicated_critical_role_rejected(role):
+  value = bundle()
+  value["runtime_manifest"]["components"].append(component(f"second-{role}", role))
+  with pytest.raises(f8.AssessmentError, match="ambiguous"):
+    assess(value)
+
+
+def test_invalid_component_digest_rejected():
+  value = bundle()
+  value["runtime_manifest"]["components"][0]["sha256"] = "A" * 64
+  with pytest.raises(f8.AssessmentError, match="runtime digest"):
+    assess(value)
+
+
 def test_result_constructor_rejects_release_go():
   result = assess()
   values = result.__dict__ | {"production_release_go": True}
+  with pytest.raises(f8.AssessmentError):
+    f8.AssessmentResult(**values)
+
+
+@pytest.mark.parametrize("field,value", [
+  ("docs_prepared", True), ("offline_preintegration", "CONDITIONALLY_PREPARED"),
+  ("hardware_qualified", True), ("installation_authorized", True),
+  ("device_actions_authorized", True),
+])
+def test_result_constructor_immutably_enforces_simulation_hold(field, value):
+  result = assess()
+  values = result.__dict__ | {field: value}
   with pytest.raises(f8.AssessmentError):
     f8.AssessmentResult(**values)
 

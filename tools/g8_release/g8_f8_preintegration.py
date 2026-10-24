@@ -9,14 +9,15 @@ by a future platform verifier that is intentionally absent here.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
 from typing import Any
 
 
-BUNDLE_SCHEMA = "c7-g8-f8-offline-preintegration/1"
-RESULT_SCHEMA = "c7-g8-f8-offline-assessment/1"
+BUNDLE_SCHEMA = "c7-g8-f8-offline-preintegration/2"
+RESULT_SCHEMA = "c7-g8-f8-offline-assessment/2"
 MANIFEST_SCHEMA = "c7-g8-f8-runtime-manifest/1"
 OFFLINE_MARKER = "F8_HOST_ONLY_NON_DEPLOYABLE"
 F7_REFERENCE = "8fe7fb42c320316d74868321247ce0255ec80cb2"
@@ -30,7 +31,7 @@ _TOKEN = re.compile(r"^[A-Za-z0-9_.:-]{1,96}$")
 
 EVIDENCE_TYPES = frozenset({
   "OBSERVED_INVENTORY", "SOURCE_DERIVED", "GENERIC_DOCUMENTATION",
-  "SOFTWARE_SIGNED_SYNTHETIC",
+  "CALLER_ASSERTED_SYNTHETIC",
 })
 REQUIRED_CONTROLS = (
   "authority_outside_data", "slot_digest_secure_binding", "protected_monotonic_state",
@@ -56,7 +57,7 @@ OBSERVED_LIMITS = {
 
 
 class AssessmentError(ValueError):
-  """Strict input, typing, freshness, or contract rejection."""
+  """Strict input, typing, synthetic-window, or contract rejection."""
 
 
 def canonical(value: Any) -> bytes:
@@ -114,8 +115,17 @@ def _boolean(value: Any, label: str) -> bool:
   return value
 
 
+def _validate_observed(value: Any) -> None:
+  """Match the F7A inventory literally, including each JSON scalar type."""
+  observed = _exact(value, set(OBSERVED_LIMITS), "observed F7A boundary")
+  for key, expected in OBSERVED_LIMITS.items():
+    actual = observed[key]
+    if type(actual) is not type(expected) or actual != expected:
+      raise AssessmentError("observed F7A boundary mismatch")
+
+
 def validate_runtime_manifest(value: Any, *, assessment_time: int) -> tuple[str, ...]:
-  """Validate a caller-supplied immutable-runtime description, without paths."""
+  """Validate a caller-supplied synthetic runtime description, without paths."""
   keys = {"schema", "generated_at", "agnos_version", "kernel", "architecture",
           "interpreter", "loader", "components"}
   manifest = _exact(value, keys, "runtime manifest")
@@ -132,7 +142,8 @@ def validate_runtime_manifest(value: Any, *, assessment_time: int) -> tuple[str,
   if type(components) is not list or not 1 <= len(components) <= MAX_COMPONENTS:
     raise AssessmentError("runtime component set missing or oversized")
   names: set[str] = set()
-  roles: set[str] = set()
+  components_by_name: dict[str, dict[str, Any]] = {}
+  critical_role_counts = {role: 0 for role in ("application", "interpreter", "loader", "crypto")}
   for item in components:
     _exact(item, {"name", "role", "sha256", "mount_class", "read_only", "executable"},
            "runtime component")
@@ -141,20 +152,28 @@ def validate_runtime_manifest(value: Any, *, assessment_time: int) -> tuple[str,
     if name in names:
       raise AssessmentError("duplicate runtime component")
     names.add(name)
-    roles.add(role)
+    components_by_name[name] = item
+    if role in critical_role_counts:
+      critical_role_counts[role] += 1
     if type(item["sha256"]) is not str or not _HEX64.fullmatch(item["sha256"]):
       raise AssessmentError("malformed runtime digest")
     if item["mount_class"] not in ("VERIFIED_ROOT", "VERIFIED_APP_IMAGE"):
       raise AssessmentError("mutable or unverified runtime mount")
     if _boolean(item["read_only"], "component read-only") is not True:
       raise AssessmentError("writable runtime component")
-    _boolean(item["executable"], "component executable")
+    executable = _boolean(item["executable"], "component executable")
+    if role in critical_role_counts and executable is not True:
+      raise AssessmentError("critical runtime component is not executable")
   interpreter = _token(manifest["interpreter"], "interpreter component")
   loader = _token(manifest["loader"], "loader component")
   if interpreter not in names or loader not in names:
     raise AssessmentError("interpreter or loader absent from closure")
-  if not {"application", "interpreter", "loader", "crypto"}.issubset(roles):
-    raise AssessmentError("runtime dependency roles incomplete")
+  if components_by_name[interpreter]["role"] != "interpreter":
+    raise AssessmentError("named interpreter role mismatch")
+  if components_by_name[loader]["role"] != "loader":
+    raise AssessmentError("named loader role mismatch")
+  if any(count != 1 for count in critical_role_counts.values()):
+    raise AssessmentError("runtime critical roles incomplete or ambiguous")
   return tuple(sorted(names))
 
 
@@ -168,11 +187,12 @@ class AssessmentResult:
   production_release_go: bool
   installation_authorized: bool
   device_actions_authorized: bool
-  accepted_controls: tuple[str, ...]
+  synthetic_exercised_controls: tuple[str, ...]
   reason_codes: tuple[str, ...]
 
   def __post_init__(self) -> None:
     if (self.schema != RESULT_SCHEMA or self.marker != OFFLINE_MARKER or
+        self.docs_prepared or self.offline_preintegration != "SIMULATION_ONLY_HOLD" or
         self.hardware_qualified or self.production_release_go or
         self.installation_authorized or self.device_actions_authorized):
       raise AssessmentError("offline result cannot authorize hardware or release")
@@ -186,7 +206,7 @@ class AssessmentResult:
       "production_release_go": self.production_release_go,
       "installation_authorized": self.installation_authorized,
       "device_actions_authorized": self.device_actions_authorized,
-      "accepted_controls": list(self.accepted_controls),
+      "synthetic_exercised_controls": list(self.synthetic_exercised_controls),
       "reason_codes": list(self.reason_codes),
     }
 
@@ -201,14 +221,16 @@ def assess_canonical_bundle(data: Any) -> AssessmentResult:
       bundle["f7_reference"] != F7_REFERENCE):
     raise AssessmentError("bundle identity mismatch")
   now = _integer(bundle["assessment_time"], "assessment time")
-  if bundle["observed"] != OBSERVED_LIMITS:
-    raise AssessmentError("observed F7A boundary mismatch")
+  _validate_observed(bundle["observed"])
   validate_runtime_manifest(bundle["runtime_manifest"], assessment_time=now)
+  expected_manifest_sha256 = hashlib.sha256(canonical(bundle["runtime_manifest"])).hexdigest()
   evidence = bundle["contract_evidence"]
   if type(evidence) is not list or len(evidence) != len(REQUIRED_CONTROLS):
     raise AssessmentError("contract evidence set incomplete")
-  accepted: set[str] = set()
+  exercised: set[str] = set()
   reasons = {
+    "ALL_ASSERTIONS_CALLER_SUPPLIED_AND_UNAUTHENTICATED",
+    "ASSESSMENT_TIME_AND_ORDERING_ARE_SYNTHETIC",
     "HARDWARE_ROOTED_ATTESTATION_NOT_DEMONSTRATED",
     "PROTECTED_MONOTONIC_STATE_NOT_DEMONSTRATED",
     "QSEE_RPMB_TRUSTED_EARLY_BOOT_NOT_DEMONSTRATED",
@@ -216,13 +238,13 @@ def assess_canonical_bundle(data: Any) -> AssessmentResult:
     "NATIVE_AGNOS_AND_PHYSICAL_BENCH_NOT_QUALIFIED",
     "PANDA_CAN_AND_BROAD_REGRESSION_HOLD",
   }
-  boot_binding: tuple[str, str, int, int, str] | None = None
+  synthetic_binding: tuple[str, str, int, int, str] | None = None
   for item in evidence:
     _exact(item, {"control", "evidence_type", "claim", "issued_at", "expires_at",
-                  "slot", "boot_nonce", "counter", "attempt", "image_digest"},
+                  "slot", "boot_nonce", "counter", "attempt", "manifest_sha256"},
            "contract evidence")
     control = _token(item["control"], "control")
-    if control not in REQUIRED_CONTROLS or control in accepted:
+    if control not in REQUIRED_CONTROLS or control in exercised:
       raise AssessmentError("unknown or duplicate control")
     evidence_type = item["evidence_type"]
     if evidence_type not in EVIDENCE_TYPES:
@@ -230,7 +252,7 @@ def assess_canonical_bundle(data: Any) -> AssessmentResult:
     issued = _integer(item["issued_at"], "claim issue time")
     expires = _integer(item["expires_at"], "claim expiry time")
     if issued > now or expires < now or expires <= issued or now - issued > MAX_AGE_SECONDS:
-      raise AssessmentError("stale or future-dated contract claim")
+      raise AssessmentError("synthetic claim time window mismatch")
     if _boolean(item["claim"], "control claim") is not True:
       raise AssessmentError("negative contract control")
     if item["slot"] != "_a":
@@ -239,21 +261,23 @@ def assess_canonical_bundle(data: Any) -> AssessmentResult:
       raise AssessmentError("nonce binding malformed")
     counter = _integer(item["counter"], "boot counter", 1)
     attempt = _integer(item["attempt"], "attempt number", 1, 5)
-    if type(item["image_digest"]) is not str or not _HEX64.fullmatch(item["image_digest"]):
-      raise AssessmentError("image digest malformed")
-    candidate_binding = (item["slot"], item["boot_nonce"], counter, attempt, item["image_digest"])
-    if boot_binding is None:
-      boot_binding = candidate_binding
-    elif candidate_binding != boot_binding:
-      raise AssessmentError("boot evidence binding mismatch or rollback")
-    if control in HARDWARE_CONTROLS and evidence_type != "SOFTWARE_SIGNED_SYNTHETIC":
+    manifest_sha256 = item["manifest_sha256"]
+    if type(manifest_sha256) is not str or not _HEX64.fullmatch(manifest_sha256):
+      raise AssessmentError("manifest SHA-256 malformed")
+    if manifest_sha256 != expected_manifest_sha256:
+      raise AssessmentError("synthetic evidence is not bound to runtime manifest")
+    candidate_binding = (item["slot"], item["boot_nonce"], counter, attempt, manifest_sha256)
+    if synthetic_binding is None:
+      synthetic_binding = candidate_binding
+    elif candidate_binding != synthetic_binding:
+      raise AssessmentError("synthetic evidence binding mismatch")
+    if control in HARDWARE_CONTROLS and evidence_type != "CALLER_ASSERTED_SYNTHETIC":
       raise AssessmentError("hardware control lacks explicitly synthetic test evidence")
-    accepted.add(control)
-  complete = accepted == set(REQUIRED_CONTROLS)
+    exercised.add(control)
   return AssessmentResult(
-    schema=RESULT_SCHEMA, marker=OFFLINE_MARKER, docs_prepared=complete,
-    offline_preintegration="CONDITIONALLY_PREPARED" if complete else "HOLD",
+    schema=RESULT_SCHEMA, marker=OFFLINE_MARKER, docs_prepared=False,
+    offline_preintegration="SIMULATION_ONLY_HOLD",
     hardware_qualified=False, production_release_go=False,
     installation_authorized=False, device_actions_authorized=False,
-    accepted_controls=tuple(sorted(accepted)), reason_codes=tuple(sorted(reasons)),
+    synthetic_exercised_controls=tuple(sorted(exercised)), reason_codes=tuple(sorted(reasons)),
   )
