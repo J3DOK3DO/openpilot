@@ -143,7 +143,7 @@ def test_legitimate_lifecycle_consumes_health_attests_and_promotes(f4):
   assert selection.disposition == "trial"
   assert selection.candidate == f4.ids["trial"]
   assert selection.executed is False
-  assert selection.launcher_path == str(f4.app / "slots" / f4.slots["trial"] / sv.LAUNCHER)
+  assert selection.launcher_path is None  # fail closed: no executable pathname handoff
   promoted = f4.coordinator.attest_and_promote(ticket, healthy_envelope(f4, ticket))
   assert promoted.recovery == f4.ids["trial"]
   assert promoted.minimum_release_sequence == 11
@@ -333,7 +333,7 @@ def test_exact_exhaustion_returns_only_preverified_recovery(f4):
   assert first.disposition == "trial"
   assert second.disposition == "recovery"
   assert second.candidate == f4.authority.policy_snapshot().recovery
-  assert second.launcher_path.startswith(str(f4.app / "slots" / f4.slots["recovery"]))
+  assert second.launcher_path is None  # verified recovery identity is not an execution grant
 
 
 def test_prepare_crash_before_consume_preserves_budget_after_consume_spends_it(f4):
@@ -412,3 +412,25 @@ def test_exhausted_budget_with_corrupt_recovery_returns_no_launcher(f4):
   with pytest.raises(CoordinatorError, match="deep verification"):
     f4.coordinator.prepare_trial_boot(ticket)
   assert f4.authority.protected_attempts() == (1, 1)
+
+
+def test_host_coordinator_rejects_duck_typed_attacker_authority(f4):
+  class ForgedAuthority:
+    trust_domain_path = "/outside/trusted"
+    def policy_snapshot(self):
+      return f4.authority.policy_snapshot()
+    def consume_attempt(self, *args):
+      return object()
+  with pytest.raises(CoordinatorError, match="exact mock-authority"):
+    BootCoordinator(f4.app, ForgedAuthority())
+
+
+def test_host_selection_never_hands_out_a_mutable_executable_path(f4):
+  ticket = authorize(f4, 1)
+  trial = f4.coordinator.prepare_trial_boot(ticket)
+  recovery = f4.coordinator.prepare_trial_boot(ticket)
+  assert trial.disposition == "trial" and recovery.disposition == "recovery"
+  for result in (trial, recovery):
+    assert result.launcher_path is None
+    assert result.executed is False
+    assert result.candidate is not None

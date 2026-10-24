@@ -20,6 +20,7 @@ from g8_protected_authority import (
   AuthorityError,
   CandidateIdentity,
   HealthReceipt,
+  MockProtectedAuthority,
   PolicySnapshot,
   ProtectedAuthority,
   TrialTicket,
@@ -38,7 +39,7 @@ class CoordinatorCrash(BaseException):
 class LaunchSelection:
   disposition: str
   candidate: CandidateIdentity
-  launcher_path: str
+  launcher_path: str | None  # None: host mock offers NO executable handoff
   attempts_consumed: int
   attempts_limit: int
   executed: bool = False
@@ -66,6 +67,10 @@ class BootCoordinator:
       raise CoordinatorError("F4 reference supports hardened fail-closed mode only")
     if authority is None:
       raise CoordinatorError("hardened F4 requires an external protected authority")
+    # Strict host-MOCK binding: arbitrary duck-typed objects must not substitute
+    # attacker-controlled policy/grants. Does NOT authenticate a real boot process.
+    if type(authority) is not MockProtectedAuthority:
+      raise CoordinatorError("host F4 requires the exact mock-authority implementation")
     self._require_separate_trust_domain()
 
   def _require_separate_trust_domain(self) -> None:
@@ -146,7 +151,9 @@ class BootCoordinator:
       slot_real = os.path.realpath(supervisor.slot_dir(candidate.slot_id))
       if os.path.commonpath((launcher_real, slot_real)) != slot_real or not os.path.isfile(launcher):
         raise CoordinatorError("launcher path escaped the authorized slot")
-      return LaunchSelection(disposition, candidate, launcher, attempts_consumed, attempts_limit, False)
+      # Do not hand out a mutable pathname as an execution authorization.
+      # Only a future protected early-boot component may hand off a pinned FD.
+      return LaunchSelection(disposition, candidate, None, attempts_consumed, attempts_limit, False)
     except sv.SlotInvalid as error:
       raise CoordinatorError(f"cannot establish approved live slot: {error}") from error
 
