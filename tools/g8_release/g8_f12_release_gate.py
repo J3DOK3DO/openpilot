@@ -40,6 +40,20 @@ class ReleaseAssessment:
   evidence_label: str
   blockers: tuple[str, ...]
 
+  def __post_init__(self) -> None:
+    # A forged advisory result must never acquire release authority, even by direct construction.
+    required_true = ("schema_valid", "offline_integrity_controls_exercised")
+    required_false = ("production_go", "installation_authorized", "device_action_authorized",
+                      "panda_can_authorized", "hardware_qualified", "native_agnos_qualified")
+    if (any(type(getattr(self, field)) is not bool or not getattr(self, field) for field in required_true)
+        or any(type(getattr(self, field)) is not bool or getattr(self, field) for field in required_false)
+        or self.disposition != "SIMULATED_OFFLINE_ASSESSMENT_HOLD"
+        or self.evidence_label != "CALLER_SUPPLIED_JSON_PLUS_UNKEYED_HASHES_NOT_ATTESTATION"
+        or type(self.blockers) is not tuple
+        or not self.blockers
+        or not all(type(reason) is str and reason for reason in self.blockers)):
+      raise EvidenceError("advisory result cannot grant release or device authority")
+
   def to_dict(self) -> dict[str, Any]:
     return asdict(self)
 

@@ -1,4 +1,5 @@
 import copy
+from dataclasses import replace
 import json
 
 import pytest
@@ -166,3 +167,17 @@ def test_extra_nested_key_rejected(evidence):
   evidence["platform_evidence"]["caller_go"] = True
   with pytest.raises(EvidenceError):
     assess_release(evidence)
+
+
+@pytest.mark.parametrize(("field", "value"), [
+  ("production_go", True), ("installation_authorized", True),
+  ("device_action_authorized", True), ("panda_can_authorized", True),
+  ("hardware_qualified", True), ("native_agnos_qualified", True),
+  ("schema_valid", False), ("offline_integrity_controls_exercised", False),
+  ("disposition", "GO"), ("evidence_label", "HARDWARE_ATTESTED"),
+  ("blockers", ()), ("production_go", 0),
+])
+def test_direct_result_construction_cannot_claim_go(evidence, field, value):
+  result = assess_release(evidence)
+  with pytest.raises(EvidenceError, match="cannot grant release"):
+    replace(result, **{field: value})
