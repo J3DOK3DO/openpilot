@@ -53,6 +53,9 @@ def env(tmp_path):
   e.key = Ed25519PrivateKey.generate()  # memory-only simulated production key
   e.mf = {}
   e.sig = {}
+  e.approved_recovery_slot = None
+  e.approved_trial_slot = None
+  e.approved_health_slot = None
   for tag, package in e.pk.items():
     e.mf[tag], e.sig[tag], e.trust = signed_manifest(package, e.key)
   e.tmp = tmp_path
@@ -65,18 +68,36 @@ def env(tmp_path):
   def S(**kw):
     kw.setdefault("trust", e.trust)
     kw.setdefault("expected_commit", COMMIT)
+    kw.setdefault("approved_recovery_slot", e.approved_recovery_slot)
+    kw.setdefault("approved_trial_slot", e.approved_trial_slot)
+    kw.setdefault("approved_health_slot", e.approved_health_slot)
     return sv.Supervisor(str(e.base), **kw)
   e.S = S
   return e
 
 
 def install(env, tag, confirm=True):
-  s = env.S()
-  with s:
+  with env.S() as s:
     sid = s.stage(str(env.pk[tag]), env.mf[tag], COMMIT, env.sig[tag])
-    s.activate(sid)
+  if env.approved_recovery_slot is None:
+    # Bootstrap is a distinct external policy decision: the signed slot is not
+    # selected by scanning mutable state or the slots directory.
+    env.approved_recovery_slot = sid
+    with env.S() as s:
+      s.recover()
+  else:
+    # Trial intent, simulated health authorization, and durable recovery
+    # promotion are deliberately separate caller policy updates.
+    env.approved_trial_slot = sid
+    with env.S() as s:
+      s.activate(sid)
     if confirm:
-      s.confirm()
+      env.approved_health_slot = sid
+      with env.S() as s:
+        s.confirm()
+      env.approved_recovery_slot = sid
+      env.approved_trial_slot = None
+      env.approved_health_slot = None
   return sid
 
 
@@ -119,9 +140,11 @@ def test_01_interrupted_staging_leaves_live_untouched(env):
 def test_02_failed_renames_never_lose_launcher(env):
   install(env, "v1")
   for where in ("before_switch_rename", "after_intent_state"):
+    with env.S() as s:
+      sid = s.stage(str(env.pk["v2"]), env.mf["v2"], COMMIT, env.sig["v2"])
+    env.approved_trial_slot = sid
     s = env.S(faults=sv.Faults(oserror_at={where: errno.EIO}))
     with s:
-      sid = s.stage(str(env.pk["v2"]), env.mf["v2"], COMMIT, env.sig["v2"])
       with pytest.raises(OSError):
         s.activate(sid)
     assert os.access(env.base / "live" / "launch_chffrplus.sh", os.X_OK)  # no instant without launcher
@@ -135,10 +158,14 @@ def test_02_failed_renames_never_lose_launcher(env):
 def test_03_power_loss_at_every_activation_point(env):
   for pt in CRASH_ACTIVATE:
     shutil.rmtree(env.base, ignore_errors=True)
+    env.approved_recovery_slot = None
+    env.approved_trial_slot = None
+    env.approved_health_slot = None
     install(env, "v1")
     s = env.S()
     with s:
       sid = s.stage(str(env.pk["v2"]), env.mf["v2"], COMMIT, env.sig["v2"])
+    env.approved_trial_slot = sid
     s = env.S(faults=sv.Faults(crash_at=pt))
     with pytest.raises(sv.SimulatedCrash):
       with s:
@@ -174,7 +201,10 @@ def test_03b_live_link_exists_after_every_filesystem_mutation(env, monkeypatch):
     monkeypatch.setattr(os, n, wrap(n))
   s = env.S(max_boot_attempts=1)
   with s:
-    s.activate(s.stage(str(env.pk["v2"]), env.mf["v2"], COMMIT, env.sig["v2"]))
+    sid = s.stage(str(env.pk["v2"]), env.mf["v2"], COMMIT, env.sig["v2"])
+  env.approved_trial_slot = sid
+  with env.S(max_boot_attempts=1) as s:
+    s.activate(sid)
   for _ in range(4):  # exhaust boot budget -> rollback path
     s = env.S(max_boot_attempts=1)
     with s:
@@ -188,6 +218,9 @@ def test_04c_crash_inside_rollback_still_ends_on_good_slot(env):
   install(env, "v2", confirm=False)
   for pt in ("rollback_state_saved", "state_tmp_written", "before_switch_rename", "after_switch_rename"):
     shutil.rmtree(env.base, ignore_errors=True)
+    env.approved_recovery_slot = None
+    env.approved_trial_slot = None
+    env.approved_health_slot = None
     install(env, "v1")
     install(env, "v2", confirm=False)
     for _ in range(3):  # burn the whole 3-attempt budget
@@ -204,9 +237,11 @@ def test_04c_crash_inside_rollback_still_ends_on_good_slot(env):
 
 def test_04_failed_startup_rolls_back_after_attempt_budget(env):
   install(env, "v1")
-  s = env.S(max_boot_attempts=3)
-  with s:
-    s.activate(s.stage(str(env.pk["v2"]), env.mf["v2"], COMMIT, env.sig["v2"]))
+  with env.S(max_boot_attempts=3) as s:
+    sid = s.stage(str(env.pk["v2"]), env.mf["v2"], COMMIT, env.sig["v2"])
+  env.approved_trial_slot = sid
+  with env.S(max_boot_attempts=3) as s:
+    s.activate(sid)
   seen = []
   for _ in range(6):  # app never calls confirm(): simulates crash-looping new version
     s = env.S(max_boot_attempts=3)
@@ -223,10 +258,14 @@ def test_04_failed_startup_rolls_back_after_attempt_budget(env):
 def test_04b_confirmed_update_is_not_rolled_back(env):
   install(env, "v1")
   install(env, "v2", confirm=False)
-  s = env.S()
-  with s:
+  with env.S() as s:
     s.boot()
+  env.approved_health_slot = env.approved_trial_slot
+  with env.S() as s:
     s.confirm()
+  env.approved_recovery_slot = env.approved_trial_slot
+  env.approved_trial_slot = None
+  env.approved_health_slot = None
   for _ in range(6):
     s = env.S()
     with s:
@@ -238,6 +277,11 @@ def test_05_missing_active_launcher_recovers_without_the_app(env):
   install(env, "v1")
   install(env, "v2")
   os.unlink(env.base / "slots" / os.readlink(env.base / "live").split("/")[-1] / "launch_chffrplus.sh")
+  # A corrupt external health anchor fails closed; recovery does not scan for a
+  # merely signed replacement.  The caller must independently approve v1.
+  with env.S() as s, pytest.raises(sv.SlotInvalid):
+    s.boot()
+  env.approved_recovery_slot = sorted(os.listdir(env.base / "slots"))[0]
   assert assert_bootable(env, {"v1"}) == "v1"
   # live symlink deleted entirely
   os.unlink(env.base / "live")
@@ -278,7 +322,8 @@ def test_06_corrupt_or_incomplete_package_rejected_and_never_activated(env):
     sid = s.stage(str(env.pk["v2"]), env.mf["v2"], COMMIT, env.sig["v2"])
   with open(env.base / "slots" / sid / "lib" / "data.bin", "r+b") as f:
     f.write(b"\x00\x01")
-  with s, pytest.raises(sv.SlotInvalid):
+  env.approved_trial_slot = sid
+  with env.S() as s, pytest.raises(sv.SlotInvalid):
     s.activate(sid)
   assert assert_bootable(env, {"v1"}) == "v1"
 
@@ -309,12 +354,18 @@ def test_07_existing_backups_and_repeated_recovery(env):
   for i in range(6):
     t = f"x{i}"
     p = make_pkg(env.tmp / f"pk_{t}", t)
-    install_pkg = env.S()
-    with install_pkg:
+    with env.S() as install_pkg:
       m, signature = env.sign(p)
       sid = install_pkg.stage(str(p), m, COMMIT, signature)
+    env.approved_trial_slot = sid
+    with env.S() as install_pkg:
       install_pkg.activate(sid)
+    env.approved_health_slot = sid
+    with env.S() as install_pkg:
       install_pkg.confirm()
+    env.approved_recovery_slot = sid
+    env.approved_trial_slot = None
+    env.approved_health_slot = None
   assert len(os.listdir(env.base / "slots")) <= 3
   assert assert_bootable(env, {"x5"}) == "x5"
 
@@ -469,21 +520,30 @@ def test_stress_random_crashes_preserve_bootability(env, seed):
     op = rnd.choice(["update", "update", "boot", "confirm", "recover", "boot_loop"])
     crash = rnd.choice([None, None] + CRASH_STAGE + CRASH_ACTIVATE + CRASH_CONFIRM)
     try:
-      s = env.S(faults=sv.Faults(crash_at=crash), max_boot_attempts=2)
-      with s:
-        if op == "update":
+      if op == "update":
+        with env.S(faults=sv.Faults(crash_at=crash), max_boot_attempts=2) as s:
           t = f"s{seed}_{i}"
           p = make_pkg(env.tmp / f"sp_{t}", t)
           pkgs[t] = p
           tags.add(t)
           m, signature = env.sign(p)
-          s.activate(s.stage(str(p), m, COMMIT, signature))
-        elif op in ("boot", "boot_loop"):
-          s.boot()
-        elif op == "confirm":
+          sid = s.stage(str(p), m, COMMIT, signature)
+        env.approved_trial_slot = sid
+        with env.S(faults=sv.Faults(crash_at=crash), max_boot_attempts=2) as s:
+          s.activate(sid)
+      elif op == "confirm":
+        env.approved_health_slot = env.approved_trial_slot
+        with env.S(faults=sv.Faults(crash_at=crash), max_boot_attempts=2) as s:
           s.confirm()
-        else:
-          s.recover()
+        env.approved_recovery_slot = env.approved_trial_slot
+        env.approved_trial_slot = None
+        env.approved_health_slot = None
+      else:
+        with env.S(faults=sv.Faults(crash_at=crash), max_boot_attempts=2) as s:
+          if op in ("boot", "boot_loop"):
+            s.boot()
+          else:
+            s.recover()
     except (sv.SimulatedCrash, sv.SlotInvalid):
       pass
     got = assert_bootable(env, tags)
@@ -506,5 +566,6 @@ def test_manifest_hash_cost_smoke(env):
   b = bytearray(p.read_bytes()); b[100] ^= 0xFF; p.write_bytes(bytes(b))
   assert s.slot_ok(sid, deep=False) is False  # deep verification mandatory after hardening
   assert s.slot_ok(sid, deep=True) is False
-  with s, pytest.raises(sv.SlotInvalid):
+  env.approved_trial_slot = sid
+  with env.S() as s, pytest.raises(sv.SlotInvalid):
     s.activate(sid)

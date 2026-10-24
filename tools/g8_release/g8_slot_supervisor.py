@@ -5,6 +5,10 @@ Every slot decision is authorized from caller-pinned policy, never from mutable
 ``state.json``: an Ed25519 manifest signature must chain to ``trust`` with
 production purpose, ``source_commit`` must equal ``expected_commit``, and an
 optional signed ``release_sequence`` must meet ``minimum_release_sequence``.
+Recovery and automatic rollback additionally require an exact externally
+approved recovery pin. Trial boot requires a separate intended-candidate pin,
+and confirmation requires a separate health-authorization pin. A signature
+establishes provenance, not activation intent or health.
 The signature is persisted beside each slot and rechecked with a full tree hash
 before activation, recovery, rollback, confirmation, or returning a launcher.
 
@@ -22,6 +26,7 @@ import re
 import shutil
 import stat
 import sys
+import tempfile
 import zlib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -76,19 +81,33 @@ def _fsync_dir(path):
 
 
 def _atomic_write(path, data: bytes, faults):
-  tmp = path + ".tmp"
-  with open(tmp, "wb") as f:
-    f.write(data)
-    f.flush()
-    os.fsync(f.fileno())
-  faults.hit("state_tmp_written")
-  os.replace(tmp, path)
-  _fsync_dir(os.path.dirname(path))
+  directory = os.path.dirname(path)
+  prefix = os.path.basename(path) + ".tmp."
+  fd, tmp = tempfile.mkstemp(prefix=prefix, dir=directory)
+  try:
+    with os.fdopen(fd, "wb") as f:
+      f.write(data)
+      f.flush()
+      os.fsync(f.fileno())
+    faults.hit("state_tmp_written")
+    os.replace(tmp, path)
+    _fsync_dir(directory)
+  except SimulatedCrash:
+    # Model abrupt death: recovery, rather than this frame, owns the leftover.
+    raise
+  except BaseException:
+    try:
+      os.unlink(tmp)
+    except FileNotFoundError:
+      pass
+    raise
 
 
 class Supervisor:
   def __init__(self, base, faults=None, max_boot_attempts=3, min_free_bytes=0, keep_slots=3,
-               trust=None, expected_commit=None, minimum_release_sequence=None):
+               trust=None, expected_commit=None, minimum_release_sequence=None,
+               approved_recovery_slot=None, approved_trial_slot=None,
+               approved_health_slot=None):
     self.base = os.path.abspath(base)
     self.f = faults or Faults()
     self.max_attempts = max_boot_attempts
@@ -99,6 +118,12 @@ class Supervisor:
     self._trust = copy.deepcopy(trust)
     self._expected_commit = expected_commit
     self._minimum_release_sequence = minimum_release_sequence
+    # These are snapshots of caller policy, not claims that caller storage or
+    # health authorization is immutable/authenticated. Production integration
+    # must provide hardware-protected policy and health attestation.
+    self._approved_recovery_slot = approved_recovery_slot
+    self._approved_trial_slot = approved_trial_slot
+    self._approved_health_slot = approved_health_slot
     for d in ("slots", "staging"):
       os.makedirs(os.path.join(self.base, d), exist_ok=True)
     self._lock_fd = None
@@ -113,9 +138,19 @@ class Supervisor:
       raise SlotInvalid("trusted production-key policy is not configured")
     if not isinstance(self._expected_commit, str) or not self._expected_commit:
       raise SlotInvalid("expected source commit is not configured")
+    if (isinstance(self.max_attempts, bool) or not isinstance(self.max_attempts, int) or
+        not 1 <= self.max_attempts <= 100):
+      raise SlotInvalid("boot retry budget must be an integer between 1 and 100")
     minimum = self._minimum_release_sequence
     if minimum is not None and (isinstance(minimum, bool) or not isinstance(minimum, int) or minimum < 0):
       raise SlotInvalid("minimum release sequence policy is malformed")
+    for description, approved in (
+        ("recovery", self._approved_recovery_slot),
+        ("trial", self._approved_trial_slot),
+        ("health", self._approved_health_slot),
+    ):
+      if approved is not None and not self._valid_sid(approved):
+        raise SlotInvalid(f"approved {description} slot policy is malformed")
 
   @staticmethod
   def _valid_sid(sid):
@@ -419,6 +454,12 @@ class Supervisor:
     return result
 
   def activate(self, sid):
+    self._require_policy()
+    if sid != self._approved_trial_slot:
+      raise SlotInvalid("activation target does not match externally approved trial slot")
+    approved = self._approved_recovery_target()
+    if approved is None:
+      raise SlotInvalid("no externally approved recovery slot is configured")
     self.verify_slot(sid, deep=True)
     state = self.load_state()
     if state is None:
@@ -426,6 +467,8 @@ class Supervisor:
     current = self.live_slot()
     if state["pending"] is not None:
       raise SlotInvalid("previous activation is unconfirmed; confirm or roll back first")
+    if current != approved or state["last_good"] != approved:
+      raise SlotInvalid("activation does not descend from externally approved recovery slot")
     if current == sid:
       return
     self.journal("activate_intent", frm=current, to=sid)
@@ -458,17 +501,30 @@ class Supervisor:
     return os.path.join(self.p("live"), LAUNCHER), report
 
   def confirm(self):
+    """Confirm only caller-pinned trial and simulated health authorization.
+
+    ``approved_health_slot`` models an external decision for host testing. It
+    is not an authenticated production health attestation; deployed policy
+    needs hardware-protected storage and an authenticated health protocol.
+    """
     self._require_policy()
+    approved = self._approved_recovery_target()
+    if approved is None:
+      raise SlotInvalid("no externally approved recovery slot is configured")
     state = self.load_state()
     if state is None:
       raise SlotInvalid("state missing or malformed")
     sid = self.live_slot()
     if sid is None:
       raise SlotInvalid("live slot is malformed")
-    self.verify_slot(sid, deep=True)
     pending = state["pending"]
-    if pending is None or pending["slot"] != sid:
-      raise SlotInvalid("nothing to confirm for live slot")
+    if (sid != self._approved_trial_slot or sid != self._approved_health_slot or
+        pending is None or pending["slot"] != sid or pending["from"] != approved or
+        state["last_good"] != approved):
+      raise SlotInvalid("confirmation is not authorized by trial, health, and recovery policy")
+    self.verify_slot(sid, deep=True)
+    if self.live_slot() != sid:
+      raise SlotInvalid("live slot changed during confirmation verification")
     state["last_good"], state["pending"] = sid, None
     self.save_state(state)
     self.f.hit("after_confirm_state")
@@ -476,17 +532,14 @@ class Supervisor:
     return self._prune(state)
 
   def rollback(self, sid=None, why="caller requested rollback"):
-    """Manual rollback constrained by signature, identity, and minimum policy."""
+    """Rollback only to the exact externally approved recovery slot."""
     self._require_policy()
     state = self.load_state()
     if state is None:
       raise SlotInvalid("state missing or malformed; recover first")
-    if sid is not None:
-      self.verify_slot(sid, deep=True)
-      target = sid
-    else:
-      pending = state.get("pending") or {}
-      target = self._best_slot([pending.get("from"), state.get("last_good")], {self.live_slot()})
+    if sid is not None and sid != self._approved_recovery_slot:
+      raise SlotInvalid("manual rollback target does not match externally approved recovery slot")
+    target = self._approved_recovery_target()
     if target is None:
       raise SlotInvalid("no policy-authorized rollback target")
     self.journal("rollback", to=target, why=why)
@@ -518,7 +571,8 @@ class Supervisor:
 
   def _prune(self, state):
     report = {"actions": [], "errors": []}
-    keep = {state["last_good"], self.live_slot()}
+    keep = {state["last_good"], self.live_slot(), self._approved_recovery_slot,
+            self._approved_trial_slot, self._approved_health_slot}
     spare = [name for name in self.sealed_slots() if name not in keep]
     room = max(0, self.keep - len({name for name in keep if name}))
     victims = spare[:len(spare) - room] if room else spare
@@ -527,8 +581,7 @@ class Supervisor:
     return report
 
   def _rollback(self, state, why):
-    pending = state.get("pending") or {}
-    target = self._best_slot([state.get("last_good"), pending.get("from")], {pending.get("slot")})
+    target = self._approved_recovery_target()
     if target is None:
       raise SlotInvalid("no policy-authorized verified rollback target")
     self.journal("rollback", to=target, why=why)
@@ -538,20 +591,20 @@ class Supervisor:
     self.save_state(state)
     self.f.hit("rollback_state_saved")
 
-  def _best_slot(self, prefer, exclude=()):
-    seen = set()
-    candidates = [item for item in prefer if item] + list(reversed(self.sealed_slots()))
-    for sid in candidates:
-      if sid in seen or sid in exclude or not self._valid_sid(sid):
-        continue
-      seen.add(sid)
-      if self.slot_ok(sid, deep=True):
-        return sid
-    return None
+  def _approved_recovery_target(self):
+    """Return the exact external health anchor, never a state/slot-scan choice."""
+    sid = self._approved_recovery_slot
+    if sid is None:
+      return None
+    self.verify_slot(sid, deep=True)
+    return sid
 
   def recover(self):
     """Idempotently recover from supported syscall-boundary crash points."""
     self._require_policy()
+    approved = self._approved_recovery_target()
+    if approved is None:
+      raise SlotInvalid("no externally approved recovery slot is configured")
     report = {"actions": [], "errors": []}
     try:
       staging = list(os.scandir(self.p("staging")))
@@ -564,7 +617,7 @@ class Supervisor:
     except OSError as error:
       raise SlotInvalid(f"cannot inspect supervisor base: {error!r}") from error
     for entry in base_entries:
-      if entry.name.startswith("live.tmp."):
+      if entry.name.startswith("live.tmp.") or entry.name.startswith("state.json.tmp."):
         self._cleanup(entry.path, entry.name, report)
     try:
       slot_entries = list(os.scandir(self.p("slots")))
@@ -580,6 +633,7 @@ class Supervisor:
     if state is None:
       state = self.new_state()
       state["seq"] = max([self._slot_sequence(name) for name in self.sealed_slots()] + [0])
+      state["last_good"] = approved
       self.save_state(state)
       report["actions"].append("state rebuilt")
       self.journal("state_rebuilt")
@@ -590,27 +644,26 @@ class Supervisor:
       report["actions"].append("seq caught up with slots")
     live = self.live_slot()
     pending = state["pending"]
-    if pending and live != pending["slot"]:
+    trial = self._approved_trial_slot
+    trial_authorized = (
+      trial is not None and pending is not None and pending["slot"] == trial and
+      pending["from"] == approved and state["last_good"] == approved and live == trial and
+      0 <= pending["attempts_left"] <= self.max_attempts and
+      self.slot_ok(trial, deep=True)
+    )
+    if not trial_authorized:
+      state_changed = pending is not None or state["last_good"] != approved
+      if pending is not None:
+        report["actions"].append("dropped unauthorized or inconsistent pending activation")
       state["pending"] = None
-      self.save_state(state)
-      report["actions"].append("dropped unswitched pending activation")
-      pending = None
-    live_ok = live is not None and self.slot_ok(live, deep=True)
-    if pending is None and state["last_good"] is None and live_ok:
-      state["last_good"] = live
-      self.save_state(state)
-    if not live_ok:
-      if pending:
-        self._rollback(state, "live slot invalid")
-      else:
-        target = self._best_slot([state["last_good"]])
-        if target is None:
-          raise SlotInvalid("no policy-authorized verified slot available for recovery")
-        self.journal("recovered_live", to=target)
-        state["last_good"] = target
+      state["last_good"] = approved
+      if state_changed:
         self.save_state(state)
-        self._switch_live(target)
-      report["actions"].append("restored live")
+        report["actions"].append("restored externally approved recovery lineage")
+      if live != approved:
+        self.journal("recovered_live", to=approved)
+        self._switch_live(approved)
+        report["actions"].append("restored live")
     final = self.live_slot()
     if final is None:
       raise SlotInvalid("recovery did not establish a valid live slot")
