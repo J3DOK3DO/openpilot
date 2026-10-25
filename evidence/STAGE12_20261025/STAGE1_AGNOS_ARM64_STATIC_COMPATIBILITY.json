@@ -1,0 +1,2972 @@
+{
+  "Panda_CAN_operations": false,
+  "components": [
+    {
+      "dynamic_dependencies": [
+        "libusb-1.0.so.0",
+        "libzmq.so.5",
+        "libstdc++.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [
+        "/lib/ld-linux-aarch64.so.1"
+      ],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "selfdrive/pandad/pandad",
+      "sha256": "6fec6261fae4a84de75ef16f6fa604df01cd66f56e6ccea596fdfd890698d671",
+      "size_bytes": 1224192,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "CXXABI_1.3.11",
+          "CXXABI_1.3.13",
+          "CXXABI_1.3.2",
+          "CXXABI_1.3.3",
+          "CXXABI_1.3.5",
+          "CXXABI_1.3.9",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.11",
+          "GLIBCXX_3.4.14",
+          "GLIBCXX_3.4.15",
+          "GLIBCXX_3.4.18",
+          "GLIBCXX_3.4.19",
+          "GLIBCXX_3.4.20",
+          "GLIBCXX_3.4.21",
+          "GLIBCXX_3.4.22",
+          "GLIBCXX_3.4.26",
+          "GLIBCXX_3.4.29",
+          "GLIBCXX_3.4.32",
+          "GLIBCXX_3.4.9"
+        ],
+        "glibc": [
+          "GLIBC_2.17",
+          "GLIBC_2.32",
+          "GLIBC_2.33",
+          "GLIBC_2.34",
+          "GLIBC_2.38"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "selfdrive/pandad/pandad_api_impl.so",
+      "sha256": "07e59ba63ad242d575aedec976c941de55b059008316a89437337184b53b884c",
+      "size_bytes": 543192,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "CXXABI_1.3.13",
+          "CXXABI_1.3.3",
+          "CXXABI_1.3.9",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.21",
+          "GLIBCXX_3.4.22",
+          "GLIBCXX_3.4.29"
+        ],
+        "glibc": [
+          "GLIBC_2.17"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libzmq.so.5",
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "msgq_repo/msgq/ipc_pyx.so",
+      "sha256": "634b7a09d6d2fa9c92e228b161fcf4a44ede47d53f4f9a204943a1b278fdedb2",
+      "size_bytes": 232832,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.11",
+          "GLIBCXX_3.4.18",
+          "GLIBCXX_3.4.21",
+          "GLIBCXX_3.4.26",
+          "GLIBCXX_3.4.29",
+          "GLIBCXX_3.4.32",
+          "GLIBCXX_3.4.9"
+        ],
+        "glibc": [
+          "GLIBC_2.17"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libzmq.so.5",
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "common/params_pyx.so",
+      "sha256": "b66741ff1490f50b7ab6056db9879e3f1c8bf4a1676e77e27493bafedccac152",
+      "size_bytes": 875192,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "CXXABI_1.3.11",
+          "CXXABI_1.3.13",
+          "CXXABI_1.3.2",
+          "CXXABI_1.3.3",
+          "CXXABI_1.3.5",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.11",
+          "GLIBCXX_3.4.14",
+          "GLIBCXX_3.4.15",
+          "GLIBCXX_3.4.18",
+          "GLIBCXX_3.4.19",
+          "GLIBCXX_3.4.20",
+          "GLIBCXX_3.4.21",
+          "GLIBCXX_3.4.22",
+          "GLIBCXX_3.4.26",
+          "GLIBCXX_3.4.29",
+          "GLIBCXX_3.4.9"
+        ],
+        "glibc": [
+          "GLIBC_2.17",
+          "GLIBC_2.32",
+          "GLIBC_2.33",
+          "GLIBC_2.34",
+          "GLIBC_2.38"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libacados_ocp_solver_long.so",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib:$ORIGIN"
+      ],
+      "machine": "AArch64",
+      "path": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so",
+      "sha256": "b95c4d8997b03f9b140a6d84c2c3fce5d5b6727155caf67cc30b92ef85c0e43c",
+      "size_bytes": 344320,
+      "version_requirements": {
+        "cpp_abi": [],
+        "glibc": [
+          "GLIBC_2.17"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libacados_ocp_solver_lat.so",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib:$ORIGIN"
+      ],
+      "machine": "AArch64",
+      "path": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so",
+      "sha256": "434a7baef9c96822c0facc909acb1c360a14ea03a8ff178a3beb48c01bd3b25c",
+      "size_bytes": 344288,
+      "version_requirements": {
+        "cpp_abi": [],
+        "glibc": [
+          "GLIBC_2.17"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libacados.so",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib:$ORIGIN/../../../../../third_party/acados/larch64/lib"
+      ],
+      "machine": "AArch64",
+      "path": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/libacados_ocp_solver_long.so",
+      "sha256": "984169237050db096496b015d5ab40bf84bd3eb5b85d3f6723cfcf8a4926ca47",
+      "size_bytes": 90744,
+      "version_requirements": {
+        "cpp_abi": [],
+        "glibc": [
+          "GLIBC_2.17"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libm.so.6",
+        "libacados.so",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib:$ORIGIN/../../../../../third_party/acados/larch64/lib"
+      ],
+      "machine": "AArch64",
+      "path": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/libacados_ocp_solver_lat.so",
+      "sha256": "7c0cb89dd9017436cc1d7c321eb67027048f71dab37b7c36d8b354a8887bc1e8",
+      "size_bytes": 70616,
+      "version_requirements": {
+        "cpp_abi": [],
+        "glibc": [
+          "GLIBC_2.17"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "common/transformations/transformations.so",
+      "sha256": "0a707b4701a12cf2dc5bfb0e3f81272d5c16682c41d2fc1fdb561f97f95ed161",
+      "size_bytes": 144872,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.32"
+        ],
+        "glibc": [
+          "GLIBC_2.17",
+          "GLIBC_2.29"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libzmq.so.5",
+        "libOpenCL.so",
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "msgq_repo/msgq/visionipc/visionipc_pyx.so",
+      "sha256": "d906013bccecf01afa5a5b215a9d4a725dc51e93ea09d31eca948b3a99750bab",
+      "size_bytes": 529888,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.11",
+          "GLIBCXX_3.4.18",
+          "GLIBCXX_3.4.20",
+          "GLIBCXX_3.4.21",
+          "GLIBCXX_3.4.22",
+          "GLIBCXX_3.4.26",
+          "GLIBCXX_3.4.29",
+          "GLIBCXX_3.4.32",
+          "GLIBCXX_3.4.9"
+        ],
+        "glibc": [
+          "GLIBC_2.17",
+          "GLIBC_2.32",
+          "GLIBC_2.33",
+          "GLIBC_2.38"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libzmq.so.5",
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "rednose_repo/rednose/helpers/ekf_sym_pyx.so",
+      "sha256": "50bc832b29b535e8d32bc0f43f79305d4ce13dd952c13fe5636b96f162933307",
+      "size_bytes": 351832,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "CXXABI_1.3.5",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.21",
+          "GLIBCXX_3.4.29",
+          "GLIBCXX_3.4.32"
+        ],
+        "glibc": [
+          "GLIBC_2.17",
+          "GLIBC_2.34"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libstdc++.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "selfdrive/locationd/models/generated/libcar.so",
+      "sha256": "70e2a8a7cb96dcaf46ec504cb8c0cc1e0a50bfe1fca8c94ad7afd8a568e8a254",
+      "size_bytes": 213664,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "CXXABI_1.3.5",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.18",
+          "GLIBCXX_3.4.21",
+          "GLIBCXX_3.4.29",
+          "GLIBCXX_3.4.32"
+        ],
+        "glibc": [
+          "GLIBC_2.17"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "selfdrive/locationd/models/generated/libpose.so",
+      "sha256": "6c7a86fd77621d23c961f8bca2b4ceaf265eafbe1c34688dd7765f65a027ed3e",
+      "size_bytes": 216816,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.18",
+          "GLIBCXX_3.4.29",
+          "GLIBCXX_3.4.32"
+        ],
+        "glibc": [
+          "GLIBC_2.17"
+        ]
+      }
+    },
+    {
+      "dynamic_dependencies": [
+        "libzmq.so.5",
+        "libOpenCL.so",
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "elf_interpreter": [],
+      "embedded_search_paths": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib"
+      ],
+      "machine": "AArch64",
+      "path": "selfdrive/modeld/models/commonmodel_pyx.so",
+      "sha256": "c3aee3a313d684bc95843bd8e4be1b03c57bb3da843200a49b87faae737175ac",
+      "size_bytes": 417536,
+      "version_requirements": {
+        "cpp_abi": [
+          "CXXABI_1.3",
+          "GLIBCXX_3.4",
+          "GLIBCXX_3.4.11",
+          "GLIBCXX_3.4.18",
+          "GLIBCXX_3.4.20",
+          "GLIBCXX_3.4.21",
+          "GLIBCXX_3.4.26",
+          "GLIBCXX_3.4.29",
+          "GLIBCXX_3.4.32",
+          "GLIBCXX_3.4.9"
+        ],
+        "glibc": [
+          "GLIBC_2.17",
+          "GLIBC_2.32",
+          "GLIBC_2.33",
+          "GLIBC_2.38"
+        ]
+      }
+    }
+  ],
+  "device": {
+    "agnos": "19.8.1",
+    "app_commit": "7b4db9a26010ba9899eef242d3ca49b33cbcca9c",
+    "driver_nodes": {
+      "/dev/adsprpc*": true,
+      "/dev/dri/renderD*": true,
+      "/dev/kgsl*": true,
+      "/dev/spidev*": true
+    },
+    "glibc": [
+      "ldd (Ubuntu GLIBC 2.39-0ubuntu8.9) 2.39"
+    ],
+    "kernel": "4.9.103",
+    "ldconfig_aarch64": {
+      "ld-linux-aarch64.so.1": [
+        "/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+        "/lib/ld-linux-aarch64.so.1"
+      ],
+      "libBrokenLocale.so": [
+        "/lib/aarch64-linux-gnu/libBrokenLocale.so"
+      ],
+      "libBrokenLocale.so.1": [
+        "/lib/aarch64-linux-gnu/libBrokenLocale.so.1"
+      ],
+      "libC2D2.so": [
+        "/lib/aarch64-linux-gnu/libC2D2.so"
+      ],
+      "libCB.so": [
+        "/lib/aarch64-linux-gnu/libCB.so"
+      ],
+      "libEGL.so.1": [
+        "/lib/aarch64-linux-gnu/libEGL.so.1"
+      ],
+      "libEGL_adreno.so": [
+        "/lib/aarch64-linux-gnu/libEGL_adreno.so"
+      ],
+      "libEGL_mesa.so.0": [
+        "/lib/aarch64-linux-gnu/libEGL_mesa.so.0"
+      ],
+      "libFLAC.so.12": [
+        "/lib/aarch64-linux-gnu/libFLAC.so.12"
+      ],
+      "libGL.so": [
+        "/lib/aarch64-linux-gnu/libGL.so"
+      ],
+      "libGL.so.1": [
+        "/lib/aarch64-linux-gnu/libGL.so.1"
+      ],
+      "libGLESv1_CM.so.1": [
+        "/lib/aarch64-linux-gnu/libGLESv1_CM.so.1"
+      ],
+      "libGLESv1_CM_adreno.so": [
+        "/lib/aarch64-linux-gnu/libGLESv1_CM_adreno.so"
+      ],
+      "libGLESv2.so.2": [
+        "/lib/aarch64-linux-gnu/libGLESv2.so.2"
+      ],
+      "libGLESv2_adreno.so": [
+        "/lib/aarch64-linux-gnu/libGLESv2_adreno.so"
+      ],
+      "libGLX.so": [
+        "/lib/aarch64-linux-gnu/libGLX.so"
+      ],
+      "libGLX.so.0": [
+        "/lib/aarch64-linux-gnu/libGLX.so.0"
+      ],
+      "libGLX_mesa.so.0": [
+        "/lib/aarch64-linux-gnu/libGLX_mesa.so.0"
+      ],
+      "libGLdispatch.so": [
+        "/lib/aarch64-linux-gnu/libGLdispatch.so"
+      ],
+      "libGLdispatch.so.0": [
+        "/lib/aarch64-linux-gnu/libGLdispatch.so.0"
+      ],
+      "libICE.so": [
+        "/lib/aarch64-linux-gnu/libICE.so"
+      ],
+      "libICE.so.6": [
+        "/lib/aarch64-linux-gnu/libICE.so.6"
+      ],
+      "libJudy.so.1": [
+        "/lib/aarch64-linux-gnu/libJudy.so.1"
+      ],
+      "libLLVM.so.18.1": [
+        "/lib/aarch64-linux-gnu/libLLVM.so.18.1"
+      ],
+      "libLLVM.so.20.1": [
+        "/lib/aarch64-linux-gnu/libLLVM.so.20.1"
+      ],
+      "libLerc.so": [
+        "/lib/aarch64-linux-gnu/libLerc.so"
+      ],
+      "libLerc.so.4": [
+        "/lib/aarch64-linux-gnu/libLerc.so.4"
+      ],
+      "libOpenCL.so": [
+        "/lib/aarch64-linux-gnu/libOpenCL.so"
+      ],
+      "libOpenGL.so": [
+        "/lib/aarch64-linux-gnu/libOpenGL.so"
+      ],
+      "libOpenGL.so.0": [
+        "/lib/aarch64-linux-gnu/libOpenGL.so.0"
+      ],
+      "libQTapGLES.so": [
+        "/lib/aarch64-linux-gnu/libQTapGLES.so"
+      ],
+      "libQseeComApi.so.1": [
+        "/lib/aarch64-linux-gnu/libQseeComApi.so.1"
+      ],
+      "libQt5Concurrent.so": [
+        "/lib/aarch64-linux-gnu/libQt5Concurrent.so"
+      ],
+      "libQt5Concurrent.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Concurrent.so.5"
+      ],
+      "libQt5Core.so": [
+        "/lib/aarch64-linux-gnu/libQt5Core.so"
+      ],
+      "libQt5Core.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Core.so.5"
+      ],
+      "libQt5DBus.so": [
+        "/lib/aarch64-linux-gnu/libQt5DBus.so"
+      ],
+      "libQt5DBus.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5DBus.so.5"
+      ],
+      "libQt5EglFSDeviceIntegration.so": [
+        "/lib/aarch64-linux-gnu/libQt5EglFSDeviceIntegration.so"
+      ],
+      "libQt5EglFSDeviceIntegration.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5EglFSDeviceIntegration.so.5"
+      ],
+      "libQt5EglFsKmsSupport.so": [
+        "/lib/aarch64-linux-gnu/libQt5EglFsKmsSupport.so"
+      ],
+      "libQt5EglFsKmsSupport.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5EglFsKmsSupport.so.5"
+      ],
+      "libQt5Gui.so": [
+        "/lib/aarch64-linux-gnu/libQt5Gui.so"
+      ],
+      "libQt5Gui.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Gui.so.5"
+      ],
+      "libQt5Location.so": [
+        "/lib/aarch64-linux-gnu/libQt5Location.so"
+      ],
+      "libQt5Location.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Location.so.5"
+      ],
+      "libQt5Multimedia.so": [
+        "/lib/aarch64-linux-gnu/libQt5Multimedia.so"
+      ],
+      "libQt5Multimedia.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Multimedia.so.5"
+      ],
+      "libQt5MultimediaGstTools.so": [
+        "/lib/aarch64-linux-gnu/libQt5MultimediaGstTools.so"
+      ],
+      "libQt5MultimediaGstTools.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5MultimediaGstTools.so.5"
+      ],
+      "libQt5MultimediaQuick.so": [
+        "/lib/aarch64-linux-gnu/libQt5MultimediaQuick.so"
+      ],
+      "libQt5MultimediaQuick.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5MultimediaQuick.so.5"
+      ],
+      "libQt5MultimediaWidgets.so": [
+        "/lib/aarch64-linux-gnu/libQt5MultimediaWidgets.so"
+      ],
+      "libQt5MultimediaWidgets.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5MultimediaWidgets.so.5"
+      ],
+      "libQt5Network.so": [
+        "/lib/aarch64-linux-gnu/libQt5Network.so"
+      ],
+      "libQt5Network.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Network.so.5"
+      ],
+      "libQt5OpenGL.so": [
+        "/lib/aarch64-linux-gnu/libQt5OpenGL.so"
+      ],
+      "libQt5OpenGL.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5OpenGL.so.5"
+      ],
+      "libQt5Positioning.so": [
+        "/lib/aarch64-linux-gnu/libQt5Positioning.so"
+      ],
+      "libQt5Positioning.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Positioning.so.5"
+      ],
+      "libQt5PositioningQuick.so": [
+        "/lib/aarch64-linux-gnu/libQt5PositioningQuick.so"
+      ],
+      "libQt5PositioningQuick.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5PositioningQuick.so.5"
+      ],
+      "libQt5PrintSupport.so": [
+        "/lib/aarch64-linux-gnu/libQt5PrintSupport.so"
+      ],
+      "libQt5PrintSupport.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5PrintSupport.so.5"
+      ],
+      "libQt5Qml.so": [
+        "/lib/aarch64-linux-gnu/libQt5Qml.so"
+      ],
+      "libQt5Qml.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Qml.so.5"
+      ],
+      "libQt5Quick.so": [
+        "/lib/aarch64-linux-gnu/libQt5Quick.so"
+      ],
+      "libQt5Quick.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Quick.so.5"
+      ],
+      "libQt5QuickParticles.so": [
+        "/lib/aarch64-linux-gnu/libQt5QuickParticles.so"
+      ],
+      "libQt5QuickParticles.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5QuickParticles.so.5"
+      ],
+      "libQt5QuickShapes.so": [
+        "/lib/aarch64-linux-gnu/libQt5QuickShapes.so"
+      ],
+      "libQt5QuickShapes.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5QuickShapes.so.5"
+      ],
+      "libQt5QuickTest.so": [
+        "/lib/aarch64-linux-gnu/libQt5QuickTest.so"
+      ],
+      "libQt5QuickTest.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5QuickTest.so.5"
+      ],
+      "libQt5QuickWidgets.so": [
+        "/lib/aarch64-linux-gnu/libQt5QuickWidgets.so"
+      ],
+      "libQt5QuickWidgets.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5QuickWidgets.so.5"
+      ],
+      "libQt5Sql.so": [
+        "/lib/aarch64-linux-gnu/libQt5Sql.so"
+      ],
+      "libQt5Sql.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Sql.so.5"
+      ],
+      "libQt5Svg.so": [
+        "/lib/aarch64-linux-gnu/libQt5Svg.so"
+      ],
+      "libQt5Svg.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Svg.so.5"
+      ],
+      "libQt5Test.so": [
+        "/lib/aarch64-linux-gnu/libQt5Test.so"
+      ],
+      "libQt5Test.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Test.so.5"
+      ],
+      "libQt5WaylandClient.so": [
+        "/lib/aarch64-linux-gnu/libQt5WaylandClient.so"
+      ],
+      "libQt5WaylandClient.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5WaylandClient.so.5"
+      ],
+      "libQt5WaylandCompositor.so": [
+        "/lib/aarch64-linux-gnu/libQt5WaylandCompositor.so"
+      ],
+      "libQt5WaylandCompositor.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5WaylandCompositor.so.5"
+      ],
+      "libQt5Widgets.so": [
+        "/lib/aarch64-linux-gnu/libQt5Widgets.so"
+      ],
+      "libQt5Widgets.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Widgets.so.5"
+      ],
+      "libQt5XcbQpa.so": [
+        "/lib/aarch64-linux-gnu/libQt5XcbQpa.so"
+      ],
+      "libQt5XcbQpa.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5XcbQpa.so.5"
+      ],
+      "libQt5Xml.so": [
+        "/lib/aarch64-linux-gnu/libQt5Xml.so"
+      ],
+      "libQt5Xml.so.5": [
+        "/lib/aarch64-linux-gnu/libQt5Xml.so.5"
+      ],
+      "libSDL2-2.0.so": [
+        "/lib/aarch64-linux-gnu/libSDL2-2.0.so"
+      ],
+      "libSDL2-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libSDL2-2.0.so.0"
+      ],
+      "libSM.so": [
+        "/lib/aarch64-linux-gnu/libSM.so"
+      ],
+      "libSM.so.6": [
+        "/lib/aarch64-linux-gnu/libSM.so.6"
+      ],
+      "libX11-xcb.so.1": [
+        "/lib/aarch64-linux-gnu/libX11-xcb.so.1"
+      ],
+      "libX11.so": [
+        "/lib/aarch64-linux-gnu/libX11.so"
+      ],
+      "libX11.so.6": [
+        "/lib/aarch64-linux-gnu/libX11.so.6"
+      ],
+      "libXau.so": [
+        "/lib/aarch64-linux-gnu/libXau.so"
+      ],
+      "libXau.so.6": [
+        "/lib/aarch64-linux-gnu/libXau.so.6"
+      ],
+      "libXaw.so.7": [
+        "/lib/aarch64-linux-gnu/libXaw.so.7"
+      ],
+      "libXcomposite.so": [
+        "/lib/aarch64-linux-gnu/libXcomposite.so"
+      ],
+      "libXcomposite.so.1": [
+        "/lib/aarch64-linux-gnu/libXcomposite.so.1"
+      ],
+      "libXcursor.so": [
+        "/lib/aarch64-linux-gnu/libXcursor.so"
+      ],
+      "libXcursor.so.1": [
+        "/lib/aarch64-linux-gnu/libXcursor.so.1"
+      ],
+      "libXdamage.so": [
+        "/lib/aarch64-linux-gnu/libXdamage.so"
+      ],
+      "libXdamage.so.1": [
+        "/lib/aarch64-linux-gnu/libXdamage.so.1"
+      ],
+      "libXdmcp.so": [
+        "/lib/aarch64-linux-gnu/libXdmcp.so"
+      ],
+      "libXdmcp.so.6": [
+        "/lib/aarch64-linux-gnu/libXdmcp.so.6"
+      ],
+      "libXext.so": [
+        "/lib/aarch64-linux-gnu/libXext.so"
+      ],
+      "libXext.so.6": [
+        "/lib/aarch64-linux-gnu/libXext.so.6"
+      ],
+      "libXfixes.so": [
+        "/lib/aarch64-linux-gnu/libXfixes.so"
+      ],
+      "libXfixes.so.3": [
+        "/lib/aarch64-linux-gnu/libXfixes.so.3"
+      ],
+      "libXfont2.so.2": [
+        "/lib/aarch64-linux-gnu/libXfont2.so.2"
+      ],
+      "libXft.so": [
+        "/lib/aarch64-linux-gnu/libXft.so"
+      ],
+      "libXft.so.2": [
+        "/lib/aarch64-linux-gnu/libXft.so.2"
+      ],
+      "libXi.so": [
+        "/lib/aarch64-linux-gnu/libXi.so"
+      ],
+      "libXi.so.6": [
+        "/lib/aarch64-linux-gnu/libXi.so.6"
+      ],
+      "libXinerama.so": [
+        "/lib/aarch64-linux-gnu/libXinerama.so"
+      ],
+      "libXinerama.so.1": [
+        "/lib/aarch64-linux-gnu/libXinerama.so.1"
+      ],
+      "libXmu.so.6": [
+        "/lib/aarch64-linux-gnu/libXmu.so.6"
+      ],
+      "libXmuu.so.1": [
+        "/lib/aarch64-linux-gnu/libXmuu.so.1"
+      ],
+      "libXpm.so.4": [
+        "/lib/aarch64-linux-gnu/libXpm.so.4"
+      ],
+      "libXrandr.so": [
+        "/lib/aarch64-linux-gnu/libXrandr.so"
+      ],
+      "libXrandr.so.2": [
+        "/lib/aarch64-linux-gnu/libXrandr.so.2"
+      ],
+      "libXrender.so": [
+        "/lib/aarch64-linux-gnu/libXrender.so"
+      ],
+      "libXrender.so.1": [
+        "/lib/aarch64-linux-gnu/libXrender.so.1"
+      ],
+      "libXss.so": [
+        "/lib/aarch64-linux-gnu/libXss.so"
+      ],
+      "libXss.so.1": [
+        "/lib/aarch64-linux-gnu/libXss.so.1"
+      ],
+      "libXt.so": [
+        "/lib/aarch64-linux-gnu/libXt.so"
+      ],
+      "libXt.so.6": [
+        "/lib/aarch64-linux-gnu/libXt.so.6"
+      ],
+      "libXv.so": [
+        "/lib/aarch64-linux-gnu/libXv.so"
+      ],
+      "libXv.so.1": [
+        "/lib/aarch64-linux-gnu/libXv.so.1"
+      ],
+      "libXxf86vm.so": [
+        "/lib/aarch64-linux-gnu/libXxf86vm.so"
+      ],
+      "libXxf86vm.so.1": [
+        "/lib/aarch64-linux-gnu/libXxf86vm.so.1"
+      ],
+      "libabctl.so.0": [
+        "/lib/aarch64-linux-gnu/libabctl.so.0"
+      ],
+      "libacl.so": [
+        "/lib/aarch64-linux-gnu/libacl.so"
+      ],
+      "libacl.so.1": [
+        "/lib/aarch64-linux-gnu/libacl.so.1"
+      ],
+      "libadbd.so.0": [
+        "/lib/aarch64-linux-gnu/libadbd.so.0"
+      ],
+      "libadreno_utils.so": [
+        "/lib/aarch64-linux-gnu/libadreno_utils.so"
+      ],
+      "libadsp_default_listener.so": [
+        "/lib/aarch64-linux-gnu/libadsp_default_listener.so"
+      ],
+      "libadsprpc.so": [
+        "/lib/aarch64-linux-gnu/libadsprpc.so"
+      ],
+      "libaio.so.1t64": [
+        "/lib/aarch64-linux-gnu/libaio.so.1t64"
+      ],
+      "libanl.so": [
+        "/lib/aarch64-linux-gnu/libanl.so"
+      ],
+      "libanl.so.1": [
+        "/lib/aarch64-linux-gnu/libanl.so.1"
+      ],
+      "libapparmor.so.1": [
+        "/lib/aarch64-linux-gnu/libapparmor.so.1"
+      ],
+      "libappstream.so.5": [
+        "/lib/aarch64-linux-gnu/libappstream.so.5"
+      ],
+      "libapt-pkg.so.6.0": [
+        "/lib/aarch64-linux-gnu/libapt-pkg.so.6.0"
+      ],
+      "libapt-private.so.0.0": [
+        "/lib/aarch64-linux-gnu/libapt-private.so.0.0"
+      ],
+      "libarchive.so": [
+        "/lib/aarch64-linux-gnu/libarchive.so"
+      ],
+      "libarchive.so.13": [
+        "/lib/aarch64-linux-gnu/libarchive.so.13"
+      ],
+      "libargon2.so.1": [
+        "/lib/aarch64-linux-gnu/libargon2.so.1"
+      ],
+      "libaria2.so.0": [
+        "/lib/aarch64-linux-gnu/libaria2.so.0"
+      ],
+      "libasan.so.8": [
+        "/lib/aarch64-linux-gnu/libasan.so.8"
+      ],
+      "libasound.so": [
+        "/lib/aarch64-linux-gnu/libasound.so"
+      ],
+      "libasound.so.2": [
+        "/lib/aarch64-linux-gnu/libasound.so.2"
+      ],
+      "libass.so": [
+        "/lib/aarch64-linux-gnu/libass.so"
+      ],
+      "libass.so.9": [
+        "/lib/aarch64-linux-gnu/libass.so.9"
+      ],
+      "libassuan.so.0": [
+        "/lib/aarch64-linux-gnu/libassuan.so.0"
+      ],
+      "libasyncns.so.0": [
+        "/lib/aarch64-linux-gnu/libasyncns.so.0"
+      ],
+      "libatk-1.0.so": [
+        "/lib/aarch64-linux-gnu/libatk-1.0.so"
+      ],
+      "libatk-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libatk-1.0.so.0"
+      ],
+      "libatomic.so.1": [
+        "/lib/aarch64-linux-gnu/libatomic.so.1"
+      ],
+      "libatopology.so.2": [
+        "/lib/aarch64-linux-gnu/libatopology.so.2"
+      ],
+      "libattr.so": [
+        "/lib/aarch64-linux-gnu/libattr.so"
+      ],
+      "libattr.so.1": [
+        "/lib/aarch64-linux-gnu/libattr.so.1"
+      ],
+      "libaudit.so.1": [
+        "/lib/aarch64-linux-gnu/libaudit.so.1"
+      ],
+      "libavahi-client.so.3": [
+        "/lib/aarch64-linux-gnu/libavahi-client.so.3"
+      ],
+      "libavahi-common.so.3": [
+        "/lib/aarch64-linux-gnu/libavahi-common.so.3"
+      ],
+      "libavahi-core.so.7": [
+        "/lib/aarch64-linux-gnu/libavahi-core.so.7"
+      ],
+      "libbabeltrace-ctf-metadata.so.1": [
+        "/lib/aarch64-linux-gnu/libbabeltrace-ctf-metadata.so.1"
+      ],
+      "libbabeltrace-ctf-text.so.1": [
+        "/lib/aarch64-linux-gnu/libbabeltrace-ctf-text.so.1"
+      ],
+      "libbabeltrace-ctf.so.1": [
+        "/lib/aarch64-linux-gnu/libbabeltrace-ctf.so.1"
+      ],
+      "libbabeltrace-dummy.so.1": [
+        "/lib/aarch64-linux-gnu/libbabeltrace-dummy.so.1"
+      ],
+      "libbabeltrace-lttng-live.so.1": [
+        "/lib/aarch64-linux-gnu/libbabeltrace-lttng-live.so.1"
+      ],
+      "libbabeltrace.so.1": [
+        "/lib/aarch64-linux-gnu/libbabeltrace.so.1"
+      ],
+      "libbacktrace.so.0": [
+        "/lib/aarch64-linux-gnu/libbacktrace.so.0"
+      ],
+      "libbase.so.0": [
+        "/lib/aarch64-linux-gnu/libbase.so.0"
+      ],
+      "libbfd-2.42-system.so": [
+        "/lib/aarch64-linux-gnu/libbfd-2.42-system.so"
+      ],
+      "libbind9-9.18.39-0ubuntu0.24.04.7-Ubuntu.so": [
+        "/lib/aarch64-linux-gnu/libbind9-9.18.39-0ubuntu0.24.04.7-Ubuntu.so"
+      ],
+      "libbinder.so.0": [
+        "/lib/aarch64-linux-gnu/libbinder.so.0"
+      ],
+      "libblkid.so": [
+        "/lib/aarch64-linux-gnu/libblkid.so"
+      ],
+      "libblkid.so.1": [
+        "/lib/aarch64-linux-gnu/libblkid.so.1"
+      ],
+      "libbluetooth.so.3": [
+        "/lib/aarch64-linux-gnu/libbluetooth.so.3"
+      ],
+      "libbpf.so.1": [
+        "/lib/aarch64-linux-gnu/libbpf.so.1"
+      ],
+      "libbrotlicommon.so": [
+        "/lib/aarch64-linux-gnu/libbrotlicommon.so"
+      ],
+      "libbrotlicommon.so.1": [
+        "/lib/aarch64-linux-gnu/libbrotlicommon.so.1"
+      ],
+      "libbrotlidec.so": [
+        "/lib/aarch64-linux-gnu/libbrotlidec.so"
+      ],
+      "libbrotlidec.so.1": [
+        "/lib/aarch64-linux-gnu/libbrotlidec.so.1"
+      ],
+      "libbrotlienc.so": [
+        "/lib/aarch64-linux-gnu/libbrotlienc.so"
+      ],
+      "libbrotlienc.so.1": [
+        "/lib/aarch64-linux-gnu/libbrotlienc.so.1"
+      ],
+      "libbsd.so.0": [
+        "/lib/aarch64-linux-gnu/libbsd.so.0"
+      ],
+      "libbtnv.so.0": [
+        "/lib/aarch64-linux-gnu/libbtnv.so.0"
+      ],
+      "libbz2.so": [
+        "/lib/aarch64-linux-gnu/libbz2.so"
+      ],
+      "libbz2.so.1.0": [
+        "/lib/aarch64-linux-gnu/libbz2.so.1.0"
+      ],
+      "libc.so.6": [
+        "/lib/aarch64-linux-gnu/libc.so.6"
+      ],
+      "libc2d30-a5xx.so": [
+        "/lib/aarch64-linux-gnu/libc2d30-a5xx.so"
+      ],
+      "libc2d30_bltlib.so": [
+        "/lib/aarch64-linux-gnu/libc2d30_bltlib.so"
+      ],
+      "libc_malloc_debug.so": [
+        "/lib/aarch64-linux-gnu/libc_malloc_debug.so"
+      ],
+      "libc_malloc_debug.so.0": [
+        "/lib/aarch64-linux-gnu/libc_malloc_debug.so.0"
+      ],
+      "libcairo-gobject.so": [
+        "/lib/aarch64-linux-gnu/libcairo-gobject.so"
+      ],
+      "libcairo-gobject.so.2": [
+        "/lib/aarch64-linux-gnu/libcairo-gobject.so.2"
+      ],
+      "libcairo-script-interpreter.so": [
+        "/lib/aarch64-linux-gnu/libcairo-script-interpreter.so"
+      ],
+      "libcairo-script-interpreter.so.2": [
+        "/lib/aarch64-linux-gnu/libcairo-script-interpreter.so.2"
+      ],
+      "libcairo.so": [
+        "/lib/aarch64-linux-gnu/libcairo.so"
+      ],
+      "libcairo.so.2": [
+        "/lib/aarch64-linux-gnu/libcairo.so.2"
+      ],
+      "libcap-ng.so.0": [
+        "/lib/aarch64-linux-gnu/libcap-ng.so.0"
+      ],
+      "libcap.so.2": [
+        "/lib/aarch64-linux-gnu/libcap.so.2"
+      ],
+      "libcares.so.2": [
+        "/lib/aarch64-linux-gnu/libcares.so.2"
+      ],
+      "libcbor.so.0.10": [
+        "/lib/aarch64-linux-gnu/libcbor.so.0.10"
+      ],
+      "libcc1.so.0": [
+        "/lib/aarch64-linux-gnu/libcc1.so.0"
+      ],
+      "libcdsp_default_listener.so": [
+        "/lib/aarch64-linux-gnu/libcdsp_default_listener.so"
+      ],
+      "libcdsprpc.so": [
+        "/lib/aarch64-linux-gnu/libcdsprpc.so"
+      ],
+      "libclang-18.so.18": [
+        "/lib/aarch64-linux-gnu/libclang-18.so.18"
+      ],
+      "libclang-cpp.so.18.1": [
+        "/lib/aarch64-linux-gnu/libclang-cpp.so.18.1"
+      ],
+      "libcom_err.so": [
+        "/lib/aarch64-linux-gnu/libcom_err.so"
+      ],
+      "libcom_err.so.2": [
+        "/lib/aarch64-linux-gnu/libcom_err.so.2"
+      ],
+      "libconfigdb.so.0": [
+        "/lib/aarch64-linux-gnu/libconfigdb.so.0"
+      ],
+      "libcrypt.so": [
+        "/lib/aarch64-linux-gnu/libcrypt.so"
+      ],
+      "libcrypt.so.1": [
+        "/lib/aarch64-linux-gnu/libcrypt.so.1"
+      ],
+      "libcrypto.so": [
+        "/lib/aarch64-linux-gnu/libcrypto.so"
+      ],
+      "libcrypto.so.1.1": [
+        "/lib/aarch64-linux-gnu/libcrypto.so.1.1"
+      ],
+      "libcrypto.so.3": [
+        "/lib/aarch64-linux-gnu/libcrypto.so.3"
+      ],
+      "libcryptsetup.so.12": [
+        "/lib/aarch64-linux-gnu/libcryptsetup.so.12"
+      ],
+      "libctf-nobfd.so.0": [
+        "/lib/aarch64-linux-gnu/libctf-nobfd.so.0"
+      ],
+      "libctf.so.0": [
+        "/lib/aarch64-linux-gnu/libctf.so.0"
+      ],
+      "libcups.so.2": [
+        "/lib/aarch64-linux-gnu/libcups.so.2"
+      ],
+      "libcurl-gnutls.so.4": [
+        "/lib/aarch64-linux-gnu/libcurl-gnutls.so.4"
+      ],
+      "libcurl.so": [
+        "/lib/aarch64-linux-gnu/libcurl.so"
+      ],
+      "libcurl.so.4": [
+        "/lib/aarch64-linux-gnu/libcurl.so.4"
+      ],
+      "libcutils.so.0": [
+        "/lib/aarch64-linux-gnu/libcutils.so.0"
+      ],
+      "libczmq.so": [
+        "/lib/aarch64-linux-gnu/libczmq.so"
+      ],
+      "libczmq.so.4": [
+        "/lib/aarch64-linux-gnu/libczmq.so.4"
+      ],
+      "libdaemon.so.0": [
+        "/lib/aarch64-linux-gnu/libdaemon.so.0"
+      ],
+      "libdatrie.so": [
+        "/lib/aarch64-linux-gnu/libdatrie.so"
+      ],
+      "libdatrie.so.1": [
+        "/lib/aarch64-linux-gnu/libdatrie.so.1"
+      ],
+      "libdb-5.3.so": [
+        "/lib/aarch64-linux-gnu/libdb-5.3.so"
+      ],
+      "libdbus-1.so": [
+        "/lib/aarch64-linux-gnu/libdbus-1.so"
+      ],
+      "libdbus-1.so.3": [
+        "/lib/aarch64-linux-gnu/libdbus-1.so.3"
+      ],
+      "libdebconfclient.so.0": [
+        "/lib/aarch64-linux-gnu/libdebconfclient.so.0"
+      ],
+      "libdebuginfod.so.1": [
+        "/lib/aarch64-linux-gnu/libdebuginfod.so.1"
+      ],
+      "libdecor-0.so": [
+        "/lib/aarch64-linux-gnu/libdecor-0.so"
+      ],
+      "libdecor-0.so.0": [
+        "/lib/aarch64-linux-gnu/libdecor-0.so.0"
+      ],
+      "libdeflate.so": [
+        "/lib/aarch64-linux-gnu/libdeflate.so"
+      ],
+      "libdeflate.so.0": [
+        "/lib/aarch64-linux-gnu/libdeflate.so.0"
+      ],
+      "libdevmapper-event-lvm2.so": [
+        "/lib/aarch64-linux-gnu/libdevmapper-event-lvm2.so"
+      ],
+      "libdevmapper-event-lvm2.so.2.03": [
+        "/lib/aarch64-linux-gnu/libdevmapper-event-lvm2.so.2.03"
+      ],
+      "libdevmapper-event-lvm2mirror.so": [
+        "/lib/aarch64-linux-gnu/libdevmapper-event-lvm2mirror.so"
+      ],
+      "libdevmapper-event-lvm2raid.so": [
+        "/lib/aarch64-linux-gnu/libdevmapper-event-lvm2raid.so"
+      ],
+      "libdevmapper-event-lvm2snapshot.so": [
+        "/lib/aarch64-linux-gnu/libdevmapper-event-lvm2snapshot.so"
+      ],
+      "libdevmapper-event-lvm2thin.so": [
+        "/lib/aarch64-linux-gnu/libdevmapper-event-lvm2thin.so"
+      ],
+      "libdevmapper-event-lvm2vdo.so": [
+        "/lib/aarch64-linux-gnu/libdevmapper-event-lvm2vdo.so"
+      ],
+      "libdevmapper-event.so.1.02.1": [
+        "/lib/aarch64-linux-gnu/libdevmapper-event.so.1.02.1"
+      ],
+      "libdevmapper.so.1.02.1": [
+        "/lib/aarch64-linux-gnu/libdevmapper.so.1.02.1"
+      ],
+      "libdiag.so.1": [
+        "/lib/aarch64-linux-gnu/libdiag.so.1"
+      ],
+      "libdl.so.2": [
+        "/lib/aarch64-linux-gnu/libdl.so.2"
+      ],
+      "libdns-9.18.39-0ubuntu0.24.04.7-Ubuntu.so": [
+        "/lib/aarch64-linux-gnu/libdns-9.18.39-0ubuntu0.24.04.7-Ubuntu.so"
+      ],
+      "libdouble-conversion.so.3": [
+        "/lib/aarch64-linux-gnu/libdouble-conversion.so.3"
+      ],
+      "libdrm.so": [
+        "/lib/aarch64-linux-gnu/libdrm.so"
+      ],
+      "libdrm.so.2": [
+        "/lib/aarch64-linux-gnu/libdrm.so.2"
+      ],
+      "libdrm_amdgpu.so": [
+        "/lib/aarch64-linux-gnu/libdrm_amdgpu.so"
+      ],
+      "libdrm_amdgpu.so.1": [
+        "/lib/aarch64-linux-gnu/libdrm_amdgpu.so.1"
+      ],
+      "libdrm_etnaviv.so": [
+        "/lib/aarch64-linux-gnu/libdrm_etnaviv.so"
+      ],
+      "libdrm_etnaviv.so.1": [
+        "/lib/aarch64-linux-gnu/libdrm_etnaviv.so.1"
+      ],
+      "libdrm_freedreno.so": [
+        "/lib/aarch64-linux-gnu/libdrm_freedreno.so"
+      ],
+      "libdrm_freedreno.so.1": [
+        "/lib/aarch64-linux-gnu/libdrm_freedreno.so.1"
+      ],
+      "libdrm_nouveau.so": [
+        "/lib/aarch64-linux-gnu/libdrm_nouveau.so"
+      ],
+      "libdrm_nouveau.so.2": [
+        "/lib/aarch64-linux-gnu/libdrm_nouveau.so.2"
+      ],
+      "libdrm_radeon.so": [
+        "/lib/aarch64-linux-gnu/libdrm_radeon.so"
+      ],
+      "libdrm_radeon.so.1": [
+        "/lib/aarch64-linux-gnu/libdrm_radeon.so.1"
+      ],
+      "libdrm_tegra.so": [
+        "/lib/aarch64-linux-gnu/libdrm_tegra.so"
+      ],
+      "libdrm_tegra.so.0": [
+        "/lib/aarch64-linux-gnu/libdrm_tegra.so.0"
+      ],
+      "libdrmfs.so.1": [
+        "/lib/aarch64-linux-gnu/libdrmfs.so.1"
+      ],
+      "libdrmtime.so.1": [
+        "/lib/aarch64-linux-gnu/libdrmtime.so.1"
+      ],
+      "libdrop_ambient.so.0": [
+        "/lib/aarch64-linux-gnu/libdrop_ambient.so.0"
+      ],
+      "libdsutils.so.1": [
+        "/lib/aarch64-linux-gnu/libdsutils.so.1"
+      ],
+      "libduktape.so.207": [
+        "/lib/aarch64-linux-gnu/libduktape.so.207"
+      ],
+      "libdw.so.1": [
+        "/lib/aarch64-linux-gnu/libdw.so.1"
+      ],
+      "libe2p.so": [
+        "/lib/aarch64-linux-gnu/libe2p.so"
+      ],
+      "libe2p.so.2": [
+        "/lib/aarch64-linux-gnu/libe2p.so.2"
+      ],
+      "libedit.so.2": [
+        "/lib/aarch64-linux-gnu/libedit.so.2"
+      ],
+      "libeglSubDriverWayland.so": [
+        "/lib/aarch64-linux-gnu/libeglSubDriverWayland.so"
+      ],
+      "libelf.so.1": [
+        "/lib/aarch64-linux-gnu/libelf.so.1"
+      ],
+      "libestr.so.0": [
+        "/lib/aarch64-linux-gnu/libestr.so.0"
+      ],
+      "libevent_core-2.1.so.7": [
+        "/lib/aarch64-linux-gnu/libevent_core-2.1.so.7"
+      ],
+      "libexpat.so": [
+        "/lib/aarch64-linux-gnu/libexpat.so"
+      ],
+      "libexpat.so.1": [
+        "/lib/aarch64-linux-gnu/libexpat.so.1"
+      ],
+      "libexpatw.so": [
+        "/lib/aarch64-linux-gnu/libexpatw.so"
+      ],
+      "libexpatw.so.1": [
+        "/lib/aarch64-linux-gnu/libexpatw.so.1"
+      ],
+      "libext2fs.so": [
+        "/lib/aarch64-linux-gnu/libext2fs.so"
+      ],
+      "libext2fs.so.2": [
+        "/lib/aarch64-linux-gnu/libext2fs.so.2"
+      ],
+      "libext4_utils.so.0": [
+        "/lib/aarch64-linux-gnu/libext4_utils.so.0"
+      ],
+      "libfastjson.so.4": [
+        "/lib/aarch64-linux-gnu/libfastjson.so.4"
+      ],
+      "libfdisk.so.1": [
+        "/lib/aarch64-linux-gnu/libfdisk.so.1"
+      ],
+      "libffi.so": [
+        "/lib/aarch64-linux-gnu/libffi.so"
+      ],
+      "libffi.so.6": [
+        "/lib/aarch64-linux-gnu/libffi.so.6"
+      ],
+      "libffi.so.8": [
+        "/lib/aarch64-linux-gnu/libffi.so.8"
+      ],
+      "libfftw3f.so.3": [
+        "/lib/aarch64-linux-gnu/libfftw3f.so.3"
+      ],
+      "libfftw3f_omp.so.3": [
+        "/lib/aarch64-linux-gnu/libfftw3f_omp.so.3"
+      ],
+      "libfftw3f_threads.so.3": [
+        "/lib/aarch64-linux-gnu/libfftw3f_threads.so.3"
+      ],
+      "libfido2.so.1": [
+        "/lib/aarch64-linux-gnu/libfido2.so.1"
+      ],
+      "libfontconfig.so": [
+        "/lib/aarch64-linux-gnu/libfontconfig.so"
+      ],
+      "libfontconfig.so.1": [
+        "/lib/aarch64-linux-gnu/libfontconfig.so.1"
+      ],
+      "libfontenc.so.1": [
+        "/lib/aarch64-linux-gnu/libfontenc.so.1"
+      ],
+      "libform.so": [
+        "/lib/aarch64-linux-gnu/libform.so"
+      ],
+      "libform.so.6": [
+        "/lib/aarch64-linux-gnu/libform.so.6"
+      ],
+      "libformw.so": [
+        "/lib/aarch64-linux-gnu/libformw.so"
+      ],
+      "libformw.so.6": [
+        "/lib/aarch64-linux-gnu/libformw.so.6"
+      ],
+      "libfreebl3.so": [
+        "/lib/aarch64-linux-gnu/libfreebl3.so"
+      ],
+      "libfreeblpriv3.so": [
+        "/lib/aarch64-linux-gnu/libfreeblpriv3.so"
+      ],
+      "libfreetype.so": [
+        "/lib/aarch64-linux-gnu/libfreetype.so"
+      ],
+      "libfreetype.so.6": [
+        "/lib/aarch64-linux-gnu/libfreetype.so.6"
+      ],
+      "libfribidi.so": [
+        "/lib/aarch64-linux-gnu/libfribidi.so"
+      ],
+      "libfribidi.so.0": [
+        "/lib/aarch64-linux-gnu/libfribidi.so.0"
+      ],
+      "libfs_mgr.so.0": [
+        "/lib/aarch64-linux-gnu/libfs_mgr.so.0"
+      ],
+      "libfuse.so.2": [
+        "/lib/aarch64-linux-gnu/libfuse.so.2"
+      ],
+      "libfuse3.so.3": [
+        "/lib/aarch64-linux-gnu/libfuse3.so.3"
+      ],
+      "libgallium-25.2.8-0ubuntu0.24.04.2.so": [
+        "/lib/aarch64-linux-gnu/libgallium-25.2.8-0ubuntu0.24.04.2.so"
+      ],
+      "libgbm.so": [
+        "/lib/aarch64-linux-gnu/libgbm.so"
+      ],
+      "libgbm.so.1": [
+        "/lib/aarch64-linux-gnu/libgbm.so.1"
+      ],
+      "libgc.so.1": [
+        "/lib/aarch64-linux-gnu/libgc.so.1"
+      ],
+      "libgcc_s.so.1": [
+        "/lib/aarch64-linux-gnu/libgcc_s.so.1"
+      ],
+      "libgccpp.so.1": [
+        "/lib/aarch64-linux-gnu/libgccpp.so.1"
+      ],
+      "libgcrypt.so.20": [
+        "/lib/aarch64-linux-gnu/libgcrypt.so.20"
+      ],
+      "libgctba.so.1": [
+        "/lib/aarch64-linux-gnu/libgctba.so.1"
+      ],
+      "libgdbm.so": [
+        "/lib/aarch64-linux-gnu/libgdbm.so"
+      ],
+      "libgdbm.so.6": [
+        "/lib/aarch64-linux-gnu/libgdbm.so.6"
+      ],
+      "libgdbm_compat.so.4": [
+        "/lib/aarch64-linux-gnu/libgdbm_compat.so.4"
+      ],
+      "libgdk-x11-2.0.so": [
+        "/lib/aarch64-linux-gnu/libgdk-x11-2.0.so"
+      ],
+      "libgdk-x11-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgdk-x11-2.0.so.0"
+      ],
+      "libgdk_pixbuf-2.0.so": [
+        "/lib/aarch64-linux-gnu/libgdk_pixbuf-2.0.so"
+      ],
+      "libgdk_pixbuf-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgdk_pixbuf-2.0.so.0"
+      ],
+      "libgio-2.0.so": [
+        "/lib/aarch64-linux-gnu/libgio-2.0.so"
+      ],
+      "libgio-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgio-2.0.so.0"
+      ],
+      "libgirepository-1.0.so.1": [
+        "/lib/aarch64-linux-gnu/libgirepository-1.0.so.1"
+      ],
+      "libgirepository-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgirepository-2.0.so.0"
+      ],
+      "libglfw.so": [
+        "/lib/aarch64-linux-gnu/libglfw.so"
+      ],
+      "libglfw.so.3": [
+        "/lib/aarch64-linux-gnu/libglfw.so.3"
+      ],
+      "libglib-2.0.so": [
+        "/lib/aarch64-linux-gnu/libglib-2.0.so"
+      ],
+      "libglib-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libglib-2.0.so.0"
+      ],
+      "libgmodule-2.0.so": [
+        "/lib/aarch64-linux-gnu/libgmodule-2.0.so"
+      ],
+      "libgmodule-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgmodule-2.0.so.0"
+      ],
+      "libgmp.so": [
+        "/lib/aarch64-linux-gnu/libgmp.so"
+      ],
+      "libgmp.so.10": [
+        "/lib/aarch64-linux-gnu/libgmp.so.10"
+      ],
+      "libgmpxx.so": [
+        "/lib/aarch64-linux-gnu/libgmpxx.so"
+      ],
+      "libgmpxx.so.4": [
+        "/lib/aarch64-linux-gnu/libgmpxx.so.4"
+      ],
+      "libgnutls.so.30": [
+        "/lib/aarch64-linux-gnu/libgnutls.so.30"
+      ],
+      "libgobject-2.0.so": [
+        "/lib/aarch64-linux-gnu/libgobject-2.0.so"
+      ],
+      "libgobject-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgobject-2.0.so.0"
+      ],
+      "libgomp.so.1": [
+        "/lib/aarch64-linux-gnu/libgomp.so.1"
+      ],
+      "libgpg-error.so.0": [
+        "/lib/aarch64-linux-gnu/libgpg-error.so.0"
+      ],
+      "libgpiod.so.2": [
+        "/lib/aarch64-linux-gnu/libgpiod.so.2"
+      ],
+      "libgpiodcxx.so.1": [
+        "/lib/aarch64-linux-gnu/libgpiodcxx.so.1"
+      ],
+      "libgpm.so.2": [
+        "/lib/aarch64-linux-gnu/libgpm.so.2"
+      ],
+      "libgprofng.so.0": [
+        "/lib/aarch64-linux-gnu/libgprofng.so.0"
+      ],
+      "libgpt.so.0": [
+        "/lib/aarch64-linux-gnu/libgpt.so.0"
+      ],
+      "libgraphite2.so": [
+        "/lib/aarch64-linux-gnu/libgraphite2.so"
+      ],
+      "libgraphite2.so.3": [
+        "/lib/aarch64-linux-gnu/libgraphite2.so.3"
+      ],
+      "libgsl.so": [
+        "/lib/aarch64-linux-gnu/libgsl.so"
+      ],
+      "libgssapi_krb5.so": [
+        "/lib/aarch64-linux-gnu/libgssapi_krb5.so"
+      ],
+      "libgssapi_krb5.so.2": [
+        "/lib/aarch64-linux-gnu/libgssapi_krb5.so.2"
+      ],
+      "libgssrpc.so": [
+        "/lib/aarch64-linux-gnu/libgssrpc.so"
+      ],
+      "libgssrpc.so.4": [
+        "/lib/aarch64-linux-gnu/libgssrpc.so.4"
+      ],
+      "libgstbase-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgstbase-1.0.so.0"
+      ],
+      "libgstcheck-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgstcheck-1.0.so.0"
+      ],
+      "libgstcontroller-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgstcontroller-1.0.so.0"
+      ],
+      "libgstnet-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgstnet-1.0.so.0"
+      ],
+      "libgstreamer-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgstreamer-1.0.so.0"
+      ],
+      "libgthread-2.0.so": [
+        "/lib/aarch64-linux-gnu/libgthread-2.0.so"
+      ],
+      "libgthread-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgthread-2.0.so.0"
+      ],
+      "libgtk-x11-2.0.so": [
+        "/lib/aarch64-linux-gnu/libgtk-x11-2.0.so"
+      ],
+      "libgtk-x11-2.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgtk-x11-2.0.so.0"
+      ],
+      "libgudev-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libgudev-1.0.so.0"
+      ],
+      "libhandle.so.1": [
+        "/lib/aarch64-linux-gnu/libhandle.so.1"
+      ],
+      "libhardware.so.0": [
+        "/lib/aarch64-linux-gnu/libhardware.so.0"
+      ],
+      "libharfbuzz-cairo.so": [
+        "/lib/aarch64-linux-gnu/libharfbuzz-cairo.so"
+      ],
+      "libharfbuzz-cairo.so.0": [
+        "/lib/aarch64-linux-gnu/libharfbuzz-cairo.so.0"
+      ],
+      "libharfbuzz-gobject.so": [
+        "/lib/aarch64-linux-gnu/libharfbuzz-gobject.so"
+      ],
+      "libharfbuzz-gobject.so.0": [
+        "/lib/aarch64-linux-gnu/libharfbuzz-gobject.so.0"
+      ],
+      "libharfbuzz-icu.so": [
+        "/lib/aarch64-linux-gnu/libharfbuzz-icu.so"
+      ],
+      "libharfbuzz-icu.so.0": [
+        "/lib/aarch64-linux-gnu/libharfbuzz-icu.so.0"
+      ],
+      "libharfbuzz-subset.so": [
+        "/lib/aarch64-linux-gnu/libharfbuzz-subset.so"
+      ],
+      "libharfbuzz-subset.so.0": [
+        "/lib/aarch64-linux-gnu/libharfbuzz-subset.so.0"
+      ],
+      "libharfbuzz.so": [
+        "/lib/aarch64-linux-gnu/libharfbuzz.so"
+      ],
+      "libharfbuzz.so.0": [
+        "/lib/aarch64-linux-gnu/libharfbuzz.so.0"
+      ],
+      "libhdcp1prov.so.1": [
+        "/lib/aarch64-linux-gnu/libhdcp1prov.so.1"
+      ],
+      "libhdcp2p2prov.so.1": [
+        "/lib/aarch64-linux-gnu/libhdcp2p2prov.so.1"
+      ],
+      "libhistory.so.8": [
+        "/lib/aarch64-linux-gnu/libhistory.so.8"
+      ],
+      "libhogweed.so": [
+        "/lib/aarch64-linux-gnu/libhogweed.so"
+      ],
+      "libhogweed.so.6": [
+        "/lib/aarch64-linux-gnu/libhogweed.so.6"
+      ],
+      "libhwasan.so.0": [
+        "/lib/aarch64-linux-gnu/libhwasan.so.0"
+      ],
+      "libi2c.so": [
+        "/lib/aarch64-linux-gnu/libi2c.so"
+      ],
+      "libi2c.so.0": [
+        "/lib/aarch64-linux-gnu/libi2c.so.0"
+      ],
+      "libibus-1.0.so": [
+        "/lib/aarch64-linux-gnu/libibus-1.0.so"
+      ],
+      "libibus-1.0.so.5": [
+        "/lib/aarch64-linux-gnu/libibus-1.0.so.5"
+      ],
+      "libibverbs.so.1": [
+        "/lib/aarch64-linux-gnu/libibverbs.so.1"
+      ],
+      "libicudata.so": [
+        "/lib/aarch64-linux-gnu/libicudata.so"
+      ],
+      "libicudata.so.66": [
+        "/lib/aarch64-linux-gnu/libicudata.so.66"
+      ],
+      "libicudata.so.74": [
+        "/lib/aarch64-linux-gnu/libicudata.so.74"
+      ],
+      "libicui18n.so": [
+        "/lib/aarch64-linux-gnu/libicui18n.so"
+      ],
+      "libicui18n.so.66": [
+        "/lib/aarch64-linux-gnu/libicui18n.so.66"
+      ],
+      "libicui18n.so.74": [
+        "/lib/aarch64-linux-gnu/libicui18n.so.74"
+      ],
+      "libicuio.so": [
+        "/lib/aarch64-linux-gnu/libicuio.so"
+      ],
+      "libicuio.so.66": [
+        "/lib/aarch64-linux-gnu/libicuio.so.66"
+      ],
+      "libicuio.so.74": [
+        "/lib/aarch64-linux-gnu/libicuio.so.74"
+      ],
+      "libicutest.so": [
+        "/lib/aarch64-linux-gnu/libicutest.so"
+      ],
+      "libicutest.so.66": [
+        "/lib/aarch64-linux-gnu/libicutest.so.66"
+      ],
+      "libicutest.so.74": [
+        "/lib/aarch64-linux-gnu/libicutest.so.74"
+      ],
+      "libicutu.so": [
+        "/lib/aarch64-linux-gnu/libicutu.so"
+      ],
+      "libicutu.so.66": [
+        "/lib/aarch64-linux-gnu/libicutu.so.66"
+      ],
+      "libicutu.so.74": [
+        "/lib/aarch64-linux-gnu/libicutu.so.74"
+      ],
+      "libicuuc.so": [
+        "/lib/aarch64-linux-gnu/libicuuc.so"
+      ],
+      "libicuuc.so.66": [
+        "/lib/aarch64-linux-gnu/libicuuc.so.66"
+      ],
+      "libicuuc.so.74": [
+        "/lib/aarch64-linux-gnu/libicuuc.so.74"
+      ],
+      "libidn2.so.0": [
+        "/lib/aarch64-linux-gnu/libidn2.so.0"
+      ],
+      "libinih.so.1": [
+        "/lib/aarch64-linux-gnu/libinih.so.1"
+      ],
+      "libip4tc.so.2": [
+        "/lib/aarch64-linux-gnu/libip4tc.so.2"
+      ],
+      "libip6tc.so.2": [
+        "/lib/aarch64-linux-gnu/libip6tc.so.2"
+      ],
+      "libiperf.so.0": [
+        "/lib/aarch64-linux-gnu/libiperf.so.0"
+      ],
+      "libirs-9.18.39-0ubuntu0.24.04.7-Ubuntu.so": [
+        "/lib/aarch64-linux-gnu/libirs-9.18.39-0ubuntu0.24.04.7-Ubuntu.so"
+      ],
+      "libisc-9.18.39-0ubuntu0.24.04.7-Ubuntu.so": [
+        "/lib/aarch64-linux-gnu/libisc-9.18.39-0ubuntu0.24.04.7-Ubuntu.so"
+      ],
+      "libisccc-9.18.39-0ubuntu0.24.04.7-Ubuntu.so": [
+        "/lib/aarch64-linux-gnu/libisccc-9.18.39-0ubuntu0.24.04.7-Ubuntu.so"
+      ],
+      "libisccfg-9.18.39-0ubuntu0.24.04.7-Ubuntu.so": [
+        "/lib/aarch64-linux-gnu/libisccfg-9.18.39-0ubuntu0.24.04.7-Ubuntu.so"
+      ],
+      "libisl.so.23": [
+        "/lib/aarch64-linux-gnu/libisl.so.23"
+      ],
+      "libitm.so.1": [
+        "/lib/aarch64-linux-gnu/libitm.so.1"
+      ],
+      "libiw.so.30": [
+        "/lib/aarch64-linux-gnu/libiw.so.30"
+      ],
+      "libjack.so": [
+        "/lib/aarch64-linux-gnu/libjack.so"
+      ],
+      "libjack.so.0": [
+        "/lib/aarch64-linux-gnu/libjack.so.0"
+      ],
+      "libjacknet.so": [
+        "/lib/aarch64-linux-gnu/libjacknet.so"
+      ],
+      "libjacknet.so.0": [
+        "/lib/aarch64-linux-gnu/libjacknet.so.0"
+      ],
+      "libjackserver.so": [
+        "/lib/aarch64-linux-gnu/libjackserver.so"
+      ],
+      "libjackserver.so.0": [
+        "/lib/aarch64-linux-gnu/libjackserver.so.0"
+      ],
+      "libjansson.so.4": [
+        "/lib/aarch64-linux-gnu/libjansson.so.4"
+      ],
+      "libjbig.so": [
+        "/lib/aarch64-linux-gnu/libjbig.so"
+      ],
+      "libjbig.so.0": [
+        "/lib/aarch64-linux-gnu/libjbig.so.0"
+      ],
+      "libjpeg.so": [
+        "/lib/aarch64-linux-gnu/libjpeg.so"
+      ],
+      "libjpeg.so.8": [
+        "/lib/aarch64-linux-gnu/libjpeg.so.8"
+      ],
+      "libjq.so.1": [
+        "/lib/aarch64-linux-gnu/libjq.so.1"
+      ],
+      "libjson-c.so.2": [
+        "/lib/aarch64-linux-gnu/libjson-c.so.2"
+      ],
+      "libjson-c.so.5": [
+        "/lib/aarch64-linux-gnu/libjson-c.so.5"
+      ],
+      "libjsoncpp.so.25": [
+        "/lib/aarch64-linux-gnu/libjsoncpp.so.25"
+      ],
+      "libk5crypto.so": [
+        "/lib/aarch64-linux-gnu/libk5crypto.so"
+      ],
+      "libk5crypto.so.3": [
+        "/lib/aarch64-linux-gnu/libk5crypto.so.3"
+      ],
+      "libkadm5clnt_mit.so": [
+        "/lib/aarch64-linux-gnu/libkadm5clnt_mit.so"
+      ],
+      "libkadm5clnt_mit.so.12": [
+        "/lib/aarch64-linux-gnu/libkadm5clnt_mit.so.12"
+      ],
+      "libkadm5srv_mit.so": [
+        "/lib/aarch64-linux-gnu/libkadm5srv_mit.so"
+      ],
+      "libkadm5srv_mit.so.12": [
+        "/lib/aarch64-linux-gnu/libkadm5srv_mit.so.12"
+      ],
+      "libkdb5.so": [
+        "/lib/aarch64-linux-gnu/libkdb5.so"
+      ],
+      "libkdb5.so.10": [
+        "/lib/aarch64-linux-gnu/libkdb5.so.10"
+      ],
+      "libkeyutils.so.1": [
+        "/lib/aarch64-linux-gnu/libkeyutils.so.1"
+      ],
+      "libkmod.so.2": [
+        "/lib/aarch64-linux-gnu/libkmod.so.2"
+      ],
+      "libkrb5.so": [
+        "/lib/aarch64-linux-gnu/libkrb5.so"
+      ],
+      "libkrb5.so.3": [
+        "/lib/aarch64-linux-gnu/libkrb5.so.3"
+      ],
+      "libkrb5support.so": [
+        "/lib/aarch64-linux-gnu/libkrb5support.so"
+      ],
+      "libkrb5support.so.0": [
+        "/lib/aarch64-linux-gnu/libkrb5support.so.0"
+      ],
+      "libksba.so.8": [
+        "/lib/aarch64-linux-gnu/libksba.so.8"
+      ],
+      "liblber.so.2": [
+        "/lib/aarch64-linux-gnu/liblber.so.2"
+      ],
+      "libldacBT_abr.so.2": [
+        "/lib/aarch64-linux-gnu/libldacBT_abr.so.2"
+      ],
+      "libldacBT_enc.so.2": [
+        "/lib/aarch64-linux-gnu/libldacBT_enc.so.2"
+      ],
+      "libldap.so.2": [
+        "/lib/aarch64-linux-gnu/libldap.so.2"
+      ],
+      "libllvm-glnext.so": [
+        "/lib/aarch64-linux-gnu/libllvm-glnext.so"
+      ],
+      "libllvm-qcom.so": [
+        "/lib/aarch64-linux-gnu/libllvm-qcom.so"
+      ],
+      "liblmclient.so": [
+        "/lib/aarch64-linux-gnu/liblmclient.so"
+      ],
+      "liblmdb.so.0": [
+        "/lib/aarch64-linux-gnu/liblmdb.so.0"
+      ],
+      "liblog.so.0": [
+        "/lib/aarch64-linux-gnu/liblog.so.0"
+      ],
+      "liblogwrap.so.0": [
+        "/lib/aarch64-linux-gnu/liblogwrap.so.0"
+      ],
+      "liblsan.so.0": [
+        "/lib/aarch64-linux-gnu/liblsan.so.0"
+      ],
+      "liblvm2cmd.so.2.03": [
+        "/lib/aarch64-linux-gnu/liblvm2cmd.so.2.03"
+      ],
+      "liblz4.so": [
+        "/lib/aarch64-linux-gnu/liblz4.so"
+      ],
+      "liblz4.so.1": [
+        "/lib/aarch64-linux-gnu/liblz4.so.1"
+      ],
+      "liblzma.so": [
+        "/lib/aarch64-linux-gnu/liblzma.so"
+      ],
+      "liblzma.so.5": [
+        "/lib/aarch64-linux-gnu/liblzma.so.5"
+      ],
+      "liblzo2.so.2": [
+        "/lib/aarch64-linux-gnu/liblzo2.so.2"
+      ],
+      "libm.so.6": [
+        "/lib/aarch64-linux-gnu/libm.so.6"
+      ],
+      "libmagic.so.1": [
+        "/lib/aarch64-linux-gnu/libmagic.so.1"
+      ],
+      "libmaxminddb.so.0": [
+        "/lib/aarch64-linux-gnu/libmaxminddb.so.0"
+      ],
+      "libmbim-glib.so.4": [
+        "/lib/aarch64-linux-gnu/libmbim-glib.so.4"
+      ],
+      "libmd.so": [
+        "/lib/aarch64-linux-gnu/libmd.so"
+      ],
+      "libmd.so.0": [
+        "/lib/aarch64-linux-gnu/libmd.so.0"
+      ],
+      "libmdsprpc.so": [
+        "/lib/aarch64-linux-gnu/libmdsprpc.so"
+      ],
+      "libmemusage.so": [
+        "/lib/aarch64-linux-gnu/libmemusage.so"
+      ],
+      "libmenu.so": [
+        "/lib/aarch64-linux-gnu/libmenu.so"
+      ],
+      "libmenu.so.6": [
+        "/lib/aarch64-linux-gnu/libmenu.so.6"
+      ],
+      "libmenuw.so": [
+        "/lib/aarch64-linux-gnu/libmenuw.so"
+      ],
+      "libmenuw.so.6": [
+        "/lib/aarch64-linux-gnu/libmenuw.so.6"
+      ],
+      "libmincrypt.so.0": [
+        "/lib/aarch64-linux-gnu/libmincrypt.so.0"
+      ],
+      "libmm-glib.so": [
+        "/lib/aarch64-linux-gnu/libmm-glib.so"
+      ],
+      "libmm-glib.so.0": [
+        "/lib/aarch64-linux-gnu/libmm-glib.so.0"
+      ],
+      "libmnl.so.0": [
+        "/lib/aarch64-linux-gnu/libmnl.so.0"
+      ],
+      "libmount.so": [
+        "/lib/aarch64-linux-gnu/libmount.so"
+      ],
+      "libmount.so.1": [
+        "/lib/aarch64-linux-gnu/libmount.so.1"
+      ],
+      "libmp3lame.so.0": [
+        "/lib/aarch64-linux-gnu/libmp3lame.so.0"
+      ],
+      "libmpathcmd.so.0": [
+        "/lib/libmpathcmd.so.0"
+      ],
+      "libmpathpersist.so.0": [
+        "/lib/libmpathpersist.so.0"
+      ],
+      "libmpathutil.so.0": [
+        "/lib/libmpathutil.so.0"
+      ],
+      "libmpc.so.3": [
+        "/lib/aarch64-linux-gnu/libmpc.so.3"
+      ],
+      "libmpfr.so.6": [
+        "/lib/aarch64-linux-gnu/libmpfr.so.6"
+      ],
+      "libmpg123.so.0": [
+        "/lib/aarch64-linux-gnu/libmpg123.so.0"
+      ],
+      "libmultipath.so.0": [
+        "/lib/libmultipath.so.0"
+      ],
+      "libmvec.so": [
+        "/lib/aarch64-linux-gnu/libmvec.so"
+      ],
+      "libmvec.so.1": [
+        "/lib/aarch64-linux-gnu/libmvec.so.1"
+      ],
+      "libncurses.so.6": [
+        "/lib/aarch64-linux-gnu/libncurses.so.6"
+      ],
+      "libncursesw.so.6": [
+        "/lib/aarch64-linux-gnu/libncursesw.so.6"
+      ],
+      "libndp.so.0": [
+        "/lib/aarch64-linux-gnu/libndp.so.0"
+      ],
+      "libnetfilter_conntrack.so.3": [
+        "/lib/aarch64-linux-gnu/libnetfilter_conntrack.so.3"
+      ],
+      "libnetplan.so.1": [
+        "/lib/aarch64-linux-gnu/libnetplan.so.1"
+      ],
+      "libnettle.so": [
+        "/lib/aarch64-linux-gnu/libnettle.so"
+      ],
+      "libnettle.so.8": [
+        "/lib/aarch64-linux-gnu/libnettle.so.8"
+      ],
+      "libnewt.so.0.52": [
+        "/lib/aarch64-linux-gnu/libnewt.so.0.52"
+      ],
+      "libnfnetlink.so.0": [
+        "/lib/aarch64-linux-gnu/libnfnetlink.so.0"
+      ],
+      "libnfsidmap.so.1": [
+        "/lib/aarch64-linux-gnu/libnfsidmap.so.1"
+      ],
+      "libnftables.so.1": [
+        "/lib/aarch64-linux-gnu/libnftables.so.1"
+      ],
+      "libnftnl.so.11": [
+        "/lib/aarch64-linux-gnu/libnftnl.so.11"
+      ],
+      "libnghttp2.so.14": [
+        "/lib/aarch64-linux-gnu/libnghttp2.so.14"
+      ],
+      "libnl-3.so.200": [
+        "/lib/aarch64-linux-gnu/libnl-3.so.200"
+      ],
+      "libnl-genl-3.so.200": [
+        "/lib/aarch64-linux-gnu/libnl-genl-3.so.200"
+      ],
+      "libnl-route-3.so.200": [
+        "/lib/aarch64-linux-gnu/libnl-route-3.so.200"
+      ],
+      "libnm.so.0": [
+        "/lib/aarch64-linux-gnu/libnm.so.0"
+      ],
+      "libnorm.so": [
+        "/lib/aarch64-linux-gnu/libnorm.so"
+      ],
+      "libnorm.so.1": [
+        "/lib/aarch64-linux-gnu/libnorm.so.1"
+      ],
+      "libnpth.so.0": [
+        "/lib/aarch64-linux-gnu/libnpth.so.0"
+      ],
+      "libns-9.18.39-0ubuntu0.24.04.7-Ubuntu.so": [
+        "/lib/aarch64-linux-gnu/libns-9.18.39-0ubuntu0.24.04.7-Ubuntu.so"
+      ],
+      "libnsl.so.1": [
+        "/lib/aarch64-linux-gnu/libnsl.so.1"
+      ],
+      "libnspr4.so": [
+        "/lib/aarch64-linux-gnu/libnspr4.so"
+      ],
+      "libnss3.so": [
+        "/lib/aarch64-linux-gnu/libnss3.so"
+      ],
+      "libnss_compat.so": [
+        "/lib/aarch64-linux-gnu/libnss_compat.so"
+      ],
+      "libnss_compat.so.2": [
+        "/lib/aarch64-linux-gnu/libnss_compat.so.2"
+      ],
+      "libnss_dns.so.2": [
+        "/lib/aarch64-linux-gnu/libnss_dns.so.2"
+      ],
+      "libnss_files.so.2": [
+        "/lib/aarch64-linux-gnu/libnss_files.so.2"
+      ],
+      "libnss_hesiod.so": [
+        "/lib/aarch64-linux-gnu/libnss_hesiod.so"
+      ],
+      "libnss_hesiod.so.2": [
+        "/lib/aarch64-linux-gnu/libnss_hesiod.so.2"
+      ],
+      "libnss_myhostname.so.2": [
+        "/lib/aarch64-linux-gnu/libnss_myhostname.so.2"
+      ],
+      "libnssckbi.so": [
+        "/lib/aarch64-linux-gnu/libnssckbi.so"
+      ],
+      "libnssdbm3.so": [
+        "/lib/aarch64-linux-gnu/libnssdbm3.so"
+      ],
+      "libnssutil3.so": [
+        "/lib/aarch64-linux-gnu/libnssutil3.so"
+      ],
+      "libobjc.so.4": [
+        "/lib/aarch64-linux-gnu/libobjc.so.4"
+      ],
+      "libobjc_gc.so.4": [
+        "/lib/aarch64-linux-gnu/libobjc_gc.so.4"
+      ],
+      "libogg.so": [
+        "/lib/aarch64-linux-gnu/libogg.so"
+      ],
+      "libogg.so.0": [
+        "/lib/aarch64-linux-gnu/libogg.so.0"
+      ],
+      "libomp.so.5": [
+        "/lib/aarch64-linux-gnu/libomp.so.5"
+      ],
+      "libonig.so.5": [
+        "/lib/aarch64-linux-gnu/libonig.so.5"
+      ],
+      "libopcodes-2.42-system.so": [
+        "/lib/aarch64-linux-gnu/libopcodes-2.42-system.so"
+      ],
+      "libopus.so.0": [
+        "/lib/aarch64-linux-gnu/libopus.so.0"
+      ],
+      "libp11-kit.so.0": [
+        "/lib/aarch64-linux-gnu/libp11-kit.so.0"
+      ],
+      "libpackagekit-glib2.so.18": [
+        "/lib/aarch64-linux-gnu/libpackagekit-glib2.so.18"
+      ],
+      "libpam.so.0": [
+        "/lib/aarch64-linux-gnu/libpam.so.0"
+      ],
+      "libpam_misc.so.0": [
+        "/lib/aarch64-linux-gnu/libpam_misc.so.0"
+      ],
+      "libpamc.so.0": [
+        "/lib/aarch64-linux-gnu/libpamc.so.0"
+      ],
+      "libpanel.so": [
+        "/lib/aarch64-linux-gnu/libpanel.so"
+      ],
+      "libpanel.so.6": [
+        "/lib/aarch64-linux-gnu/libpanel.so.6"
+      ],
+      "libpanelw.so": [
+        "/lib/aarch64-linux-gnu/libpanelw.so"
+      ],
+      "libpanelw.so.6": [
+        "/lib/aarch64-linux-gnu/libpanelw.so.6"
+      ],
+      "libpango-1.0.so": [
+        "/lib/aarch64-linux-gnu/libpango-1.0.so"
+      ],
+      "libpango-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libpango-1.0.so.0"
+      ],
+      "libpangocairo-1.0.so": [
+        "/lib/aarch64-linux-gnu/libpangocairo-1.0.so"
+      ],
+      "libpangocairo-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libpangocairo-1.0.so.0"
+      ],
+      "libpangoft2-1.0.so": [
+        "/lib/aarch64-linux-gnu/libpangoft2-1.0.so"
+      ],
+      "libpangoft2-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libpangoft2-1.0.so.0"
+      ],
+      "libpangoxft-1.0.so": [
+        "/lib/aarch64-linux-gnu/libpangoxft-1.0.so"
+      ],
+      "libpangoxft-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libpangoxft-1.0.so.0"
+      ],
+      "libparted.so.2": [
+        "/lib/aarch64-linux-gnu/libparted.so.2"
+      ],
+      "libpcap.so.0.8": [
+        "/lib/aarch64-linux-gnu/libpcap.so.0.8"
+      ],
+      "libpci.so.3": [
+        "/lib/aarch64-linux-gnu/libpci.so.3"
+      ],
+      "libpciaccess.so": [
+        "/lib/aarch64-linux-gnu/libpciaccess.so"
+      ],
+      "libpciaccess.so.0": [
+        "/lib/aarch64-linux-gnu/libpciaccess.so.0"
+      ],
+      "libpcprofile.so": [
+        "/lib/aarch64-linux-gnu/libpcprofile.so"
+      ],
+      "libpcre.so.1": [
+        "/lib/aarch64-linux-gnu/libpcre.so.1"
+      ],
+      "libpcre2-16.so": [
+        "/lib/aarch64-linux-gnu/libpcre2-16.so"
+      ],
+      "libpcre2-16.so.0": [
+        "/lib/aarch64-linux-gnu/libpcre2-16.so.0"
+      ],
+      "libpcre2-32.so": [
+        "/lib/aarch64-linux-gnu/libpcre2-32.so"
+      ],
+      "libpcre2-32.so.0": [
+        "/lib/aarch64-linux-gnu/libpcre2-32.so.0"
+      ],
+      "libpcre2-8.so": [
+        "/lib/aarch64-linux-gnu/libpcre2-8.so"
+      ],
+      "libpcre2-8.so.0": [
+        "/lib/aarch64-linux-gnu/libpcre2-8.so.0"
+      ],
+      "libpcre2-posix.so": [
+        "/lib/aarch64-linux-gnu/libpcre2-posix.so"
+      ],
+      "libpcre2-posix.so.3": [
+        "/lib/aarch64-linux-gnu/libpcre2-posix.so.3"
+      ],
+      "libpcsclite.so.1": [
+        "/lib/aarch64-linux-gnu/libpcsclite.so.1"
+      ],
+      "libpdmapper.so.0": [
+        "/lib/aarch64-linux-gnu/libpdmapper.so.0"
+      ],
+      "libpdnotifier.so.0": [
+        "/lib/aarch64-linux-gnu/libpdnotifier.so.0"
+      ],
+      "libperl.so.5.38": [
+        "/lib/aarch64-linux-gnu/libperl.so.5.38"
+      ],
+      "libpfm.so.4": [
+        "/lib/aarch64-linux-gnu/libpfm.so.4"
+      ],
+      "libpgm-5.3.so": [
+        "/lib/aarch64-linux-gnu/libpgm-5.3.so"
+      ],
+      "libpgm-5.3.so.0": [
+        "/lib/aarch64-linux-gnu/libpgm-5.3.so.0"
+      ],
+      "libpipeline.so.1": [
+        "/lib/aarch64-linux-gnu/libpipeline.so.1"
+      ],
+      "libpixman-1.so": [
+        "/lib/aarch64-linux-gnu/libpixman-1.so"
+      ],
+      "libpixman-1.so.0": [
+        "/lib/aarch64-linux-gnu/libpixman-1.so.0"
+      ],
+      "libpkgconf.so.3": [
+        "/lib/aarch64-linux-gnu/libpkgconf.so.3"
+      ],
+      "libplatformconfig.so.0": [
+        "/lib/aarch64-linux-gnu/libplatformconfig.so.0"
+      ],
+      "libplc4.so": [
+        "/lib/aarch64-linux-gnu/libplc4.so"
+      ],
+      "libplds4.so": [
+        "/lib/aarch64-linux-gnu/libplds4.so"
+      ],
+      "libpng16.so": [
+        "/lib/aarch64-linux-gnu/libpng16.so"
+      ],
+      "libpng16.so.16": [
+        "/lib/aarch64-linux-gnu/libpng16.so.16"
+      ],
+      "libpolkit-agent-1.so.0": [
+        "/lib/aarch64-linux-gnu/libpolkit-agent-1.so.0"
+      ],
+      "libpolkit-gobject-1.so.0": [
+        "/lib/aarch64-linux-gnu/libpolkit-gobject-1.so.0"
+      ],
+      "libpopt.so.0": [
+        "/lib/aarch64-linux-gnu/libpopt.so.0"
+      ],
+      "libportaudio.so": [
+        "/lib/aarch64-linux-gnu/libportaudio.so"
+      ],
+      "libportaudio.so.2": [
+        "/lib/aarch64-linux-gnu/libportaudio.so.2"
+      ],
+      "libportaudiocpp.so": [
+        "/lib/aarch64-linux-gnu/libportaudiocpp.so"
+      ],
+      "libportaudiocpp.so.0": [
+        "/lib/aarch64-linux-gnu/libportaudiocpp.so.0"
+      ],
+      "libproc2.so.0": [
+        "/lib/aarch64-linux-gnu/libproc2.so.0"
+      ],
+      "libprotobuf.so.32": [
+        "/lib/aarch64-linux-gnu/libprotobuf.so.32"
+      ],
+      "libpsl.so.5": [
+        "/lib/aarch64-linux-gnu/libpsl.so.5"
+      ],
+      "libpsx.so.2": [
+        "/lib/aarch64-linux-gnu/libpsx.so.2"
+      ],
+      "libpthread.so.0": [
+        "/lib/aarch64-linux-gnu/libpthread.so.0"
+      ],
+      "libpulse-mainloop-glib.so": [
+        "/lib/aarch64-linux-gnu/libpulse-mainloop-glib.so"
+      ],
+      "libpulse-mainloop-glib.so.0": [
+        "/lib/aarch64-linux-gnu/libpulse-mainloop-glib.so.0"
+      ],
+      "libpulse-simple.so": [
+        "/lib/aarch64-linux-gnu/libpulse-simple.so"
+      ],
+      "libpulse-simple.so.0": [
+        "/lib/aarch64-linux-gnu/libpulse-simple.so.0"
+      ],
+      "libpulse.so": [
+        "/lib/aarch64-linux-gnu/libpulse.so"
+      ],
+      "libpulse.so.0": [
+        "/lib/aarch64-linux-gnu/libpulse.so.0"
+      ],
+      "libpython3.12.so": [
+        "/lib/aarch64-linux-gnu/libpython3.12.so"
+      ],
+      "libpython3.12.so.1.0": [
+        "/lib/aarch64-linux-gnu/libpython3.12.so.1.0"
+      ],
+      "libq3dtools_adreno.so": [
+        "/lib/aarch64-linux-gnu/libq3dtools_adreno.so"
+      ],
+      "libq3dtools_esx.so": [
+        "/lib/aarch64-linux-gnu/libq3dtools_esx.so"
+      ],
+      "libqdMetaData.so": [
+        "/lib/aarch64-linux-gnu/libqdMetaData.so"
+      ],
+      "libqmapboxgl.so": [
+        "/lib/aarch64-linux-gnu/libqmapboxgl.so"
+      ],
+      "libqmi-glib.so": [
+        "/lib/aarch64-linux-gnu/libqmi-glib.so"
+      ],
+      "libqmi-glib.so.5": [
+        "/lib/aarch64-linux-gnu/libqmi-glib.so.5"
+      ],
+      "libqmi.so.1": [
+        "/lib/aarch64-linux-gnu/libqmi.so.1"
+      ],
+      "libqmi_cci.so.1": [
+        "/lib/aarch64-linux-gnu/libqmi_cci.so.1"
+      ],
+      "libqmi_client_qmux.so.1": [
+        "/lib/aarch64-linux-gnu/libqmi_client_qmux.so.1"
+      ],
+      "libqmi_common_so.so.1": [
+        "/lib/aarch64-linux-gnu/libqmi_common_so.so.1"
+      ],
+      "libqmi_csi.so.1": [
+        "/lib/aarch64-linux-gnu/libqmi_csi.so.1"
+      ],
+      "libqmi_encdec.so.1": [
+        "/lib/aarch64-linux-gnu/libqmi_encdec.so.1"
+      ],
+      "libqmi_sap.so.1": [
+        "/lib/aarch64-linux-gnu/libqmi_sap.so.1"
+      ],
+      "libqmiidl.so.1": [
+        "/lib/aarch64-linux-gnu/libqmiidl.so.1"
+      ],
+      "libqmiservices.so.1": [
+        "/lib/aarch64-linux-gnu/libqmiservices.so.1"
+      ],
+      "libqrtr-glib.so.0": [
+        "/lib/aarch64-linux-gnu/libqrtr-glib.so.0"
+      ],
+      "libreadline.so.8": [
+        "/lib/aarch64-linux-gnu/libreadline.so.8"
+      ],
+      "libreiserfscore.so.0": [
+        "/lib/aarch64-linux-gnu/libreiserfscore.so.0"
+      ],
+      "libresolv.so": [
+        "/lib/aarch64-linux-gnu/libresolv.so"
+      ],
+      "libresolv.so.2": [
+        "/lib/aarch64-linux-gnu/libresolv.so.2"
+      ],
+      "librhash.so.0": [
+        "/lib/aarch64-linux-gnu/librhash.so.0"
+      ],
+      "librpmb.so.1": [
+        "/lib/aarch64-linux-gnu/librpmb.so.1"
+      ],
+      "librt.so.1": [
+        "/lib/aarch64-linux-gnu/librt.so.1"
+      ],
+      "librtmp.so.1": [
+        "/lib/aarch64-linux-gnu/librtmp.so.1"
+      ],
+      "libruby-3.2.so.3.2": [
+        "/lib/aarch64-linux-gnu/libruby-3.2.so.3.2"
+      ],
+      "libsamplerate.so": [
+        "/lib/aarch64-linux-gnu/libsamplerate.so"
+      ],
+      "libsamplerate.so.0": [
+        "/lib/aarch64-linux-gnu/libsamplerate.so.0"
+      ],
+      "libsasl2.so.2": [
+        "/lib/aarch64-linux-gnu/libsasl2.so.2"
+      ],
+      "libsbc.so.1": [
+        "/lib/aarch64-linux-gnu/libsbc.so.1"
+      ],
+      "libsctp.so.1": [
+        "/lib/aarch64-linux-gnu/libsctp.so.1"
+      ],
+      "libsdsp_default_listener.so": [
+        "/lib/aarch64-linux-gnu/libsdsp_default_listener.so"
+      ],
+      "libsdsprpc.so": [
+        "/lib/aarch64-linux-gnu/libsdsprpc.so"
+      ],
+      "libseccomp.so.2": [
+        "/lib/aarch64-linux-gnu/libseccomp.so.2"
+      ],
+      "libselinux.so": [
+        "/lib/aarch64-linux-gnu/libselinux.so"
+      ],
+      "libselinux.so.0": [
+        "/lib/aarch64-linux-gnu/libselinux.so.0"
+      ],
+      "libselinux.so.1": [
+        "/lib/aarch64-linux-gnu/libselinux.so.1"
+      ],
+      "libsemanage.so.2": [
+        "/lib/aarch64-linux-gnu/libsemanage.so.2"
+      ],
+      "libsensors.so.5": [
+        "/lib/aarch64-linux-gnu/libsensors.so.5"
+      ],
+      "libsepol.so": [
+        "/lib/aarch64-linux-gnu/libsepol.so"
+      ],
+      "libsepol.so.2": [
+        "/lib/aarch64-linux-gnu/libsepol.so.2"
+      ],
+      "libsframe.so.1": [
+        "/lib/aarch64-linux-gnu/libsframe.so.1"
+      ],
+      "libsgutils2-1.46.so.2": [
+        "/lib/aarch64-linux-gnu/libsgutils2-1.46.so.2"
+      ],
+      "libsharpyuv.so": [
+        "/lib/aarch64-linux-gnu/libsharpyuv.so"
+      ],
+      "libsharpyuv.so.0": [
+        "/lib/aarch64-linux-gnu/libsharpyuv.so.0"
+      ],
+      "libsigsegv.so.2": [
+        "/lib/aarch64-linux-gnu/libsigsegv.so.2"
+      ],
+      "libslang.so.2": [
+        "/lib/aarch64-linux-gnu/libslang.so.2"
+      ],
+      "libsmartcols.so.1": [
+        "/lib/aarch64-linux-gnu/libsmartcols.so.1"
+      ],
+      "libsmime3.so": [
+        "/lib/aarch64-linux-gnu/libsmime3.so"
+      ],
+      "libsndfile.so.1": [
+        "/lib/aarch64-linux-gnu/libsndfile.so.1"
+      ],
+      "libsndio.so": [
+        "/lib/aarch64-linux-gnu/libsndio.so"
+      ],
+      "libsndio.so.7": [
+        "/lib/aarch64-linux-gnu/libsndio.so.7"
+      ],
+      "libsodium.so": [
+        "/lib/aarch64-linux-gnu/libsodium.so"
+      ],
+      "libsodium.so.23": [
+        "/lib/aarch64-linux-gnu/libsodium.so.23"
+      ],
+      "libsoftokn3.so": [
+        "/lib/aarch64-linux-gnu/libsoftokn3.so"
+      ],
+      "libsource-highlight.so.4": [
+        "/lib/aarch64-linux-gnu/libsource-highlight.so.4"
+      ],
+      "libsparse.so.0": [
+        "/lib/aarch64-linux-gnu/libsparse.so.0"
+      ],
+      "libsqlite3.so": [
+        "/lib/aarch64-linux-gnu/libsqlite3.so"
+      ],
+      "libsqlite3.so.0": [
+        "/lib/aarch64-linux-gnu/libsqlite3.so.0"
+      ],
+      "libss.so.2": [
+        "/lib/aarch64-linux-gnu/libss.so.2"
+      ],
+      "libssd.so.1": [
+        "/lib/aarch64-linux-gnu/libssd.so.1"
+      ],
+      "libssh.so.4": [
+        "/lib/aarch64-linux-gnu/libssh.so.4"
+      ],
+      "libssh2.so.1": [
+        "/lib/aarch64-linux-gnu/libssh2.so.1"
+      ],
+      "libssl.so": [
+        "/lib/aarch64-linux-gnu/libssl.so"
+      ],
+      "libssl.so.1.1": [
+        "/lib/aarch64-linux-gnu/libssl.so.1.1"
+      ],
+      "libssl.so.3": [
+        "/lib/aarch64-linux-gnu/libssl.so.3"
+      ],
+      "libssl3.so": [
+        "/lib/aarch64-linux-gnu/libssl3.so"
+      ],
+      "libstdc++.so.6": [
+        "/lib/aarch64-linux-gnu/libstdc++.so.6"
+      ],
+      "libstemmer.so.0d": [
+        "/lib/aarch64-linux-gnu/libstemmer.so.0d"
+      ],
+      "libsync.so.0": [
+        "/lib/aarch64-linux-gnu/libsync.so.0"
+      ],
+      "libsystemd.so": [
+        "/lib/aarch64-linux-gnu/libsystemd.so"
+      ],
+      "libsystemd.so.0": [
+        "/lib/aarch64-linux-gnu/libsystemd.so.0"
+      ],
+      "libsysutils.so.0": [
+        "/lib/aarch64-linux-gnu/libsysutils.so.0"
+      ],
+      "libtasn1.so.6": [
+        "/lib/aarch64-linux-gnu/libtasn1.so.6"
+      ],
+      "libtcl8.6.so": [
+        "/lib/aarch64-linux-gnu/libtcl8.6.so"
+      ],
+      "libteamdctl.so.0": [
+        "/lib/aarch64-linux-gnu/libteamdctl.so.0"
+      ],
+      "libthai.so": [
+        "/lib/aarch64-linux-gnu/libthai.so"
+      ],
+      "libthai.so.0": [
+        "/lib/aarch64-linux-gnu/libthai.so.0"
+      ],
+      "libthread_db.so": [
+        "/lib/aarch64-linux-gnu/libthread_db.so"
+      ],
+      "libthread_db.so.1": [
+        "/lib/aarch64-linux-gnu/libthread_db.so.1"
+      ],
+      "libtic.so": [
+        "/lib/aarch64-linux-gnu/libtic.so"
+      ],
+      "libtic.so.6": [
+        "/lib/aarch64-linux-gnu/libtic.so.6"
+      ],
+      "libtiff.so": [
+        "/lib/aarch64-linux-gnu/libtiff.so"
+      ],
+      "libtiff.so.6": [
+        "/lib/aarch64-linux-gnu/libtiff.so.6"
+      ],
+      "libtiffxx.so": [
+        "/lib/aarch64-linux-gnu/libtiffxx.so"
+      ],
+      "libtiffxx.so.6": [
+        "/lib/aarch64-linux-gnu/libtiffxx.so.6"
+      ],
+      "libtime_genoff.so.1": [
+        "/lib/aarch64-linux-gnu/libtime_genoff.so.1"
+      ],
+      "libtinfo.so": [
+        "/lib/aarch64-linux-gnu/libtinfo.so"
+      ],
+      "libtinfo.so.6": [
+        "/lib/aarch64-linux-gnu/libtinfo.so.6"
+      ],
+      "libtirpc.so.3": [
+        "/lib/aarch64-linux-gnu/libtirpc.so.3"
+      ],
+      "libtk8.6.so": [
+        "/lib/aarch64-linux-gnu/libtk8.6.so"
+      ],
+      "libtsan.so.2": [
+        "/lib/aarch64-linux-gnu/libtsan.so.2"
+      ],
+      "libubsan.so.1": [
+        "/lib/aarch64-linux-gnu/libubsan.so.1"
+      ],
+      "libuchardet.so.0": [
+        "/lib/aarch64-linux-gnu/libuchardet.so.0"
+      ],
+      "libudev.so": [
+        "/lib/aarch64-linux-gnu/libudev.so"
+      ],
+      "libudev.so.1": [
+        "/lib/aarch64-linux-gnu/libudev.so.1"
+      ],
+      "libulockmgr.so.1": [
+        "/lib/aarch64-linux-gnu/libulockmgr.so.1"
+      ],
+      "libunibreak.so": [
+        "/lib/aarch64-linux-gnu/libunibreak.so"
+      ],
+      "libunibreak.so.5": [
+        "/lib/aarch64-linux-gnu/libunibreak.so.5"
+      ],
+      "libunistring.so.5": [
+        "/lib/aarch64-linux-gnu/libunistring.so.5"
+      ],
+      "libunwind-aarch64.so.8": [
+        "/lib/aarch64-linux-gnu/libunwind-aarch64.so.8"
+      ],
+      "libunwind-coredump.so.0": [
+        "/lib/aarch64-linux-gnu/libunwind-coredump.so.0"
+      ],
+      "libunwind-ptrace.so.0": [
+        "/lib/aarch64-linux-gnu/libunwind-ptrace.so.0"
+      ],
+      "libunwind.so.0": [
+        "/lib/aarch64-linux-gnu/libunwind.so.0"
+      ],
+      "libunwind.so.8": [
+        "/lib/aarch64-linux-gnu/libunwind.so.8"
+      ],
+      "liburcu-bp.so.8": [
+        "/lib/aarch64-linux-gnu/liburcu-bp.so.8"
+      ],
+      "liburcu-cds.so.8": [
+        "/lib/aarch64-linux-gnu/liburcu-cds.so.8"
+      ],
+      "liburcu-common.so.8": [
+        "/lib/aarch64-linux-gnu/liburcu-common.so.8"
+      ],
+      "liburcu-mb.so.8": [
+        "/lib/aarch64-linux-gnu/liburcu-mb.so.8"
+      ],
+      "liburcu-memb.so.8": [
+        "/lib/aarch64-linux-gnu/liburcu-memb.so.8"
+      ],
+      "liburcu-qsbr.so.8": [
+        "/lib/aarch64-linux-gnu/liburcu-qsbr.so.8"
+      ],
+      "liburcu-signal.so.8": [
+        "/lib/aarch64-linux-gnu/liburcu-signal.so.8"
+      ],
+      "liburcu.so.8": [
+        "/lib/aarch64-linux-gnu/liburcu.so.8"
+      ],
+      "libusb-1.0.so": [
+        "/lib/aarch64-linux-gnu/libusb-1.0.so"
+      ],
+      "libusb-1.0.so.0": [
+        "/lib/aarch64-linux-gnu/libusb-1.0.so.0"
+      ],
+      "libutempter.so.0": [
+        "/lib/aarch64-linux-gnu/libutempter.so.0"
+      ],
+      "libutil.so.1": [
+        "/lib/aarch64-linux-gnu/libutil.so.1"
+      ],
+      "libutils.so.0": [
+        "/lib/aarch64-linux-gnu/libutils.so.0"
+      ],
+      "libuuid.so": [
+        "/lib/aarch64-linux-gnu/libuuid.so"
+      ],
+      "libuuid.so.1": [
+        "/lib/aarch64-linux-gnu/libuuid.so.1"
+      ],
+      "libuv.so": [
+        "/lib/aarch64-linux-gnu/libuv.so"
+      ],
+      "libuv.so.1": [
+        "/lib/aarch64-linux-gnu/libuv.so.1"
+      ],
+      "libva-drm.so": [
+        "/lib/aarch64-linux-gnu/libva-drm.so"
+      ],
+      "libva-drm.so.2": [
+        "/lib/aarch64-linux-gnu/libva-drm.so.2"
+      ],
+      "libva-glx.so": [
+        "/lib/aarch64-linux-gnu/libva-glx.so"
+      ],
+      "libva-glx.so.2": [
+        "/lib/aarch64-linux-gnu/libva-glx.so.2"
+      ],
+      "libva-wayland.so": [
+        "/lib/aarch64-linux-gnu/libva-wayland.so"
+      ],
+      "libva-wayland.so.2": [
+        "/lib/aarch64-linux-gnu/libva-wayland.so.2"
+      ],
+      "libva-x11.so": [
+        "/lib/aarch64-linux-gnu/libva-x11.so"
+      ],
+      "libva-x11.so.2": [
+        "/lib/aarch64-linux-gnu/libva-x11.so.2"
+      ],
+      "libva.so": [
+        "/lib/aarch64-linux-gnu/libva.so"
+      ],
+      "libva.so.2": [
+        "/lib/aarch64-linux-gnu/libva.so.2"
+      ],
+      "libvdpau.so": [
+        "/lib/aarch64-linux-gnu/libvdpau.so"
+      ],
+      "libvdpau.so.1": [
+        "/lib/aarch64-linux-gnu/libvdpau.so.1"
+      ],
+      "libvorbis.so": [
+        "/lib/aarch64-linux-gnu/libvorbis.so"
+      ],
+      "libvorbis.so.0": [
+        "/lib/aarch64-linux-gnu/libvorbis.so.0"
+      ],
+      "libvorbisenc.so": [
+        "/lib/aarch64-linux-gnu/libvorbisenc.so"
+      ],
+      "libvorbisenc.so.2": [
+        "/lib/aarch64-linux-gnu/libvorbisenc.so.2"
+      ],
+      "libvorbisfile.so": [
+        "/lib/aarch64-linux-gnu/libvorbisfile.so"
+      ],
+      "libvorbisfile.so.3": [
+        "/lib/aarch64-linux-gnu/libvorbisfile.so.3"
+      ],
+      "libvulkan.so.1": [
+        "/lib/aarch64-linux-gnu/libvulkan.so.1"
+      ],
+      "libwayland-client.so": [
+        "/lib/aarch64-linux-gnu/libwayland-client.so"
+      ],
+      "libwayland-client.so.0": [
+        "/lib/aarch64-linux-gnu/libwayland-client.so.0"
+      ],
+      "libwayland-cursor.so": [
+        "/lib/aarch64-linux-gnu/libwayland-cursor.so"
+      ],
+      "libwayland-cursor.so.0": [
+        "/lib/aarch64-linux-gnu/libwayland-cursor.so.0"
+      ],
+      "libwayland-egl.so": [
+        "/lib/aarch64-linux-gnu/libwayland-egl.so"
+      ],
+      "libwayland-egl.so.1": [
+        "/lib/aarch64-linux-gnu/libwayland-egl.so.1"
+      ],
+      "libwayland-server.so": [
+        "/lib/aarch64-linux-gnu/libwayland-server.so"
+      ],
+      "libwayland-server.so.0": [
+        "/lib/aarch64-linux-gnu/libwayland-server.so.0"
+      ],
+      "libwebp.so": [
+        "/lib/aarch64-linux-gnu/libwebp.so"
+      ],
+      "libwebp.so.7": [
+        "/lib/aarch64-linux-gnu/libwebp.so.7"
+      ],
+      "libwebpdecoder.so": [
+        "/lib/aarch64-linux-gnu/libwebpdecoder.so"
+      ],
+      "libwebpdecoder.so.3": [
+        "/lib/aarch64-linux-gnu/libwebpdecoder.so.3"
+      ],
+      "libwebpdemux.so": [
+        "/lib/aarch64-linux-gnu/libwebpdemux.so"
+      ],
+      "libwebpdemux.so.2": [
+        "/lib/aarch64-linux-gnu/libwebpdemux.so.2"
+      ],
+      "libwebpmux.so": [
+        "/lib/aarch64-linux-gnu/libwebpmux.so"
+      ],
+      "libwebpmux.so.3": [
+        "/lib/aarch64-linux-gnu/libwebpmux.so.3"
+      ],
+      "libwrap.so.0": [
+        "/lib/aarch64-linux-gnu/libwrap.so.0"
+      ],
+      "libx264.so": [
+        "/lib/aarch64-linux-gnu/libx264.so"
+      ],
+      "libx264.so.164": [
+        "/lib/aarch64-linux-gnu/libx264.so.164"
+      ],
+      "libxcb-dri3.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-dri3.so.0"
+      ],
+      "libxcb-glx.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-glx.so.0"
+      ],
+      "libxcb-icccm.so.4": [
+        "/lib/aarch64-linux-gnu/libxcb-icccm.so.4"
+      ],
+      "libxcb-image.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-image.so.0"
+      ],
+      "libxcb-keysyms.so.1": [
+        "/lib/aarch64-linux-gnu/libxcb-keysyms.so.1"
+      ],
+      "libxcb-present.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-present.so.0"
+      ],
+      "libxcb-randr.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-randr.so.0"
+      ],
+      "libxcb-render-util.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-render-util.so.0"
+      ],
+      "libxcb-render.so": [
+        "/lib/aarch64-linux-gnu/libxcb-render.so"
+      ],
+      "libxcb-render.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-render.so.0"
+      ],
+      "libxcb-shape.so": [
+        "/lib/aarch64-linux-gnu/libxcb-shape.so"
+      ],
+      "libxcb-shape.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-shape.so.0"
+      ],
+      "libxcb-shm.so": [
+        "/lib/aarch64-linux-gnu/libxcb-shm.so"
+      ],
+      "libxcb-shm.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-shm.so.0"
+      ],
+      "libxcb-sync.so.1": [
+        "/lib/aarch64-linux-gnu/libxcb-sync.so.1"
+      ],
+      "libxcb-util.so.1": [
+        "/lib/aarch64-linux-gnu/libxcb-util.so.1"
+      ],
+      "libxcb-xfixes.so": [
+        "/lib/aarch64-linux-gnu/libxcb-xfixes.so"
+      ],
+      "libxcb-xfixes.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-xfixes.so.0"
+      ],
+      "libxcb-xinerama.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-xinerama.so.0"
+      ],
+      "libxcb-xinput.so.0": [
+        "/lib/aarch64-linux-gnu/libxcb-xinput.so.0"
+      ],
+      "libxcb-xkb.so.1": [
+        "/lib/aarch64-linux-gnu/libxcb-xkb.so.1"
+      ],
+      "libxcb.so": [
+        "/lib/aarch64-linux-gnu/libxcb.so"
+      ],
+      "libxcb.so.1": [
+        "/lib/aarch64-linux-gnu/libxcb.so.1"
+      ],
+      "libxkbcommon-x11.so.0": [
+        "/lib/aarch64-linux-gnu/libxkbcommon-x11.so.0"
+      ],
+      "libxkbcommon.so": [
+        "/lib/aarch64-linux-gnu/libxkbcommon.so"
+      ],
+      "libxkbcommon.so.0": [
+        "/lib/aarch64-linux-gnu/libxkbcommon.so.0"
+      ],
+      "libxkbfile.so.1": [
+        "/lib/aarch64-linux-gnu/libxkbfile.so.1"
+      ],
+      "libxml.so.0": [
+        "/lib/aarch64-linux-gnu/libxml.so.0"
+      ],
+      "libxml2.so": [
+        "/lib/aarch64-linux-gnu/libxml2.so"
+      ],
+      "libxml2.so.2": [
+        "/lib/aarch64-linux-gnu/libxml2.so.2"
+      ],
+      "libxmlb.so.2": [
+        "/lib/aarch64-linux-gnu/libxmlb.so.2"
+      ],
+      "libxshmfence.so.1": [
+        "/lib/aarch64-linux-gnu/libxshmfence.so.1"
+      ],
+      "libxtables.so.12": [
+        "/lib/aarch64-linux-gnu/libxtables.so.12"
+      ],
+      "libxxhash.so.0": [
+        "/lib/aarch64-linux-gnu/libxxhash.so.0"
+      ],
+      "libyaml-0.so.2": [
+        "/lib/aarch64-linux-gnu/libyaml-0.so.2"
+      ],
+      "libz.so": [
+        "/lib/aarch64-linux-gnu/libz.so"
+      ],
+      "libz.so.1": [
+        "/lib/aarch64-linux-gnu/libz.so.1"
+      ],
+      "libzmq.so": [
+        "/lib/aarch64-linux-gnu/libzmq.so"
+      ],
+      "libzmq.so.5": [
+        "/lib/aarch64-linux-gnu/libzmq.so.5"
+      ],
+      "libzstd.so": [
+        "/lib/aarch64-linux-gnu/libzstd.so"
+      ],
+      "libzstd.so.1": [
+        "/lib/aarch64-linux-gnu/libzstd.so.1"
+      ]
+    },
+    "loader_path_present": true,
+    "os_boot_slot": "_a",
+    "python_version": "3.12.3",
+    "uname_machine": "aarch64",
+    "usr_local_lib_present": true,
+    "venv_ffmpeg_library_search_path_present": true
+  },
+  "device_app_runtime_qualified": false,
+  "device_elf_load_performed": false,
+  "device_files_modified": false,
+  "device_ldconfig_cache_missing_names": [
+    "libacados.so",
+    "libacados_ocp_solver_lat.so",
+    "libacados_ocp_solver_long.so"
+  ],
+  "device_standard_library_cache_hits": {
+    "libOpenCL.so": [
+      "/lib/aarch64-linux-gnu/libOpenCL.so"
+    ],
+    "libc.so.6": [
+      "/lib/aarch64-linux-gnu/libc.so.6"
+    ],
+    "libgcc_s.so.1": [
+      "/lib/aarch64-linux-gnu/libgcc_s.so.1"
+    ],
+    "libm.so.6": [
+      "/lib/aarch64-linux-gnu/libm.so.6"
+    ],
+    "libstdc++.so.6": [
+      "/lib/aarch64-linux-gnu/libstdc++.so.6"
+    ],
+    "libusb-1.0.so.0": [
+      "/lib/aarch64-linux-gnu/libusb-1.0.so.0"
+    ],
+    "libzmq.so.5": [
+      "/lib/aarch64-linux-gnu/libzmq.so.5"
+    ]
+  },
+  "embedded_search_paths": [
+    "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib",
+    "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib:$ORIGIN",
+    "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib:$ORIGIN/../../../../../third_party/acados/larch64/lib"
+  ],
+  "generated_at_utc": "2026-10-25T13:17:07+00:00",
+  "notes": [
+    "Readelf on Ubuntu scanned pinned ARM64 files; device only reported loader configuration.",
+    "ldconfig cache absence is not authoritative for app-local or vendor library paths.",
+    "ELF headers and library name checks do not prove Python extension ABI/runtime compatibility or Honda hardware safety.",
+    "DO NOT load pandad or model shared object on a device connected to a vehicle without physical CAN isolation."
+  ],
+  "pinned_component_count": 14,
+  "production_install_authorized": false,
+  "result": "STATIC_ABI_REVIEW_HOLD",
+  "schema": "G8_F12_RC3_STAGE1_STATIC_ABI_AGNOS_READONLY_V1",
+  "source_frozen_commit": "bbb771a2fadf5af96f532e798846ba8171483e50",
+  "unique_needed_shared_libraries": [
+    "libOpenCL.so",
+    "libacados.so",
+    "libacados_ocp_solver_lat.so",
+    "libacados_ocp_solver_long.so",
+    "libc.so.6",
+    "libgcc_s.so.1",
+    "libm.so.6",
+    "libstdc++.so.6",
+    "libusb-1.0.so.0",
+    "libzmq.so.5"
+  ],
+  "unresolved_library_queries": [
+    {
+      "classification": "NOT_IN_STANDARD_DEVICE_LOADER_CACHE_REQUIRES_APP_LOCAL_OR_VENDOR_LOOKUP",
+      "name": "libacados.so"
+    },
+    {
+      "classification": "NOT_IN_STANDARD_DEVICE_LOADER_CACHE_REQUIRES_APP_LOCAL_OR_VENDOR_LOOKUP",
+      "name": "libacados_ocp_solver_lat.so"
+    },
+    {
+      "classification": "NOT_IN_STANDARD_DEVICE_LOADER_CACHE_REQUIRES_APP_LOCAL_OR_VENDOR_LOOKUP",
+      "name": "libacados_ocp_solver_long.so"
+    }
+  ],
+  "verified_component_count": 14
+}

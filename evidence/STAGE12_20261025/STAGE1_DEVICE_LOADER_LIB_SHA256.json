@@ -1,0 +1,74 @@
+{
+  "all_cache_hits_have_aarch64_elf": true,
+  "device_state_modified": false,
+  "production_authorized": false,
+  "schema": "G8_F12_RC3_DEVICE_LOADER_CACHE_COMPONENT_DIGESTS_V1",
+  "source_executables_loaded": false,
+  "stage1_standard_dependency_hashes": {
+    "libOpenCL.so": [
+      {
+        "byte_size": 89000,
+        "cache_path": "/lib/aarch64-linux-gnu/libOpenCL.so",
+        "native_aarch64_elf": true,
+        "resolved_path": "/usr/lib/aarch64-linux-gnu/libOpenCL.so",
+        "sha256": "3ee7a796512d1d63bd2d54d5864a954852aab58d2c2958d62e4a9c660799b64d"
+      }
+    ],
+    "libc.so.6": [
+      {
+        "byte_size": 1722920,
+        "cache_path": "/lib/aarch64-linux-gnu/libc.so.6",
+        "native_aarch64_elf": true,
+        "resolved_path": "/usr/lib/aarch64-linux-gnu/libc.so.6",
+        "sha256": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e"
+      }
+    ],
+    "libgcc_s.so.1": [
+      {
+        "byte_size": 133696,
+        "cache_path": "/lib/aarch64-linux-gnu/libgcc_s.so.1",
+        "native_aarch64_elf": true,
+        "resolved_path": "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1",
+        "sha256": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20"
+      }
+    ],
+    "libm.so.6": [
+      {
+        "byte_size": 591800,
+        "cache_path": "/lib/aarch64-linux-gnu/libm.so.6",
+        "native_aarch64_elf": true,
+        "resolved_path": "/usr/lib/aarch64-linux-gnu/libm.so.6",
+        "sha256": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a"
+      }
+    ],
+    "libstdc++.so.6": [
+      {
+        "byte_size": 2633224,
+        "cache_path": "/lib/aarch64-linux-gnu/libstdc++.so.6",
+        "native_aarch64_elf": true,
+        "resolved_path": "/usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33",
+        "sha256": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4"
+      }
+    ],
+    "libusb-1.0.so.0": [
+      {
+        "byte_size": 133928,
+        "cache_path": "/lib/aarch64-linux-gnu/libusb-1.0.so.0",
+        "native_aarch64_elf": true,
+        "resolved_path": "/usr/lib/aarch64-linux-gnu/libusb-1.0.so.0.4.0",
+        "sha256": "050cbd6c30a5d55905ba1bce5b26f9b4f364cd310b5396ef5700513829d4b71d"
+      }
+    ],
+    "libzmq.so.5": [
+      {
+        "byte_size": 659312,
+        "cache_path": "/lib/aarch64-linux-gnu/libzmq.so.5",
+        "native_aarch64_elf": true,
+        "resolved_path": "/usr/lib/aarch64-linux-gnu/libzmq.so.5.2.5",
+        "sha256": "1d986e7d5a45493b6adce97808ec5307d6c625ea4921e074023481521c2af4d9"
+      }
+    ]
+  },
+  "unverified_libraries": [],
+  "utc": "2026-10-25T13:31:48+00:00"
+}

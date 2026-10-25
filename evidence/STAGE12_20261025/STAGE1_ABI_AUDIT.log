@@ -1,0 +1,7 @@
+STATIC_COMPONENTS 14 VERIFIED 14
+UNIQUE_DEPENDENCIES ['libOpenCL.so', 'libacados.so', 'libacados_ocp_solver_lat.so', 'libacados_ocp_solver_long.so', 'libc.so.6', 'libgcc_s.so.1', 'libm.so.6', 'libstdc++.so.6', 'libusb-1.0.so.0', 'libzmq.so.5']
+NEEDS_APP_OR_VENDOR_RESOLUTION ['libacados.so', 'libacados_ocp_solver_lat.so', 'libacados_ocp_solver_long.so']
+EMBEDDED_SEARCH_PATHS ['/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib', '/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib:$ORIGIN', '/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:/usr/local/lib:$ORIGIN/../../../../../third_party/acados/larch64/lib']
+DEVICE_ARCH aarch64 AGNOS 19.8.1 GLIBC ['ldd (Ubuntu GLIBC 2.39-0ubuntu8.9) 2.39']
+STATUS STATIC_ABI_REVIEW_HOLD
+REPORT /mnt/commadrive/g8-f12-rc3-stage12-qualification-20261025/evidence/STAGE12_20261025/STAGE1_AGNOS_ARM64_STATIC_COMPATIBILITY.json

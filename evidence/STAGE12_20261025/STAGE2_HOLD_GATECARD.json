@@ -1,0 +1,118 @@
+{
+  "artifacts": {
+    "evidence/STAGE12_20261025/STAGE2_OS_SYSTEMD_INTEGRATION_CONTRACT.md": "b10dd8ce72cfb53683353ccbcaa6f465b080f7142bf0fbb43ef2db5466dbd337",
+    "tools/g8_release/rc3_stage2_supervisor.py": "002214c984da3de2292f6475ace863e4e9d1ce424f4d42efe42637e54a9cf1ec",
+    "tools/g8_release/tests/test_rc3_stage2_supervisor.py": "107b8e4cfbcf75b07bf98721df99a57bb533290057607d284cafd11ca62aa23e"
+  },
+  "authorization": {
+    "boot_or_flash_authorized": false,
+    "device_operations_authorized": false,
+    "git_commit_or_push_performed": false,
+    "installation_authorized": false,
+    "os_slot_change_authorized": false,
+    "panda_or_can_authorized": false,
+    "process_launch_authorized": false,
+    "production_approved": false,
+    "road_use_authorized": false
+  },
+  "classification": "NON_DEPLOYABLE_HOST_ONLY_ENGINEERING_PROTOTYPE",
+  "cryptography_finding": {
+    "existing_gate_modified": false,
+    "finding": "rc3_hardware_readiness_gate.py contains a custom Ed25519 verifier suitable only for retained offline engineering evaluation",
+    "production_requirement": "vetted maintained production cryptography dependency with independent approval, lifecycle, and validation",
+    "status": "HOLD"
+  },
+  "disposition": "STAGE2_SOFTWARE_PROTOTYPE_COMPLETE_INTEGRATION_AND_HARDWARE_HOLD",
+  "external_hardware_holds": [
+    "verified boot and protected rootfs trust not established",
+    "TEE or RPMB rollback-resistant monotonic state not implemented or tested",
+    "OS-resident supervisor not implemented, installed, or qualified",
+    "AGNOS 19.8.1 SELinux permissive mode cannot provide credited enforcement",
+    "production package signing and physical key custody not established",
+    "independent physical readiness and health attesters not provisioned",
+    "native ARM64 startup and model execution not observed",
+    "physical power-cut and storage recovery matrix not executed",
+    "Honda Accord 11G Panda and CAN bench safeguards not qualified",
+    "independent safety and release approval absent"
+  ],
+  "generated_date": "2026-10-25",
+  "integration_hold": {
+    "active": true,
+    "planner_modified_or_loosened": false,
+    "planner_sha256": "3adfba3868fdbfd08de45c5c0109c8800ec775b20d641059159e20d0855c0d4a",
+    "reason": "HEAD already contains paths outside the planner's frozen exact allowlist, and the new Stage 2 module, test, and evidence paths are also not allowlisted for a future commit",
+    "required_resolution": "independent integration owner must review and explicitly update release provenance/allowlisting in a separately authorized change; this Stage 2 run must not bypass the guard"
+  },
+  "platform": "HONDA_ACCORD_11G",
+  "post_review_remediation_20261025": {
+    "disposition": "HOST_ONLY_LIMITED_SOFTWARE_ASSURANCE_PRODUCTION_HOLD",
+    "focused_pass_each_host_and_arm64": 67,
+    "full_suite_unchanged_21_planner_errors": true,
+    "independent_patch_review_complete": false,
+    "isolated_pass_each_host_and_arm64": 511,
+    "isolated_skip_each": 1,
+    "manual_patch_complete": true,
+    "remaining_major_holds": [
+      "No protected signed F6-equivalent full launch context",
+      "Local journal cannot provide hostile-writer/rollback-resistant trust"
+    ],
+    "source_sha256": "24d89710cbb7b01e4aa52b109f8aa7b7d9118c17e5167f127a50c261eb6e28d8",
+    "test_sha256": "ff7db01886472b9d014db869e4081539eac82467ac5f0bf0793c0e97e6c0c7cc"
+  },
+  "schema": "G8_F12_RC3_STAGE2_HOLD_GATECARD_V1",
+  "software_engineering": {
+    "bounded_retry_limit": 3,
+    "external_authenticated_decisions_required": true,
+    "host_journal_is_hardware_security": false,
+    "launcher_metadata_refused_without_physical_gate": true,
+    "power_interruption_recovery_modeled": true,
+    "process_or_device_side_effects": false,
+    "protected_monotonic_attempt_consumption_reused": true,
+    "rollback_requires_separately_approved_immutable_identity": true,
+    "self_authorization_available": false,
+    "strict_typed_os_and_app_slot_separation": true
+  },
+  "source": {
+    "branch": "engineering/g8-f12-rc3-stage12-qualification-20261025",
+    "frozen_rc3_commit": "bbb771a2fadf5af96f532e798846ba8171483e50",
+    "frozen_rc3_tree": "fcd3142e877a165911a677f9361c6594f3eecf6b",
+    "head": "e4cafdf10a59a3f7fdf27e3242b81742851b00b1",
+    "head_parent": "93cf96efd6b026854464b9aa505f01ad3c45b4a2",
+    "head_tree": "5dcf50e3dae17006ef117473e2b7e4f02deabcbf",
+    "launcher_exit_code": 78,
+    "launcher_sha256": "dba70ac885eee3a98f19a3830660e365f764b6970c69c3d1bf2b3d28c8be5284",
+    "tracked_worktree_files_modified_by_stage2": []
+  },
+  "tests": {
+    "required_full_release_suite": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=tools/g8_release python3 -m pytest -c /dev/null -p no:cacheprovider --confcutdir=tools/g8_release/tests -q -rs tools/g8_release/tests",
+      "duration_seconds": 6.46,
+      "error_cause": "intentional rc3_package_planner exact engineering overlay allowlist rejection",
+      "errors": 21,
+      "exit_code": 1,
+      "failed": 0,
+      "first_rejected_path": "evidence/SUPERVISOR_V1/CODEX_RESULT.md",
+      "passed": 538,
+      "skip_reason": "unprivileged user+mount namespace unavailable on this host",
+      "skipped": 1
+    },
+    "stage2_adversarial": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=tools/g8_release python3 -m pytest -c /dev/null -p no:cacheprovider --confcutdir=tools/g8_release/tests -q -rs tools/g8_release/tests/test_rc3_stage2_supervisor.py",
+      "duration_seconds": 0.27,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 28,
+      "skipped": 0
+    },
+    "stage2_and_reused_boundaries": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=tools/g8_release python3 -m pytest -c /dev/null -p no:cacheprovider --confcutdir=tools/g8_release/tests -q -rs tools/g8_release/tests/test_rc3_supervisor_contract.py tools/g8_release/tests/test_rc3_hardware_readiness_gate.py tools/g8_release/tests/test_rc3_stage2_supervisor.py",
+      "duration_seconds": 0.66,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 63,
+      "skipped": 0
+    }
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "Panda_CAN_accessed": false,
+  "archive_bundled_dependencies_verified": 6,
+  "archive_bundled_files": {
+    "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/libacados_ocp_solver_lat.so": {
+      "bytes": 70616,
+      "sha256": "7c0cb89dd9017436cc1d7c321eb67027048f71dab37b7c36d8b354a8887bc1e8"
+    },
+    "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/libacados_ocp_solver_long.so": {
+      "bytes": 90744,
+      "sha256": "984169237050db096496b015d5ab40bf84bd3eb5b85d3f6723cfcf8a4926ca47"
+    },
+    "third_party/acados/larch64/lib/libacados.so": {
+      "bytes": 512912,
+      "sha256": "091ed10ea2b52866b826ef6867b3413d6fd61af66fcedf3d932c9adf3fb329de"
+    },
+    "third_party/acados/larch64/lib/libblasfeo.so": {
+      "bytes": 1150320,
+      "sha256": "d40b25de85318c8349c9894a3cbeaa713efae4158d8cc2c5c77af9f1bfbbb28e"
+    },
+    "third_party/acados/larch64/lib/libhpipm.so": {
+      "bytes": 1367352,
+      "sha256": "91b9276e74c7d7750288d76087d586ed27932939bc7bca2ad1494b6558fc43e3"
+    },
+    "third_party/acados/larch64/lib/libqpOASES_e.so.3.1": {
+      "bytes": 223152,
+      "sha256": "c0a84042e5315af18e6e33b9b9c5e96573248e41ff165657eb9d83da4da2889f"
+    }
+  },
+  "bundled_dependency_occurrences": 8,
+  "device_standard_cache_dependency_occurrences": 62,
+  "device_system_modified": false,
+  "host_reviewed_ELF_count": 14,
+  "installation_authorized": false,
+  "malformed_path_segments": [],
+  "native_runtime_executed": false,
+  "notes": [
+    "Calculated using static DT_RPATH/DT_RUNPATH and the existing device loader cache, not a live dlopen.",
+    "Each app-local library is independently checked against the frozen archive.",
+    "Transitive DT_RPATH is modeled; host review does not reproduce the production launcher environment.",
+    "Compatible ELF dependency names are insufficient to prove ABI or runtime behavior."
+  ],
+  "physical_test_status": "HOLD",
+  "resolved_edges": [
+    {
+      "from": "selfdrive/pandad/pandad",
+      "needed": "libusb-1.0.so.0",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/pandad/pandad",
+      "needed": "libzmq.so.5",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/pandad/pandad",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/pandad/pandad",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/pandad/pandad",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/pandad/pandad_api_impl.so",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/pandad/pandad_api_impl.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/pandad/pandad_api_impl.so",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/pandad/pandad_api_impl.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/ipc_pyx.so",
+      "needed": "libzmq.so.5",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/ipc_pyx.so",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/ipc_pyx.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/ipc_pyx.so",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/ipc_pyx.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "common/params_pyx.so",
+      "needed": "libzmq.so.5",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "common/params_pyx.so",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "common/params_pyx.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "common/params_pyx.so",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "common/params_pyx.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so",
+      "needed": "libacados_ocp_solver_long.so",
+      "resolution": "BUNDLED_RELATIVE_RPATH",
+      "resolved_relative_path": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/libacados_ocp_solver_long.so"
+    },
+    {
+      "from": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/libacados_ocp_solver_long.so",
+      "needed": "libacados.so",
+      "resolution": "BUNDLED_RELATIVE_RPATH",
+      "resolved_relative_path": "third_party/acados/larch64/lib/libacados.so"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libacados.so",
+      "needed": "libqpOASES_e.so.3.1",
+      "resolution": "BUNDLED_RELATIVE_RPATH",
+      "resolved_relative_path": "third_party/acados/larch64/lib/libqpOASES_e.so.3.1"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libqpOASES_e.so.3.1",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libqpOASES_e.so.3.1",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libqpOASES_e.so.3.1",
+      "needed": "ld-linux-aarch64.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libacados.so",
+      "needed": "libhpipm.so",
+      "resolution": "BUNDLED_RELATIVE_RPATH",
+      "resolved_relative_path": "third_party/acados/larch64/lib/libhpipm.so"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libhpipm.so",
+      "needed": "libblasfeo.so",
+      "resolution": "BUNDLED_RELATIVE_RPATH",
+      "resolved_relative_path": "third_party/acados/larch64/lib/libblasfeo.so"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libblasfeo.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libblasfeo.so",
+      "needed": "ld-linux-aarch64.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libhpipm.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libhpipm.so",
+      "needed": "ld-linux-aarch64.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libacados.so",
+      "needed": "libblasfeo.so",
+      "resolution": "BUNDLED_RELATIVE_RPATH",
+      "resolved_relative_path": "third_party/acados/larch64/lib/libblasfeo.so"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libacados.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libacados.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "third_party/acados/larch64/lib/libacados.so",
+      "needed": "ld-linux-aarch64.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/libacados_ocp_solver_long.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so",
+      "needed": "libacados_ocp_solver_lat.so",
+      "resolution": "BUNDLED_RELATIVE_RPATH",
+      "resolved_relative_path": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/libacados_ocp_solver_lat.so"
+    },
+    {
+      "from": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/libacados_ocp_solver_lat.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/libacados_ocp_solver_lat.so",
+      "needed": "libacados.so",
+      "resolution": "BUNDLED_RELATIVE_RPATH",
+      "resolved_relative_path": "third_party/acados/larch64/lib/libacados.so"
+    },
+    {
+      "from": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/libacados_ocp_solver_lat.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "common/transformations/transformations.so",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "common/transformations/transformations.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "common/transformations/transformations.so",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "common/transformations/transformations.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/visionipc/visionipc_pyx.so",
+      "needed": "libzmq.so.5",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/visionipc/visionipc_pyx.so",
+      "needed": "libOpenCL.so",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/visionipc/visionipc_pyx.so",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/visionipc/visionipc_pyx.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/visionipc/visionipc_pyx.so",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "msgq_repo/msgq/visionipc/visionipc_pyx.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "rednose_repo/rednose/helpers/ekf_sym_pyx.so",
+      "needed": "libzmq.so.5",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "rednose_repo/rednose/helpers/ekf_sym_pyx.so",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "rednose_repo/rednose/helpers/ekf_sym_pyx.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "rednose_repo/rednose/helpers/ekf_sym_pyx.so",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "rednose_repo/rednose/helpers/ekf_sym_pyx.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/locationd/models/generated/libcar.so",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/locationd/models/generated/libcar.so",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/locationd/models/generated/libcar.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/locationd/models/generated/libpose.so",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/locationd/models/generated/libpose.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/locationd/models/generated/libpose.so",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/locationd/models/generated/libpose.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/modeld/models/commonmodel_pyx.so",
+      "needed": "libzmq.so.5",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/modeld/models/commonmodel_pyx.so",
+      "needed": "libOpenCL.so",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/modeld/models/commonmodel_pyx.so",
+      "needed": "libstdc++.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/modeld/models/commonmodel_pyx.so",
+      "needed": "libm.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/modeld/models/commonmodel_pyx.so",
+      "needed": "libgcc_s.so.1",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    },
+    {
+      "from": "selfdrive/modeld/models/commonmodel_pyx.so",
+      "needed": "libc.so.6",
+      "resolution": "DEVICE_STANDARD_LOADER_CACHE_OR_INTERPRETER"
+    }
+  ],
+  "runtime_compatibility_proven": false,
+  "schema": "G8_F12_RC3_STAGE1_STATIC_LINKER_CLOSURE_V1",
+  "source_commit": "bbb771a2fadf5af96f532e798846ba8171483e50",
+  "stage1_static_linker_closure_pass": true,
+  "timestamp_utc": "2026-10-25T13:20:25+00:00",
+  "unresolved_edges": []
+}
