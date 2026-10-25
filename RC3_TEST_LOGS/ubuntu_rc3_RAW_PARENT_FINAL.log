@@ -1,0 +1,19 @@
+........................................................................ [ 14%]
+........................................................................ [ 28%]
+........................................................................ [ 43%]
+........................................................................ [ 57%]
+........................................................................ [ 72%]
+.....................................s.................................. [ 86%]
+.................................................................        [100%]
+=============================== warnings summary ===============================
+../../../usr/lib/python3/dist-packages/_pytest/cacheprovider.py:451
+  /usr/lib/python3/dist-packages/_pytest/cacheprovider.py:451: PytestCacheWarning: could not create cache path /dev/.pytest_cache/v/cache/nodeids: [Errno 13] Permission denied: '/dev/.pytest_cache'
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+../../../usr/lib/python3/dist-packages/_pytest/stepwise.py:56
+  /usr/lib/python3/dist-packages/_pytest/stepwise.py:56: PytestCacheWarning: could not create cache path /dev/.pytest_cache/v/cache/stepwise: [Errno 13] Permission denied: '/dev/.pytest_cache'
+    session.config.cache.set(STEPWISE_CACHE_DIR, [])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /mnt/commadrive/g8-f12-rc3-installation-engineering-20261025/RC3_TEST_LOGS/ubuntu_rc3_RAW_PARENT_FINAL.xml -
+496 passed, 1 skipped, 2 warnings in 8.05s

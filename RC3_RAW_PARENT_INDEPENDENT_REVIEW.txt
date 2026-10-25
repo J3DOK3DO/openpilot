@@ -1,0 +1,14 @@
+## Final verdict
+
+**GO** for publication only as a separately labeled **NON-INSTALLABLE / HOST-ONLY ENGINEERING HOLD** branch.
+
+**Critical findings: none.**
+**Categorical NO-GO** remains for production, installation, inactive OS-slot deployment, device/boot mutation, Panda/CAN activity, and driving.
+
+The previous graft finding is closed. The bounded raw-parent walk reads each immutable commit object by 40-hex object ID using `git cat-file -p`; grafts can alter revision traversal but cannot alter those stored parent fields. The adversarial late-graft test injects the graft at the relevant boundary and correctly rejects the forged ancestry ([planner:313](/mnt/commadrive/g8-f12-rc3-installation-engineering-20261025/tools/g8_release/rc3_package_planner.py:313), [test:162](/mnt/commadrive/g8-f12-rc3-installation-engineering-20261025/tools/g8_release/tests/test_rc3_package_planner.py:162)). The 1024-step bound, cycle detection, exact single-parent requirement, and frozen object/tree verification are conservative and fail closed.
+
+Replacement-object attacks are also closed for this path: every Git subprocess receives `GIT_NO_REPLACE_OBJECTS=1`, while caller Git environment controls and system/global configuration are discarded ([planner:239](/mnt/commadrive/g8-f12-rc3-installation-engineering-20261025/tools/g8_release/rc3_package_planner.py:239)). A replacement ref created before or during validation therefore cannot rewrite the objects being examined.
+
+One accurately bounded residual risk remains: ordinary `HEAD` movement during validation. The captured `head` is used for the raw walk, but `HEAD^{tree}`, the overlay diff, and the subsequent clean-tree check resolve symbolic `HEAD` in separate subprocesses ([planner:270](/mnt/commadrive/g8-f12-rc3-installation-engineering-20261025/tools/g8_release/rc3_package_planner.py:270), [planner:340](/mnt/commadrive/g8-f12-rc3-installation-engineering-20261025/tools/g8_release/rc3_package_planner.py:340), [planner:351](/mnt/commadrive/g8-f12-rc3-installation-engineering-20261025/tools/g8_release/rc3_package_planner.py:351)). Concurrent hostile ref/worktree mutation is therefore not an established security boundary. This is consistent with the gatecard’s explicit disclaimer and immutable-snapshot recommendation. Publication should be generated from a quiescent, access-controlled or immutable checkout.
+
+The launcher remains digest-pinned and structurally checked for early exit 78. External signatures remain caller-supplied host-simulation credentials only; no reviewed path grants production or installation authority. The pending current ARM64/QEMU run is a disclosed evidence gap, not a blocker for non-installable source publication, and must not be represented as completed. The gatecard’s 493-test count and pre-re-review HOLD fields are historical/stale relative to the reported 496-pass result and this final review; they must not be cited as current authorization.

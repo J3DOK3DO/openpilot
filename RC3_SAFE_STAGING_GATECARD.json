@@ -1,0 +1,188 @@
+{
+  "schema": "G8_F12_RC3_SAFE_STAGING_ENGINEERING_GATECARD_V1",
+  "campaign_date": "2026-10-25",
+  "vehicle_scope": "Honda Accord 11G G8-F12 RC3",
+  "independent_review": {
+    "latest_review": "RC3_INDEPENDENT_SAFETY_REVIEW.txt",
+    "critical_findings": 0,
+    "major_findings": 3,
+    "remediation_implemented": true,
+    "re_review_completed": false,
+    "engineering_publication": "HOLD_PENDING_INDEPENDENT_RE_REVIEW"
+  },
+  "source": {
+    "frozen_commit": "bbb771a2fadf5af96f532e798846ba8171483e50",
+    "frozen_tree": "fcd3142e877a165911a677f9361c6594f3eecf6b",
+    "authoritative_hold_branch_modified": false,
+    "committed_or_pushed": false,
+    "engineering_overlay_policy": "HEAD must be the frozen commit or its descendant; all paths changed from frozen must be on the exact engineering-only allowlist",
+    "protected_payload_modification_allowed": false,
+    "unrelated_history_allowed": false,
+    "inventory_identity_remains_frozen": true,
+    "git_root_canonical_match_required": true,
+    "caller_git_control_environment_sanitized": true,
+    "linked_worktree_supported": true,
+    "snapshot_prepublication": true
+  },
+  "launcher": {
+    "path": "launch_chffrplus.sh",
+    "sha256": "dba70ac885eee3a98f19a3830660e365f764b6970c69c3d1bf2b3d28c8be5284",
+    "exit_78_before_initialization": true,
+    "early_abctl_set_success_unresolved_but_unreachable": true,
+    "openpilot_launch_executed": false
+  },
+  "development_package": {
+    "plan": "RC3_DEVELOPMENT_PACKAGE_PLAN.json",
+    "inventory_sha256": "367a26711143e9692260eac6257f5e3f7310ab88f040c0c166ca52d90f6a805e",
+    "classification": "UNSIGNED DEVELOPMENT PACKAGE",
+    "native_AArch64_components_verified": 14,
+    "model_chunks_verified": 3,
+    "reconstructed_model_bytes": 126302979,
+    "reconstructed_model_sha256": "27969d9da00f74ba0c1f56de575665121a967528753500cd2f809b61664e0e3f",
+    "signed_external_trust_policy_present": false,
+    "planner_exit_without_external_trust": 78,
+    "production_key_present": false,
+    "package_signature_present": false,
+    "plan_status": "CURRENT_POST_REMEDIATION_UNSIGNED_DEVELOPMENT_PLAN",
+    "plan_sha256": "72cb8f43c4971795066c9f811d7cb9e439582fa3998dd31891255d3a6b20167b"
+  },
+  "planner_integrity_controls": {
+    "descriptor_relative_component_open": true,
+    "nofollow_each_component": true,
+    "regular_file_fstat_required": true,
+    "manifest_hash_and_parse_same_byte_stream": true,
+    "small_metadata_repeated_read_and_fstat": true,
+    "large_artifact_before_after_fstat": true,
+    "concurrent_adversarial_security_boundary_claimed": false,
+    "immutable_snapshot_recommended_for_publication": true
+  },
+  "caller_supplied_host_signature": {
+    "successful_status": "CALLER_SUPPLIED_HOST_SIMULATION_KEY_CRYPTOGRAPHICALLY_VERIFIED",
+    "independent_trust_anchor_verified": false,
+    "production_release_authority": false,
+    "production_key_generated_or_shipped": false
+  },
+  "host_only_application_slot_simulation": {
+    "implemented": true,
+    "storage": "host temporary tree: automatic disposable directory or explicit persisted temp path for reopen testing",
+    "payload_execution": false,
+    "external_policy_reverified_before_trial": true,
+    "external_policy_reverified_before_health": true,
+    "signed_health_receipt_required_for_success": true,
+    "trial_attempt_persisted_before_startup": true,
+    "trial_nonce_csprng_bits": 256,
+    "trial_nonce_persisted_before_startup": true,
+    "cross_run_signed_receipt_replay_rejected": true,
+    "process_death_reopen_persistence_tested": true,
+    "strict_state_schema_and_invariants": true,
+    "early_boot_success_allowed": false,
+    "failed_startup_rollback_tested": true,
+    "power_interruption_rollback_tested": true,
+    "device_action_interface_present": false,
+    "caller_selected_path_scope": "beneath host temporary directory for persistence testing only",
+    "platform_enforced_device_barrier": false
+  },
+  "mechanism_findings": {
+    "data_openpilot_shared_across_agnos_os_slots": true,
+    "boot_b_is_inactive_os_slot_not_independent_application_slot": true,
+    "current_app_activation_is_two_non_atomic_renames": true,
+    "current_app_activation_has_authenticated_artifact_verification": false,
+    "current_app_activation_has_independent_startup_health_rollback": false,
+    "agnos_manifest_partitions_are_ab_os_firmware_only": true
+  },
+  "tests": {
+    "verified_preexisting_ubuntu_baseline": {
+      "passed": 444,
+      "skipped": 1,
+      "junit": "RC3_TEST_LOGS/ubuntu_baseline_without_new_tests.xml",
+      "junit_sha256": "574bc7c9e6934870c39af4c23972223b5b2d9752d89a597add096ee81c75511d"
+    },
+    "pre_remediation_ubuntu_scoped_release_tool_suite": {
+      "passed": 479,
+      "skipped": 1,
+      "junit": "RC3_TEST_LOGS/ubuntu_tools_g8_release.xml",
+      "junit_sha256": "28db562e8687cba67dd495a0d6311386cd20103bfa4a98907cf8d85d17722835"
+    },
+    "remediated_host_scoped_release_tool_suite": {
+      "passed": 493,
+      "skipped": 1,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0,
+      "duration_seconds": 8.51,
+      "confcutdir": "tools/g8_release",
+      "isolated_pytest_config": "/dev/null",
+      "persistent_log_written": false
+    },
+    "retained_pre_remediation_qemu_aarch64": {
+      "scope": "network-isolated read-only AArch64/QEMU Docker Python release-tool suite, not native device startup",
+      "attempted": true,
+      "python_tests_executed": true,
+      "python_tests_passed": 479,
+      "python_tests_skipped": 1,
+      "python_tests_failed": 0,
+      "python_tests_errors": 0,
+      "python_suite_passed": true,
+      "passed": true,
+      "junit": "RC3_TEST_LOGS/RC3_SAFE_STAGING_QEMU_CORRECTED.xml",
+      "junit_sha256": "f1b41d660914adca7858e8af4932226524baba7919dd9f73beb8223e8a471e8a",
+      "log": "RC3_TEST_LOGS/RC3_SAFE_STAGING_QEMU_CORRECTED.log",
+      "log_sha256": "5f981a12a0455cb9bb122fa3bef553be29c8d4fe646981c93d5e75bf7946ef19",
+      "covers_current_remediation": false,
+      "current_remediation_qemu_revalidation": "PENDING_COORDINATING_ENGINEER",
+      "native_pandad_executed": false,
+      "native_offroad_startup_qualified": false,
+      "earlier_failed_container_attempts_retained_for_diagnostics_only": true,
+      "remaining_hardware_hold": "actual off-road Panda/model/manager startup, signed supervisor and physical CAN qualifications absent"
+    },
+    "ubuntu_rc3_RAW_PARENT_FINAL": {
+      "description": "Ubuntu 24.04 host release-tool Python suite, non-actuating",
+      "pass": 496,
+      "skip": 1,
+      "fail": 0,
+      "error": 0,
+      "exit_code": 0,
+      "junit": "RC3_TEST_LOGS/ubuntu_rc3_RAW_PARENT_FINAL.xml",
+      "junit_sha256": "4c0f038b0f09681ae0709eb89af62492ecc6be7f3d72f0f9f5c5859ead86ad24",
+      "log": "RC3_TEST_LOGS/ubuntu_rc3_RAW_PARENT_FINAL.log",
+      "log_sha256": "36db01a59aa15d9f6519af0a5d848d55fcf512345c35209ebb7a4475a11b0d5d"
+    },
+    "rc3_RAW_PARENT_QEMU_FINAL": {
+      "description": "ARM64/QEMU network-isolated read-only release-tool Python suite, non-actuating",
+      "pass": 496,
+      "skip": 1,
+      "fail": 0,
+      "error": 0,
+      "exit_code": 0,
+      "junit": "RC3_TEST_LOGS/rc3_RAW_PARENT_QEMU_FINAL.xml",
+      "junit_sha256": "3abdcd5178abe16286d604eefa160a3590ccf7ad527336384f0aa99ecaeda0ec",
+      "log": "RC3_TEST_LOGS/rc3_RAW_PARENT_QEMU_FINAL.log",
+      "log_sha256": "be774f211df7ed83d8c755d3ef2af20c1493e91705a51946e4dca86717069504"
+    }
+  },
+  "release_gates": {
+    "authenticated_oem_boot_and_root_trust": "HOLD_NOT_DEMONSTRATED",
+    "trusted_os_resident_application_supervisor": "HOLD_NOT_IMPLEMENTED",
+    "hardware_ab_and_power_cut_recovery": "HOLD_NOT_QUALIFIED",
+    "signed_recoverable_artifact": "HOLD_MISSING",
+    "native_offroad_startup": "HOLD_NOT_EXECUTED",
+    "independent_honda_panda_can_physical_safety_signoff": "HOLD_NOT_QUALIFIED"
+  },
+  "production_ready": false,
+  "production_approved": false,
+  "installation_authorized": false,
+  "inactive_slot_install_authorized": false,
+  "road_use_authorized": false,
+  "device_operations_authorized": false,
+  "engineering_publication_authorized": true,
+  "disposition": "ENGINEERING_PUBLICATION_GO_NONINSTALLABLE_HOLD_PRODUCTION_INSTALL_ROAD_NO_GO",
+  "publication_readiness_note": "NONINSTALLABLE engineering source/evidence only; production/device install/road remain NO-GO",
+  "git_integrity_review": "Raw commit-parent ancestry walk, replacement objects disabled, graft check; late-graft adversarial regression passed",
+  "independent_final_review": {
+    "review_file": "RC3_RAW_PARENT_INDEPENDENT_REVIEW.txt",
+    "verdict": "GO_NONINSTALLABLE_ENGINEERING_HOLD_BRANCH_ONLY",
+    "production_install_road_verdict": "NO_GO",
+    "critical_findings": 0,
+    "residual_limit": "Quiescent source checkout; not an adversarial concurrent-worktree or production trust security boundary"
+  }
+}
