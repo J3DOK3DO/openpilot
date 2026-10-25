@@ -1,0 +1,155 @@
+{
+  "id": "G8-F12-RC1-HOLD-20261025",
+  "repository": "J3DOK3DO/openpilot",
+  "public_repository": true,
+  "branch": "release/g8-f12-rc1-hold",
+  "base_source_revision": "65d045a2a3df3eb6915618567be8fb61c6b08353",
+  "scope": "ENGINEERING_PUBLICATION_ONLY",
+  "verified_aarch64_binaries": 14,
+  "regenerated_localization_source_files": 4,
+  "reconstructed_model_sha256": "27969d9da00f74ba0c1f56de575665121a967528753500cd2f809b61664e0e3f",
+  "model_reconstructed_git_blob_present": false,
+  "model_chunks_retained": 3,
+  "launcher_guard_exit_code": 78,
+  "launcher_guard_precedes_all_boot_hardware_and_manager_calls": true,
+  "artifacts": [
+    {
+      "path": "selfdrive/pandad/pandad",
+      "sha256": "fb2031735fe60add8e09456e1a936de53675fcf7d7bbba94f28506fee4256f4a",
+      "previous_head_blob_sha256": "84f6efdb69b987945deeba8f725af00f0a167ccbd1f5a8f190af676a941fd636",
+      "bytes": 1224496,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "selfdrive/pandad/pandad_api_impl.so",
+      "sha256": "07e59ba63ad242d575aedec976c941de55b059008316a89437337184b53b884c",
+      "previous_head_blob_sha256": "1bc24a81df8a466def4b131ef2776b6e479dc3b683e8068cea18d300abe173e1",
+      "bytes": 543192,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "msgq_repo/msgq/ipc_pyx.so",
+      "sha256": "634b7a09d6d2fa9c92e228b161fcf4a44ede47d53f4f9a204943a1b278fdedb2",
+      "previous_head_blob_sha256": "2948fbf9bdd1ace9ed43f04a87c174b5a72aaf7bbbefcbb89694c6f7f61cf36c",
+      "bytes": 232832,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "common/params_pyx.so",
+      "sha256": "b66741ff1490f50b7ab6056db9879e3f1c8bf4a1676e77e27493bafedccac152",
+      "previous_head_blob_sha256": "3f6d4e9a14207ac31a400580f64dc8da15012179ac7573b70fdb2d5195f13a43",
+      "bytes": 875192,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so",
+      "sha256": "b95c4d8997b03f9b140a6d84c2c3fce5d5b6727155caf67cc30b92ef85c0e43c",
+      "previous_head_blob_sha256": "45c6c16dd1f462d628273ced7377514bf4f2862bc3335876e221b66aea81be11",
+      "bytes": 344320,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so",
+      "sha256": "434a7baef9c96822c0facc909acb1c360a14ea03a8ff178a3beb48c01bd3b25c",
+      "previous_head_blob_sha256": "a01ac4b57e395aa3c848c4191a741994685bfabd7567266ff0a752e82a1f0226",
+      "bytes": 344288,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/libacados_ocp_solver_long.so",
+      "sha256": "984169237050db096496b015d5ab40bf84bd3eb5b85d3f6723cfcf8a4926ca47",
+      "previous_head_blob_sha256": "d3e91ed98204b9e0f2392be8634c8d7f4971155a480b4e580e4d334c5afac7f0",
+      "bytes": 90744,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "selfdrive/controls/lib/lateral_mpc_lib/c_generated_code/libacados_ocp_solver_lat.so",
+      "sha256": "7c0cb89dd9017436cc1d7c321eb67027048f71dab37b7c36d8b354a8887bc1e8",
+      "previous_head_blob_sha256": "d42e3db4c78083aa5640d2f8d27a0a4707549ed53fde10911cae06829b62a4f7",
+      "bytes": 70616,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "common/transformations/transformations.so",
+      "sha256": "0a707b4701a12cf2dc5bfb0e3f81272d5c16682c41d2fc1fdb561f97f95ed161",
+      "previous_head_blob_sha256": "627117b83bc702d772486bbda3da7a3fe9f359ee6b1ed71be6a1ffc98e9ee2ef",
+      "bytes": 144872,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "msgq_repo/msgq/visionipc/visionipc_pyx.so",
+      "sha256": "d906013bccecf01afa5a5b215a9d4a725dc51e93ea09d31eca948b3a99750bab",
+      "previous_head_blob_sha256": "234bc6d55e76d53cdc2cc9659c1369044be292b3d7aa6d8d9022d167c63a666c",
+      "bytes": 529888,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "rednose_repo/rednose/helpers/ekf_sym_pyx.so",
+      "sha256": "50bc832b29b535e8d32bc0f43f79305d4ce13dd952c13fe5636b96f162933307",
+      "previous_head_blob_sha256": "e9aef549bbb3f6d31abcbd2f6d6beedac0a5e40fe825dd4a060b44fbee4d373f",
+      "bytes": 351832,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "selfdrive/locationd/models/generated/libcar.so",
+      "sha256": "70e2a8a7cb96dcaf46ec504cb8c0cc1e0a50bfe1fca8c94ad7afd8a568e8a254",
+      "previous_head_blob_sha256": "fa99bfdd35c9ae87c369dfa0c518e7d254dcd777449856312e3501e16819c708",
+      "bytes": 213664,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "selfdrive/locationd/models/generated/libpose.so",
+      "sha256": "6c7a86fd77621d23c961f8bca2b4ceaf265eafbe1c34688dd7765f65a027ed3e",
+      "previous_head_blob_sha256": "b96ed900d04cd05f9de287bbee104741c21c466117b62316f9d5e1c86730fc24",
+      "bytes": 216816,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "selfdrive/modeld/models/commonmodel_pyx.so",
+      "sha256": "c3aee3a313d684bc95843bd8e4be1b03c57bb3da843200a49b87faae737175ac",
+      "previous_head_blob_sha256": "6a322fdf11161ac5adade5ed983191564db5cf79587881f9ec45d3427236255d",
+      "bytes": 417536,
+      "class": "AARCH64_ELF"
+    },
+    {
+      "path": "selfdrive/locationd/models/generated/car.cpp",
+      "sha256": "24580ebb4a67f0adc66dbe27717a49c93c321f6069d57299316f89f1b6c6ffdf",
+      "previous_head_blob_sha256": "a35e3151b3ebb0e557a5dcaaa9258c702cee3fa0b581f8ed36132ec743d60694",
+      "bytes": 26431,
+      "class": "REGENERATED_EKF_SOURCE"
+    },
+    {
+      "path": "selfdrive/locationd/models/generated/car.h",
+      "sha256": "61254807ff309eccbc9546f9ad3fbfc4d5c0b5a1ccbb8f3f5fb493ea4db75a9f",
+      "previous_head_blob_sha256": "8dc9453473b98392ba0fa04e682391d17a5f67132c03238970c00f93229b1701",
+      "bytes": 2740,
+      "class": "REGENERATED_EKF_SOURCE"
+    },
+    {
+      "path": "selfdrive/locationd/models/generated/pose.cpp",
+      "sha256": "1aa3ee4f11e9b500308ba473bdcb78bb6fb4bc1ae73f861a813c70b062eba1df",
+      "previous_head_blob_sha256": "89b758747db1069a109287043be5ddca9820310bb34ff86403db10f8bafac728",
+      "bytes": 69106,
+      "class": "REGENERATED_EKF_SOURCE"
+    },
+    {
+      "path": "selfdrive/locationd/models/generated/pose.h",
+      "sha256": "cbec75f751a4386cb173cdf0eefdb3fa9594c39506883e19e9024ec7388f9592",
+      "previous_head_blob_sha256": "5b2ab63e750f9ce4aa358277a11a988e554770369d62bee491233283a3d0cee7",
+      "bytes": 1527,
+      "class": "REGENERATED_EKF_SOURCE"
+    }
+  ],
+  "Stage4B_installation_release": "MANDATORY_HOLD",
+  "R2_scope": "USER_ACCEPTED_NONBLOCKER_NOT_TECHNICAL_PASS",
+  "R4_scope": "USER_ACCEPTED_NONBLOCKER_NOT_TECHNICAL_PASS",
+  "AGNOS_full_system_hash": "MISMATCH",
+  "trusted_health_boot_success": "NOT_IMPLEMENTED",
+  "complete_hardware_safety": "NOT_QUALIFIED",
+  "production_status": "NO_GO",
+  "installable": false,
+  "firmware_flashing": false,
+  "automatic_release": false,
+  "installation_URL": null,
+  "publication_date": "2026-10-25"
+}

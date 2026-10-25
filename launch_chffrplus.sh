@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# G8-F12 RC1 PUBLICATION HOLD: intentionally NON-RUNNABLE and NOT INSTALLABLE.
+# Do not remove this fail-closed guard without independent Stage4B qualification.
+printf "%s\n" "G8-F12 RC1 HOLD: ENGINEERING-ONLY GITHUB SNAPSHOT; DO NOT INSTALL OR DRIVE. Stage 4B not approved." >&2
+exit 78
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
