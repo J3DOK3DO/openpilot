@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# G8-F12 RC2 HONDA ENGINEERING HOLD: non-installable, non-actuating snapshot.
+# Hardware and boot-health release gates are not qualified.
+printf "%s\n" "G8-F12 RC2 HONDA HOLD: NOT APPROVED TO INSTALL OR DRIVE" >&2
+exit 78
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 

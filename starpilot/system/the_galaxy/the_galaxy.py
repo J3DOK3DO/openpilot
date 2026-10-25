@@ -5734,34 +5734,9 @@ def setup(app):
     return jsonify({"result": False})
 
   def _send_door_command(command, should_be_locked, success_message, action):
-    if params.get_bool("IsOnroad"):
-      return jsonify({"error": "Door controls are unavailable while driving."}), 409
-
-    try:
-      can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
-      can_sock = messaging.sub_sock("can", timeout=100)
-
-      for _ in range(6):
-        if params.get_bool("IsOnroad"):
-          return jsonify({"error": "Door controls are unavailable while driving."}), 409
-        try:
-          with Panda(disable_checks=True) as panda:
-            panda.set_safety_mode(car.CarParams.SafetyModel.toyota)
-            panda.can_send(0x750, command, 0)
-            panda.can_send(0x750, command, 1)
-        except Exception as error:
-          cloudlog.warning("Galaxy door %s attempt failed: %s", action, error)
-          continue
-
-        time.sleep(1)
-
-        lock_status = get_lock_status(can_parser, can_sock)
-        if (lock_status == 0) == should_be_locked:
-          return {"message": success_message}, 200
-    except Exception as error:
-      cloudlog.exception("Galaxy door %s failed: %s", action, error)
-
-    return jsonify({"error": f"Unable to confirm that the doors were {action}ed."}), 502
+    # G8-F12 RC2 Honda-only: unsupported foreign-brand door commands stay disabled.
+    # No direct Panda session, safety model override or CAN transmission.
+    return jsonify({"error": "Door controls are disabled in this Honda-only engineering candidate."}), 403
 
   @app.route("/api/doors/lock", methods=["POST"])
   def lock_doors():

@@ -317,34 +317,8 @@ def load_json_file(path):
 
 
 def lock_doors(lock_doors_timer, sm, params):
-  wait_for_no_driver(params, sm, door_checks=True, time_threshold=lock_doors_timer)
-
-  sm.update()
-  if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
-    return
-
-  can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
-  can_sock = messaging.sub_sock("can", timeout=100)
-
-  pm = messaging.PubMaster(["sendcan"])
-
-  while True:
-    sm.update()
-
-    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
-      break
-
-    sendcan_send = messaging.new_message("sendcan", 1)
-    sendcan_send.sendcan[0].address = 0x750
-    sendcan_send.sendcan[0].dat = LOCK_CMD
-    sendcan_send.sendcan[0].src = 0
-    pm.send("sendcan", sendcan_send)
-
-    time.sleep(1)
-
-    lock_status = get_lock_status(can_parser, can_sock)
-    if lock_status == 0:
-      break
+  # G8-F12 RC2 Honda-only: no Toyota door CAN publisher.
+  return
 
 
 def run_cmd(cmd, success_message, fail_message, env=None, report=True):

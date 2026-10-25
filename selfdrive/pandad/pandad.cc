@@ -43,7 +43,7 @@
 
 ExitHandler do_exit;
 
-static uint64_t last_door_lock_command_time = 0;
+// RC2 Honda-only: Toyota door-lock grace period is disabled.
 
 static bool is_tesla_preap(const std::string &car_params) {
   if (car_params.empty()) {
@@ -125,17 +125,7 @@ void can_send_thread(std::vector<Panda *> pandas, bool fake_send) {
       LOGE("sendcan too old to send: %" PRIu64 ", %" PRIu64, nanos_since_boot(), event.getLogMonoTime());
     }
 
-    for (const cereal::CanData::Reader &can : event.getSendcan()) {
-      if (can.getAddress() == 0x750) {
-        last_door_lock_command_time = nanos_since_boot();
-        Panda *internal_panda = pandas[0];
-        const std::optional<health_t> state = internal_panda->get_state();
-        if (state && state->safety_mode_pkt == (uint8_t)cereal::CarParams::SafetyModel::NO_OUTPUT) {
-          internal_panda->set_safety_model(cereal::CarParams::SafetyModel::TOYOTA);
-        }
-        break;
-      }
-    }
+    // RC2 Honda-only: no Toyota door-lock safety-mode side effects on sendcan.
   }
 }
 
@@ -291,7 +281,7 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
     }
 
     // set safety mode to NO_OUTPUT when car is off or we're not onroad. ELM327 is an alternative if we want to leverage athenad/connect
-    bool should_close_relay = (!ignition_local || !is_onroad) && (nanos_since_boot() - last_door_lock_command_time >= 2e9);
+    bool should_close_relay = (!ignition_local || !is_onroad);
     if (should_close_relay && (health.safety_mode_pkt != (uint8_t)(cereal::CarParams::SafetyModel::NO_OUTPUT))) {
       panda->set_safety_model(cereal::CarParams::SafetyModel::NO_OUTPUT);
     }
