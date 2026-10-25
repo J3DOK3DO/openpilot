@@ -1,0 +1,60 @@
+{
+  "active_application_is_shared_data": true,
+  "active_openpilot_commit": "7b4db9a26010ba9899eef242d3ca49b33cbcca9c",
+  "active_openpilot_launcher_sha256": "b70486dd999cd7e60ed27c09a643dfb3d28ebc74f3cc11e02dac01e1468ec98e",
+  "agnos_version": "19.8.1",
+  "archive_mode": {
+    "mode": "0400",
+    "type": "regular"
+  },
+  "archive_size_bytes": 531324117,
+  "boot_slot": "_a",
+  "checked_at_utc": "2026-10-25T13:52:04+00:00",
+  "cmdline_names_indicate_verity": false,
+  "data_free_bytes": 48136110080,
+  "data_mount": {
+    "fstype": "ext4",
+    "is_ro": false
+  },
+  "device_app_supervisor_cryptographically_verified": false,
+  "device_mutations_performed": false,
+  "glibc_version": [
+    "ldd (Ubuntu GLIBC 2.39-0ubuntu8.9) 2.39"
+  ],
+  "installation_authorized": false,
+  "kernel_release": "4.9.103",
+  "launch_install_or_can_attempted": false,
+  "physical_panda_can_isolation_evidenced": false,
+  "platform_arch": "aarch64",
+  "powercut_recovery_evidenced": false,
+  "root_mount": {
+    "fstype": "ext4",
+    "is_ro": true
+  },
+  "rpmb_device_present": false,
+  "rpmb_hardware_attestation_proven": false,
+  "schema": "G8_F12_RC3_AGNOS_READONLY_QUALIFICATION_V1",
+  "selinux_cmdline_mode": [
+    "permissive"
+  ],
+  "ssh_check_is_not_hardware_safety_signoff": true,
+  "stage3a_disposition": "READONLY_DEVICE_INVENTORY_PASS_PROTECTED_SUPERVISOR_HOLD",
+  "staged_archive_sha256": "a0bec9fcba3a38de40daf0928e714a8e877565e438b311fdd37fab67e8e30b9b",
+  "staging_directory": "/data/g8_rc3_inert_qualification_20261025",
+  "staging_directory_mode": {
+    "mode": "0500",
+    "type": "directory"
+  },
+  "systemd_candidate_services": [
+    "ModemManager.service",
+    "NetworkManager-dispatcher.service",
+    "NetworkManager-wait-online.service",
+    "NetworkManager.service",
+    "agnos-debug.service",
+    "agnos-tests.service",
+    "dbus-org.freedesktop.ModemManager1.service"
+  ],
+  "tee_device_present": false,
+  "tpm_device_present": false,
+  "verified_boot_independently_proven": false
+}

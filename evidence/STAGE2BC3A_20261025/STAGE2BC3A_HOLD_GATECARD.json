@@ -1,0 +1,93 @@
+{
+  "AGNOS_boot_change_authorized": false,
+  "Panda_CAN_actuation_authorized": false,
+  "Panda_CAN_authorized": false,
+  "all_full_suite_errors_are_unmodified_planner_allowlist_rejections": true,
+  "arm64_focus": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 113
+  },
+  "arm64_scoped": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 558
+  },
+  "evidence_sha256": {
+    "/mnt/commadrive/g8-f12-rc3-stage2bc3a-independent-tests-20261025/STAGE2BC3A_FULL_UNMODIFIED.xml": "5e0cef167e3fadfd6d66214e178b5a8c173e7d3d9bc2708ea0c489cee39579e1",
+    "/mnt/commadrive/g8-f12-rc3-stage2bc3a-independent-tests-20261025/STAGE2BC3A_QEMU_FOCUSED.xml": "26491eacf5e2016ecc57619e0e0b05f5ffc5ae7fe27813b17a161ab31c50ba05",
+    "/mnt/commadrive/g8-f12-rc3-stage2bc3a-independent-tests-20261025/STAGE2BC3A_QEMU_ISOLATED.xml": "68ab682bc1c53278357500958c7ff3adf314ffc68049fd3c215cbfe44b8c49f8",
+    "/mnt/commadrive/g8-f12-rc3-stage2bc3a-independent-tests-20261025/STAGE2BC3A_UBUNTU_FOCUSED.xml": "d0f08c398e661d25a14bd8ac3d45def53a28900ba710d81a00f14d67df9d3555",
+    "/mnt/commadrive/g8-f12-rc3-stage2bc3a-independent-tests-20261025/STAGE2BC3A_UBUNTU_ISOLATED.xml": "6ddabb21222e984071f63d0be50f373276c8b0578bf107f46fd6d2b31882b2b8",
+    "evidence/STAGE2BC3A_20261025/INDEPENDENT_REVIEW_NOT_COMPLETED.md": "9218901001d2de6ff36404bfad5cd8c8afc8b4384e1116bbdb8ff34e1038705d",
+    "evidence/STAGE2BC3A_20261025/STAGE2BC3A_FINAL_HANDOFF.md": "4514cedcd5d7aaed92f3a5dd1da5226467ffb3cf8c4edb981b8152445c94c206",
+    "evidence/STAGE2BC3A_20261025/STAGE2C_PROTECTED_SUPERVISOR_INTEGRATION_CONTRACT.md": "42f579b25ae1b690f739607873871912ece8dc11f85b3ec8ae45b2eb698beba8",
+    "evidence/STAGE2BC3A_20261025/STAGE3A_COMMA_READONLY_DEVICE_AUDIT.json": "387a8d1de996ac946accb610e4631a203b8deb664b0ba76d661d905bae54d591",
+    "evidence/STAGE2BC3A_20261025/stage3a_readonly_probe.py": "de96a0844804834413b9531abe6af4d6d9422e77d2424faef3aea95f3087b9c5",
+    "tools/g8_release/rc3_stage2bc_context.py": "d91c21690f623a4548a357f50a1562a0729ec2c73d82cbd998d70cffb92e0c08",
+    "tools/g8_release/tests/test_rc3_stage2bc_context.py": "846b675e373f19a32348e34fbb63908c09b74773658e55b34f2805a330b30f99"
+  },
+  "existing_device_openpilot_commit": "7b4db9a26010ba9899eef242d3ca49b33cbcca9c",
+  "host_focus": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 113
+  },
+  "host_full_release_suite": {
+    "errors": 21,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 610
+  },
+  "host_scoped": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 558
+  },
+  "immutable_release_technical_signoff": false,
+  "independent_codex_security_review": "UNAVAILABLE_USAGE_LIMIT",
+  "independent_signoff_obtained": false,
+  "owner_authorization_for_future_qualified_installation": true,
+  "production_install_authorized": false,
+  "release_launcher_guard_unchanged": true,
+  "road_use_authorized": false,
+  "schema": "G8_F12_RC3_STAGE2BC3A_HOLD_GATECARD_V1",
+  "stage2b_full_hardware_safety_grant_integrated": false,
+  "stage2b_os_root_cryptographically_attested": false,
+  "stage2b_protected_monotonic_hardware_counter": false,
+  "stage2b_signed_full_launch_context_prototype": "HOST_ONLY_TEST_TRUST",
+  "stage2b_test_key_has_device_authority": false,
+  "stage2c_candidate_runtime_started": false,
+  "stage2c_integration_contract_documented": true,
+  "stage2c_protected_OS_supervisor_installed": false,
+  "stage2c_protected_rollback_recovery_proven": false,
+  "stage2c_protected_supervisor_operational": false,
+  "stage3a_AGNOS_OS_slot": "_a",
+  "stage3a_AGNOS_version": "19.8.1",
+  "stage3a_data_mount_readonly": false,
+  "stage3a_device_secure_authority_proven": false,
+  "stage3a_probe_passed": true,
+  "stage3a_readonly_inventory_completed": true,
+  "stage3a_root_mount_readonly": true,
+  "stage3a_selinux_boot_mode": [
+    "permissive"
+  ],
+  "stage3b_bench_testing_performed": false,
+  "stage4_installation_authorized_by_qualification": false,
+  "stage4_installation_performed": false,
+  "staged_archive_sha256": "a0bec9fcba3a38de40daf0928e714a8e877565e438b311fdd37fab67e8e30b9b",
+  "status": "HOLD_STAGE2B_PROTECTED_ROOT_STAGE2C_HARDWARE_RECOVERY_STAGE3B_CAN",
+  "top_open_items": [
+    "Hardware-anchored signed consumed-grant context, not caller-pinned offline TEST signature",
+    "Protected monotonic state and immutable independently qualified app rollback",
+    "Production OS-resident supervisor with enforceable application authority",
+    "Physical Honda Panda/CAN isolation, safety watchdog and failure matrix",
+    "Independent software assurance, hardware safety review and release planner acceptance"
+  ],
+  "utc": "2026-10-25T13:54:19+00:00",
+  "verification_utc": "2026-10-25T13:57:46+00:00"
+}
