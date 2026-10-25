@@ -1,0 +1,58 @@
+{
+  "arm64_qemu_honda_panda_safety_source_tests": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 369,
+    "physical_hardware_test": false,
+    "skipped": 267
+  },
+  "arm64_qemu_release_tool_tests": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 531,
+    "skipped": 1
+  },
+  "boot_operations_authorized_by_qualification_gate": false,
+  "created_at_utc": "2026-10-25T12:49:39.730489+00:00",
+  "current_decision": "HOLD_ENGINEERING_ONLY",
+  "device_modified_by_campaign": false,
+  "evidence_sha256": {
+    "arm64_qemu_junit": "a60a85b268922a057553aadf0dcb403eb02bc9f57d5335466ef888ec29f053c6",
+    "honda_arm64_log": "83c9028f4dfaed505ff2fc160c92d4fc77b4a3fc2350083b955c57637a064a6d",
+    "new_contract_tests": "d4abb384b1bb8c895ede92776238fd2ceda368c6ca009697a479aec2fb71969c",
+    "new_gate_tests": "a166943b620c6a74c238c130d8580e90722b9d138acf56fd166c3f61fb641f11",
+    "new_readiness_gate": "cf46c848d221a047421fe9d0d33342a5d4f9598cb4efaf6151449a76008a657b",
+    "new_supervisor_contract": "bb15ec4c65026d79724401bcd72758799ac474e873ed3c84fbee9bfbe751e0ab",
+    "ubuntu_junit": "6666936f42ff6d9526838b23b799b47a0cb53bbfd31aaee5bc6a659adbdeb8f1"
+  },
+  "host_release_tool_tests": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 531,
+    "skipped": 1
+  },
+  "independent_security_review_complete": false,
+  "installation_authorized_by_qualification_gate": false,
+  "known_unresolved_reviews": [
+    "custom pure-Python Ed25519 verifier not an approved production crypto dependency",
+    "external trust policy/keys and observed physical hardware proof unavailable",
+    "separate independent security review not completed",
+    "OS-level hardware-backed supervisor and durable retries not implemented",
+    "real comma/Honda fault injection and physical rollback absent"
+  ],
+  "notes": [
+    "Host-only state model cannot supervise live Panda/CAN.",
+    "AGNOS A/B boot slots are OS partitions, while the openpilot app uses shared /data.",
+    "Owner risk acceptance does not substitute for cryptographic trust or hardware tests."
+  ],
+  "owner_authorized_future_agnos_boot_operations": true,
+  "owner_authorized_future_device_installation": true,
+  "production_approved": false,
+  "road_use_authorized": false,
+  "schema": "G8_F12_RC3_SUPERVISOR_QUALIFICATION_FINAL_ENGINEERING_HOLD_V1",
+  "signed_production_payload_available": false,
+  "technical_evidence_complete": false,
+  "verified_device_os_supervisor_operational": false,
+  "verified_honda_panda_can_lab_completed": false,
+  "verified_physical_rollback_completed": false
+}
