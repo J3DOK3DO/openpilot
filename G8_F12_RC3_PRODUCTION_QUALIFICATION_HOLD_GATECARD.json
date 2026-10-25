@@ -1,0 +1,60 @@
+{
+  "branch": "release/g8-f12-rc3-production-qualification-hold",
+  "device_installation_authorized": false,
+  "documentation": "G8_F12_RC3_PUBLICATION_PRODUCTION_HOLD.md",
+  "expected_honda_pandad_sha256": "6fec6261fae4a84de75ef16f6fa604df01cd66f56e6ccea596fdfd890698d671",
+  "expected_model_sha256": "27969d9da00f74ba0c1f56de575665121a967528753500cd2f809b61664e0e3f",
+  "github_operations_allowed_for_this_phase": "push separate explicitly non-installable engineering HOLD branch only; no tag, installer link, release, default branch edit",
+  "input_qualified_offline_commit": "7ac485a19e1e5bd9bd53cc139e45cd607262055f",
+  "installable_github_url": false,
+  "model_asset": "three existing tracked chunks; reconstructed SHA-256 unchanged",
+  "pending_physical_gates": [
+    "OEM rooted authentication of actual AGNOS boot chain",
+    "Trusted off-app boot-health supervisor and tested A/B/power-failure rollback",
+    "Signed independently recoverable release and real device startup",
+    "Honda Panda/CAN physical fail-safe qualification and human signoff"
+  ],
+  "production_installation_authorized": false,
+  "production_ready": false,
+  "publication_gating_checks": {
+    "checked_source_built_native_components": 14,
+    "disposition": "OFFLINE_INTEGRITY_ONLY_PRODUCTION_HOLD",
+    "early_abctl_boot_success_unresolved": true,
+    "engineering_integrity_pass": true,
+    "fail_closed_launch_guard_ahead_of_init": true,
+    "github_install_url_authorized": false,
+    "honda_pandad_digest_match": true,
+    "inactive_agnos_boot_slot_is_NOT_an_application_slot": true,
+    "installation_authorized": false,
+    "mandatory_hardware_gates": [
+      "Independent OEM-rooted AGNOS verified-boot and image trust evidence",
+      "Independent immutable health supervisor, qualified A/B rollback and witnessed power loss",
+      "Signed recoverable installation artifact, tested off-road app startup and component provenance",
+      "Honda Panda/CAN and disengagement bench evidence, independent safety release approval"
+    ],
+    "native_component_digests_match": true,
+    "production_approved": false,
+    "road_use_authorized": false,
+    "schema": "G8_F12_RC3_ENGINEERING_ADMISSION_V1",
+    "tracked_model_chunk_reconstruction_sha256_matches": true
+  },
+  "publication_intent": "SOURCE_AND_OFFLINE_QUALIFICATION_EVIDENCE",
+  "road_use_authorized": false,
+  "schema": "G8_F12_RC3_PRODUCTION_QUALIFICATION_HOLD_V1",
+  "source_built_AArch64_native_count": 14,
+  "tests": {
+    "arm64_qemu_scoped": {
+      "passed": 444,
+      "skipped": 1
+    },
+    "previous_host_honda_safety_C": {
+      "passed": 369,
+      "skipped": 267
+    },
+    "ubuntu_host_scoped": {
+      "passed": 444,
+      "skipped": 1
+    }
+  },
+  "vehicle_scope": "Honda Accord 11G only"
+}
