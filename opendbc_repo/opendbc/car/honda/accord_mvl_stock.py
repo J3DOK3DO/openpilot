@@ -22,9 +22,15 @@ class AccordMvlStock:
   def update(self, packer, can, cp, control, state, frame):
     # The independent session can outlive the PCM. Its prior control envelope
     # must not keep camera button substitution alive after physical withdrawal.
-    if cp.alternativeExperience == 32 and (state.out.brakePressed or not state.out.cruiseState.enabled):
+    # Cancel a partially queued synthetic LKAS press on any physical/control
+    # withdrawal, including withdrawals observed between 4-frame send ticks.
+    # Retain last_lkas_button_frame to preserve the 500-frame re-arm interval.
+    if (state.out.brakePressed or not state.out.cruiseState.enabled or
+        not state.lkas_hud["LKAS_READY"] or not control.enabled or
+        control.cruiseControl.cancel or control.cruiseControl.resume):
+      self.lkas_button_send_remaining = 0
       return []
-    if not control.enabled or frame % 4 or control.cruiseControl.cancel or control.cruiseControl.resume:
+    if frame % 4:
       return []
     if (self.lkas_button_send_remaining == 0 and state.lkas_hud["LKAS_READY"] and
         frame >= self.last_lkas_button_frame + 500):

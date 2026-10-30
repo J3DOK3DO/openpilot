@@ -40,18 +40,23 @@ def test_real_parser_controller_camera_button_cadence_and_override_exclusion():
     now = 1_000_000_000 + frame * 10_000_000
     setting = 1 if 530 <= frame < 540 else 0
     ambient = frame % 256
+    stock_acc_enabled = 20 <= frame < 580
     source = packer.make_can_msg("SCM_BUTTONS", 0, {
       "CRUISE_BUTTONS": 0, "CRUISE_SETTING": setting, "AMBIENT_LIGHT_MAYBE": ambient})
+    powertrain = packer.make_can_msg("POWERTRAIN_DATA", 0, {
+      "ACC_STATUS": int(stock_acc_enabled), "PEDAL_GAS": 0, "BRAKE_PRESSED": 0})
     camera_hud = packer.make_can_msg("LKAS_HUD", 2, {"LKAS_READY": 1})
-    ci.update((now, [source, camera_hud]))
+    ci.update((now, [source, powertrain, camera_hud]))
     assert ci.CS.scm_ambient_light == ambient
     assert ci.CS.lkas_hud["LKAS_READY"] == 1
+    assert ci.CS.out.cruiseState.enabled == stock_acc_enabled
     control = structs.CarControl(enabled=20 <= frame < 610)
     control.cruiseControl.cancel = frame == 560
     control.cruiseControl.resume = frame == 564
     _, messages = ci.apply(control.as_reader(), now)
     camera = [message for message in messages if message[0] == 0x296 and message[2] == 2]
-    expected = control.enabled and frame % 4 == 0 and not control.cruiseControl.cancel and not control.cruiseControl.resume
+    expected = (control.enabled and stock_acc_enabled and frame % 4 == 0 and
+                not control.cruiseControl.cancel and not control.cruiseControl.resume)
     assert len(camera) == int(expected)
     assert not any(message[0] in (0x1DF, 0x1EF, 0x310, 0x18DAB0F1, 0x6CD5558, 0x6CD5559,
                                   0xF31AA52, 0xF31AA5C, 0x1A45AA4E) for message in messages)
