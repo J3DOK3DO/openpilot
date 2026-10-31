@@ -22,4 +22,12 @@ This branch adds only documentation, tests and a manually invoked diagnostic; it
 | FR-B0-04 | Audit default operation writes no file; explicit output is mode 0600. | Synthetic audit tests | PASS (audit behavior only) | Unassigned |
 | FR-B0-05 | Any later owner transition must have separate authoritative OEM, protocol, RELEASE, target, and independent-review evidence. | Future B1--B6 package | UNVERIFIED | Unassigned |
 
+## B0 acceptance disposition
+
+The source-only acceptance boundary is limited to FR-B0-01 through FR-B0-04.
+Those requirements are regression/audit checks only; they do not accept a vehicle,
+firmware, protocol, or authority transition. FR-B0-05 remains **HOLD / UNVERIFIED**.
+The B0--B4 integration record `B0_B4_INTEGRATION_REPORT_20261031.md` is the
+current execution record and carries the exact 55-ID patch traceability summary.
+
 No timing value is invented here. Fault expiry is deliberately qualitative: a missing source is a failure, unavailable collection is unknown, and any future authority or fault-expiry behavior must be specified from authoritative target evidence before a timed requirement is accepted. Recovery is likewise limited to a fresh parked audit after the cause is corrected; it does not re-enable, reset, or command any vehicle component.

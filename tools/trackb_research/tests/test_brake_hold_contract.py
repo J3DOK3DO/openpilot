@@ -55,6 +55,26 @@ def test_invalid_data_fails_closed(candidate, policy):
   assert BrakeHoldContract().step(candidate, policy).reason == "input_invalid"
 
 
+@pytest.mark.parametrize(
+  "changes",
+  (
+    {"v_ego": -0.01},
+    {"standstill": True, "v_ego": 0.1000001},
+  ),
+)
+def test_contradictory_synthetic_motion_observations_fail_closed(changes):
+  assert BrakeHoldContract().step(sample(**changes), POLICY).reason == "input_invalid"
+
+
+class BoolRaises:
+  def __bool__(self):
+    raise AssertionError("malformed standstill must not be evaluated")
+
+
+def test_malformed_standstill_boolean_fails_closed_without_evaluation():
+  assert BrakeHoldContract().step(sample(standstill=BoolRaises()), POLICY).reason == "input_invalid"
+
+
 def test_duplicate_decision_is_rejected():
   contract = BrakeHoldContract()
   assert contract.step(sample(), POLICY).mode == MODE_COAST
