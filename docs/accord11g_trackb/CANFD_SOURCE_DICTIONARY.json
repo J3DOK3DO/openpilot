@@ -1,0 +1,4766 @@
+{
+  "bus_mapping_source": "opendbc_repo/opendbc/car/honda/hondacan.py:5-45",
+  "messages": [
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x91",
+      "identifier_format": "standard_11_bit",
+      "name": "KINEMATICS_ALT",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "-20|20",
+          "layout": "7|10@0+",
+          "name": "LAT_ACCEL",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.02,-512",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:2",
+          "unit": "m/s2"
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:3",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:4",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:1"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x94",
+      "identifier_format": "standard_11_bit",
+      "name": "KINEMATICS",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "-20|20",
+          "layout": "7|10@0+",
+          "name": "LAT_ACCEL",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.02,-512",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:7",
+          "unit": "m/s2"
+        },
+        {
+          "bounds": "-20|20",
+          "layout": "24|9@0-",
+          "name": "LONG_ACCEL",
+          "receiver_source_label": "EON",
+          "scale_offset": "-0.02,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:8",
+          "unit": "m/s2"
+        },
+        {
+          "bounds": "0|3",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:9",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:10",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:6"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x130",
+      "identifier_format": "standard_11_bit",
+      "name": "GAS_PEDAL_2",
+      "producer_source_label": "PCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "-1000|1000",
+          "layout": "7|16@0-",
+          "name": "ENGINE_TORQUE_ESTIMATE",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:13",
+          "unit": "Nm"
+        },
+        {
+          "bounds": "-1000|1000",
+          "layout": "23|16@0-",
+          "name": "ENGINE_TORQUE_REQUEST",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:14",
+          "unit": "Nm"
+        },
+        {
+          "bounds": "0|255",
+          "layout": "39|8@0+",
+          "name": "CAR_GAS",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:15",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:16",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:17",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:12"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x13C",
+      "identifier_format": "standard_11_bit",
+      "name": "GAS_PEDAL",
+      "producer_source_label": "PCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "39|8@0+",
+          "name": "CAR_GAS",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:20",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:21",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:22",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:19"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x158",
+      "identifier_format": "standard_11_bit",
+      "name": "ENGINE_DATA",
+      "producer_source_label": "PCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|250",
+          "layout": "7|16@0+",
+          "name": "XMISSION_SPEED",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:25",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|15000",
+          "layout": "23|16@0+",
+          "name": "ENGINE_RPM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:26",
+          "unit": "rpm"
+        },
+        {
+          "bounds": "0|250",
+          "layout": "39|16@0+",
+          "name": "XMISSION_SPEED2",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:27",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|2550",
+          "layout": "55|8@0+",
+          "name": "ODOMETER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "10,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:28",
+          "unit": "m"
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:29",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:30",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:24"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x17C",
+      "identifier_format": "standard_11_bit",
+      "name": "POWERTRAIN_DATA",
+      "producer_source_label": "PCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "7|8@0+",
+          "name": "PEDAL_GAS",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:33",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15000",
+          "layout": "23|16@0+",
+          "name": "ENGINE_RPM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:34",
+          "unit": "rpm"
+        },
+        {
+          "bounds": "0|1",
+          "layout": "39|1@0+",
+          "name": "GAS_PRESSED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:35",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "38|1@0+",
+          "name": "ACC_STATUS",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:36",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "37|5@0+",
+          "name": "BOH_17C",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:37",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "32|1@0+",
+          "name": "BRAKE_SWITCH",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:38",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "47|10@0+",
+          "name": "BOH2_17C",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:39",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "53|1@0+",
+          "name": "BRAKE_PRESSED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:40",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "52|5@0+",
+          "name": "BOH3_17C",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:41",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:42",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:43",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:32"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x184",
+      "identifier_format": "standard_11_bit",
+      "name": "HYBRID_BRAKE_ERROR",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "32|1@0+",
+          "name": "BRAKE_ERROR_1",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:46",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "34|1@0+",
+          "name": "BRAKE_ERROR_2",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:47",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:48",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:49",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:45"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x1A4",
+      "identifier_format": "standard_11_bit",
+      "name": "VSA_STATUS",
+      "producer_source_label": "VSA",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1000",
+          "layout": "7|16@0+",
+          "name": "USER_BRAKE",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.015625,-1.609375",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:52",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|1@0+",
+          "name": "COMPUTER_BRAKING",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:53",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "28|1@0+",
+          "name": "ESP_DISABLED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:54",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "52|1@0+",
+          "name": "BRAKE_HOLD_RELATED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:55",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "46|1@0+",
+          "name": "BRAKE_HOLD_ACTIVE",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:56",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "45|1@0+",
+          "name": "BRAKE_HOLD_ENABLED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:57",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:58",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:59",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:51"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 3,
+      "identifier": "0x1AB",
+      "identifier_format": "standard_11_bit",
+      "name": "STEER_MOTOR_TORQUE",
+      "producer_source_label": "EPS",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "3|1@0+",
+          "name": "UNKNOWN_TORQUE_STATE_BIT",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:62",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "7|1@0+",
+          "name": "CONFIG_VALID",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:63",
+          "unit": ""
+        },
+        {
+          "bounds": "0|256",
+          "layout": "1|10@0+",
+          "name": "MOTOR_TORQUE",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:64",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "22|1@0+",
+          "name": "OUTPUT_DISABLED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:65",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "21|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:66",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "19|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:67",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:61"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x1C2",
+      "identifier_format": "standard_11_bit",
+      "name": "EPB_STATUS",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "6|1@0+",
+          "name": "EPB_BRAKE_AND_PULL",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:70",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "3|1@0+",
+          "name": "EPB_ACTIVE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:71",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "29|2@0+",
+          "name": "EPB_STATE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:72",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:73",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:74",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:69"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x1D0",
+      "identifier_format": "standard_11_bit",
+      "name": "WHEEL_SPEEDS",
+      "producer_source_label": "VSA",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|250",
+          "layout": "7|15@0+",
+          "name": "WHEEL_SPEED_FL",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:77",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|250",
+          "layout": "8|15@0+",
+          "name": "WHEEL_SPEED_FR",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:78",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|250",
+          "layout": "25|15@0+",
+          "name": "WHEEL_SPEED_RL",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:79",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|250",
+          "layout": "42|15@0+",
+          "name": "WHEEL_SPEED_RR",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:80",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|3",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:81",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:76"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x1EA",
+      "identifier_format": "standard_11_bit",
+      "name": "VEHICLE_DYNAMICS",
+      "producer_source_label": "VSA",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "-20|20",
+          "layout": "7|16@0-",
+          "name": "LAT_ACCEL",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.0015,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:84",
+          "unit": "m/s2"
+        },
+        {
+          "bounds": "-20|20",
+          "layout": "23|16@0-",
+          "name": "LONG_ACCEL",
+          "receiver_source_label": "EON",
+          "scale_offset": "0.0015,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:85",
+          "unit": "m/s2"
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:86",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:87",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:83"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 6,
+      "identifier": "0x223",
+      "identifier_format": "standard_11_bit",
+      "name": "BRAKE_HOLD_HYBRID_ALT",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "33|1@0+",
+          "name": "BRAKE_HOLD_FAULT_BIT",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:90",
+          "unit": ""
+        },
+        {
+          "bounds": "0|7",
+          "layout": "37|2@0+",
+          "name": "BRAKE_HOLD_ENABLED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:91",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "38|1@0+",
+          "name": "BRAKE_HOLD_ACTIVE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:92",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "43|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:93",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "45|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:94",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:89"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "LONG_COUNTER",
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x255",
+      "identifier_format": "standard_11_bit",
+      "name": "ROUGH_WHEEL_SPEED",
+      "producer_source_label": "VSA",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "7|8@0+",
+          "name": "WHEEL_SPEED_FL",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:97",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|255",
+          "layout": "15|8@0+",
+          "name": "WHEEL_SPEED_FR",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:98",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|255",
+          "layout": "23|8@0+",
+          "name": "WHEEL_SPEED_RL",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:99",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|255",
+          "layout": "31|8@0+",
+          "name": "WHEEL_SPEED_RR",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:100",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|255",
+          "layout": "39|8@0+",
+          "name": "SET_TO_X55",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:101",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "47|8@0+",
+          "name": "SET_TO_X55_2",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:102",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "55|8@0+",
+          "name": "LONG_COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:103",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:104",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:105",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:96"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 7,
+      "identifier": "0x305",
+      "identifier_format": "standard_11_bit",
+      "name": "SEATBELT_STATUS",
+      "producer_source_label": "BDY",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "7|1@0+",
+          "name": "SEATBELT_DRIVER_LAMP",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:108",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "10|1@0+",
+          "name": "SEATBELT_PASS_UNLATCHED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:109",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "11|1@0+",
+          "name": "SEATBELT_PASS_LATCHED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:110",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "12|1@0+",
+          "name": "SEATBELT_DRIVER_UNLATCHED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:111",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "13|1@0+",
+          "name": "SEATBELT_DRIVER_LATCHED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:112",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "14|1@0+",
+          "name": "PASS_AIRBAG_OFF",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:113",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "15|1@0+",
+          "name": "PASS_AIRBAG_ON",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:114",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "53|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:115",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "51|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:116",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:107"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x309",
+      "identifier_format": "standard_11_bit",
+      "name": "CAR_SPEED",
+      "producer_source_label": "PCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "23|8@0+",
+          "name": "ROUGH_CAR_SPEED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:119",
+          "unit": "mph"
+        },
+        {
+          "bounds": "0|65535",
+          "layout": "7|16@0+",
+          "name": "CAR_SPEED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:120",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|65535",
+          "layout": "39|16@0+",
+          "name": "ROUGH_CAR_SPEED_3",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:121",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|255",
+          "layout": "31|8@0+",
+          "name": "ROUGH_CAR_SPEED_2",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:122",
+          "unit": "mph"
+        },
+        {
+          "bounds": "0|255",
+          "layout": "55|2@0+",
+          "name": "LOCK_STATUS",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:123",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:124",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:125",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "63|1@0+",
+          "name": "IMPERIAL_UNIT",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:126",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:118"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x30C",
+      "identifier_format": "standard_11_bit",
+      "name": "ACC_HUD",
+      "producer_source_label": "ADAS",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|250",
+          "layout": "7|16@0+",
+          "name": "PCM_SPEED",
+          "receiver_source_label": "BDY",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:129",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|127",
+          "layout": "23|8@0+",
+          "name": "PCM_GAS",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:130",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "31|8@0+",
+          "name": "CRUISE_SPEED",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:131",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|1",
+          "layout": "39|1@0+",
+          "name": "DTC_MODE",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:132",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "38|1@0+",
+          "name": "BRAKE_SYSTEM_ICON",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:133",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "37|1@0+",
+          "name": "ACC_PROBLEM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:134",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "35|1@0+",
+          "name": "FCM_OFF",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:135",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "36|1@0+",
+          "name": "FCM_OFF_2",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:136",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "34|1@0+",
+          "name": "FCM_PROBLEM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:137",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "33|1@0+",
+          "name": "RADAR_OBSTRUCTED",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:138",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "32|1@0+",
+          "name": "ENABLE_MINI_CAR",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:139",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "47|2@0+",
+          "name": "HUD_DISTANCE",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:140",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "45|2@0+",
+          "name": "HUD_LEAD",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:141",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "43|1@0+",
+          "name": "BOH_3",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:142",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "42|1@0+",
+          "name": "BOH_4",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:143",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "41|1@0+",
+          "name": "BOH_5",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:144",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "40|1@0+",
+          "name": "CRUISE_CONTROL_LABEL",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:145",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "55|1@0+",
+          "name": "SET_ME_X01_2",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:146",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "54|1@0+",
+          "name": "IMPERIAL_UNIT",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:147",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "52|1@0+",
+          "name": "ACC_ON",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:148",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "51|3@0+",
+          "name": "CHIME",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:149",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "48|1@0+",
+          "name": "SET_ME_X01",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:150",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "63|2@0+",
+          "name": "ICONS",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:151",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:152",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:153",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:128"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x324",
+      "identifier_format": "standard_11_bit",
+      "name": "CRUISE",
+      "producer_source_label": "PCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "7|8@0+",
+          "name": "HUD_SPEED_KPH",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:156",
+          "unit": "kph"
+        },
+        {
+          "bounds": "0|255",
+          "layout": "15|8@0+",
+          "name": "HUD_SPEED_MPH",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:157",
+          "unit": "mph"
+        },
+        {
+          "bounds": "0|255",
+          "layout": "23|16@0+",
+          "name": "TRIP_FUEL_CONSUMED",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:158",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "39|8@0+",
+          "name": "CRUISE_SPEED_PCM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:159",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "47|8@0-",
+          "name": "BOH2",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:160",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "55|8@0+",
+          "name": "BOH3",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:161",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:162",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:163",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:155"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x35E",
+      "identifier_format": "standard_11_bit",
+      "name": "CAMERA_MESSAGES",
+      "producer_source_label": "CAM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|127",
+          "layout": "7|16@0+",
+          "name": "ZEROS_BOH",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:166",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "23|8@0+",
+          "name": "SPEED_LIMIT_SIGN",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:167",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "31|8@0+",
+          "name": "ROAD_SIGN",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:168",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "51|4@0+",
+          "name": "ZEROS_BOH_2",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:169",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "52|1@0+",
+          "name": "HIGHBEAMS_ON",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:170",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "53|1@0+",
+          "name": "AUTO_HIGHBEAMS_ACTIVE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:171",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:172",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:173",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:165"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x374",
+      "identifier_format": "standard_11_bit",
+      "name": "STALK_STATUS",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "39|8@0+",
+          "name": "DASHBOARD_ALERT",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:176",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "46|1@0+",
+          "name": "AUTO_HEADLIGHTS",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:177",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "47|1@0+",
+          "name": "HIGH_BEAM_HOLD",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:178",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "45|1@0+",
+          "name": "HIGH_BEAM_FLASH",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:179",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "54|1@0+",
+          "name": "HEADLIGHTS_ON",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:180",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "53|2@0+",
+          "name": "WIPER_SWITCH",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:181",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:182",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:183",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:175"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x37B",
+      "identifier_format": "standard_11_bit",
+      "name": "STALK_STATUS_2",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|3",
+          "layout": "17|2@0+",
+          "name": "WIPERS",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:186",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "35|1@0+",
+          "name": "LOW_BEAMS",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:187",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "34|1@0+",
+          "name": "HIGH_BEAMS",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:188",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "36|1@0+",
+          "name": "PARK_LIGHTS",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:189",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:190",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:191",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:185"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x405",
+      "identifier_format": "standard_11_bit",
+      "name": "DOORS_STATUS",
+      "producer_source_label": "BDY",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "37|1@0+",
+          "name": "DOOR_OPEN_FL",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:194",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "38|1@0+",
+          "name": "DOOR_OPEN_FR",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:195",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "39|1@0+",
+          "name": "DOOR_OPEN_RL",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:196",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "40|1@0+",
+          "name": "DOOR_OPEN_RR",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:197",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "41|1@0+",
+          "name": "TRUNK_OPEN",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:198",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:199",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:200",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:193"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x516",
+      "identifier_format": "standard_11_bit",
+      "name": "ODOMETER",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|16777215",
+          "layout": "7|24@0+",
+          "name": "ODOMETER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:203",
+          "unit": "km"
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:204",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:205",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_honda_common.dbc:202"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 5,
+      "identifier": "0xE4",
+      "identifier_format": "standard_11_bit",
+      "name": "STEERING_CONTROL",
+      "producer_source_label": "EON",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "-4096|4096",
+          "layout": "7|16@0-",
+          "name": "STEER_TORQUE",
+          "receiver_source_label": "EPS",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:2",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "17|1@0+",
+          "name": "DRIVER_OVERRIDE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:3",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|1@0+",
+          "name": "STEER_TORQUE_REQUEST",
+          "receiver_source_label": "EPS",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:4",
+          "unit": ""
+        },
+        {
+          "bounds": "0|7",
+          "layout": "26|3@0+",
+          "name": "CONTROL_STATE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:5",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "35|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EPS",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:6",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "37|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EPS",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:7",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "38|1@0+",
+          "name": "STEER_DOWN_TO_ZERO",
+          "receiver_source_label": "EPS",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:8",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "39|1@0+",
+          "name": "HAPTIC_WARNING",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:9",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:1"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0xE5",
+      "identifier_format": "standard_11_bit",
+      "name": "BOSCH_SUPPLEMENTAL_1",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "0|8@1+",
+          "name": "SET_ME_X04",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:12",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "8|8@1+",
+          "name": "SET_ME_X00",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:13",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "16|8@1+",
+          "name": "SET_ME_X80",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:14",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "24|8@1+",
+          "name": "SET_ME_X10",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:15",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:16",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:17",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:11"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 7,
+      "identifier": "0xE8",
+      "identifier_format": "standard_11_bit",
+      "name": "BRAKE_HOLD",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "1|0",
+          "layout": "7|14@0-",
+          "name": "XMISSION_SPEED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:20",
+          "unit": ""
+        },
+        {
+          "bounds": "0|0",
+          "layout": "39|16@0+",
+          "name": "COMPUTER_BRAKE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:21",
+          "unit": ""
+        },
+        {
+          "bounds": "0|0",
+          "layout": "29|1@0+",
+          "name": "COMPUTER_BRAKE_REQUEST",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:22",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "53|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:23",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "51|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:24",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:19"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 7,
+      "identifier": "0x18F",
+      "identifier_format": "standard_11_bit",
+      "name": "STEER_STATUS",
+      "producer_source_label": "EPS",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "-31000|31000",
+          "layout": "7|16@0-",
+          "name": "STEER_TORQUE_SENSOR",
+          "receiver_source_label": "EON",
+          "scale_offset": "-1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:27",
+          "unit": "tbd"
+        },
+        {
+          "bounds": "-31000|31000",
+          "layout": "23|16@0-",
+          "name": "STEER_ANGLE_RATE",
+          "receiver_source_label": "EON",
+          "scale_offset": "-0.1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:28",
+          "unit": "deg/s"
+        },
+        {
+          "bounds": "0|15",
+          "layout": "39|4@0+",
+          "name": "STEER_STATUS",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:29",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "35|1@0+",
+          "name": "STEER_CONTROL_ACTIVE",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:30",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "43|4@0+",
+          "name": "STEER_CONFIG_INDEX",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:31",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "53|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:32",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "51|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:33",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:26"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 3,
+      "identifier": "0x1BE",
+      "identifier_format": "standard_11_bit",
+      "name": "BRAKE_MODULE",
+      "producer_source_label": "VSA",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "4|1@0+",
+          "name": "BRAKE_PRESSED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:36",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "22|1@0+",
+          "name": "CRUISE_FAULT",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:37",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "21|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:38",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "19|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:39",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:35"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x1FA",
+      "identifier_format": "standard_11_bit",
+      "name": "LEGACY_BRAKE_COMMAND",
+      "producer_source_label": "ADAS",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "40|8@1+",
+          "name": "CHIME",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:42",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:43",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:44",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:41"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 6,
+      "identifier": "0x221",
+      "identifier_format": "standard_11_bit",
+      "name": "ECON_STATUS",
+      "producer_source_label": "SCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "23|1@0+",
+          "name": "ECON_ON",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:47",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "37|2@0+",
+          "name": "DRIVE_MODE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:48",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "45|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:49",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "43|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:50",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:46"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x240",
+      "identifier_format": "standard_11_bit",
+      "name": "LEFT_LANE_LINE_1",
+      "producer_source_label": "CAM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "39|9@0+",
+          "name": "LINE_DISTANCE_VISIBLE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:53",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "46|6@0+",
+          "name": "LINE_PROBABILITY",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.015625,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:54",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|12@0+",
+          "name": "LINE_OFFSET",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.004,-8.192",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:55",
+          "unit": "Meters"
+        },
+        {
+          "bounds": "0|1",
+          "layout": "7|12@0+",
+          "name": "LINE_ANGLE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.0005,-1.024",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:56",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "8|4@1+",
+          "name": "FRAME_INDEX",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:57",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:58",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:59",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:52"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x241",
+      "identifier_format": "standard_11_bit",
+      "name": "LEFT_LANE_LINE_2",
+      "producer_source_label": "CAM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "55|8@0+",
+          "name": "LINE_FAR_EDGE_POSITION",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,-128",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:62",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "13|1@0+",
+          "name": "LINE_SOLID",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:63",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "14|1@0+",
+          "name": "LINE_DASHED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:64",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|12@0+",
+          "name": "LINE_CURVATURE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.00001,-0.02048",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:65",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "39|12@0+",
+          "name": "LINE_PARAMETER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:66",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "7|4@0+",
+          "name": "FRAME_INDEX",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:67",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:68",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:69",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:61"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x243",
+      "identifier_format": "standard_11_bit",
+      "name": "RIGHT_LANE_LINE_1",
+      "producer_source_label": "CAM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "39|9@0+",
+          "name": "LINE_DISTANCE_VISIBLE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:72",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "46|6@0+",
+          "name": "LINE_PROBABILITY",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.015625,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:73",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|12@0+",
+          "name": "LINE_OFFSET",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.004,-8.192",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:74",
+          "unit": "Meters"
+        },
+        {
+          "bounds": "0|1",
+          "layout": "7|12@0+",
+          "name": "LINE_ANGLE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.0005,-1.024",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:75",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "8|4@1+",
+          "name": "FRAME_INDEX",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:76",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:77",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:78",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:71"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x244",
+      "identifier_format": "standard_11_bit",
+      "name": "RIGHT_LANE_LINE_2",
+      "producer_source_label": "CAM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "55|8@0+",
+          "name": "LINE_FAR_EDGE_POSITION",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,-128",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:81",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "13|1@0+",
+          "name": "LINE_SOLID",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:82",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "14|1@0+",
+          "name": "LINE_DASHED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:83",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|12@0+",
+          "name": "LINE_CURVATURE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.00001,-0.02048",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:84",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "39|12@0+",
+          "name": "LINE_PARAMETER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:85",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "7|4@0+",
+          "name": "FRAME_INDEX",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:86",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:87",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:88",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:80"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x246",
+      "identifier_format": "standard_11_bit",
+      "name": "ADJACENT_LEFT_LANE_LINE_1",
+      "producer_source_label": "CAM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "39|9@0+",
+          "name": "LINE_DISTANCE_VISIBLE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:91",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "46|6@0+",
+          "name": "LINE_PROBABILITY",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.015625,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:92",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|12@0+",
+          "name": "LINE_OFFSET",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.004,-8.192",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:93",
+          "unit": "Meters"
+        },
+        {
+          "bounds": "0|1",
+          "layout": "7|12@0+",
+          "name": "LINE_ANGLE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.0005,-1.024",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:94",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "8|4@1+",
+          "name": "FRAME_INDEX",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:95",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:96",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:97",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:90"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x247",
+      "identifier_format": "standard_11_bit",
+      "name": "ADJACENT_LEFT_LANE_LINE_2",
+      "producer_source_label": "CAM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "55|8@0+",
+          "name": "LINE_FAR_EDGE_POSITION",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,-128",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:100",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "13|1@0+",
+          "name": "LINE_SOLID",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:101",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "14|1@0+",
+          "name": "LINE_DASHED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:102",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|12@0+",
+          "name": "LINE_CURVATURE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.00001,-0.02048",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:103",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "39|12@0+",
+          "name": "LINE_PARAMETER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:104",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "7|4@0+",
+          "name": "FRAME_INDEX",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:105",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:106",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:107",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:99"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x249",
+      "identifier_format": "standard_11_bit",
+      "name": "ADJACENT_RIGHT_LANE_LINE_1",
+      "producer_source_label": "CAM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "39|9@0+",
+          "name": "LINE_DISTANCE_VISIBLE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:110",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "46|6@0+",
+          "name": "LINE_PROBABILITY",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.015625,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:111",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|12@0+",
+          "name": "LINE_OFFSET",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.004,-8.192",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:112",
+          "unit": "Meters"
+        },
+        {
+          "bounds": "0|1",
+          "layout": "7|12@0+",
+          "name": "LINE_ANGLE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.0005,-1.024",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:113",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "8|4@1+",
+          "name": "FRAME_INDEX",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:114",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:115",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:116",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:109"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x24A",
+      "identifier_format": "standard_11_bit",
+      "name": "ADJACENT_RIGHT_LANE_LINE_2",
+      "producer_source_label": "CAM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "55|8@0+",
+          "name": "LINE_FAR_EDGE_POSITION",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,-128",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:119",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "13|1@0+",
+          "name": "LINE_SOLID",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:120",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "14|1@0+",
+          "name": "LINE_DASHED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:121",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|12@0+",
+          "name": "LINE_CURVATURE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.00001,-0.02048",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:122",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "39|12@0+",
+          "name": "LINE_PARAMETER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:123",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "7|4@0+",
+          "name": "FRAME_INDEX",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:124",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:125",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:126",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:118"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 4,
+      "identifier": "0x296",
+      "identifier_format": "standard_11_bit",
+      "name": "SCM_BUTTONS",
+      "producer_source_label": "SCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "23|8@0+",
+          "name": "AMBIENT_LIGHT_MAYBE",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:129",
+          "unit": ""
+        },
+        {
+          "bounds": "0|7",
+          "layout": "7|3@0+",
+          "name": "CRUISE_BUTTONS",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:130",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "3|2@0+",
+          "name": "CRUISE_SETTING",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:131",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "29|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:132",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "27|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:133",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:128"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x326",
+      "identifier_format": "standard_11_bit",
+      "name": "SCM_FEEDBACK",
+      "producer_source_label": "SCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "17|1@0+",
+          "name": "DRIVERS_DOOR_OPEN",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:136",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "18|1@0+",
+          "name": "REVERSE_LIGHT",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:137",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "29|1@0+",
+          "name": "PARKING_BRAKE_ON",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:138",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "28|1@0+",
+          "name": "MAIN_ON",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:139",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "27|1@0+",
+          "name": "RIGHT_BLINKER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:140",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "26|1@0+",
+          "name": "LEFT_BLINKER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:141",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "22|2@0+",
+          "name": "CMBS_STATES",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:142",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:143",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:144",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:135"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x39F",
+      "identifier_format": "standard_11_bit",
+      "name": "RADAR_HUD",
+      "producer_source_label": "RADAR",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|127",
+          "layout": "7|10@0+",
+          "name": "ZEROS_BOH",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:147",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "12|1@0+",
+          "name": "CMBS_OFF",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:148",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "21|1@0+",
+          "name": "RESUME_INSTRUCTION",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:149",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "13|1@0+",
+          "name": "SET_TO_1",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:150",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "11|4@0+",
+          "name": "ZEROS_BOH2",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:151",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|1@0+",
+          "name": "APPLY_BRAKES_FOR_CANC",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:152",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "20|5@0+",
+          "name": "ACC_ALERTS",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:153",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "22|1@0+",
+          "name": "SET_TO_0",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:154",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "40|1@0+",
+          "name": "HUD_LEAD",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:155",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "31|8@0+",
+          "name": "SET_TO_64",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:156",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "39|8@0+",
+          "name": "LEAD_DISTANCE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:157",
+          "unit": ""
+        },
+        {
+          "bounds": "0|127",
+          "layout": "47|7@0+",
+          "name": "ZEROS_BOH3",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:158",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "55|8@0+",
+          "name": "ZEROS_BOH4",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:159",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:160",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:161",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:146"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 5,
+      "identifier": "0x33DA",
+      "identifier_format": "extended_29_bit",
+      "name": "LKAS_HUD_A",
+      "producer_source_label": "ADAS",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|127",
+          "layout": "0|1@0+",
+          "name": "LKAS_READY",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:164",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "6|1@0+",
+          "name": "LKAS_STATE_CHANGE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:165",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "7|1@0+",
+          "name": "CAM_TEMP_HIGH",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:166",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "14|1@0+",
+          "name": "DASHED_LANES",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:167",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "13|1@0+",
+          "name": "DTC",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:168",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "12|1@0+",
+          "name": "LKAS_PROBLEM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:169",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "11|1@0+",
+          "name": "LKAS_OFF",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:170",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "10|1@0+",
+          "name": "SOLID_LANES",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:171",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "26|1@0+",
+          "name": "CLEAN_WINDSHIELD",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:172",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "8|1@0+",
+          "name": "STEERING_REQUIRED",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:173",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "17|2@0+",
+          "name": "BEEP",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:174",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "21|1@0+",
+          "name": "RDM_PROBLEM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:175",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "9|1@0+",
+          "name": "RDM_HUD",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:176",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|1@0+",
+          "name": "RDM_HUD_2",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:177",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "27|1@0+",
+          "name": "RDM_OFF",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:178",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "20|1@0+",
+          "name": "RDM_ON",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:179",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "28|1@0+",
+          "name": "RDM_ON_2",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:180",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "30|1@0+",
+          "name": "LANE_ASSIST_BEEP_OFF",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:181",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "35|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:182",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "37|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:183",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:163"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x33DB",
+      "identifier_format": "extended_29_bit",
+      "name": "LKAS_HUD_B",
+      "producer_source_label": "ADAS",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|127",
+          "layout": "0|1@0+",
+          "name": "LKAS_READY",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:186",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "6|1@0+",
+          "name": "LKAS_STATE_CHANGE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:187",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "7|1@0+",
+          "name": "CAM_TEMP_HIGH",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:188",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "14|1@0+",
+          "name": "DASHED_LANES",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:189",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "13|1@0+",
+          "name": "DTC",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:190",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "12|1@0+",
+          "name": "LKAS_PROBLEM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:191",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "11|1@0+",
+          "name": "LKAS_OFF",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:192",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "10|1@0+",
+          "name": "SOLID_LANES",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:193",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "26|1@0+",
+          "name": "CLEAN_WINDSHIELD",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:194",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "8|1@0+",
+          "name": "STEERING_REQUIRED",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:195",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "17|2@0+",
+          "name": "BEEP",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:196",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "21|1@0+",
+          "name": "RDM_PROBLEM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:197",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "9|1@0+",
+          "name": "RDM_HUD",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:198",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|1@0+",
+          "name": "RDM_HUD_2",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:199",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "27|1@0+",
+          "name": "RDM_OFF",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:200",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "20|1@0+",
+          "name": "RDM_ON",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:201",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "28|1@0+",
+          "name": "RDM_ON_2",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:202",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "30|1@0+",
+          "name": "LANE_ASSIST_BEEP_OFF",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:203",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "36|2@0+",
+          "name": "LANE_LINES",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:204",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:205",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:206",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_2018.dbc:185"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x1DF",
+      "identifier_format": "standard_11_bit",
+      "name": "ACC_CONTROL",
+      "producer_source_label": "EON",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|0",
+          "layout": "7|16@0-",
+          "name": "GAS_COMMAND",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:2",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "16|1@0+",
+          "name": "ACC_ENABLED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:3",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "20|1@0+",
+          "name": "ACC_FAULTED",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:4",
+          "unit": ""
+        },
+        {
+          "bounds": "0|5",
+          "layout": "23|3@0+",
+          "name": "CONTROL_ON",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:5",
+          "unit": ""
+        },
+        {
+          "bounds": "0|0",
+          "layout": "31|11@0-",
+          "name": "ACCEL_COMMAND",
+          "receiver_source_label": "XXX",
+          "scale_offset": "0.01,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:6",
+          "unit": "m/s2"
+        },
+        {
+          "bounds": "0|1",
+          "layout": "33|1@0+",
+          "name": "AEB_STATUS",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:7",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "34|1@0+",
+          "name": "BRAKE_REQUEST",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:8",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "35|1@0+",
+          "name": "STANDSTILL",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:9",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "36|1@0+",
+          "name": "STANDSTILL_RELEASE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:10",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "41|2@0+",
+          "name": "MAYBE_DISENGAGE_COMMAND",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:11",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "43|1@0+",
+          "name": "AEB_PREPARE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:12",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "47|1@0+",
+          "name": "AEB_BRAKING",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:13",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "54|1@0+",
+          "name": "MAYBE_DISENGAGE_ALERT",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:14",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:15",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:16",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "62|1@0+",
+          "name": "BRAKE_LIGHTS",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:17",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:1"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x1EF",
+      "identifier_format": "standard_11_bit",
+      "name": "ACC_CONTROL_ON",
+      "producer_source_label": "XXX",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|255",
+          "layout": "31|8@0+",
+          "name": "SET_TO_75",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:20",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "39|8@0+",
+          "name": "SET_TO_30",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:21",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "23|8@0+",
+          "name": "ZEROS_BOH",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:22",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "47|16@0+",
+          "name": "ZEROS_BOH2",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:23",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "15|8@0+",
+          "name": "SET_TO_FF",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:24",
+          "unit": ""
+        },
+        {
+          "bounds": "0|4095",
+          "layout": "6|7@0+",
+          "name": "SET_TO_3",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:25",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "7|1@0+",
+          "name": "CONTROL_ON",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:26",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:27",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:28",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_radar_acc.dbc:19"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x33D",
+      "identifier_format": "standard_11_bit",
+      "name": "LKAS_HUD",
+      "producer_source_label": "ADAS",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|127",
+          "layout": "0|1@0+",
+          "name": "LKAS_READY",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:2",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "6|1@0+",
+          "name": "LKAS_STATE_CHANGE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:3",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "7|1@0+",
+          "name": "CAM_TEMP_HIGH",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:4",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "14|1@0+",
+          "name": "DASHED_LANES",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:5",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "13|1@0+",
+          "name": "DTC",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:6",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "12|1@0+",
+          "name": "LKAS_PROBLEM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:7",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "11|1@0+",
+          "name": "LKAS_OFF",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:8",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "10|1@0+",
+          "name": "SOLID_LANES",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:9",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "26|1@0+",
+          "name": "CLEAN_WINDSHIELD",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:10",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "8|1@0+",
+          "name": "STEERING_REQUIRED",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:11",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "17|2@0+",
+          "name": "BEEP",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:12",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "21|1@0+",
+          "name": "RDM_PROBLEM",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:13",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "9|1@0+",
+          "name": "RDM_HUD",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:14",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|1@0+",
+          "name": "RDM_HUD_2",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:15",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "27|1@0+",
+          "name": "RDM_OFF",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:16",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "20|1@0+",
+          "name": "RDM_ON",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:17",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "28|1@0+",
+          "name": "RDM_ON_2",
+          "receiver_source_label": "BDY",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:18",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "30|1@0+",
+          "name": "LANE_ASSIST_BEEP_OFF",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:19",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "36|2@0+",
+          "name": "LANE_LINES",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:20",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:21",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:22",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_lkas_hud_8byte.dbc:1"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 7,
+      "identifier": "0x1B0",
+      "identifier_format": "standard_11_bit",
+      "name": "STANDSTILL",
+      "producer_source_label": "VSA",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "0|1@0+",
+          "name": "CONTROLLED_STANDSTILL",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_standstill.dbc:2",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "12|1@0+",
+          "name": "WHEELS_MOVING",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_standstill.dbc:3",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "11|1@0+",
+          "name": "BRAKE_ERROR_1",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_standstill.dbc:4",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "9|1@0+",
+          "name": "BRAKE_ERROR_2",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_standstill.dbc:5",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "53|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_standstill.dbc:6",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "51|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_standstill.dbc:7",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_bosch_standstill.dbc:1"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "COUNTER",
+          "CHECKSUM"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x14A",
+      "identifier_format": "standard_11_bit",
+      "name": "STEERING_SENSORS",
+      "producer_source_label": "EPS",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "-500|500",
+          "layout": "7|16@0-",
+          "name": "STEER_ANGLE",
+          "receiver_source_label": "EON",
+          "scale_offset": "-0.1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_steering_sensors_a.dbc:2",
+          "unit": "deg"
+        },
+        {
+          "bounds": "-3000|3000",
+          "layout": "23|16@0-",
+          "name": "STEER_ANGLE_RATE",
+          "receiver_source_label": "EON",
+          "scale_offset": "-1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_steering_sensors_a.dbc:3",
+          "unit": "deg/s"
+        },
+        {
+          "bounds": "0|1",
+          "layout": "34|1@0+",
+          "name": "STEER_SENSOR_STATUS_1",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_steering_sensors_a.dbc:4",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "33|1@0+",
+          "name": "STEER_SENSOR_STATUS_2",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_steering_sensors_a.dbc:5",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "32|1@0+",
+          "name": "STEER_SENSOR_STATUS_3",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_steering_sensors_a.dbc:6",
+          "unit": ""
+        },
+        {
+          "bounds": "-500|500",
+          "layout": "47|16@0-",
+          "name": "STEER_WHEEL_ANGLE",
+          "receiver_source_label": "EON",
+          "scale_offset": "-0.1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_steering_sensors_a.dbc:7",
+          "unit": "deg"
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_steering_sensors_a.dbc:8",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_steering_sensors_a.dbc:9",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_steering_sensors_a.dbc:1"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x191",
+      "identifier_format": "standard_11_bit",
+      "name": "GEARBOX_CVT",
+      "producer_source_label": "PCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|1",
+          "layout": "0|1@0+",
+          "name": "SELECTED_P",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:2",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "1|1@0+",
+          "name": "SELECTED_R",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:3",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "2|1@0+",
+          "name": "SELECTED_N",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:4",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "3|1@0+",
+          "name": "SELECTED_D",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:5",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "23|1@0+",
+          "name": "FORWARD_DRIVING_MODE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:6",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "31|8@0+",
+          "name": "CVT_UNKNOWN_1",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:7",
+          "unit": ""
+        },
+        {
+          "bounds": "0|255",
+          "layout": "39|8@0+",
+          "name": "CVT_UNKNOWN_2",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:8",
+          "unit": ""
+        },
+        {
+          "bounds": "0|31",
+          "layout": "44|5@0+",
+          "name": "GEAR_SHIFTER",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:9",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "45|1@0+",
+          "name": "SHIFTER_POSITION_VALID",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:10",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "48|1@0+",
+          "name": "NOT_FORWARD_GEAR",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:11",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "53|2@0+",
+          "name": "CVT_UNKNOWN_3",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:12",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:13",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:14",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:1"
+    },
+    {
+      "candidate_buses": "UNVERIFIED: DBC does not encode a physical bus; current CanBus maps CAN-FD pt=offset, radar=offset+1, camera=offset+2.",
+      "consumers": "UNVERIFIED: DBC does not name consumers; production use, if any, is source-specific rather than target validation.",
+      "counter_checksum_hypothesis": {
+        "algorithm": "SOURCE_DERIVED_HYPOTHESIS: current honda_checksum is nibble-sum based; applicability to any CAN-FD target is unverified.",
+        "algorithm_source": "opendbc_repo/opendbc/car/honda/hondacan.py:239-254",
+        "named_fields": [
+          "CHECKSUM",
+          "COUNTER"
+        ]
+      },
+      "dlc": 8,
+      "identifier": "0x1A3",
+      "identifier_format": "standard_11_bit",
+      "name": "GEARBOX_AUTO",
+      "producer_source_label": "PCM",
+      "rate_assumption": "UNVERIFIED: no publication period is defined by this DBC record.",
+      "signals": [
+        {
+          "bounds": "0|256",
+          "layout": "7|8@0+",
+          "name": "TRANS_SHIFT_ACTIVITY",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:17",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "11|4@0+",
+          "name": "TRANS_TARGET_GEAR",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:18",
+          "unit": ""
+        },
+        {
+          "bounds": "0|7",
+          "layout": "14|3@0+",
+          "name": "REGEN_STAGE_SELECTION",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:19",
+          "unit": "Stage"
+        },
+        {
+          "bounds": "0|1",
+          "layout": "16|1@0+",
+          "name": "REGEN_MEMORY",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:20",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "20|1@0+",
+          "name": "FORWARD_DRIVING_MODE",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:21",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "27|2@0+",
+          "name": "AUTO_UNKNOWN_1",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:22",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "29|1@0+",
+          "name": "AUTO_UNKNOWN_2",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:23",
+          "unit": ""
+        },
+        {
+          "bounds": "0|15",
+          "layout": "35|4@0+",
+          "name": "GEAR_SHIFTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:24",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "50|2@0+",
+          "name": "REGEN_UNKNOWN",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:25",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "59|4@0+",
+          "name": "CHECKSUM",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:26",
+          "unit": ""
+        },
+        {
+          "bounds": "0|3",
+          "layout": "61|2@0+",
+          "name": "COUNTER",
+          "receiver_source_label": "EON",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:27",
+          "unit": ""
+        },
+        {
+          "bounds": "0|1",
+          "layout": "62|1@0+",
+          "name": "AUTO_UNKNOWN_3",
+          "receiver_source_label": "XXX",
+          "scale_offset": "1,0",
+          "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:28",
+          "unit": ""
+        }
+      ],
+      "source": "opendbc_repo/opendbc/dbc/generator/honda/_gearbox_common.dbc:16"
+    }
+  ],
+  "platform_source": "opendbc_repo/opendbc/car/honda/values.py:175-180,218-224",
+  "schema": "trackb_b1_current_generic_honda_canfd_source_dictionary/v1",
+  "scope": "Current source DBC closure only. Every entry is SOURCE_DERIVED_HYPOTHESIS for the named 2025 US Accord Hybrid target."
+}
