@@ -59,3 +59,43 @@ def test_duplicate_decision_is_rejected():
   contract = BrakeHoldContract()
   assert contract.step(sample(), POLICY).mode == MODE_COAST
   assert contract.step(sample(), POLICY).reason == "duplicate_or_out_of_order_decision"
+
+
+@pytest.mark.parametrize(
+  "fault",
+  (
+    {"brake_pressed": True},
+    {"accelerator_pressed": True},
+    {"stock_acc_enabled": False},
+    {"aeb_cmbs_clear": False},
+    {"valid": False},
+  ),
+)
+def test_withdrawal_clears_prior_brake_hysteresis(fault):
+  contract = BrakeHoldContract()
+  assert contract.step(sample(1, acceleration=-0.3), POLICY).mode == MODE_ABSTRACT_BRAKE
+  assert contract.step(sample(2, acceleration=-0.1, **fault), POLICY).mode == MODE_WITHDRAWN
+  # With -0.1 between entry (-0.2) and release (-0.05), stale braking would
+  # persist without clearing the previous hysteresis on withdrawal.
+  assert contract.step(sample(3, acceleration=-0.1), POLICY).mode == MODE_COAST
+
+
+def test_malformed_and_reordered_events_clear_brake_hysteresis():
+  contract = BrakeHoldContract()
+  assert contract.step(sample(1, acceleration=-0.3), POLICY).mode == MODE_ABSTRACT_BRAKE
+  assert contract.step(sample(2, acceleration=float("nan")), POLICY).mode == MODE_WITHDRAWN
+  assert contract.step(sample(3, acceleration=-0.1), POLICY).mode == MODE_COAST
+  assert contract.step(sample(4, acceleration=-0.3), POLICY).mode == MODE_ABSTRACT_BRAKE
+  assert contract.step(sample(4, acceleration=-0.3), POLICY).mode == MODE_WITHDRAWN
+  assert contract.step(sample(5, acceleration=-0.1), POLICY).mode == MODE_COAST
+
+
+def test_inclusive_hysteresis_thresholds_have_deterministic_priority():
+  contract = BrakeHoldContract()
+  assert contract.step(sample(1, acceleration=-0.2), POLICY).mode == MODE_ABSTRACT_BRAKE
+  assert contract.step(sample(2, acceleration=-0.1), POLICY).mode == MODE_ABSTRACT_BRAKE
+  assert contract.step(sample(3, acceleration=-0.05), POLICY).mode == MODE_COAST
+  assert contract.step(sample(4, acceleration=-0.2), POLICY).mode == MODE_ABSTRACT_BRAKE
+  collapsed = BrakeContractPolicy(-0.1, -0.1, 0.1)
+  assert contract.step(sample(5, acceleration=-0.1), collapsed).mode == MODE_ABSTRACT_BRAKE
+  assert contract.step(sample(6, acceleration=-0.09), collapsed).mode == MODE_COAST

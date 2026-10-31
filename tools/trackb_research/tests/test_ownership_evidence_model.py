@@ -53,6 +53,12 @@ def test_unknown_or_prohibited_evidence_never_grants_a_control_or_physical_claim
     {"observed_monotonic": float("nan")},
     {"stock_acc_enabled": 1},
     {"aeb_cmbs_state": "bad"},
+    {"relay_state_claim": []},
+    {"relay_state_claim": {}},
+    {"relay_state_claim": None},
+    {"topology_claim": []},
+    {"topology_claim": {}},
+    {"topology_claim": None},
     {"valid": False},
   ),
 )
@@ -71,3 +77,17 @@ def test_ordering_and_clock_regressions_fail_closed_after_a_valid_record():
 def test_non_observation_object_fails_closed_without_an_identity():
   record = OwnershipEvidenceModel().assess(object())
   assert (record.state, record.reason, record.observation_id) == (STATE_WITHDRAWN, "observation_type_invalid", None)
+
+
+def test_malformed_claim_does_not_throw_or_grant_source_ownership():
+  model = OwnershipEvidenceModel()
+  first = model.assess(observation(identity=1, relay_state_claim=["claimed_open"]))
+  assert (first.state, first.reason) == (STATE_WITHDRAWN, "observation_shape_invalid")
+  assert model.assess(observation(identity=2)).state == STATE_OBSERVED_STOCK
+
+
+def test_equal_observation_time_with_new_identity_is_not_clock_reversal():
+  model = OwnershipEvidenceModel()
+  assert model.assess(observation(1, 1.0)).state == STATE_OBSERVED_STOCK
+  assert model.assess(observation(2, 1.0)).state == STATE_OBSERVED_STOCK
+  assert model.assess(observation(3, 0.5)).reason == "observation_clock_reversed"

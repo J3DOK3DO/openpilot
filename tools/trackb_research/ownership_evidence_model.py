@@ -88,6 +88,8 @@ def _valid_shape(observation: OwnershipObservation) -> bool:
     and observation.valid
     and type(observation.aeb_cmbs_state) is str
     and observation.aeb_cmbs_state in _AEB_STATES
+    and type(observation.relay_state_claim) is str
     and observation.relay_state_claim in {"unverified", "claimed_open", "claimed_closed"}
+    and type(observation.topology_claim) is str
     and observation.topology_claim in {"source_only", "physical_claim"}
   )
