@@ -26,6 +26,10 @@
 
 ## Exact Patch-ID coverage
 
+The enumeration below contains exactly **55 unique IDs**: 23 `BC` IDs and 32
+`DRV` IDs. Each ID inherits the disposition of its row above; no omitted,
+implicit, or executable patch is represented by this record.
+
 - BC: BC-007, BC-008, BC-009, BC-010, BC-011, BC-012, BC-013, BC-014, BC-015, BC-016, BC-017, BC-018, BC-019, BC-020, BC-021, BC-022, BC-023, BC-024, BC-027, BC-028, BC-029, BC-031, BC-032.
 - DRV: DRV-001, DRV-002, DRV-003, DRV-004, DRV-005, DRV-006, DRV-007, DRV-008, DRV-009, DRV-010, DRV-011, DRV-012, DRV-013, DRV-014, DRV-015, DRV-016, DRV-017, DRV-018, DRV-019, DRV-020, DRV-021, DRV-022, DRV-023, DRV-024, DRV-025, DRV-026, DRV-027, DRV-028, DRV-029, DRV-030, DRV-031, DRV-034.
 

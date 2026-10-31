@@ -63,7 +63,7 @@ class BrakeHoldContract:
       return self._withdraw("authority_or_safety_gate_denied")
     if candidate.brake_pressed or candidate.accelerator_pressed:
       return self._withdraw("driver_override")
-    if candidate.standstill and abs(candidate.v_ego) <= policy.symbolic_standstill_speed:
+    if candidate.standstill:
       self._braking = False
       return BrakeContractRecord(MODE_ABSTRACT_HOLD, 0.0, "synthetic_standstill_hold")
     if candidate.requested_acceleration <= policy.symbolic_brake_entry:
@@ -77,21 +77,21 @@ class BrakeHoldContract:
 
 def _valid(candidate: BrakeContractInput, policy: BrakeContractPolicy) -> bool:
   floats = (candidate.requested_acceleration, candidate.v_ego, policy.symbolic_brake_entry, policy.symbolic_brake_release, policy.symbolic_standstill_speed)
+  booleans = (
+    candidate.standstill,
+    candidate.brake_pressed,
+    candidate.accelerator_pressed,
+    candidate.stock_acc_enabled,
+    candidate.aeb_cmbs_clear,
+    candidate.valid,
+  )
   return (
     type(candidate.decision_id) is int
     and candidate.decision_id > 0
     and all(type(value) is float and isfinite(value) for value in floats)
+    and all(type(value) is bool for value in booleans)
     and policy.symbolic_brake_entry <= policy.symbolic_brake_release <= 0.0
     and policy.symbolic_standstill_speed >= 0.0
-    and all(
-      type(value) is bool
-      for value in (
-        candidate.standstill,
-        candidate.brake_pressed,
-        candidate.accelerator_pressed,
-        candidate.stock_acc_enabled,
-        candidate.aeb_cmbs_clear,
-        candidate.valid,
-      )
-    )
+    and candidate.v_ego >= 0.0
+    and (not candidate.standstill or candidate.v_ego <= policy.symbolic_standstill_speed)
   )

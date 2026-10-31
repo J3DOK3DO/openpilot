@@ -4,6 +4,12 @@
 
 This is a source-only research record for commit `b088da2780e3a168193bfc1ce62e5df811a69867` on branch `accord11g-dom7-trackb-b1-b4-discovery-20261030` (parent `5fa8b2ed8c4b397e1235a3acae0bb4030b35a804`). It does not use historical C6–12/C7 logs, replay fixtures, gate criteria, or previous safety baselines. It does not assert an installed artifact, a connected vehicle, a CAN capture, or a Panda result.
 
+For the B0--B4 integration at `d0c2067cb9086335a625f935d58f39dfb43254f6`,
+the Bosch-C source anchors below remain source-policy evidence only. This worktree
+contains no authoritative OEM service/protocol material and no physical target,
+ECU, bus, Panda, or firmware observation. Those evidence classes are explicitly
+**absent**; B1 protocol/ownership acceptance is **HOLD / UNVERIFIED**.
+
 “Source statement” below means only what this checkout's code selects. It is not a reverse-engineered ECU/control protocol. “OEM statement” below is restricted to the linked 2025 US Accord Hybrid owner's-manual functions; it is not a bus or arbitration specification.
 
 The current comma source status for Bosch-C/11G is **stock longitudinal**: `pcmCruise=True` and no selected openpilot longitudinal control. This is a source-policy fact, not an OEM qualification.

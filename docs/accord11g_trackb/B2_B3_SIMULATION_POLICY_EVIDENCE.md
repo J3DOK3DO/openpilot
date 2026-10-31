@@ -8,6 +8,11 @@
 
 It fails closed for stale/invalid/nonfinite/timestamp-inconsistent data, including oversized integer inputs; empty or unequal plan-vector lengths; duplicate or out-of-order inputs; driver brake/accelerator/cancel; contradictory state; active/unknown AEB/CMBS; and throttle/brake denials. Synthetic float-valued fields are bounded before calling `math.isfinite`; monotonic identifiers are separately constrained to positive UInt64-shaped values. Every withdrawal retires the last accepted token and any valid token on the fault record; retired tokens remain rejected for simulator lifetime, including after recovery. Within an active logical session the accepted token is stable, and a silent token change withdraws explicitly. `reset()` clears ordering identifiers only, retains retired tokens, and after prior acceptance requires a new, never-retired token. `test_architectural_isolation.py` proves no `tools.trackb_research` reference occurs in production `openpilot`, `opendbc`, or `panda` source and parses the simulator imports to restrict them to the standard library. This is a structural test-only boundary, not a vehicle claim.
 
+`brake_hold_contract.py` additionally rejects a negative synthetic speed and a
+standstill assertion above its symbolic standstill-speed bound. These are data
+consistency guards for an isolated test model, not vehicle-state thresholds or
+calibration.
+
 `ExpiryPolicy.stale_after` is intentionally passed by a test. It is a symbolic synthetic contract parameter, not a chosen vehicle target or control requirement. The tests cover `T_stale−ε`, `T_stale`, and `T_stale+ε`; malformed objects/lists; nonblank-stripped IDs/tokens; actual boolean flags; optional lead `bool|None`; AEB string type; nonfinite and huge numeric inputs across timestamps, plan vectors, policy values, vehicle values, and monotonic IDs; negative-zero behavior; duplicates; atomic ordering; driver/AEB faults; retirement across multiple faults/resets; stable repeated tokens; silent token changes; and recovery only with a new, never-retired token. Recovery is an in-memory simulator-state transition and provides no vehicle authority.
 
 This is not the B2 longitudinal controller, planner, vehicle simulator, protocol decoder, calibration, or acceptance oracle. It provides no acceleration, gas, brake, torque, CAN encoding, or production authority.
