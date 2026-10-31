@@ -12,7 +12,7 @@
 | Patch IDs | Disposition | Offline result / blocker |
 | --- | --- | --- |
 | BC-007 | DEFER | Gas mapping equivalence requires authenticated protocol evidence; no candidate generation. |
-| BC-008–BC-014 | PREPARE DISABLED | `ownership_evidence_model.py` records source-only retained-stock ownership and fails closed for incomplete, stale, reordered, AEB/CMBS, stock-ACC, and physical-claim evidence. |
+| BC-008–BC-014 | PREPARE DISABLED | `ownership_evidence_model.py` records source-only retained-stock ownership and fails closed for incomplete, duplicate/out-of-order, backward-clock, AEB/CMBS, stock-ACC, and physical-claim evidence. |
 | BC-015–BC-019 | EXCLUDE | ECU diagnostics, radar ownership and relay mirroring are prohibited operational paths; model rejects diagnostic and radar-suppression requests. |
 | BC-020–BC-024 | PREPARE DISABLED | Existing deterministic CAN-FD source dictionary and synthetic fixtures retained; no transmitter, checksum authentication claim, or operational parser added. |
 | BC-027 | RETAIN UPSTREAM | Existing stock safety/profile selection remains untouched. |
@@ -41,3 +41,6 @@ Run the tests listed in `B1_B2_TEST_RESULTS_20261031.md` plus the two new test f
 | This offline research implementation | Codex, limited to non-actuating standalone modules and documentation. |
 | Fresh tests and source review | Recorded from commands executed on this branch. |
 | Independent review of this delta | Required before publication; record actual reviewer and findings below. |
+## Post-review source-only correction
+
+The ownership model now rejects non-string relay/topology claims without throwing exceptions. The symbolic brake/hold model clears its historical braking latch on any invalid, duplicate, override, or withdrawn event; new tests demonstrate that a fresh sub-threshold acceleration cannot inherit the previous engagement's brake state. This change remains isolated to research code. The monotonic observation field is not an authenticated freshness measurement: without a trusted current time or physical signal source, no age or vehicle freshness qualification is claimed.

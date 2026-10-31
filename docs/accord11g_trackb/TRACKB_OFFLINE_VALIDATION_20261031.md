@@ -18,4 +18,16 @@
 
 ## Limitations and release gate
 
-These are offline host-source results only. They do not establish vehicle topology, relay state, radar ownership, OEM AEB/CMBS preservation, protocol authentication, Panda RELEASE authority, or custom longitudinal authorization. A separate Qwen3-Coder reviewer is available, but transferring the private patch bundle from the Ubuntu worktree to the Windows reviewer requires an explicit cross-device source-disclosure approval. Publication remains blocked until that independent review is completed and recorded.
+These are offline host-source results only. They do not establish vehicle topology, relay state, radar ownership, OEM AEB/CMBS preservation, protocol authentication, Panda RELEASE authority, or custom longitudinal authorization. A separate Qwen3-Coder reviewer is available, but transferring the private patch bundle from the Ubuntu worktree to the Windows reviewer requires an explicit cross-device source-disclosure approval. This was the initial review hold; subsequent review closure is recorded below.
+
+## Post-remediation independent review closure — 31 October 2026
+
+- Original 0eff035f commit preserved; corrections added in isolated source worktree.
+- Reproduced and corrected non-string ownership-claim TypeError and stale braking hysteresis after a withdrawn synthetic decision.
+- Added current-source regression tests for malformed input, driver/authority withdrawal, duplicate decisions, equal observation times and exact hysteresis thresholds.
+- Research suite: **158 passed**, expanded current Dom research/Honda/RELEASE-denial suite: **211 passed**, 0 failures.
+- Ruff, Python compileall, deterministic CAN-FD dictionary regeneration and Git whitespace checks: PASS.
+- Fresh final-source bundle SHA256: fee10786f7afa0d8757eace348b3e8d5a2283c0b9d912aea709c57a75201f731.
+- Independent Windows OpenCode v2.1.4 / Ollama Qwen3-Coder 30B final review: **PASS for research-only source publication**, explicitly NOT vehicle readiness. Original and final review logs preserved separately in the offline-artifacts directory.
+
+Unverified: Bosch-C OEM command authority; actual Honda ACC/CMBS/AEB arbitration; target Panda RELEASE and physical device; B5/B6 qualification.

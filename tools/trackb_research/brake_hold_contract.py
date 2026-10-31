@@ -46,18 +46,23 @@ class BrakeHoldContract:
     self._last_id: int | None = None
     self._braking = False
 
+  def _withdraw(self, reason: str) -> BrakeContractRecord:
+    # A rejected event must never retain hysteresis from the prior accepted session.
+    self._braking = False
+    return BrakeContractRecord(MODE_WITHDRAWN, None, reason)
+
   def step(self, candidate: object, policy: object) -> BrakeContractRecord:
     if type(candidate) is not BrakeContractInput or type(policy) is not BrakeContractPolicy:
-      return BrakeContractRecord(MODE_WITHDRAWN, None, "input_type_invalid")
+      return self._withdraw("input_type_invalid")
     if not _valid(candidate, policy):
-      return BrakeContractRecord(MODE_WITHDRAWN, None, "input_invalid")
+      return self._withdraw("input_invalid")
     if self._last_id is not None and candidate.decision_id <= self._last_id:
-      return BrakeContractRecord(MODE_WITHDRAWN, None, "duplicate_or_out_of_order_decision")
+      return self._withdraw("duplicate_or_out_of_order_decision")
     self._last_id = candidate.decision_id
     if not candidate.valid or not candidate.stock_acc_enabled or not candidate.aeb_cmbs_clear:
-      return BrakeContractRecord(MODE_WITHDRAWN, None, "authority_or_safety_gate_denied")
+      return self._withdraw("authority_or_safety_gate_denied")
     if candidate.brake_pressed or candidate.accelerator_pressed:
-      return BrakeContractRecord(MODE_WITHDRAWN, None, "driver_override")
+      return self._withdraw("driver_override")
     if candidate.standstill and abs(candidate.v_ego) <= policy.symbolic_standstill_speed:
       self._braking = False
       return BrakeContractRecord(MODE_ABSTRACT_HOLD, 0.0, "synthetic_standstill_hold")
