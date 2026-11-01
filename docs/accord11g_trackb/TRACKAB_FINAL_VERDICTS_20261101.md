@@ -34,11 +34,15 @@ release; Release B has no actuation path.
     installed Dom) removed from `params_keys.h`. **Installed Dom's committed native binaries are one Params key
     behind their own source.** No Accord path reads that key; recorded as a Dom provenance gap, not fixed here;
   - `prebuilt.json`.
-- ELF/ABI (`release/COMMITTED_ELF_ABI_AUDIT_candidate.json`, RUNPATH-aware after Codex R2): all 55 tracked ELF files
-  are AArch64 with `/lib/ld-linux-aarch64.so.1`; of 218 `DT_NEEDED` entries, 176 resolve in the AGNOS-derived sysroot,
-  21 in the repository and 21 through the binary's own `RUNPATH` directories as present in the pinned AGNOS 19.8.1
-  image (FFmpeg under the AGNOS venv, PulseAudio); 0 unresolved. Static resolution only; no binary was executed on
-  the device.
+- ELF/ABI (`release/COMMITTED_ELF_ABI_AUDIT_candidate.json`): all 55 tracked ELF files are AArch64 with
+  `/lib/ld-linux-aarch64.so.1`. Of 218 `DT_NEEDED` entries: 176 resolve in the AGNOS-derived sysroot and 21 through
+  the binary's own `RUNPATH` directories as present in the pinned AGNOS 19.8.1 image (FFmpeg under the AGNOS venv,
+  system PulseAudio) — static checks. The other 21 are libraries shipped in the repository, matched by name only in
+  the static audit (Codex R3); their runtime resolution was measured instead with read-only `ldd` on the installed
+  device, whose 93 binaries are identical to the candidate's (`release/DEVICE_LDD_REPO_LIBRARIES_20261101.txt`):
+  the acados chain resolves through its entry point `acados_ocp_solver_pyx.so` (`RUNPATH $ORIGIN`); the bundled
+  PulseAudio resolves `libpulsecore`/`libltdl` only with the `LD_LIBRARY_PATH` its launcher sets
+  (`openpilot/starpilot/soloist/backend.py`). No binary was executed beyond `ldd`.
 
 ## Packaging decision
 
@@ -59,9 +63,9 @@ receipt was fabricated, so StarPilot Fast Update will refuse this target; instal
 | Same + all new tests, candidate `b2542f62` | host x86_64 | 2729 passed, 253 skipped, 0 failed |
 | Track B after Codex R1 fixes | host x86_64 | 469 passed (`logs/HOST_TRACKB_TESTS_POST_R1.log`) |
 | Honda car + Track B + Accord safety + new tests, natively built tree | ARM64 container, real aarch64 `msgq` | 2100 passed, 247 skipped, 1 failed: isolation scan could not run `git` (worktree gitdir not mounted) |
-| Full set + hybrid AOL fix + `openpilot/starpilot/car/honda` | host x86_64 | 2749 passed, 253 skipped, 0 failed (`logs/HOST_TESTS_HYBRID_AOL_FIX.log`) |
+| Full set + hybrid AOL fix + `openpilot/starpilot/car/honda` (working tree equal to `3e7b035b`) | host x86_64 | 2749 passed, 253 skipped, 0 failed (`logs/HOST_TESTS_HYBRID_AOL_FIX.log`); rerun on committed clean `291ceea7` (source == `3e7b035b`), adding the protected native suites: **3028 passed, 273 skipped, 0 failed** (`logs/HOST_TESTS_COMMITTED_3e7b035b_PLUS_DOCS.log`; skips: 204 abstract bases, 30 no regen msg, 20 optional raw CAN extension, 10 no second speed msg, 6 parameterized bases, 2 gearbox absent, 1 classic-Bosch RELEASE-only) |
 | Native suites behind protected functions (lead takeoff/approach/behavior, logmessaged, CAN parser) | host x86_64 | 281 passed, 20 skipped (optional raw CAN extension not built) |
-| Hybrid fix: qualification, ownership, `accord_mvl_stock` tests | ARM64 built tree | 28 passed; the 19 CAN-FD lifecycle cases **not evaluated on ARM64**: Dom's native fixture compiles a C++ helper with a fixed 35 s timeout that emulated compilation exceeds (setup error, no assertion run); host-native only |
+| Hybrid fix: qualification, ownership, `accord_mvl_stock` tests (files byte-identical to `3e7b035b`, `logs/ARM64_HYBRID_AOL_FIX_TESTS_COMMIT_BINDING.txt`) | ARM64 built tree | 28 passed; the 19 CAN-FD lifecycle cases **not evaluated on ARM64**: Dom's native fixture compiles a C++ helper with a fixed 35 s timeout that emulated compilation exceeds (setup error, no assertion run); host-native only |
 | Rerun of the isolation test (+ the 3 `test_actual_card_publication…` cases, already passing above, re-shown verbosely) | ARM64, common gitdir mounted read-only | 6 passed; combined ARM64 2101 passed, 247 skipped, 0 failed |
 
 The three `test_actual_card_publication…` cases failed in the **previous** campaign's ARM64 fixture (no native
@@ -89,7 +93,7 @@ RELEASE-only contract (default library is DEBUG; not an 11G path), 6 parameteriz
 | Panda compatibility | PASS (flashed signature prefix == committed firmware, unchanged by candidate); RELEASE firmware: NO | swaglog, parity test |
 | ARM64 native build | PASS | `BUILD_EXIT=0` |
 | Release packaging | PASS for option A as a git/installer install; Fast Update receipt NOT VALID | packaging section |
-| Independent review | R1 APPROVE WITH FINDINGS (fixed); R2 APPROVE WITH FINDINGS (P2 ABI resolution claim → RUNPATH-aware audit, 0 unresolved; two P3 wording/log fixes); R3 on the AOL fix and scope docs: see `review/` | `review/CODEX_REVIEW_FINAL_MESSAGE_R1.md`, `_R2.md` |
+| Independent review | R1 APPROVE WITH FINDINGS (fixed); R2 APPROVE WITH FINDINGS (P2 ABI resolution claim → RUNPATH-aware audit, 0 unresolved; two P3 wording/log fixes); R3 APPROVE WITH FINDINGS (P2 static ABI repo-library claim → device `ldd` evidence; P3 log/commit binding) | `review/CODEX_REVIEW_FINAL_MESSAGE_R1.md`, `_R2.md` |
 | Owner 34-ID scope | APPLIED: 84 kept, 34 conditionally excluded (14 native preserved, 10 no new implementation, 10 superseded), 50 retained; 0 dependency exceptions | `TRACKAB_OWNER_SCOPE_RECONCILIATION_20261101.md` |
 | AOL (Hybrid) | ROOT CAUSE VERIFIED; source fix applied; offline tests PASS; device/vehicle confirmation PENDING | `TRACKAB_AOL_INVESTIGATION_20261101.md` |
 | **Release A installation readiness** | **CONDITIONALLY READY (engineering)**: installable by the documented git/installer path with unchanged binaries and Panda firmware. On the Hybrid it enables, for the first time under this Dom lineage, AOL and the Track A camera-button takeover; not vehicle-validated; owner-supervised check and decision required | |
