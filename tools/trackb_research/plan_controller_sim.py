@@ -98,6 +98,10 @@ class PlanControllerSimulation:
     self._last_accepted_token: str | None = None
     # Construction has no prior accepted engagement, so no fresh-token barrier.
     self._requires_fresh_token = False
+    # A new instance (process/service restart) cannot know which tokens an earlier instance retired. It stays
+    # disarmed until it has itself observed a current, valid disengaged state, so an engagement that predates the
+    # restart is never adopted.
+    self._armed = False
 
   def reset(self) -> None:
     """Create a deterministic logical fault boundary without recycling a token.
@@ -116,6 +120,9 @@ class PlanControllerSimulation:
     reason = _input_reason(plan, observation, policy, now_monotonic)
     if reason is None:
       reason = self._state_reason(plan, observation, policy, now_monotonic)
+      # Every ordering, freshness and validity check passed and the driver is not engaged: arm.
+      if reason in ("stock_acc_disengaged", "engagement_token_missing"):
+        self._armed = True
     if reason is not None:
       self._withdraw(observation)
       return _withdrawn(reason, plan, observation)
@@ -168,6 +175,8 @@ class PlanControllerSimulation:
     if (not self._requires_fresh_token and self._last_accepted_token is not None and
         observation.engagement_token != self._last_accepted_token):
       return "engagement_token_changed_without_recovery"
+    if not self._armed:
+      return "cold_start_engagement_not_observed"
     return None
 
   def _withdraw(self, observation: object) -> None:

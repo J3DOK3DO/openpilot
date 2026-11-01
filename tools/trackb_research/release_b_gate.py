@@ -17,7 +17,8 @@ from hashlib import sha256
 from tools.trackb_research.ownership_evidence_model import STATE_OBSERVED_STOCK, OwnershipEvidence
 from tools.trackb_research.plan_controller_sim import MODE_WITHDRAWN, PlanControllerSimulation, SimulationRecord
 
-STATUSES = frozenset(("PASS", "FAIL", "HOLD", "NOT_RUN", "NOT_APPLICABLE"))
+# OUT_OF_SCOPE records an owner scope exclusion (B5/B6 on 2026-11-01); like every non-PASS status it holds.
+STATUSES = frozenset(("PASS", "FAIL", "HOLD", "NOT_RUN", "NOT_APPLICABLE", "OUT_OF_SCOPE"))
 # The only evidence kinds each requirement accepts. Physical rows never accept source, host or image evidence.
 REQUIRED_KINDS = {
   "B1-OEM-COMMAND-OWNERSHIP": frozenset(("oem_authenticated",)),

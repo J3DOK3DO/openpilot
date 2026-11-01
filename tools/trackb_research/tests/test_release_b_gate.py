@@ -75,9 +75,37 @@ def test_committed_register_has_no_pass_and_holds_every_requirement():
   assert set(authorization.holds) == set(REQUIRED_IDS) and set(PHYSICAL_IDS) <= set(authorization.holds)
 
 
+def test_committed_register_marks_b5_b6_out_of_scope_not_passed():
+  # Owner scope change 2026-11-01: B5/B6 are excluded from this campaign. That is recorded, never treated as evidence.
+  statuses = {e["id"]: e["status"] for e in committed_register()["requirements"]}
+  assert statuses["B5-ISOLATED-BENCH"] == statuses["B6-CONTROLLED-VEHICLE"] == "OUT_OF_SCOPE"
+
+
+@pytest.mark.parametrize("rid", ("B5-ISOLATED-BENCH", "B6-CONTROLLED-VEHICLE"))
+def test_out_of_scope_holds_even_when_everything_else_passes(rid):
+  register, artifacts = synthetic_all_pass()
+  entry = next(e for e in register["requirements"] if e["id"] == rid)
+  entry["status"] = "OUT_OF_SCOPE"
+  authorization = assess_register(register, artifacts)
+  assert not authorization.eligible and authorization.holds == (rid,)
+
+
+def arm(gate):
+  # Cold-start arming of the composed simulation: one current, valid, disengaged observation.
+  record = gate.step(plan(2), observation(2, token=None), POLICY, 10.0, STOCK, TARGET)
+  assert record.proposal is None and record.shadow.reason == "engagement_token_missing"
+
+
+def test_fresh_gate_withdraws_an_engagement_it_did_not_see_begin():
+  gate = SubordinateReleaseBGate(*synthetic_all_pass())
+  record = gate.step(plan(), observation(), POLICY, 10.5, STOCK, TARGET)
+  assert record.proposal is None and record.shadow.reason == "cold_start_engagement_not_observed"
+
+
 def test_committed_register_withdraws_even_a_valid_tracking_shadow():
   register = committed_register()
   gate = SubordinateReleaseBGate(register, committed_artifacts(register))
+  arm(gate)
   record = gate.step(plan(), observation(), POLICY, 10.5, STOCK, TARGET)
   assert record.shadow.mode == MODE_TRACKING  # the simulation itself would track ...
   assert record.proposal is None              # ... but Release B holds suppress any proposal
@@ -87,6 +115,7 @@ def test_committed_register_withdraws_even_a_valid_tracking_shadow():
 def test_synthetic_fully_qualified_register_yields_only_an_abstract_record():
   gate = SubordinateReleaseBGate(*synthetic_all_pass())
   assert gate.authorization.eligible
+  arm(gate)
   record = gate.step(plan(), observation(), POLICY, 10.5, STOCK, TARGET)
   assert record.reason == "release_b_gates_passed_abstract_only"
   assert record.proposal is record.shadow and record.proposal.acceleration_request == 0.5

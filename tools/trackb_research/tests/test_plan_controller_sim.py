@@ -28,8 +28,49 @@ def withdrawn(record, reason):
   assert record.reason == reason
 
 
-def test_tracking_following_acceleration_and_deceleration_use_only_dom_a_target():
+def armed_sim(now=10.0):
+  """A new simulator after it observed one current, valid, disengaged state (the cold-start arming step)."""
   sim = PlanControllerSimulation()
+  withdrawn(sim.step(plan(2, published=now), observation(2, observed=now, token=None), POLICY, now), "engagement_token_missing")
+  return sim
+
+
+def test_cold_start_never_adopts_an_engagement_that_predates_the_simulator():
+  # Process/service restart: the new instance cannot know the old instance's retired tokens.
+  sim = PlanControllerSimulation()
+  withdrawn(sim.step(plan(20), observation(30), POLICY, 10.5), "cold_start_engagement_not_observed")
+  # The token seen before arming is retired for the simulator lifetime, not merely deferred.
+  for i in range(1, 3):
+    withdrawn(sim.step(plan(20 + i), observation(30 + i), POLICY, 10.5 + i * 0.01), "retired_engagement_token")
+  withdrawn(sim.step(plan(30), observation(40, stock_acc_enabled=False), POLICY, 10.6), "stock_acc_disengaged")
+  record = sim.step(plan(31), observation(41, token="token-b"), POLICY, 10.61)
+  assert (record.mode, record.acceleration_request) == (MODE_TRACKING, 0.5)
+
+
+@pytest.mark.parametrize("disengaged", ({"stock_acc_enabled": False}, {"engagement_token": None}))
+@pytest.mark.parametrize(("bad", "reason"), (
+  ({"observed_monotonic": 0.0}, "stale_observation"),
+  ({"valid": False}, "observation_invalid"),
+  ({"contradictory": True}, "contradictory_observation"),
+))
+def test_cold_start_arming_requires_a_current_valid_disengaged_observation(disengaged, bad, reason):
+  sim = PlanControllerSimulation()
+  withdrawn(sim.step(plan(), observation(**disengaged, **bad), POLICY, 10.5), reason)
+  withdrawn(sim.step(plan(21), observation(31, token="token-b"), POLICY, 10.6), "cold_start_engagement_not_observed")
+  withdrawn(sim.step(plan(22, published=1.0), observation(32, **disengaged), POLICY, 10.7), "stale_plan")
+  withdrawn(sim.step(plan(23), observation(33, token="token-c"), POLICY, 10.8), "cold_start_engagement_not_observed")
+
+
+def test_reset_keeps_the_instance_armed_but_still_requires_a_new_token():
+  sim = armed_sim()
+  assert sim.step(plan(), observation(), POLICY, 10.5).mode == MODE_TRACKING
+  sim.reset()
+  withdrawn(sim.step(plan(21), observation(31), POLICY, 10.6), "retired_engagement_token")
+  assert sim.step(plan(22), observation(32, token="token-b"), POLICY, 10.7).mode == MODE_TRACKING
+
+
+def test_tracking_following_acceleration_and_deceleration_use_only_dom_a_target():
+  sim = armed_sim()
   first = sim.step(plan(target=0.8, has_lead=True), observation(), POLICY, 11.0)
   assert (first.mode, first.acceleration_request, first.reason) == (MODE_TRACKING, 0.8, "dom_a_target_only")
   second = sim.step(plan(21, target=-1.4, has_lead=True), observation(31), POLICY, 11.1)
@@ -37,7 +78,7 @@ def test_tracking_following_acceleration_and_deceleration_use_only_dom_a_target(
 
 
 def test_stop_and_go_standstill_and_takeoff_are_downstream_modes_not_planning():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   hold = sim.step(plan(should_stop=True, target=-1.0), observation(standstill=True, v_ego=0.0), POLICY, 11.0)
   assert (hold.mode, hold.acceleration_request, hold.reason) == (MODE_STOP_HOLD, 0.0, "plan_should_stop_selects_abstract_hold")
   go = sim.step(plan(21, should_stop=False, target=0.6), observation(31, standstill=False), POLICY, 11.1)
@@ -45,7 +86,7 @@ def test_stop_and_go_standstill_and_takeoff_are_downstream_modes_not_planning():
 
 
 def test_should_stop_is_plan_mode_only_and_a_target_is_the_only_magnitude_input():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   moving = sim.step(plan(should_stop=True, target=-1.2), observation(standstill=False), POLICY, 11.0)
   assert (moving.mode, moving.acceleration_request, moving.reason) == (MODE_TRACKING, -1.2, "dom_a_target_only")
   hold = sim.step(plan(21, should_stop=True, target=1.8), observation(31, standstill=True, v_ego=0.0), POLICY, 11.1)
@@ -120,7 +161,7 @@ def test_huge_numeric_inputs_and_uint64_overflow_identifiers_fail_closed(candida
 
 
 def test_duplicate_out_of_order_fault_then_fresh_token_recovery_are_deterministic():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
   withdrawn(sim.step(plan(), observation(31), POLICY, 11.1), "duplicate_or_out_of_order_plan")
   withdrawn(sim.step(plan(21), observation(31), POLICY, 11.2), "retired_engagement_token")
@@ -129,7 +170,7 @@ def test_duplicate_out_of_order_fault_then_fresh_token_recovery_are_deterministi
 
 
 def test_reset_is_a_fault_boundary_that_requires_a_new_never_retired_token():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
   sim.reset()
   withdrawn(sim.step(plan(), observation(), POLICY, 11.0), "retired_engagement_token")
@@ -137,7 +178,7 @@ def test_reset_is_a_fault_boundary_that_requires_a_new_never_retired_token():
 
 
 def test_malformed_and_multiple_faults_poison_prior_and_carried_tokens():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(token="token-a"), POLICY, 11.0).mode == MODE_TRACKING
   withdrawn(sim.step(plan(21), observation(31, token="token-b", valid=1), POLICY, 11.1), "observation_shape_invalid")
   withdrawn(sim.step(plan(22), observation(32, token="token-a"), POLICY, 11.2), "retired_engagement_token")
@@ -148,7 +189,7 @@ def test_malformed_and_multiple_faults_poison_prior_and_carried_tokens():
 
 
 def test_malformed_plan_type_still_poison_prior_accepted_token():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
   withdrawn(sim.step(object(), observation(31), POLICY, 11.1), "plan_type_invalid")
   withdrawn(sim.step(plan(21), observation(31), POLICY, 11.2), "retired_engagement_token")
@@ -156,14 +197,14 @@ def test_malformed_plan_type_still_poison_prior_accepted_token():
 
 
 def test_symbolic_output_envelope_is_not_a_planner_or_vehicle_limit():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   high = sim.step(plan(target=99.0), observation(), POLICY, 11.0)
   low = sim.step(plan(21, target=-99.0), observation(31), POLICY, 11.1)
   assert (high.acceleration_request, low.acceleration_request) == (2.0, -3.0)
 
 
 def test_recovery_never_recycles_retired_token_and_steady_token_is_stable():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(token="token-a"), POLICY, 11.0).mode == MODE_TRACKING
   withdrawn(sim.step(plan(21), observation(31, token="token-a", brake_pressed=True), POLICY, 11.1), "driver_pedal_override")
   assert sim.step(plan(22), observation(32, token="token-b"), POLICY, 11.2).mode == MODE_TRACKING
@@ -172,7 +213,7 @@ def test_recovery_never_recycles_retired_token_and_steady_token_is_stable():
 
 
 def test_silent_token_change_withdraws_and_recovery_retires_every_prior_token():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(token="token-a"), POLICY, 11.0).mode == MODE_TRACKING
   withdrawn(sim.step(plan(21), observation(31, token="token-a", cancel_pressed=True), POLICY, 11.1), "driver_cancel")
   assert sim.step(plan(22), observation(32, token="token-b"), POLICY, 11.2).mode == MODE_TRACKING
@@ -183,7 +224,7 @@ def test_silent_token_change_withdraws_and_recovery_retires_every_prior_token():
 
 
 def test_multiple_resets_and_faults_retain_tokens_for_simulator_lifetime():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(token="token-a"), POLICY, 11.0).mode == MODE_TRACKING
   sim.reset()
   assert sim.step(plan(), observation(token="token-b"), POLICY, 11.1).mode == MODE_TRACKING
@@ -196,7 +237,7 @@ def test_multiple_resets_and_faults_retain_tokens_for_simulator_lifetime():
 
 
 def test_decision_clock_rollback_with_fresh_ids_fails_closed_and_requires_new_token():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
   withdrawn(sim.step(plan(21, published=10.2), observation(31, observed=10.2), POLICY, 10.5), "decision_clock_reversed")
   withdrawn(sim.step(plan(22, published=10.3), observation(32, observed=10.3), POLICY, 11.1), "retired_engagement_token")
@@ -204,7 +245,7 @@ def test_decision_clock_rollback_with_fresh_ids_fails_closed_and_requires_new_to
 
 
 def test_reset_does_not_erase_monotonic_decision_clock_evidence():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
   sim.reset()
   withdrawn(sim.step(plan(published=10.1), observation(observed=10.1, token="token-b"), POLICY, 10.5),
@@ -213,7 +254,7 @@ def test_reset_does_not_erase_monotonic_decision_clock_evidence():
 
 
 def test_stock_acc_withdrawal_retires_synthetic_engagement_token():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
   withdrawn(sim.step(plan(21), observation(31, stock_acc_enabled=False), POLICY, 11.1), "stock_acc_disengaged")
   withdrawn(sim.step(plan(22), observation(32), POLICY, 11.2), "retired_engagement_token")
@@ -221,7 +262,7 @@ def test_stock_acc_withdrawal_retires_synthetic_engagement_token():
 
 
 def test_equal_non_decreasing_decision_time_is_allowed_with_fresh_ids():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
   assert sim.step(plan(21), observation(31), POLICY, 11.0).mode == MODE_TRACKING
 
@@ -232,7 +273,7 @@ def test_non_boolean_fcw_is_an_invalid_plan(bad_fcw):
 
 
 def test_fcw_withdrawal_retires_token_and_requires_fresh_recovery():
-  sim = PlanControllerSimulation()
+  sim = armed_sim()
   assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
   withdrawn(sim.step(plan(21, fcw=True), observation(31), POLICY, 11.1), "plan_fcw_active")
   withdrawn(sim.step(plan(22), observation(32), POLICY, 11.2), "retired_engagement_token")

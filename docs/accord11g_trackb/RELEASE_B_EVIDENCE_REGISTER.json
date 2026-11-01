@@ -60,9 +60,9 @@
   },
   {
    "id": "B3-TARGET-PANDA-RELEASE-IDENTITY",
-   "status": "HOLD",
+   "status": "FAIL",
    "required_evidence": "SHA-256 and build provenance of the RELEASE firmware actually flashed on the target Panda, matched to the reviewed source.",
-   "current_basis": "No device or Panda access in this campaign.",
+   "current_basis": "2026-11-01 passive device swaglog (pandad connect line, read-only): flashed Panda reports DEV-6f2ca2c4-Pa5919516-DEBUG, signature prefix 510ed0d6c7a8d322 == expected == tail of committed panda/board/obj/panda_h7.bin.signed. The flashed firmware is a DEBUG (ALLOW_DEBUG, debug-key) build, not RELEASE, and only a 64-bit signature prefix is logged. Requirement as written is not met.",
    "author": null,
    "independent_reviewer": null,
    "evidence": []
@@ -71,7 +71,7 @@
    "id": "B4-SOURCE-BUILD-COMPATIBILITY",
    "status": "HOLD",
    "required_evidence": "Reproducible native build of the exact commit and ARM64 dependency compatibility against the pinned AGNOS image.",
-   "current_basis": "Pinned AGNOS system image hash verified; Track B tests run under ARM64 emulation; full ARM64 Dom release build not performed.",
+   "current_basis": "See TRACKAB_FINAL_VERDICTS_20261101.md for the ARM64 laptop-device build of the candidate against a sysroot extracted from the pinned AGNOS 19.8.1 image (both local backups verified equal to agnos.json hash/hash_raw). Not independently reviewed as Release B evidence.",
    "author": null,
    "independent_reviewer": null,
    "evidence": []
@@ -80,25 +80,25 @@
    "id": "B4-INSTALLED-DEVICE-IDENTITY",
    "status": "HOLD",
    "required_evidence": "Passive read-only measurement of the installed device architecture, AGNOS system hash/slot and Panda firmware identity.",
-   "current_basis": "Specified AGNOS device backups were absent; no device was reachable. A pinned release image is not installed-device evidence.",
+   "current_basis": "2026-11-01 read-only SSH: aarch64, slot _a, /VERSION 19.8.1, Dom 5b0f81ca clean. Full raw hash of system_a (first 4718592000 bytes) = f5bf56a979e1170e2c86ffc561db537eb808a272630d6074a0d60b61bf314935, NOT the pinned hash_raw 98e15de0...; same ext4 UUID and last-write time, 17/17 ABI files byte-identical to the pinned image; differences consistent with mount metadata only (mount count 1->4). A finalized update to Dom 195b7000 is staged (UpdateAvailable=1). Not an independently reviewed qualified identity.",
    "author": null,
    "independent_reviewer": null,
    "evidence": []
   },
   {
    "id": "B5-ISOLATED-BENCH",
-   "status": "HOLD",
+   "status": "OUT_OF_SCOPE",
    "required_evidence": "Electrically isolated bench qualification (fault injection, bus-off, stale/contradictory inputs, relay fail-safe) with objective acceptance criteria and safeguards.",
-   "current_basis": "Not run: no isolated bench, equipment or separate authorization. Procedure drafted in the Release B qualification matrix.",
+   "current_basis": "OUT_OF_SCOPE / NOT_EVALUATED: excluded by owner scope change 2026-11-01. Not run, not passed, not waived; still blocks any operational Release B.",
    "author": null,
    "independent_reviewer": null,
    "evidence": []
   },
   {
    "id": "B6-CONTROLLED-VEHICLE",
-   "status": "HOLD",
+   "status": "OUT_OF_SCOPE",
    "required_evidence": "Independently overseen controlled vehicle validation of OEM ACC/CMBS/AEB preservation, overrides and fail-safe behavior with measurable pass/fail criteria.",
-   "current_basis": "Not run; requires separate authorization and oversight. Historical C6-12/C7 logs are not accepted.",
+   "current_basis": "OUT_OF_SCOPE / NOT_EVALUATED: excluded by owner scope change 2026-11-01. Not run, not passed, not waived; still blocks any operational Release B.",
    "author": null,
    "independent_reviewer": null,
    "evidence": []
