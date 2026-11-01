@@ -17,8 +17,14 @@
 6. B0/B2 cold-start arming barrier; register B5/B6 `OUT_OF_SCOPE`, B3-target `FAIL`.
 7. ARM64 build: first attempt hung in `uv sync` under qemu (futex wait); venv pre-populated with `UV_CONCURRENT_*=1`, official build re-run.
 
+8. ARM64 build PASS (attempt 4, `BUILD_EXIT=0`, QCOM package from Dom-committed artifacts); rebuilt binaries
+   byte-identical except Panda version strings, SymPy names, and stale `TryChubbsLaneCentering` key in installed Dom.
+9. ARM64 tests on the built tree: 2101 passed, 247 skipped, 0 failed (incl. the 3 `msgq` startup tests).
+10. Packaging: branch tip keeps installed binaries (no receipt fabricated); rebuilt package kept locally.
+11. Codex R1 APPROVE WITH FINDINGS → fixed.
+
 ## Open / next
 
-- Finish ARM64 build → `validate_artifacts`, compare rebuilt vs committed binaries, decide release packaging (receipt).
-- Run the 3 `msgq` startup tests and the Track A/B set inside the ARM64 container against the built tree.
-- Codex R1 → fix → R2 on final tree + artifacts; publish branch; final verdicts.
+- Codex R2 on the final tree + artifacts; publish branch; record remote SHA.
+- Owner: decide on install (procedure in `TRACKAB_RELEASE_A_INSTALL_AND_ROLLBACK_20261101.md`); note the staged
+  `195b7000` update on the device.

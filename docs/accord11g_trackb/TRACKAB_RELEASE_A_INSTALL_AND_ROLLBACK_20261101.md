@@ -41,7 +41,8 @@ cd /data/openpilot && git checkout --detach FETCH_HEAD && git rev-parse HEAD
   the final verdicts.
 
 StarPilot Fast Update is **not** an install path for this candidate: it requires a `prebuilt.json` receipt produced
-by a verified native build of that exact tree (see the packaging section of the final verdicts).
+by a verified native build of that exact tree. The branch deliberately keeps installed Dom's binaries and Panda
+firmware (all 93 identical) and does not fabricate a receipt; see the packaging section of the final verdicts.
 
 ## Post-install checks (read-only)
 

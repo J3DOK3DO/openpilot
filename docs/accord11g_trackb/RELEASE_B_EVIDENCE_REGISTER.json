@@ -71,7 +71,7 @@
    "id": "B4-SOURCE-BUILD-COMPATIBILITY",
    "status": "HOLD",
    "required_evidence": "Reproducible native build of the exact commit and ARM64 dependency compatibility against the pinned AGNOS image.",
-   "current_basis": "See TRACKAB_FINAL_VERDICTS_20261101.md for the ARM64 laptop-device build of the candidate against a sysroot extracted from the pinned AGNOS 19.8.1 image (both local backups verified equal to agnos.json hash/hash_raw). Not independently reviewed as Release B evidence.",
+   "current_basis": "2026-11-01: laptop-device ARM64 build of 4e3605e6 BUILD_EXIT=0 against a sysroot from the pinned AGNOS 19.8.1 image (both local backups equal agnos.json hash/hash_raw); validate_artifacts static checks passed; ARM64 tests 2101 passed / 0 failed. See TRACKAB_FINAL_VERDICTS_20261101.md. Not independently reviewed as Release B evidence.",
    "author": null,
    "independent_reviewer": null,
    "evidence": []
