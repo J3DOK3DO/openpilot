@@ -226,6 +226,17 @@ def test_seeded_property_sweep(seed):
     assert m2.step(x) == expected
 
 
+def test_stopping_semantics_are_aligned_with_dom():
+  # Both selectors treat stopping as braking whatever the force; the equivalence sweep below relies on this.
+  from opendbc.car.honda.bosch_longitudinal import update_honda_bosch_braking
+  for prev in (False, True):
+    for force in (-1.0, -0.05, 0.0, 0.5):
+      assert update_honda_bosch_braking(prev, force, True, True) is True
+      m = armed()
+      m.step(inp(1, req=-1.0 if prev else 0.0))
+      assert m.step(inp(2, req=force, stopping=True)).reason == "stopping" and m._braking
+
+
 def test_selection_matches_dom_classic_bosch_hysteresis():
   """With debounce, integrator, relaxation and the immediate threshold neutralised, DRV-001 equals Dom's native
   update_honda_bosch_braking for the same force sequence (source equivalence, not 11G evidence)."""

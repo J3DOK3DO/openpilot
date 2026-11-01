@@ -25,6 +25,9 @@ installation is the owner's packaging preference. It is not evidence of compatib
 | Stock PCM ACC, set speed, following, stop-and-go | active (factory) | unchanged |
 | Factory CMBS / AEB / FCW | active (factory; radar not disabled, no radar UDS) | unchanged |
 | openpilot lateral (PID, limits, EPS fault classification) | active | unchanged |
+
+"Active and qualified for defined scope" in the 50-ID matrix means software qualification only. The behaviour equals the in-service installed build and is verified by host/ARM64 tests. None of those 13 rows is a target measurement, except the BC-002 identity observation.
+
 | AOL (lateral with stock ACC off) on the Hybrid | **active** | **new on the Hybrid**: the HYBRID qualifier fix admits it |
 | Track A camera-button takeover / LKAS pulse | **active** while engaged | **new on the Hybrid**; cancels a queued synthetic press on brake, PCM off, `LKAS_READY` low, disengage, cancel or resume |
 | openpilot / alpha longitudinal, MVL radar-disable, custom gas/brake | **off, unreachable** | none: no configuration, preference or branch type enables it (lock-off test) |

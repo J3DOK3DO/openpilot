@@ -27,7 +27,7 @@ transmission, Panda/AGNOS change or vehicle test was performed. MVL reference `m
 | P7 | Failure detection and recovery | F1/F2/F5 contracts reject MVL's update-count shortcuts (silence vs rejection, tick without reference, suppressed startup fault). Target fault behaviour and DTC side effects are unknown. MVL comments report `CRUISE_FAULT` from takeover-stream latency. | contracts: `SYNTHETIC_ONLY`; target: `UNKNOWN`; MVL report: `COMMUNITY_SOURCE_ONLY` |
 | P8 | Consequence of the MVL alpha-long design for CMBS/AEB/FCW | MVL disables the radar's ACC by diagnostics so it can author look-alike frames. With P2, disabling the shared sensor's function plausibly removes CMBS/AEB/FCW, which MVL itself documents (`interface.py:52`: "WARNING: THIS DISABLES AEB!"). The exact loss boundary (whether FCW alerts or partial braking remain) is unknown. | loss expected: `COMMUNITY_SOURCE_ONLY` + `OEM_AUTHENTICATED` (P2); exact boundary: `UNKNOWN` |
 | P9 | Safe return to factory control | F4 contract requires physical evidence at all five stages (request, safety accept, ECU acknowledgement, stock stream resumed, fault cleared). None exist. MVL's restoration is a constructed request only. | `UNKNOWN` (contract `SYNTHETIC_ONLY`) |
-| P10 | Is a CMBS-preserving architecture technically feasible? | Yes, as a design class: stock-ACC set-speed modulation, where the factory radar keeps ACC and CMBS and openpilot only changes the set speed with cruise buttons (the sunnypilot ICBM pattern). Dom's Panda Honda safety already permits any `0x296` button value while controls are allowed and only CANCEL when not (`honda.h` force-cancel rule), so no new TX allowlist entry would be needed. Not implemented: it is still vehicle-facing transmission of new behaviour, outside this campaign. Its authority is bounded by stock ACC, so it cannot deliver MVL-style braking authority. | feasibility: `COMMUNITY_SOURCE_ONLY` + Dom safety source; target behaviour: `UNKNOWN` |
+| P10 | Is a CMBS-preserving architecture technically feasible? | Yes, as a design class: stock-ACC set-speed modulation, where the factory radar keeps ACC and CMBS and openpilot only changes the set speed with cruise buttons (the sunnypilot ICBM pattern). In Dom's Panda Honda TX hook (`honda.h` force-cancel rule), a `0x296` frame on the button bus, or on bus 2 under the stock-MVL word, is blocked when controls are not allowed unless its button field is CANCEL (2). While controls are allowed, that rule places no restriction on the button value. Address, bus, length and relay checks still apply. So no new TX allowlist entry would appear to be needed. This is a permission fact about the existing safety code, not validation of the proposed behaviour. Not implemented: it is still vehicle-facing transmission of new behaviour, outside this campaign. Its authority is bounded by stock ACC, so it cannot deliver MVL-style braking authority. | feasibility: `COMMUNITY_SOURCE_ONLY` + Dom safety source; target behaviour: `UNKNOWN` |
 | P11 | Can MVL's radar-disable architecture be qualified from source plus tests? | No. B1 needs `oem_authenticated` evidence for all four gates. Source, DBCs and synthetic passes cannot authorize command authority. | — |
 
 ## F1–F7 status after this round
@@ -44,7 +44,7 @@ transmission, Panda/AGNOS change or vehicle test was performed. MVL reference `m
 
 ## New Stage 2 engineering
 
-1. **Numeric brake-policy model** (`tools/trackb_research/brake_policy_model.py`, 47 tests). It covers DRV-001/003/005–010 together:
+1. **Numeric brake-policy model** (`tools/trackb_research/brake_policy_model.py`, 48 tests). It covers DRV-001/003/005–010 together:
    - hysteresis, immediate meaningful brake and debounced release;
    - no brake entry on a positive request;
    - driver override, a bounded low-speed integrator, relaxation and a fault latch with explicit rearm;
@@ -53,7 +53,7 @@ transmission, Panda/AGNOS change or vehicle test was performed. MVL reference `m
    A seeded 20-run property sweep asserts: brake and propulsion are never both non-zero, outputs are bounded, the fade rate holds, and results are deterministic. An equivalence test shows the selection equals Dom's native classic-Bosch `update_honda_bosch_braking`.
 
    Each of 10 hand-made mutants (one per guard) is caught. During development the model itself was found to let the integrator hold the brake on through a positive request while the release debounce ran. It was fixed so a positive request only lets the brake fade.
-2. **EPS status characterization** (BC-013, 16 cases, real CAN-FD parser). This is installed-Dom behaviour, pinned.
+2. **EPS status characterization** (BC-013, 18 cases, real CAN-FD parser, with an ALT_RADAR contrast case). This is installed-Dom behaviour, pinned.
 3. **Isolation coverage**: `source_evidence_contracts.py` (added last round) and the new model are now in the stdlib-only import check.
 4. **B5/B6** are recorded as `OWNER_DEFERRED / NOT_EXECUTED` in the register. The status still blocks the gate.
 

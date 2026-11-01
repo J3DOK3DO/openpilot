@@ -43,6 +43,8 @@ def _parse(ci, eps, ticks=5):
 
 def test_status_table_matches_the_dbc():
   ci = _interface(True)
+  assert ci.CP.carFingerprint == CAR.HONDA_ACCORD_11G
+  assert ci.CP.flags & HondaFlags.BOSCH_CANFD and ci.CP.flags & HondaFlags.HYBRID
   assert not ci.CP.flags & HondaFlags.BOSCH_ALT_RADAR
   assert set(ci.CS.steer_status_values.values()) == set(EXPECTED)
 
@@ -54,6 +56,19 @@ def test_parsed_eps_status_fault_classification(hybrid, name):
   raw = {v: k for k, v in ci.CS.steer_status_values.items()}[name]
   out = _parse(ci, raw)
   assert (out.steerFaultPermanent, out.steerFaultTemporary) == EXPECTED[name]
+
+
+@pytest.mark.parametrize("name", ("NO_TORQUE_ALERT_2", "TMP_FAULT"))
+def test_contrast_alt_radar_branch_classifies_differently(name):
+  # Same parser and frames with only BOSCH_ALT_RADAR added: at 45 m/s NO_TORQUE_ALERT_2 becomes a temporary fault in
+  # the ALT_RADAR branch, so the generic-branch result above is proven to come from the 11G (non ALT_RADAR) path.
+  ci = _interface(True)
+  raw = {v: k for k, v in ci.CS.steer_status_values.items()}[name]
+  generic = _parse(ci, raw).steerFaultTemporary
+  ci.CS.CP.flags |= int(HondaFlags.BOSCH_ALT_RADAR)
+  alt = _parse(ci, raw).steerFaultTemporary
+  assert alt is True
+  assert generic is (name == "TMP_FAULT")
 
 
 def test_fault_clears_only_when_eps_reports_normal():
