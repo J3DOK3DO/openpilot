@@ -13,6 +13,7 @@ RESEARCH_MODULES = (
   "shadow_synthetic.py",
   "ownership_evidence_model.py",
   "brake_hold_contract.py",
+  "release_b_gate.py",
 )
 
 
@@ -32,23 +33,35 @@ def test_research_modules_have_only_standard_library_imports():
     imports = []
     for node in ast.walk(ast.parse(source)):
       if isinstance(node, ast.Import):
-        imports.extend(alias.name.split(".")[0] for alias in node.names)
+        imports.extend(alias.name for alias in node.names)
       elif isinstance(node, ast.ImportFrom) and node.module is not None:
-        imports.append(node.module.split(".")[0])
-    assert set(imports) <= {"dataclasses", "math", "sys"}
+        imports.append(node.module)
+    # Sibling research modules are allowed; nothing else outside the standard library.
+    external = {module.split(".")[0] for module in imports if not module.startswith("tools.trackb_research.")}
+    assert external <= {"dataclasses", "hashlib", "math", "sys"}, name
 
 
 def test_no_tracked_runtime_file_anywhere_references_trackb_research():
-  """Whole-repository scan (starpilot, system, scripts, launchers, SConstruct included), not just three roots."""
+  """Whole-repository scan (starpilot, system, scripts, launchers, SConstruct, tests included), not just three roots."""
   tracked = subprocess.check_output(["git", "-C", str(ROOT), "ls-files", "-z"], text=True).split("\0")
+  # Only documentation and the research tree itself may mention it: no test-name or tests-directory exemption,
+  # so a runtime file named like a test (e.g. starpilot/test_launcher.py) is still scanned.
   allowed_prefixes = ("docs/", "tools/trackb_research/")
+
+  def allowed(name):
+    return name.startswith(allowed_prefixes)
+
   hits = []
   for name in filter(None, tracked):
-    relative = f"/{name}"
-    if name.startswith(allowed_prefixes) or "/tests/" in relative or "/test_" in relative:
+    if allowed(name):
       continue
     path = ROOT / name
     if path.is_file() and not path.is_symlink() and path.stat().st_size < 4_000_000:
       if "trackb_research" in path.read_text(encoding="utf-8", errors="ignore"):
         hits.append(name)
-  assert hits == []
+  # The working-tree pass above cannot see sparse-checkout (skip-worktree) files; search every index blob too.
+  grep = subprocess.run(["git", "-C", str(ROOT), "grep", "--cached", "-l", "-z", "-I", "-e", "trackb_research"],
+                        capture_output=True, text=True)
+  assert grep.returncode in (0, 1), grep.stderr
+  hits.extend(name for name in filter(None, grep.stdout.split("\0")) if not allowed(name))
+  assert sorted(set(hits)) == []

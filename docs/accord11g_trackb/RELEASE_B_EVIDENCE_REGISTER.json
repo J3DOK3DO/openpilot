@@ -1,0 +1,116 @@
+{
+ "schema": 1,
+ "vehicle": "2025 US Honda Accord 11G Hybrid (Bosch-C / CAN-FD)",
+ "release": "B (operational custom Bosch-C longitudinal)",
+ "note": "Evidence register only. A requirement passes only with status PASS, an author and a distinct named independent reviewer, and evidence of the one kind that requirement accepts, where each item's path resolves to an artifact whose SHA-256 matches; identity rows must bind qualified_identity to the measured_sha256 in their evidence. Physical rows accept only OEM/target/bench/vehicle evidence. This is an integrity check, not authentication. Editing this file grants no authority: no production code reads it.",
+ "requirements": [
+  {
+   "id": "B1-OEM-COMMAND-OWNERSHIP",
+   "status": "HOLD",
+   "required_evidence": "Authenticated 2025 US Accord Hybrid OEM evidence of which ECU owns ACC gas/brake commands, the command/status frame set, counters/integrity and takeover/fault semantics.",
+   "current_basis": "No authenticated OEM service data or target-specific non-actuating capture exists. MVL 3fec9a DBC/safety definitions are fork claims only.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B1-CMBS-AEB-PRECEDENCE",
+   "status": "HOLD",
+   "required_evidence": "Frame-level CMBS/AEB state and documented precedence over any external longitudinal request, including activation/clear semantics.",
+   "current_basis": "Not established; MVL warns its radar disable removes AEB, which is prohibited here.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B1-CANFD-TOPOLOGY-ARBITRATION",
+   "status": "HOLD",
+   "required_evidence": "Bus topology, identifier ownership, relay isolation segments, timing, bus-off and recovery behavior on the target car.",
+   "current_basis": "Source-only dictionary exists (CANFD_SOURCE_DICTIONARY.json); no physical topology measurement.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B1-OWNER-TRANSITION",
+   "status": "HOLD",
+   "required_evidence": "OEM-supported mechanism to transfer longitudinal authority without disabling radar/CMBS, and the fail-safe return to stock ACC (FR-B0-05).",
+   "current_basis": "No such mechanism is known for Bosch CAN-FD; upstream commaai excludes Bosch CAN-FD from alpha longitudinal.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B2-SUBORDINATE-CONTROLLER-CONTRACTS",
+   "status": "HOLD",
+   "required_evidence": "Dom-plan-following, fail-closed subordinate controller contracts (freshness, ordering, FCW/AEB/CMBS, overrides, cancel, faults, token recovery, schema binding) proven by native host tests and independently reviewed.",
+   "current_basis": "Implemented and host/ARM64-tested (tools/trackb_research). Independently reviewed by Codex (separate session) 2026-11-01: R1 REJECT (gate fail-open) fixed; R2 APPROVE WITH FINDINGS (P3 doc wording, fixed). Left HOLD until the evidence owner records author/reviewer and artifact hashes; source/synthetic scope only.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B3-HOST-RELEASE-DENIAL",
+   "status": "HOLD",
+   "required_evidence": "Host libsafety RELEASE build denies every longitudinal/diagnostic/radar-emulation frame for Accord words and all non-stock words, with DEBUG positive controls.",
+   "current_basis": "Host RELEASE/DEBUG tests pass (incl. MVL 3fec9a CAN-FD-long denial and OEM forwarding). Codex R1/R2 found the RELEASE tests discriminating. Host library is not target firmware. Left HOLD until recorded with artifact hashes.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B3-TARGET-PANDA-RELEASE-IDENTITY",
+   "status": "HOLD",
+   "required_evidence": "SHA-256 and build provenance of the RELEASE firmware actually flashed on the target Panda, matched to the reviewed source.",
+   "current_basis": "No device or Panda access in this campaign.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B4-SOURCE-BUILD-COMPATIBILITY",
+   "status": "HOLD",
+   "required_evidence": "Reproducible native build of the exact commit and ARM64 dependency compatibility against the pinned AGNOS image.",
+   "current_basis": "Pinned AGNOS system image hash verified; Track B tests run under ARM64 emulation; full ARM64 Dom release build not performed.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B4-INSTALLED-DEVICE-IDENTITY",
+   "status": "HOLD",
+   "required_evidence": "Passive read-only measurement of the installed device architecture, AGNOS system hash/slot and Panda firmware identity.",
+   "current_basis": "Specified AGNOS device backups were absent; no device was reachable. A pinned release image is not installed-device evidence.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B5-ISOLATED-BENCH",
+   "status": "HOLD",
+   "required_evidence": "Electrically isolated bench qualification (fault injection, bus-off, stale/contradictory inputs, relay fail-safe) with objective acceptance criteria and safeguards.",
+   "current_basis": "Not run: no isolated bench, equipment or separate authorization. Procedure drafted in the Release B qualification matrix.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "B6-CONTROLLED-VEHICLE",
+   "status": "HOLD",
+   "required_evidence": "Independently overseen controlled vehicle validation of OEM ACC/CMBS/AEB preservation, overrides and fail-safe behavior with measurable pass/fail criteria.",
+   "current_basis": "Not run; requires separate authorization and oversight. Historical C6-12/C7 logs are not accepted.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  },
+  {
+   "id": "R-INDEPENDENT-REVIEW",
+   "status": "HOLD",
+   "required_evidence": "Independent review of the exact final controller design, provenance, safety boundaries and release claims, with findings closed and re-reviewed.",
+   "current_basis": "Codex (gpt-5.6-terra, read-only, separate session) reviewed d88e2918^..915485486: R1 REJECT, R2 APPROVE WITH FINDINGS (one P3 doc wording, fixed after R2 and not re-reviewed). Covers source/test/doc claims only, not OEM or physical evidence.",
+   "author": null,
+   "independent_reviewer": null,
+   "evidence": []
+  }
+ ]
+}
