@@ -41,15 +41,15 @@ def test_every_interface_configuration_stays_stock(alpha, release, alt_brake, hy
   _assert_stock(_cp(alpha, release, alt_brake, hybrid), alt_brake)
 
 
-PREFERENCE_FIELDS = ("disable_bolt_long", "honda_bosch_a_radar", "vw_stock_long", "toyota_filter", "gm_camera_pedal",
-                     "gm_auto_hold", "volt_one_pedal", "toyota_auto_hold", "turn_assist", "gm_long_pitch")
+# Every boolean preference, derived from the dataclass so a future preference is covered automatically (Codex RB1).
+PREFERENCE_FIELDS = tuple(f.name for f in dataclasses.fields(VehicleStartupPreferences) if f.type in (bool, "bool"))
 
 
 @pytest.mark.parametrize("value", (False, True))
 @pytest.mark.parametrize("alt_brake", (False, True))
 def test_vehicle_preferences_cannot_change_longitudinal_ownership(value, alt_brake):
-  names = {f.name for f in dataclasses.fields(VehicleStartupPreferences)}
-  prefs = VehicleStartupPreferences(**{name: value for name in PREFERENCE_FIELDS if name in names})
+  assert len(PREFERENCE_FIELDS) >= 10
+  prefs = VehicleStartupPreferences(**dict.fromkeys(PREFERENCE_FIELDS, value))
   cp = _cp(True, False, alt_brake, True)
   before = {name: getattr(cp, name) for name in LONG_FIELDS}
   cp = prefs.prepare(cp) or cp

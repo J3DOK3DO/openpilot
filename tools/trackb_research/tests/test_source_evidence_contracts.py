@@ -91,6 +91,15 @@ def test_tick_only_on_counter_change_of_a_valid_fresh_reference_then_stale():
   assert tick.observe(1.7, 16, 3) == REFERENCE_HELD   # re-established, no tick from the stale history
 
 
+def test_frozen_counter_goes_stale_however_often_the_frame_repeats():
+  # Codex RB1: repeated same-counter frames must not keep a reference fresh.
+  tick = TickReference(16, 1.0)
+  assert tick.observe(0.0, 16, 5) == REFERENCE_HELD
+  assert [tick.observe(t / 10, 16, 5) for t in range(1, 11)] == [REFERENCE_HELD] * 10
+  assert tick.observe(1.05, 16, 5) == REFERENCE_STALE
+  assert tick.observe(1.1, 16, 6) == REFERENCE_HELD   # re-established; the frozen history yields no tick
+
+
 def test_clock_reversal_drops_the_reference():
   tick = TickReference(16, 1.0)
   tick.observe(1.0, 16, 1)
@@ -115,6 +124,7 @@ def test_settle_window_only_withholds_availability():
 @pytest.mark.parametrize("record", (
   StartupFaultRecord(True, False, False, 3.0),   # MVL startup suppression: reported clear while raw fault present
   StartupFaultRecord(True, True, True, 30.0),    # available during a fault
+  StartupFaultRecord(False, True, False, 3.0),   # reported fault without a raw fault (inconsistent record)
   "record",
 ))
 def test_suppressed_or_inconsistent_records_are_detected(record):

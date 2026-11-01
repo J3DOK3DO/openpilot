@@ -99,25 +99,37 @@ class TickReference:
     if type(expected_length) is not int or expected_length <= 0 or not _finite(max_age_s) or max_age_s <= 0:
       raise ValueError("invalid tick reference bounds")
     self._length, self._max_age = expected_length, max_age_s
+    self._reset()
+
+  def _reset(self) -> None:
     self._last_counter: int | None = None
-    self._last_time: float | None = None
+    self._last_progress: float | None = None  # first sighting or last counter change; freshness is measured here
+    self._last_seen: float | None = None      # any observation; used only for clock ordering
+
+  def _held_or_stale(self, now_s: float) -> str:
+    if self._last_progress is None:
+      return NO_REFERENCE_OBSERVED
+    if now_s - self._last_progress > self._max_age:
+      self._reset()
+      self._last_seen = now_s
+      return REFERENCE_STALE
+    return REFERENCE_HELD
 
   def observe(self, now_s: float, frame_length: int | None = None, counter: int | None = None) -> str:
-    if not _finite(now_s) or (self._last_time is not None and now_s < self._last_time):
-      self._last_counter = self._last_time = None
+    if not _finite(now_s) or (self._last_seen is not None and now_s < self._last_seen):
+      self._reset()
       return NO_REFERENCE_OBSERVED
-    if frame_length is None:
-      if self._last_time is None:
-        return NO_REFERENCE_OBSERVED
-      if now_s - self._last_time > self._max_age:
-        self._last_counter = self._last_time = None
-        return REFERENCE_STALE
+    self._last_seen = now_s
+    if frame_length is None or frame_length != self._length or type(counter) is not int or counter < 0:
+      return self._held_or_stale(now_s)
+    if self._last_counter is None:
+      self._last_counter, self._last_progress = counter, now_s
       return REFERENCE_HELD
-    if frame_length != self._length or type(counter) is not int or counter < 0:
-      return NO_REFERENCE_OBSERVED if self._last_time is None else REFERENCE_HELD
-    changed = self._last_counter is not None and counter != self._last_counter
-    self._last_counter, self._last_time = counter, now_s
-    return REFERENCE_TICK if changed else REFERENCE_HELD
+    if counter != self._last_counter:
+      self._last_counter, self._last_progress = counter, now_s
+      return REFERENCE_TICK
+    # A frozen counter is not a fresh reference, however often the frame repeats.
+    return self._held_or_stale(now_s)
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,10 +150,14 @@ def startup_fault_record(raw_fault: bool, elapsed_s: float, settle_s: float) -> 
 
 
 def record_hides_fault(record: object) -> bool:
-  """True for MVL-style suppression (raw fault present but reported clear) or availability during a fault."""
+  """True unless the reported fault equals the raw fault and nothing is available during a fault.
+
+  Covers MVL-style suppression (raw fault reported clear), availability during a fault, and the reverse
+  inconsistency (a reported fault with no raw fault), which would also make the record untrustworthy.
+  """
   if type(record) is not StartupFaultRecord:
     return True
-  return (record.raw_fault and not record.reported_fault) or (record.raw_fault and record.available)
+  return record.reported_fault != record.raw_fault or (record.raw_fault and record.available)
 
 
 def return_to_stock_established(stages: object) -> bool:
