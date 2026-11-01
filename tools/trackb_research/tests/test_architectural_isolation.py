@@ -1,6 +1,7 @@
 """Structural proof that Track B research is not imported by production code."""
 
 import ast
+import subprocess
 from pathlib import Path
 
 
@@ -35,3 +36,19 @@ def test_research_modules_have_only_standard_library_imports():
       elif isinstance(node, ast.ImportFrom) and node.module is not None:
         imports.append(node.module.split(".")[0])
     assert set(imports) <= {"dataclasses", "math", "sys"}
+
+
+def test_no_tracked_runtime_file_anywhere_references_trackb_research():
+  """Whole-repository scan (starpilot, system, scripts, launchers, SConstruct included), not just three roots."""
+  tracked = subprocess.check_output(["git", "-C", str(ROOT), "ls-files", "-z"], text=True).split("\0")
+  allowed_prefixes = ("docs/", "tools/trackb_research/")
+  hits = []
+  for name in filter(None, tracked):
+    relative = f"/{name}"
+    if name.startswith(allowed_prefixes) or "/tests/" in relative or "/test_" in relative:
+      continue
+    path = ROOT / name
+    if path.is_file() and not path.is_symlink() and path.stat().st_size < 4_000_000:
+      if "trackb_research" in path.read_text(encoding="utf-8", errors="ignore"):
+        hits.append(name)
+  assert hits == []

@@ -13,7 +13,7 @@ POLICY = SimulationPolicy(2.0, 2.0, -3.0, 2.0, 0.1)  # Symbolic test values, not
 
 
 def plan(identity=20, published=10.0, target=0.5, **changes):
-  base = PlanSnapshot(identity, identity - 1, published, target, False, True, True, False, "cruise", (1.0,), (0.5,), (0.0,))
+  base = PlanSnapshot(identity, identity - 1, published, target, False, True, True, False, False, "cruise", (1.0,), (0.5,), (0.0,))
   return replace(base, **changes)
 
 
@@ -61,6 +61,8 @@ def test_should_stop_is_plan_mode_only_and_a_target_is_the_only_magnitude_input(
   ({}, {"stock_acc_enabled": False}, "stock_acc_disengaged"),
   ({}, {"aeb_cmbs_state": "active"}, "aeb_cmbs_not_clear"),
   ({}, {"aeb_cmbs_state": "unknown"}, "aeb_cmbs_not_clear"),
+  ({"fcw": True}, {}, "plan_fcw_active"),
+  ({"fcw": True, "should_stop": True}, {"standstill": True, "v_ego": 0.0}, "plan_fcw_active"),
   ({}, {"contradictory": True}, "contradictory_observation"),
   ({}, {"standstill": True, "v_ego": 1.0}, "contradictory_observation"),
 ))
@@ -222,3 +224,16 @@ def test_equal_non_decreasing_decision_time_is_allowed_with_fresh_ids():
   sim = PlanControllerSimulation()
   assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
   assert sim.step(plan(21), observation(31), POLICY, 11.0).mode == MODE_TRACKING
+
+
+@pytest.mark.parametrize("bad_fcw", (None, 0, 1, "false"))
+def test_non_boolean_fcw_is_an_invalid_plan(bad_fcw):
+  withdrawn(PlanControllerSimulation().step(plan(fcw=bad_fcw), observation(), POLICY, 11.0), "plan_invalid")
+
+
+def test_fcw_withdrawal_retires_token_and_requires_fresh_recovery():
+  sim = PlanControllerSimulation()
+  assert sim.step(plan(), observation(), POLICY, 11.0).mode == MODE_TRACKING
+  withdrawn(sim.step(plan(21, fcw=True), observation(31), POLICY, 11.1), "plan_fcw_active")
+  withdrawn(sim.step(plan(22), observation(32), POLICY, 11.2), "retired_engagement_token")
+  assert sim.step(plan(23), observation(33, token="token-b"), POLICY, 11.3).mode == MODE_TRACKING

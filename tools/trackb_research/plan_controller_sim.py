@@ -30,6 +30,7 @@ class PlanSnapshot:
   allow_brake: bool
   allow_throttle: bool
   has_lead: bool
+  fcw: bool
   longitudinal_plan_source: str
   speeds: tuple[float, ...]
   accels: tuple[float, ...]
@@ -150,6 +151,8 @@ class PlanControllerSimulation:
       return "stock_acc_disengaged"
     if observation.aeb_cmbs_state != "clear":
       return "aeb_cmbs_not_clear"
+    if plan.fcw:
+      return "plan_fcw_active"
     if observation.brake_pressed or observation.accelerator_pressed:
       return "driver_pedal_override"
     if observation.cancel_pressed:
@@ -198,7 +201,7 @@ def _input_reason(plan: object, observation: object, policy: object, now_monoton
 def _plan_valid(plan: PlanSnapshot) -> bool:
   return (_positive_uint64(plan.plan_log_monotonic) and _positive_uint64(plan.model_log_monotonic) and
           _finite_synthetic_number(plan.published_monotonic) and _finite_synthetic_number(plan.a_target) and
-          all(type(value) is bool for value in (plan.should_stop, plan.allow_brake, plan.allow_throttle, plan.has_lead)) and
+          all(type(value) is bool for value in (plan.should_stop, plan.allow_brake, plan.allow_throttle, plan.has_lead, plan.fcw)) and
           _label(plan.longitudinal_plan_source) and _equal_nonempty_series(plan.speeds, plan.accels, plan.jerks))
 
 

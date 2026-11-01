@@ -21,6 +21,10 @@ This branch adds only documentation, tests and a manually invoked diagnostic; it
 | FR-B0-03 | Missing/unsafe source is FAIL; absent/nonmatching external release pin, unavailable/incomplete git/proc, modified tracked files, non-aarch64 host, or missing AGNOS marker is UNKNOWN, never PASS. The published GitHub SHA must be copied externally, never computed locally as the trust source. | Synthetic audit tests | PASS (audit behavior only) | Unassigned |
 | FR-B0-04 | Audit default operation writes no file; explicit output is mode 0600. | Synthetic audit tests | PASS (audit behavior only) | Unassigned |
 | FR-B0-05 | Any later owner transition must have separate authoritative OEM, protocol, RELEASE, target, and independent-review evidence. | Future B1--B6 package | UNVERIFIED | Unassigned |
+| FR-B0-06 | A published Dom plan with `fcw` active shall withdraw the synthetic downstream request and retire the engagement token. | `test_plan_controller_sim.py` | PASS (synthetic only) | Unassigned |
+| FR-B0-07 | `PlanSnapshot` shall stay bound to the live `LongitudinalPlan` schema; unmapped schema fields shall fail the build. | `test_plan_snapshot_schema_contract.py` | PASS (source only) | Unassigned |
+| FR-B0-08 | No tracked runtime file may reference `trackb_research`. | `test_architectural_isolation.py` | PASS (source only) | Unassigned |
+| FR-B0-09 | Host RELEASE library shall deny Bosch-long and UDS frames for alternative experiences 0–511, every single-bit Int16 value and the signed extremes, and every 9-bit safety word (0–511) other than the stock words, using valid and invalid tester-present forms, with a DEBUG positive control. | `test_accord11g_trackb_release_sweep.py` | PASS (host library only; not target firmware) | Unassigned |
 
 ## B0 acceptance disposition
 
