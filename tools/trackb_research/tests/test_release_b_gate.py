@@ -75,17 +75,19 @@ def test_committed_register_has_no_pass_and_holds_every_requirement():
   assert set(authorization.holds) == set(REQUIRED_IDS) and set(PHYSICAL_IDS) <= set(authorization.holds)
 
 
-def test_committed_register_marks_b5_b6_out_of_scope_not_passed():
-  # Owner scope change 2026-11-01: B5/B6 are excluded from this campaign. That is recorded, never treated as evidence.
+def test_committed_register_marks_b5_b6_owner_deferred_not_passed():
+  # Owner deferral 2026-11-01: B5/B6 are not executed in this campaign. That is recorded, never treated as evidence.
   statuses = {e["id"]: e["status"] for e in committed_register()["requirements"]}
-  assert statuses["B5-ISOLATED-BENCH"] == statuses["B6-CONTROLLED-VEHICLE"] == "OUT_OF_SCOPE"
+  assert statuses["B5-ISOLATED-BENCH"] == statuses["B6-CONTROLLED-VEHICLE"] == "OWNER_DEFERRED"
+  assert set(statuses.values()) <= STATUSES
 
 
+@pytest.mark.parametrize("status", ("OUT_OF_SCOPE", "OWNER_DEFERRED"))
 @pytest.mark.parametrize("rid", ("B5-ISOLATED-BENCH", "B6-CONTROLLED-VEHICLE"))
-def test_out_of_scope_holds_even_when_everything_else_passes(rid):
+def test_deferred_physical_stage_holds_even_when_everything_else_passes(rid, status):
   register, artifacts = synthetic_all_pass()
   entry = next(e for e in register["requirements"] if e["id"] == rid)
-  entry["status"] = "OUT_OF_SCOPE"
+  entry["status"] = status
   authorization = assess_register(register, artifacts)
   assert not authorization.eligible and authorization.holds == (rid,)
 

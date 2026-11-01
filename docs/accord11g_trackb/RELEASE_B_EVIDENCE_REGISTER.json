@@ -87,18 +87,18 @@
   },
   {
    "id": "B5-ISOLATED-BENCH",
-   "status": "OUT_OF_SCOPE",
+   "status": "OWNER_DEFERRED",
    "required_evidence": "Electrically isolated bench qualification (fault injection, bus-off, stale/contradictory inputs, relay fail-safe) with objective acceptance criteria and safeguards.",
-   "current_basis": "OUT_OF_SCOPE / NOT_EVALUATED: excluded by owner scope change 2026-11-01. Not run, not passed, not waived; still blocks any operational Release B.",
+   "current_basis": "OWNER_DEFERRED / NOT_EXECUTED: deferred by the owner on 2026-11-01 (Stage 3/4). Procedure written, not run, not passed, not waived; still blocks any operational Release B.",
    "author": null,
    "independent_reviewer": null,
    "evidence": []
   },
   {
    "id": "B6-CONTROLLED-VEHICLE",
-   "status": "OUT_OF_SCOPE",
+   "status": "OWNER_DEFERRED",
    "required_evidence": "Independently overseen controlled vehicle validation of OEM ACC/CMBS/AEB preservation, overrides and fail-safe behavior with measurable pass/fail criteria.",
-   "current_basis": "OUT_OF_SCOPE / NOT_EVALUATED: excluded by owner scope change 2026-11-01. Not run, not passed, not waived; still blocks any operational Release B.",
+   "current_basis": "OWNER_DEFERRED / NOT_EXECUTED: deferred by the owner on 2026-11-01 (Stage 3/4). Procedure written, not run, not passed, not waived; still blocks any operational Release B.",
    "author": null,
    "independent_reviewer": null,
    "evidence": []

@@ -15,6 +15,8 @@ RESEARCH_MODULES = (
   "brake_hold_contract.py",
   "mvl_retained_sim.py",
   "release_b_gate.py",
+  "source_evidence_contracts.py",
+  "brake_policy_model.py",
 )
 
 
