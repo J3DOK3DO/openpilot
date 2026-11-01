@@ -6,7 +6,8 @@ install only if the owner accepts the verdicts recorded there.
 ## What changes on the car
 
 - Source: installed Dom `5b0f81ca` + Track A (`accord_mvl_stock.py`: a partially queued synthetic LKAS press is
-  cancelled on brake, PCM off, `LKAS_READY` low, disengage, cancel or resume) + tests/docs/research code.
+  cancelled on brake, PCM off, `LKAS_READY` low, disengage, cancel or resume) + the Hybrid qualifier fix (`HYBRID`
+  admitted, so AOL and the Track A controller are active on the 2025 Accord Hybrid) + tests/docs/research code.
 - Unchanged: every native source, committed binary and Panda firmware (`panda/` tree identical to `5b0f81ca`), the
   Panda safety word (80/81), stock ACC ownership, steering limits and tuning.
 - Not active: all Track B code (`tools/trackb_research/`), which no runtime module imports.
@@ -49,7 +50,10 @@ firmware (all 93 identical) and does not fabricate a receipt; see the packaging 
 1. Expected HEAD; `git status --porcelain` empty.
 2. swaglog `pandad` line shows `signature 510ed0d6c7a8d322, expected 510ed0d6c7a8d322` (no reflash expected,
    because `panda/board/obj` is unchanged). Any reflash means the firmware differs: stop and roll back.
-3. Onroad in a safe location: stock ACC engages/cancels as before; lateral engages; LKAS button behaviour unchanged.
+3. Onroad, supervised, in a safe location: stock ACC engages/cancels as before; lateral engages.
+4. New on the Hybrid with this candidate: AOL should latch with stock ACC off (`aolAxisState` active, `latActive`),
+   brake/steering override and disengagement must withdraw it, and the camera-button takeover pulses the stock LKAS
+   setting while engaged (driver LKAS press blocked). If any of this misbehaves, disengage and roll back.
 
 ## Rollback
 

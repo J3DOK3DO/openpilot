@@ -56,7 +56,7 @@ it to `carcontroller`, the packer or the Panda.
 | --- | --- | --- |
 | B0 contracts | COMPLETE (simulation scope) | table above; cold-start barrier added and mutation-tested |
 | B1 protocol/ownership | HOLD | MVL source documents fork behaviour, not OEM authority; RX reference frames are inferred |
-| B2 subordinate controller | COMPLETE (simulation only) | 468 Track B tests |
+| B2 subordinate controller | COMPLETE (simulation only) | 469 Track B tests after Codex R1 (`logs/HOST_TRACKB_TESTS_POST_R1.log`) |
 | B3 host Panda | COMPLETE (host) | RELEASE denials + DEBUG parity |
 | B3 target Panda | FAIL as specified | flashed firmware is a DEBUG build (log-derived) |
 | B4 source/runtime | see final verdicts | ARM64 build against pinned AGNOS sysroot; isolation scan |
