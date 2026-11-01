@@ -13,6 +13,7 @@ RESEARCH_MODULES = (
   "shadow_synthetic.py",
   "ownership_evidence_model.py",
   "brake_hold_contract.py",
+  "mvl_retained_sim.py",
   "release_b_gate.py",
 )
 
