@@ -17,6 +17,7 @@ RESEARCH_MODULES = (
   "release_b_gate.py",
   "source_evidence_contracts.py",
   "brake_policy_model.py",
+  "offline_planner_chain.py",
 )
 
 
