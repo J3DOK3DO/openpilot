@@ -120,8 +120,9 @@ class PlanControllerSimulation:
     reason = _input_reason(plan, observation, policy, now_monotonic)
     if reason is None:
       reason = self._state_reason(plan, observation, policy, now_monotonic)
-      # Every ordering, freshness and validity check passed and the driver is not engaged: arm.
-      if reason in ("stock_acc_disengaged", "engagement_token_missing"):
+      # Every ordering, freshness and validity check passed and stock ACC is observed off: arm. A missing token alone
+      # does not arm, since the engagement that predates the restart may still be active.
+      if reason == "stock_acc_disengaged":
         self._armed = True
     if reason is not None:
       self._withdraw(observation)

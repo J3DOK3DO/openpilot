@@ -24,19 +24,24 @@ are **disjoint**, the cherry-pick applied without conflict, and `git diff b64d7c
   fix `5fa8b2ed8` (cancel a partially queued synthetic LKAS press on brake / PCM off / LKAS_READY low / disengage /
   cancel / resume). Track A is the only Honda production-source change in the candidate.
 - No file under `opendbc_repo/opendbc/car/honda/`, `safety/modes/honda*.h`, `safety/safety.h`, the Honda DBCs,
-  `opendbc/can/`, `car.capnp`, `log.capnp`, or `panda/` (source and committed firmware) changed between
-  `b64d7cf9` and `5b0f81ca`. All 21 files that name `HONDA_ACCORD_11G` are unchanged by Dom in that range.
-- Shared Dom changes reachable from the Accord path, each reviewed and pinned by a new current-branch test:
+  `opendbc/can/`, `car.capnp`, `log.capnp`, or Panda **source** changed between `b64d7cf9` and `5b0f81ca`. The 19
+  tracked files that name `HONDA_ACCORD_11G` at installed Dom (21 in the candidate, with two Track A tests) are
+  unchanged by Dom in that range.
+- Panda **artifacts** did change: 36 committed `panda/board/obj` files were rebuilt (version
+  `DEV-b3b96ade-Pa5919516-DEBUG` → `DEV-6f2ca2c4-Pa5919516-DEBUG`) and `panda/tests/libpanda/libpanda.so` was
+  replaced, with no Panda or Honda safety source change. The candidate keeps the installed `5b0f81ca` artifacts.
+- Shared Dom changes reachable from the Accord path, each reviewed; the new current-branch tests pin the inner gate
+  named in the right-hand column:
 
 | Dom change (`b64d7cf9..5b0f81ca`) | Accord effect | Test |
 | --- | --- | --- |
 | `car_helpers.py` Volvo normal-bus probe | none: no Honda CAN-FD DBC address is in the 16-pair layout | `test_accord11g_installed_dom_discovery.py` |
-| `cruise.py` SLC engagement adoption | inert: gated on `openpilotLongitudinalControl` | `test_accord11g_installed_dom_cruise.py` |
+| `card.py` SLC engagement adoption (caller) + `cruise.py` `initialize_v_cruise` | inert twice: `card.py:848` requires `openpilotLongitudinalControl` before computing a target, and `initialize_v_cruise` discards any target without it | `test_accord11g_installed_dom_cruise.py` covers the inner `VCruiseHelper` gate only (passes a target with `openpilotLongitudinalControl=False`); the outer `Card` gate is source-reviewed, not tested |
 | `controller_selection.py` generic torque policy, all platforms in `KNOWN_POLICIES` | PID lateral keeps the standard controller; a saved Accord entry is ignored | `test_accord11g_installed_dom_lateral_selection.py` |
 | `long_mpc.py` / `longitudinal_planner.py` `extra_stopped_gap_m` | planner only; stock ACC owns actuation | Track B schema contract tests |
 | `selfdrived.py` radarFault / longitudinal-only events | generic; no Honda branch | existing Dom tests |
 | `custom.capnp` `engagementAdopt @12` | additive enum | `test_plan_snapshot_schema_contract.py` |
-| Committed Panda firmware rebuilt (`DEV-6f2ca2c4-Pa5919516-DEBUG`) | DEBUG build; identical behaviour to RELEASE for words 80/81 | `test_accord11g_debug_release_parity.py` |
+| Committed Panda firmware artifacts rebuilt (no source change), `DEV-6f2ca2c4-Pa5919516-DEBUG` | DEBUG build; host libsafety DEBUG == RELEASE for words 80/81 | `test_accord11g_debug_release_parity.py` |
 
 Pending device update: `5b0f81ca..195b7000` (8 commits, 46 files) is already finalized in `/data/safe_staging` with
 `UpdateAvailable=1`. It touches only `card.py` (Ford-only `observe_controller_can`), `selfdrived.py` (Ford AOL

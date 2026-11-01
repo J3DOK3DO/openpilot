@@ -42,7 +42,7 @@ present, the live bus map and ECU ownership.
 | AEB/CMBS not clear, plan FCW | withdraw, retire token |
 | brake/throttle not allowed by the Dom plan | withdraw |
 | engagement token missing/retired/changed without recovery | withdraw |
-| **process/service restart (new instance)** | withdraw until a current, valid disengaged state is observed; tokens seen before arming are retired (new this campaign) |
+| **process/service restart (new instance)** | withdraw until the instance itself observes stock ACC off in a current, valid, consistent observation; a missing token alone does not arm; tokens seen before arming are retired (new this campaign, corrected after Codex R1) |
 | reset | ordering cleared, token retired, new token required |
 | Release B evidence register not fully PASS | proposal suppressed (gate), shadow kept for audit |
 | firmware/AGNOS identity mismatch | gate requires `qualified_identity` bound to measured SHA-256 |
@@ -54,7 +54,7 @@ it to `carcontroller`, the packer or the Panda.
 
 | Stage | Status | Reason |
 | --- | --- | --- |
-| B0 contracts | COMPLETE (simulation scope) | table above; cold-start gap closed |
+| B0 contracts | COMPLETE (simulation scope) | table above; cold-start barrier added and mutation-tested |
 | B1 protocol/ownership | HOLD | MVL source documents fork behaviour, not OEM authority; RX reference frames are inferred |
 | B2 subordinate controller | COMPLETE (simulation only) | 468 Track B tests |
 | B3 host Panda | COMPLETE (host) | RELEASE denials + DEBUG parity |

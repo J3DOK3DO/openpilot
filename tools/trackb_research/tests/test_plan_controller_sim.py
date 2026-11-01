@@ -29,9 +29,9 @@ def withdrawn(record, reason):
 
 
 def armed_sim(now=10.0):
-  """A new simulator after it observed one current, valid, disengaged state (the cold-start arming step)."""
+  """A new simulator after it observed one current, valid stock-ACC-off state (the cold-start arming step)."""
   sim = PlanControllerSimulation()
-  withdrawn(sim.step(plan(2, published=now), observation(2, observed=now, token=None), POLICY, now), "engagement_token_missing")
+  withdrawn(sim.step(plan(2, published=now), observation(2, observed=now, token=None, stock_acc_enabled=False), POLICY, now), "stock_acc_disengaged")
   return sim
 
 
@@ -47,7 +47,14 @@ def test_cold_start_never_adopts_an_engagement_that_predates_the_simulator():
   assert (record.mode, record.acceleration_request) == (MODE_TRACKING, 0.5)
 
 
-@pytest.mark.parametrize("disengaged", ({"stock_acc_enabled": False}, {"engagement_token": None}))
+def test_missing_token_with_stock_acc_enabled_does_not_arm():
+  # Codex R1 P2: the pre-restart engagement may still be active while the token is transiently absent.
+  sim = PlanControllerSimulation()
+  withdrawn(sim.step(plan(), observation(token=None), POLICY, 10.5), "engagement_token_missing")
+  withdrawn(sim.step(plan(21), observation(31, token="pre_restart_token"), POLICY, 10.6), "cold_start_engagement_not_observed")
+
+
+@pytest.mark.parametrize("disengaged", ({"stock_acc_enabled": False}, {"stock_acc_enabled": False, "engagement_token": None}))
 @pytest.mark.parametrize(("bad", "reason"), (
   ({"observed_monotonic": 0.0}, "stale_observation"),
   ({"valid": False}, "observation_invalid"),

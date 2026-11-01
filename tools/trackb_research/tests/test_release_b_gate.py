@@ -91,9 +91,9 @@ def test_out_of_scope_holds_even_when_everything_else_passes(rid):
 
 
 def arm(gate):
-  # Cold-start arming of the composed simulation: one current, valid, disengaged observation.
-  record = gate.step(plan(2), observation(2, token=None), POLICY, 10.0, STOCK, TARGET)
-  assert record.proposal is None and record.shadow.reason == "engagement_token_missing"
+  # Cold-start arming of the composed simulation: one current, valid stock-ACC-off observation.
+  record = gate.step(plan(2), observation(2, token=None, stock_acc_enabled=False), POLICY, 10.0, STOCK, TARGET)
+  assert record.proposal is None and record.shadow.reason == "stock_acc_disengaged"
 
 
 def test_fresh_gate_withdraws_an_engagement_it_did_not_see_begin():
