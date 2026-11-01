@@ -128,3 +128,19 @@ def test_drv_duplicate_after_brake_is_rejected_and_poisoned_until_rearm():
   assert model.evaluate(brake(), BRAKE_POLICY).classification == RESEARCH_ONLY
   assert model.evaluate(brake(), BRAKE_POLICY).reason == "duplicate_or_out_of_order_input"
   assert model.evaluate(brake(2), BRAKE_POLICY).reason == "rearm_required"
+
+
+def test_bc_020_to_024_out_of_order_unique_sequence_is_rejected():
+  model = RadarMetadataResearch()
+  assert model.classify(radar(2)).classification == RESEARCH_ONLY
+  record = model.classify(radar(1))
+  assert (record.classification, record.reason) == (WITHDRAWN, "out_of_order_metadata")
+  assert model.classify(radar(3)).classification == RESEARCH_ONLY
+
+
+def test_drv_brake_entry_cannot_be_reclassified_as_near_zero():
+  model = BrakeSelectionResearch()
+  record = model.evaluate(brake(corrected=-0.25), BRAKE_POLICY)
+  assert (record.classification, record.selected_path) == (RESEARCH_ONLY, ABSTRACT_BRAKE)
+  overlap = replace(BRAKE_POLICY, symbolic_near_zero_negative=0.30)
+  assert BrakeSelectionResearch().evaluate(brake(corrected=-0.25), overlap).classification == WITHDRAWN

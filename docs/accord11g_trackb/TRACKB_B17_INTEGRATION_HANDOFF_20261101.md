@@ -18,15 +18,15 @@ Executed from the repository root using the installed Python/pytest environment:
 
 ```sh
 python3 -m pytest tools/trackb_research/tests/test_mvl_retained_sim.py tools/trackb_research/tests/test_architectural_isolation.py -q
-# 32 passed in 0.57s, exit 0
+# 34 passed in 0.68s, exit 0 (after two new P2 regression tests)
 
 # After restoring the existing project source directories to this isolated sparse checkout:
 # git sparse-checkout add openpilot/cereal opendbc_repo/opendbc/dbc/generator/honda
 python3 -m pytest tools/trackb_research/tests -q
-# 498 passed in 0.79s, exit 0; zero failures and no omitted tests
+# 500 passed in 0.79s, exit 0; zero failures and no omitted tests (post-P2 fixes)
 ```
 
-During the initial sparse checkout, three test cases failed because `openpilot/cereal/log.capnp` and `opendbc_repo/opendbc/dbc/generator/honda/honda_common_canfd.dbc` were absent. Both source paths were restored through sparse-checkout, **without changing any test**, and the unmodified full suite subsequently passed (498/498). Complete retest evidence: `/mnt/commadrive/DOM7_V4_AUTOMATED_20261030/work/trackab-native-continuation-artifacts-20261101/b17_mvl_sim_20261101/PYTEST_FULL_AFTER_SPARSE_FIX.log`.
+During the initial sparse checkout, three test cases failed because `openpilot/cereal/log.capnp` and `opendbc_repo/opendbc/dbc/generator/honda/honda_common_canfd.dbc` were absent. Both source paths were restored through sparse-checkout, **without changing any test**, and the unmodified full suite subsequently passed (498/498). The original 498-test retest is captured at: `/mnt/commadrive/DOM7_V4_AUTOMATED_20261030/work/trackab-native-continuation-artifacts-20261101/b17_mvl_sim_20261101/PYTEST_FULL_AFTER_SPARSE_FIX.log`.
 
 ## Remaining operational blockers
 
@@ -37,3 +37,12 @@ During the initial sparse checkout, three test cases failed because `openpilot/c
 5. B5 isolated bench and B6 controlled vehicle remain OUT_OF_SCOPE / NOT_EVALUATED and continue to block every operational release claim.
 
 The full-suite prerequisite is now resolved, and this handoff reflects the committed-source candidate pending independent read-only review; no vehicle/operational qualification is inferred.
+
+
+## Independent-review finding closure and release-evidence binding
+
+Codex independent review of `299ab3fdac1956c9f24f40175785d3181b9b5b5e`: **APPROVE WITH FINDINGS**, no P0/P1. It identified (P2) unique out-of-order radar metadata being accepted, (P2) a symbolic near-zero tolerance overlapping brake-entry thresholds, and (P3) insufficient test-log provenance. The two P2 cases now have discriminating regression tests and are corrected in `mvl_retained_sim.py`; post-fix host suite is **500 passed, zero failed**. The P3 concern is addressed using a separate commit-bound evidence transcript including time, complete source SHA, directory, exact command, exit status and test output:
+
+`/mnt/commadrive/DOM7_V4_AUTOMATED_20261030/work/trackab-native-continuation-artifacts-20261101/b17_mvl_sim_20261101/PYTEST_B17_COMMIT_BOUND_EVIDENCE_20261101.log`
+
+The reviewer assessment does not imply operational qualification. A focused independent follow-up review of these corrections is required before claiming review closure.

@@ -98,6 +98,7 @@ class RadarMetadataResearch:
 
   def __init__(self) -> None:
     self._seen: set[int] = set()
+    self._last_sequence: int | None = None
 
   def classify(self, observation: object) -> RadarMetadataRecord:
     if type(observation) is not RadarMetadataObservation:
@@ -106,7 +107,10 @@ class RadarMetadataResearch:
       return RadarMetadataRecord(WITHDRAWN, "metadata_invalid", observation.topic if type(observation.topic) is str else None)
     if observation.sequence in self._seen:
       return RadarMetadataRecord(WITHDRAWN, "duplicate_metadata", observation.topic)
+    if self._last_sequence is not None and observation.sequence <= self._last_sequence:
+      return RadarMetadataRecord(WITHDRAWN, "out_of_order_metadata", observation.topic)
     self._seen.add(observation.sequence)
+    self._last_sequence = observation.sequence
     if not observation.input_fresh:
       return RadarMetadataRecord(UNKNOWN, "metadata_stale", observation.topic)
     if not observation.source_claim_present:
@@ -239,4 +243,5 @@ def _valid_brake(value: BrakeResearchInput, policy: BrakeResearchPolicy) -> bool
           all(type(item) is bool for item in (value.driver_brake, value.driver_gas, value.fault_latched,
                                               value.restart, value.rearm, value.valid)) and value.valid and
           policy.symbolic_integrator_floor <= policy.symbolic_brake_entry <= policy.symbolic_brake_release <= 0.0 and
-          policy.symbolic_relaxation_step > 0.0 and policy.symbolic_near_zero_negative >= 0.0)
+          policy.symbolic_relaxation_step > 0.0 and
+          0.0 <= policy.symbolic_near_zero_negative <= -policy.symbolic_brake_release)
