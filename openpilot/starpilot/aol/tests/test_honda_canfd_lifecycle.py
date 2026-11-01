@@ -24,3 +24,10 @@ class TestHondaCanfdCaller(CurrentCaller):
 
   def test_accord_mvl_eps_reverse_recovery(self):
     self.run_current_caller(candidate=CAR.HONDA_ACCORD_11G, word=80)
+
+  def test_accord_mvl_hybrid_eps_reverse_recovery(self):
+    # The owner's car is the Accord Hybrid: 0x184 sets HondaFlags.HYBRID, which the stock-MVL qualifier must admit.
+    self.run_current_caller(candidate=CAR.HONDA_ACCORD_11G, word=80, hybrid=True)
+
+  def test_accord_mvl_hybrid_alternate_brake_eps_reverse_recovery(self):
+    self.run_current_caller(candidate=CAR.HONDA_ACCORD_11G, word=81, alternate_brake=True, hybrid=True)

@@ -59,7 +59,7 @@ class TestHondaCurrentCaller(unittest.TestCase):
     self.run_current_caller(candidate=CAR.HONDA_CIVIC_BOSCH, word=0, fault='relay')
 
   def run_current_caller(self, *, candidate, word, fault=None, alternate_brake=False, alpha=False, speed_mps=12.5,
-                         pedal=False, host_scenario=None, serialized=False):
+                         pedal=False, host_scenario=None, serialized=False, hybrid=False):
     safety = libsafety_py.libsafety
     with (
       OpenpilotPrefix(),
@@ -88,6 +88,8 @@ class TestHondaCurrentCaller(unittest.TestCase):
         fp[pt_bus][0x201] = 6
       if alternate_brake:
         fp[pt_bus][0x1BE] = 3
+      if hybrid:
+        fp[pt_bus][0x184] = 8  # HYBRID_BRAKE_ERROR selects HondaFlags.HYBRID
       fw = [
         structs.CarParams.CarFw(ecu=ecu, address=address, subAddress=0 if sub is None else sub, fwVersion=versions[0], brand='honda')
         for (ecu, address, sub), versions in FW_VERSIONS[candidate].items()

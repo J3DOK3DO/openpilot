@@ -10,8 +10,9 @@ def qualified(cp):
           cp.pcmCruise and not cp.openpilotLongitudinalControl and cp.alternativeExperience in (0, 32) and
           len(cp.safetyConfigs) == 1 and cp.safetyConfigs[0].safetyModel == structs.CarParams.SafetyModel.hondaBosch and
           cp.safetyConfigs[0].safetyParam == (80 | int(bool(cp.flags & HondaFlags.BOSCH_ALT_BRAKE))) and
+          # HYBRID (0x184 present) only selects the brake-error message carstate reads; the Accord Hybrid is this port's car.
           not int(cp.flags) & ~(int(CAR.HONDA_ACCORD_11G.config.flags) |
-                                int(HondaFlags.BOSCH_ALT_BRAKE | HondaFlags.BOSCH_EXT_HUD | HondaFlags.HAS_BSM)))
+                                int(HondaFlags.BOSCH_ALT_BRAKE | HondaFlags.BOSCH_EXT_HUD | HondaFlags.HAS_BSM | HondaFlags.HYBRID)))
 
 
 class AccordMvlStock:
