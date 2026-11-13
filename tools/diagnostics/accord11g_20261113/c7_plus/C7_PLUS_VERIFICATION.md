@@ -1,5 +1,9 @@
 # C7+ verification record — 2026-11-13
 
+**C7+2 final addendum:** The historical 61323fdf0c stock-ACC parser test fixture was restored, and the four-module selected host run now passes 361 tests, with 24 native Card cases deselected. See C7_PLUS_QUEUE_VERIFICATION.md for the exact scope. Earlier C7+2 figures remain as intermediate evidence.
+
+**C7+2 addendum:** The queue cleanup and startup trace were evaluated after this original C7+ record. See `C7_PLUS_QUEUE_VERIFICATION.md` and `C7_PLUS_ELM327_CAN2_STARTUP.md` for current offline candidate status, tests, and the remaining CAN2 hold. The table below is the earlier Hybrid-only run.
+
 **Scope:** Ubuntu host, source only. Initial HEAD `9b7ca0926b3a50fb68766c343d10de2956df8165`; installed Dom `7e6d08187b17085729851c939047cd44088b36b8`. Runtime candidate is solely `opendbc_repo/opendbc/car/honda/accord_mvl_stock.py` Hybrid allowance. No device contact, CAN send, flash, Param edit, build, or push.
 
 ## Tests
