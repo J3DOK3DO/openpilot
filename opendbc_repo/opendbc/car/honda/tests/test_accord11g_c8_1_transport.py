@@ -16,7 +16,7 @@ from opendbc.car import car_helpers, structs, uds
 from opendbc.car.can_definitions import CanData
 from opendbc.car.ford.discovery import normal_bus_query_brand
 from opendbc.car.fw_versions import FW_VERSIONS, get_fw_versions
-from opendbc.car.honda.discovery import (HOLD, IDENTIFIED, NORMAL_BUS_LAYOUT, OTHER, normal_bus_fw,
+from opendbc.car.honda.discovery import (HOLD, IDENTIFIED, NORMAL_BUS_DEADLINE, NORMAL_BUS_LAYOUT, OTHER, normal_bus_fw,
                                          normal_bus_topology)
 from opendbc.car.honda.values import CAR
 from opendbc.car.hyundai.discovery import normal_bus_topology as hyundai_probe
@@ -30,8 +30,9 @@ TIMEOUT = 0.1  # production get_fw_versions default
 
 
 class Ecu:
-  def __init__(self, fw, *, delay=0.02, silent_attempts=0, silent=False, buses=(0,)):
+  def __init__(self, fw, *, delay=0.02, silent_attempts=0, silent=False, buses=(0,), ready_at=0.):
     self.fw, self.delay, self.silent_attempts, self.silent, self.buses = fw, delay, silent_attempts, silent, buses
+    self.ready_at = ready_at  # absolute virtual time before which the diagnostic server ignores requests
     self.requests = 0
     self.pending_cf = []
 
@@ -63,6 +64,9 @@ class Peer:
         continue
       rx = uds.get_rx_addr_for_tx_addr(m.address)
       kind = m.dat[0] >> 4
+      if self.now < ecu.ready_at:
+        ecu.requests += kind == 0 and bytes(m.dat[1:4]) == b'\x22\xf1\x81'
+        continue
       if kind == 0 and bytes(m.dat[1:3]) == b'\x3e\x00' and not ecu.silent:
         self.queue.append((self.now + ecu.delay, CanData(rx, b'\x02\x7e\x00'.ljust(8, b'\x00'), m.src)))
       elif kind == 0 and bytes(m.dat[1:1 + (m.dat[0] & 0xF)]) == b'\x22\xf1\x81':
@@ -133,13 +137,15 @@ def test_first_frame_timing_boundary_against_production_timeout(delay, answered)
 @pytest.mark.parametrize('case,expected,attempts', (
   ('healthy', IDENTIFIED, 1),
   ('camera_late_first_attempt', IDENTIFIED, 2),
-  ('radar_silent', HOLD, 2),
-  ('camera_silent', HOLD, 2),
-  ('both_silent', HOLD, 2),
-  ('camera_reply_late_collected_by_retry', IDENTIFIED, 2),
-  ('camera_slower_than_both_windows', HOLD, 2),
-  ('camera_unknown_version', HOLD, 2),
+  ('camera_wakes_2s_after_start', IDENTIFIED, None),
+  ('radar_silent', HOLD, None),
+  ('camera_silent', HOLD, None),
+  ('both_silent', HOLD, None),
+  ('camera_consistently_200ms_slow', HOLD, None),
+  ('camera_slower_than_both_windows', HOLD, None),
+  ('camera_unknown_version', HOLD, None),
   ('crv6g_firmware', OTHER, 1),
+  ('mixed_11g_radar_crv_camera', HOLD, None),
 ))
 def test_normal_bus_outcome_with_production_query(case, expected, attempts):
   crv = {address: v[0] for (_, address, _), v in FW_VERSIONS[CAR.HONDA_CRV_6G].items()}
@@ -148,17 +154,45 @@ def test_normal_bus_outcome_with_production_query(case, expected, attempts):
     'radar_silent': {'radar': {'silent': True}},
     'camera_silent': {'camera': {'silent': True}},
     'both_silent': {'radar': {'silent': True}, 'camera': {'silent': True}},
-    'camera_reply_late_collected_by_retry': {'camera': {'delay': 0.2}},
+    'camera_wakes_2s_after_start': {'camera': {'ready_at': 102.0}, 'radar': {'ready_at': 102.0}},
+    'camera_consistently_200ms_slow': {'camera': {'delay': 0.2}},
+    'mixed_11g_radar_crv_camera': {'camera': {'fw': crv[CAMERA]}},
     'camera_slower_than_both_windows': {'camera': {'delay': 0.6}},
     'camera_unknown_version': {'camera': {'fw': b'8S102-30A-A999\x00\x00'}},
     'crv6g_firmware': {'radar': {'fw': crv[RADAR]}, 'camera': {'fw': crv[CAMERA]}},
   }.get(case, {})
   peer = Peer(accord_ecus(**overrides))
+  start = peer.now
   with clocked(peer):
-    fw, outcome = normal_bus_fw(lambda **kw: get_fw_versions(peer.recv, peer.send, peer.switches.append, **kw), VIN_UNKNOWN)
+    fw, outcome = normal_bus_fw(lambda **kw: get_fw_versions(peer.recv, peer.send, peer.switches.append, **kw),
+                                VIN_UNKNOWN, start=start)
   assert outcome == expected
-  assert peer.ecus[RADAR].requests == attempts and peer.ecus[CAMERA].requests == attempts
+  requests = peer.ecus[CAMERA].requests
+  if attempts is None:
+    # spaced retries: at least two, last one no earlier than the old sweep's bus-0 timing
+    assert requests >= 2 and peer.ecus[RADAR].requests == requests
+    if expected == HOLD:
+      assert peer.now - start >= NORMAL_BUS_DEADLINE
+  else:
+    assert requests == attempts and peer.ecus[RADAR].requests == attempts
   assert {bus for bus, _, _ in peer.sent} == {0} and peer.switches == []
+
+
+def test_c8_1_original_back_to_back_retry_would_have_held_a_2s_cold_ecu():
+  # Regression guard for review M1: two attempts ~0.1 s apart miss an ECU that wakes 2 s in.
+  peer = Peer(accord_ecus(camera={'ready_at': 102.0}, radar={'ready_at': 102.0}))
+  with clocked(peer):
+    early = [get_fw_versions(peer.recv, peer.send, peer.switches.append, query_brand='honda',
+                             normal_bus_only=True, request_buses=frozenset({0})) for _ in range(2)]
+  assert early == [[], []]
+
+
+def test_ambiguous_exact_match_including_11g_holds_not_sweeps():
+  from opendbc.car import fw_versions
+  from opendbc.car.honda.discovery import normal_bus_outcome
+  fw = query(Peer(accord_ecus()), query_brand='honda', normal_bus_only=True, request_buses=frozenset({0}))
+  with patch.object(fw_versions, 'match_fw_to_car', return_value=(True, {CAR.HONDA_ACCORD_11G, CAR.HONDA_CRV_6G})):
+    assert normal_bus_outcome(fw, VIN_UNKNOWN) == HOLD
 
 
 # ---- end to end through get_car ---------------------------------------------------------
@@ -171,13 +205,13 @@ def fingerprint_frames():
   return [CanData(f['address'], bytes.fromhex(f['hex']), f['bus']) for f in CAPTURE['fingerprintFrames']]
 
 
-def get_car(peer, env=None):
+def get_car(peer, env=None, **kw):
   peer.background, peer.tail = window(), fingerprint_frames()
   environ = {'FINGERPRINT': '', 'SKIP_FW_QUERY': '', 'DISABLE_FW_CACHE': '', **(env or {})}
   with patch.dict(car_helpers.os.environ, environ), clocked(peer), \
        patch.object(car_helpers, 'get_present_ecus', wraps=car_helpers.get_present_ecus) as present, \
        patch.object(car_helpers, 'get_fw_versions_ordered', wraps=car_helpers.get_fw_versions_ordered) as sweep:
-    ci = car_helpers.get_car(peer.recv, peer.send, peer.switches.append, False, False)
+    ci = car_helpers.get_car(peer.recv, peer.send, peer.switches.append, False, False, **kw)
   return ci, present, sweep
 
 
@@ -194,6 +228,7 @@ def test_end_to_end_recorded_accord_identifies_with_no_mux_and_no_can2_traffic()
 
 
 @pytest.mark.parametrize('overrides', (
+  {'camera': {'ready_at': 106.0}, 'radar': {'ready_at': 106.0}},
   {'radar': {'silent': True}},
   {'camera': {'silent': True}},
   {'radar': {'silent': True}, 'camera': {'silent': True}},
@@ -304,12 +339,19 @@ def _fingerprints(node, out):
   return out
 
 
-OTHER_CAPTURES = sorted(p for p in glob.glob(str(HERE.parent.parent / '*/tests/testdata/*.json')) if '/honda/' not in p)
+ALL_OTHER = sorted(p for p in glob.glob(str(HERE.parent.parent / '*/tests/testdata/*.json')) if '/honda/' not in p)
+OTHER_CAPTURES = [p for p in ALL_OTHER if _fingerprints(json.loads(Path(p).read_text()), {})]
+
+
+def test_collision_corpus_is_not_vacuous():
+  assert len(OTHER_CAPTURES) >= 11
+  assert all(any(fp for fp in _fingerprints(json.loads(Path(p).read_text()), {}).values()) for p in OTHER_CAPTURES)
 
 
 @pytest.mark.parametrize('path', OTHER_CAPTURES, ids=lambda p: Path(p).stem)
 def test_other_brand_recordings_never_match_honda_signature(path):
   found = _fingerprints(json.loads(Path(path).read_text()), {})
+  assert found
   assert all(not normal_bus_topology(fp) for fp in found.values())
 
 
@@ -339,3 +381,33 @@ def test_panda_fault_policy_unchanged_for_identified_profile():
   ci, _, _ = get_car(Peer(accord_ecus()))
   assert blocking_fault_mask(8, ci.CP)
   assert blocking_fault_list([log.PandaState.FaultType.interruptRateCan2], ci.CP)
+
+
+def test_end_to_end_cold_ecus_waking_2s_in_are_identified_without_mux():
+  peer = Peer(accord_ecus(camera={'ready_at': 102.0}, radar={'ready_at': 102.0}))
+  ci, present, sweep = get_car(peer)
+  assert ci.CP.carFingerprint == CAR.HONDA_ACCORD_11G
+  assert True not in peer.switches and {bus for bus, _, _ in peer.sent} == {0}
+  sweep.assert_not_called()
+
+
+def test_saved_vehicle_selection_overrides_hold_but_still_never_muxes():
+  # Review L1: existing forced-selection semantics. Documented, not changed.
+  peer = Peer(accord_ecus(camera={'silent': True}))
+  ci, _, sweep = get_car(peer, forced_candidate=str(CAR.HONDA_ACCORD_11G))
+  assert ci.CP.carFingerprint == CAR.HONDA_ACCORD_11G
+  assert ci.CP.fingerprintSource == structs.CarParams.FingerprintSource.fixed
+  assert True not in peer.switches and {bus for bus, _, _ in peer.sent} == {0}
+  sweep.assert_not_called()
+
+
+@pytest.mark.parametrize('cache', ('mock', 'accord_vin_unknown'))
+def test_cached_params_never_skip_fresh_bus0_identification(cache):
+  # MOCK caches are rejected, and the 11G cache carries VIN_UNKNOWN, so it is not reused either.
+  first, _, _ = get_car(Peer(accord_ecus(camera={'silent': True}) if cache == 'mock' else accord_ecus()))
+  assert first.CP.carFingerprint == ('MOCK' if cache == 'mock' else CAR.HONDA_ACCORD_11G)
+  peer = Peer(accord_ecus())
+  ci, _, sweep = get_car(peer, cached_params=first.CP)
+  assert ci.CP.carFingerprint == CAR.HONDA_ACCORD_11G and ci.CP.fingerprintSource == structs.CarParams.FingerprintSource.fw
+  assert peer.ecus[CAMERA].requests >= 1 and True not in peer.switches
+  sweep.assert_not_called()

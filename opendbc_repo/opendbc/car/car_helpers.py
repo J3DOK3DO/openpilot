@@ -188,7 +188,7 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
         if normal_brand == 'honda':
           # Strict bus-0 only: no OBD mux and no CAN2 diagnostic traffic.
           car_fw, honda_outcome = honda_normal_bus_fw(
-            lambda **kw: get_fw_versions(can_recv, can_send, set_obd_multiplexing, **kw), vin)
+            lambda **kw: get_fw_versions(can_recv, can_send, set_obd_multiplexing, **kw), vin, start=start_time)
         else:
           car_fw = get_fw_versions(can_recv, can_send, set_obd_multiplexing,
                                    query_brand=normal_brand, normal_bus_only=True)
@@ -244,16 +244,17 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
     source = CarParams.FingerprintSource.fw
     exact_match = exact_fw_match
 
-  if honda_hold:
-    # Fail closed: no CAN-only identity for an unconfirmed Accord 11G topology.
-    carlog.error({"event": "Honda normal-bus identification hold", "fw_count": len(car_fw),
-                  "can_candidate": str(car_fingerprint)})
-    car_fingerprint = None
-
   # Firmware catalogues can use the same broad Bolt aliases as legacy CAN.
   # Refine after both automatic sources, before the explicit override below.
   if not fixed_fingerprint:
     car_fingerprint = automatic_bolt_candidate(car_fingerprint, finger, camera_cruise_messages, vin)
+
+  if honda_hold:
+    # Fail closed after every automatic refinement: no CAN-only identity for an unconfirmed
+    # Accord 11G topology. An explicit FINGERPRINT / saved vehicle selection still overrides.
+    carlog.error({"event": "Honda normal-bus identification hold", "fw_count": len(car_fw),
+                  "can_candidate": str(car_fingerprint)})
+    car_fingerprint = None
 
   if fixed_fingerprint:
     car_fingerprint = fixed_fingerprint
