@@ -1,0 +1,2017 @@
+{
+  "schema": 2,
+  "limit_per_second": 16000,
+  "routes": [
+    {
+      "status": "COMPLETE",
+      "sample_cadence": "nearest Panda sample per integer monotonic second",
+      "panda_seconds": 1092,
+      "first_rate_exceed_ns": 19676046137,
+      "first_active_fault_ns": 19575839471,
+      "first_controls_mismatch_ns": 29175884571,
+      "peak_irq0": 17862,
+      "peak_irq1": 13,
+      "high_rate_seconds": 1,
+      "longest_high_rate_run_seconds": 1,
+      "observed_counter_delta_sum": {
+        "totalErrorCnt": 5780,
+        "totalRxCnt": 81968,
+        "totalTxCnt": 0,
+        "totalRxLostCnt": 0,
+        "totalTxLostCnt": 0,
+        "busOffCnt": 0,
+        "canCoreResetCnt": 1
+      },
+      "transitions": [
+        {
+          "mono_ns": 15654408535,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "noOutput",
+          "safety_param": 0,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 16063403847,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 18075923482,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "elm327",
+          "safety_param": 0,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 20075570356,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_model": "elm327",
+          "safety_param": 0,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 22019168168,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 30026460769,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        }
+      ],
+      "windows": [
+        {
+          "mono_ns": 18075923482,
+          "irq0": 0,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 0,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 1
+          },
+          "receive_error": 121,
+          "total_error": 0,
+          "error_warning": true,
+          "error_passive": true,
+          "bus_off": false,
+          "last_error": "bit0Error",
+          "safety_model": "elm327",
+          "safety_param": 0,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 19076374002,
+          "irq0": 1,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 1936,
+            "totalRxCnt": 0,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 127,
+          "total_error": 6470,
+          "error_warning": true,
+          "error_passive": true,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 0,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 20075570356,
+          "irq0": 17862,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 1922,
+            "totalRxCnt": 0,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 127,
+          "total_error": 25706,
+          "error_warning": true,
+          "error_passive": true,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 0,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 21004963064,
+          "irq0": 1044,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 1922,
+            "totalRxCnt": 0,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 127,
+          "total_error": 35221,
+          "error_warning": true,
+          "error_passive": true,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 0,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 22019168168,
+          "irq0": 484,
+          "irq1": 13,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 82,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 23019087803,
+          "irq0": 762,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 83,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 27018716291,
+          "irq0": 763,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 83,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 28018647124,
+          "irq0": 759,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 88,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 29018771707,
+          "irq0": 766,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 83,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 30026460769,
+          "irq0": 250,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 87,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 31026348268,
+          "irq0": 764,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 86,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 32025077955,
+          "irq0": 757,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 88,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        }
+      ],
+      "events": [
+        {
+          "mono_ns": 29175884571,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 29251588009,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 29579658894,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 30582245977,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 31583083841,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 32439128945,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 32529033997,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 32539174882,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 32580373945,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 32591108945,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 32630328841,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 32849366913,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 33580185611,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 34038975976,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 34580305611,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 34719217902,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 35579978944,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 36580669516,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 36799641339,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 37459184985,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 37579473995,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 38019849047,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 38270178995,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 38579913630,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 39581745973,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 40349307067,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 40361820036,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 40582210296,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 41349769983,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 41581931702,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 42008778056,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 42189087431,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 42291529774,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 42580991806,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 42989268941,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 43020716910,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 43539656753,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 43581783576,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 43759267170,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 43772435295,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 44021425555,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 44031000295,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 44038941753,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 44259409201,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 44582973419,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 45171766909,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 45480189304,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 45580127794,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 46091557169,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 46269954981,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 46549712169,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 46580346908,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 47530824408,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 47581487116,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 47669565085,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 47739732533,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 47901624251,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 47911310710,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 48582457064,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 49350369824,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 49581785136,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 49758791334,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 50580594511,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 51581419094,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 52580240812,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 53119402062,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 53579413728,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 53649426593,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 53858798624,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 53980492270,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 54580647009,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 55190097426,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 55580896384,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 56369826904,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 56580417165,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 56839354561,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 57580424925,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58199622737,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58220594508,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58231806643,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58249933414,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58279860341,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58309293310,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58319541278,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58580628153,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58598645445,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58609040966,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58691096591,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58739728205,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 58779976643,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 59579912684,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 60009679871,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 60581169767,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 61581289923,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 62419163933,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 62579908673,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 62659205548,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 63579455287,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 63719402839,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 63918793620,
+          "name": "controlsMismatch"
+        }
+      ],
+      "log_class_counts": {
+        "ui_fps": 218,
+        "gnss_almanac": 7,
+        "temporary_can2_fault": 1,
+        "gnss_nack": 6
+      },
+      "confidence": "sampled: one Panda state per monotonic second; no subsecond peak inference",
+      "route_index": 0,
+      "decoded_segments": 19
+    },
+    {
+      "status": "COMPLETE",
+      "sample_cadence": "nearest Panda sample per integer monotonic second",
+      "panda_seconds": 24,
+      "first_rate_exceed_ns": null,
+      "first_active_fault_ns": 1412434552452,
+      "first_controls_mismatch_ns": 1424649627451,
+      "peak_irq0": 9700,
+      "peak_irq1": 13,
+      "high_rate_seconds": 0,
+      "longest_high_rate_run_seconds": 0,
+      "observed_counter_delta_sum": {
+        "totalErrorCnt": 1968,
+        "totalRxCnt": 1430,
+        "totalTxCnt": 37,
+        "totalRxLostCnt": 0,
+        "totalTxLostCnt": 1,
+        "busOffCnt": 0,
+        "canCoreResetCnt": 1
+      },
+      "transitions": [
+        {
+          "mono_ns": 1412434552452,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_model": "noOutput",
+          "safety_param": 0,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 1413045673097,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 1415057389540,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_model": "elm327",
+          "safety_param": 0,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 1417070943554,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 1425007364034,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        }
+      ],
+      "windows": [
+        {
+          "mono_ns": 1412434552452,
+          "irq0": 756,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": null,
+            "totalRxCnt": null,
+            "totalTxCnt": null,
+            "totalRxLostCnt": null,
+            "totalTxLostCnt": null,
+            "busOffCnt": null,
+            "canCoreResetCnt": null
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "noOutput",
+          "safety_param": 0,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 1413045673097,
+          "irq0": 428,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 90,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 1414043377092,
+          "irq0": 759,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 87,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 1415057389540,
+          "irq0": 1,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 0,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 121,
+          "total_error": 35235,
+          "error_warning": true,
+          "error_passive": true,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 0,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 1422000982532,
+          "irq0": 753,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 66,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 70778,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 1423001095039,
+          "irq0": 756,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 71,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 70778,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 1424000854987,
+          "irq0": 754,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 66,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 70778,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 1425007364034,
+          "irq0": 0,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 65,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 70778,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 1426007769199,
+          "irq0": 217,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 67,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 70778,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 1427007632304,
+          "irq0": 742,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 64,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 70778,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        }
+      ],
+      "events": [
+        {
+          "mono_ns": 1424649627451,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1425166550170,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1425223816215,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1426164571862,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1426223979115,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1426394849179,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1426444433964,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1426463586609,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1426484190292,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1427164471279,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1427404292640,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1427646447743,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1427695617656,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1427705907356,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428164373547,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428183809346,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428237076452,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428536455532,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428544102008,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428563512546,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428655640000,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428684258570,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428695927893,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1428715536138,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1429165009083,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1429764621425,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1429775573192,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1429905988782,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1430164507488,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1430195102837,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1431165504329,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1432064804838,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1432164484533,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1432274135358,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1432284558570,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1432296393282,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1432793645930,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1433164982617,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1433983526371,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1434164449440,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1434175814039,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1434275261440,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1434297064291,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1434303434502,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1434315798520,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1434413725986,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1435114127032,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1435164478488,
+          "name": "controlsMismatch"
+        },
+        {
+          "mono_ns": 1435235746802,
+          "name": "controlsMismatch"
+        }
+      ],
+      "log_class_counts": {
+        "ui_fps": 5,
+        "gnss_almanac": 1
+      },
+      "confidence": "sampled: one Panda state per monotonic second; no subsecond peak inference",
+      "route_index": 1,
+      "decoded_segments": 1
+    },
+    {
+      "status": "COMPLETE_EXCEPT_FINAL",
+      "sample_cadence": "nearest Panda sample per integer monotonic second",
+      "panda_seconds": 3722,
+      "first_rate_exceed_ns": null,
+      "first_active_fault_ns": null,
+      "first_controls_mismatch_ns": null,
+      "peak_irq0": 14139,
+      "peak_irq1": 13,
+      "high_rate_seconds": 0,
+      "longest_high_rate_run_seconds": 0,
+      "observed_counter_delta_sum": {
+        "totalErrorCnt": 3150,
+        "totalRxCnt": 290833,
+        "totalTxCnt": 1,
+        "totalRxLostCnt": 0,
+        "totalTxLostCnt": 0,
+        "busOffCnt": 0,
+        "canCoreResetCnt": 1
+      },
+      "transitions": [
+        {
+          "mono_ns": 15771527804,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 18082242022,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "elm327",
+          "safety_param": 0,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 21023135771,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 28029911966,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 178029430784,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 223030192682,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 262029349991,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 402029662444,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 447029744531,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 523030512772,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 577029843577,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 602029835826,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 657031992736,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 658030305049,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 782031414550,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 1347029516535,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 1356029740167,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 1762030285761,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 1891030515501,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 1950030437493,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 2043031525468,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 2240029604050,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 2398030577169,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 2585029447864,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 2668029847177,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 2908030488442,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 2911029493313,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": true,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        },
+        {
+          "mono_ns": 2920030277830,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "controls_allowed": false,
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "counter_reset": false
+        }
+      ],
+      "windows": [
+        {
+          "mono_ns": 25023110405,
+          "irq0": 757,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 66,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35438,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 26023265821,
+          "irq0": 761,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 66,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35438,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 27022710508,
+          "irq0": 756,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 67,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35438,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 28029911966,
+          "irq0": 302,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 75,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35438,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 29030552330,
+          "irq0": 758,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 74,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35438,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        },
+        {
+          "mono_ns": 30031302903,
+          "irq0": 760,
+          "irq1": 0,
+          "counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 87,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          },
+          "receive_error": 0,
+          "total_error": 35438,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false
+        }
+      ],
+      "events": [
+        {
+          "mono_ns": 27428289831,
+          "name": "commIssue"
+        }
+      ],
+      "log_class_counts": {
+        "ui_fps": 742,
+        "gnss_almanac": 25,
+        "gnss_nack": 24
+      },
+      "confidence": "sampled: one Panda state per monotonic second; no subsecond peak inference",
+      "route_index": 2,
+      "decoded_segments": 62
+    }
+  ],
+  "excluded_segments": [
+    {
+      "route_index": 2,
+      "segment_index": 62,
+      "status": "TRUNCATED",
+      "sha256_matches_manifest": true
+    }
+  ],
+  "time_basis": "logMonoTime nanoseconds; UAE wall clock omitted because no independently validated per-route anchor"
+}
