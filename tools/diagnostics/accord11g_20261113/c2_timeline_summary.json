@@ -1,26 +1,31 @@
 {
-  "schema": 2,
+  "schema": 3,
   "limit_per_second": 16000,
   "routes": [
     {
       "status": "COMPLETE",
-      "sample_cadence": "nearest Panda sample per integer monotonic second",
+      "sample_cadence": "nearest Panda sample per integer monotonic second for timeline rows; counters and rate metrics use every decoded Panda sample",
       "panda_seconds": 1092,
       "first_rate_exceed_ns": 19676046137,
       "first_active_fault_ns": 19575839471,
       "first_controls_mismatch_ns": 29175884571,
       "peak_irq0": 17862,
       "peak_irq1": 13,
-      "high_rate_seconds": 1,
-      "longest_high_rate_run_seconds": 1,
+      "high_rate_seconds": 2,
+      "longest_consecutive_high_rate_flagged_seconds": 2,
+      "high_rate_panda_samples": 6,
+      "raw_panda_samples": 10912,
+      "counter_epoch_boundaries": 0,
+      "counter_delta_semantics": "sum of nonnegative changes between consecutive raw Panda snapshots within each observed epoch; reset boundaries and nonmonotonic-time overlaps are omitted until past the previous timestamp high-water mark",
+      "rate_semantics": "each high-rate snapshot reports a last-one-second IRQ rate; a flagged integer second does not establish continuous excess for one second",
       "observed_counter_delta_sum": {
-        "totalErrorCnt": 5780,
-        "totalRxCnt": 81968,
-        "totalTxCnt": 0,
+        "totalErrorCnt": 35235,
+        "totalRxCnt": 830103,
+        "totalTxCnt": 51,
         "totalRxLostCnt": 0,
-        "totalTxLostCnt": 0,
+        "totalTxLostCnt": 2,
         "busOffCnt": 0,
-        "canCoreResetCnt": 1
+        "canCoreResetCnt": 5
       },
       "transitions": [
         {
@@ -98,18 +103,40 @@
       ],
       "windows": [
         {
-          "mono_ns": 18075923482,
-          "irq0": 0,
+          "mono_ns": 17062807701,
+          "irq0": 760,
           "irq1": 0,
-          "counter_deltas": {
+          "receive_error": 0,
+          "total_error": 0,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
-            "totalRxCnt": 0,
+            "totalRxCnt": 64,
             "totalTxCnt": 0,
             "totalRxLostCnt": 0,
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
-            "canCoreResetCnt": 1
-          },
+            "canCoreResetCnt": 0
+          }
+        },
+        {
+          "mono_ns": 18075923482,
+          "irq0": 0,
+          "irq1": 0,
           "receive_error": 121,
           "total_error": 0,
           "error_warning": true,
@@ -124,21 +151,23 @@
           "fault_status": "none",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 19076374002,
-          "irq0": 1,
-          "irq1": 0,
-          "counter_deltas": {
-            "totalErrorCnt": 1936,
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
+            "totalErrorCnt": 0,
             "totalRxCnt": 0,
             "totalTxCnt": 0,
             "totalRxLostCnt": 0,
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
-            "canCoreResetCnt": 0
-          },
+            "canCoreResetCnt": 1
+          }
+        },
+        {
+          "mono_ns": 19076374002,
+          "irq0": 1,
+          "irq1": 0,
           "receive_error": 127,
           "total_error": 6470,
           "error_warning": true,
@@ -153,21 +182,23 @@
           "fault_status": "none",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 20075570356,
-          "irq0": 17862,
-          "irq1": 0,
-          "counter_deltas": {
-            "totalErrorCnt": 1922,
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
+            "totalErrorCnt": 1936,
             "totalRxCnt": 0,
             "totalTxCnt": 0,
             "totalRxLostCnt": 0,
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 20075570356,
+          "irq0": 17862,
+          "irq1": 0,
           "receive_error": 127,
           "total_error": 25706,
           "error_warning": true,
@@ -184,13 +215,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 21004963064,
-          "irq0": 1044,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 1922,
             "totalRxCnt": 0,
             "totalTxCnt": 0,
@@ -198,7 +226,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 21004963064,
+          "irq0": 1044,
+          "irq1": 0,
           "receive_error": 127,
           "total_error": 35221,
           "error_warning": true,
@@ -215,13 +248,43 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
+            "totalErrorCnt": 1922,
+            "totalRxCnt": 0,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          }
         },
         {
           "mono_ns": 22019168168,
           "irq0": 484,
           "irq1": 13,
-          "counter_deltas": {
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 82,
             "totalTxCnt": 0,
@@ -229,69 +292,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
-          "receive_error": 0,
-          "total_error": 35235,
-          "error_warning": false,
-          "error_passive": false,
-          "bus_off": false,
-          "last_error": "noChange",
-          "safety_model": "elm327",
-          "safety_param": 1,
-          "alternative_experience": 0,
-          "controls_allowed": false,
-          "active_faults": [
-            "interruptRateCan2"
-          ],
-          "fault_status": "faultTemp",
-          "safety_rx_checks_invalid": false,
-          "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 23019087803,
-          "irq0": 762,
-          "irq1": 0,
-          "counter_deltas": {
-            "totalErrorCnt": 0,
-            "totalRxCnt": 83,
-            "totalTxCnt": 0,
-            "totalRxLostCnt": 0,
-            "totalTxLostCnt": 0,
-            "busOffCnt": 0,
-            "canCoreResetCnt": 0
-          },
-          "receive_error": 0,
-          "total_error": 35235,
-          "error_warning": false,
-          "error_passive": false,
-          "bus_off": false,
-          "last_error": "noChange",
-          "safety_model": "elm327",
-          "safety_param": 1,
-          "alternative_experience": 0,
-          "controls_allowed": false,
-          "active_faults": [
-            "interruptRateCan2"
-          ],
-          "fault_status": "faultTemp",
-          "safety_rx_checks_invalid": false,
-          "heartbeat_lost": false,
-          "reset": false
+          }
         },
         {
           "mono_ns": 27018716291,
           "irq0": 763,
           "irq1": 0,
-          "counter_deltas": {
-            "totalErrorCnt": 0,
-            "totalRxCnt": 83,
-            "totalTxCnt": 0,
-            "totalRxLostCnt": 0,
-            "totalTxLostCnt": 0,
-            "busOffCnt": 0,
-            "canCoreResetCnt": 0
-          },
           "receive_error": 0,
           "total_error": 35235,
           "error_warning": false,
@@ -308,13 +314,43 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 83,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          }
         },
         {
           "mono_ns": 28018647124,
           "irq0": 759,
           "irq1": 0,
-          "counter_deltas": {
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 88,
             "totalTxCnt": 0,
@@ -322,7 +358,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 29018771707,
+          "irq0": 766,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 35235,
           "error_warning": false,
@@ -339,13 +380,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 29018771707,
-          "irq0": 766,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 83,
             "totalTxCnt": 0,
@@ -353,15 +391,20 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 30026460769,
+          "irq0": 250,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 35235,
           "error_warning": false,
           "error_passive": false,
           "bus_off": false,
           "last_error": "noChange",
-          "safety_model": "elm327",
-          "safety_param": 1,
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
           "alternative_experience": 0,
           "controls_allowed": false,
           "active_faults": [
@@ -370,13 +413,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 30026460769,
-          "irq0": 250,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 87,
             "totalTxCnt": 0,
@@ -384,7 +424,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 31026348268,
+          "irq0": 764,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 35235,
           "error_warning": false,
@@ -401,13 +446,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 31026348268,
-          "irq0": 764,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 86,
             "totalTxCnt": 0,
@@ -415,7 +457,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 32025077955,
+          "irq0": 757,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 35235,
           "error_warning": false,
@@ -432,13 +479,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 32025077955,
-          "irq0": 757,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 88,
             "totalTxCnt": 0,
@@ -446,24 +490,7 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
-          "receive_error": 0,
-          "total_error": 35235,
-          "error_warning": false,
-          "error_passive": false,
-          "bus_off": false,
-          "last_error": "noChange",
-          "safety_model": "hondaBosch",
-          "safety_param": 80,
-          "alternative_experience": 0,
-          "controls_allowed": false,
-          "active_faults": [
-            "interruptRateCan2"
-          ],
-          "fault_status": "faultTemp",
-          "safety_rx_checks_invalid": false,
-          "heartbeat_lost": false,
-          "reset": false
+          }
         }
       ],
       "events": [
@@ -874,13 +901,13 @@
         "temporary_can2_fault": 1,
         "gnss_nack": 6
       },
-      "confidence": "sampled: one Panda state per monotonic second; no subsecond peak inference",
+      "confidence": "counters and IRQ peaks use every decoded Panda snapshot; a high-rate second means at least one above-limit snapshot in that integer monotonic second, not continuous exceedance for one second",
       "route_index": 0,
       "decoded_segments": 19
     },
     {
       "status": "COMPLETE",
-      "sample_cadence": "nearest Panda sample per integer monotonic second",
+      "sample_cadence": "nearest Panda sample per integer monotonic second for timeline rows; counters and rate metrics use every decoded Panda sample",
       "panda_seconds": 24,
       "first_rate_exceed_ns": null,
       "first_active_fault_ns": 1412434552452,
@@ -888,15 +915,20 @@
       "peak_irq0": 9700,
       "peak_irq1": 13,
       "high_rate_seconds": 0,
-      "longest_high_rate_run_seconds": 0,
+      "longest_consecutive_high_rate_flagged_seconds": 0,
+      "high_rate_panda_samples": 0,
+      "raw_panda_samples": 230,
+      "counter_epoch_boundaries": 0,
+      "counter_delta_semantics": "sum of nonnegative changes between consecutive raw Panda snapshots within each observed epoch; reset boundaries and nonmonotonic-time overlaps are omitted until past the previous timestamp high-water mark",
+      "rate_semantics": "each high-rate snapshot reports a last-one-second IRQ rate; a flagged integer second does not establish continuous excess for one second",
       "observed_counter_delta_sum": {
-        "totalErrorCnt": 1968,
-        "totalRxCnt": 1430,
-        "totalTxCnt": 37,
+        "totalErrorCnt": 35543,
+        "totalRxCnt": 15358,
+        "totalTxCnt": 51,
         "totalRxLostCnt": 0,
-        "totalTxLostCnt": 1,
+        "totalTxLostCnt": 2,
         "busOffCnt": 0,
-        "canCoreResetCnt": 1
+        "canCoreResetCnt": 5
       },
       "transitions": [
         {
@@ -970,15 +1002,6 @@
           "mono_ns": 1412434552452,
           "irq0": 756,
           "irq1": 0,
-          "counter_deltas": {
-            "totalErrorCnt": null,
-            "totalRxCnt": null,
-            "totalTxCnt": null,
-            "totalRxLostCnt": null,
-            "totalTxLostCnt": null,
-            "busOffCnt": null,
-            "canCoreResetCnt": null
-          },
           "receive_error": 0,
           "total_error": 35235,
           "error_warning": false,
@@ -995,13 +1018,43 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
+            "totalErrorCnt": null,
+            "totalRxCnt": null,
+            "totalTxCnt": null,
+            "totalRxLostCnt": null,
+            "totalTxLostCnt": null,
+            "busOffCnt": null,
+            "canCoreResetCnt": null
+          }
         },
         {
           "mono_ns": 1413045673097,
           "irq0": 428,
           "irq1": 0,
-          "counter_deltas": {
+          "receive_error": 0,
+          "total_error": 35235,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 90,
             "totalTxCnt": 0,
@@ -1009,7 +1062,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 1414043377092,
+          "irq0": 759,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 35235,
           "error_warning": false,
@@ -1026,13 +1084,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 1414043377092,
-          "irq0": 759,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 87,
             "totalTxCnt": 0,
@@ -1040,38 +1095,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
-          "receive_error": 0,
-          "total_error": 35235,
-          "error_warning": false,
-          "error_passive": false,
-          "bus_off": false,
-          "last_error": "noChange",
-          "safety_model": "elm327",
-          "safety_param": 1,
-          "alternative_experience": 0,
-          "controls_allowed": false,
-          "active_faults": [
-            "interruptRateCan2"
-          ],
-          "fault_status": "faultTemp",
-          "safety_rx_checks_invalid": false,
-          "heartbeat_lost": false,
-          "reset": false
+          }
         },
         {
           "mono_ns": 1415057389540,
           "irq0": 1,
           "irq1": 0,
-          "counter_deltas": {
-            "totalErrorCnt": 0,
-            "totalRxCnt": 0,
-            "totalTxCnt": 0,
-            "totalRxLostCnt": 0,
-            "totalTxLostCnt": 0,
-            "busOffCnt": 0,
-            "canCoreResetCnt": 0
-          },
           "receive_error": 121,
           "total_error": 35235,
           "error_warning": true,
@@ -1088,21 +1117,23 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 1422000982532,
-          "irq0": 753,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
-            "totalRxCnt": 66,
+            "totalRxCnt": 0,
             "totalTxCnt": 0,
             "totalRxLostCnt": 0,
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 1422000982532,
+          "irq0": 753,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 70778,
           "error_warning": false,
@@ -1119,13 +1150,43 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 66,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          }
         },
         {
           "mono_ns": 1423001095039,
           "irq0": 756,
           "irq1": 0,
-          "counter_deltas": {
+          "receive_error": 0,
+          "total_error": 70778,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [
+            "interruptRateCan2"
+          ],
+          "fault_status": "faultTemp",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 71,
             "totalTxCnt": 0,
@@ -1133,7 +1194,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 1424000854987,
+          "irq0": 754,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 70778,
           "error_warning": false,
@@ -1150,13 +1216,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 1424000854987,
-          "irq0": 754,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 66,
             "totalTxCnt": 0,
@@ -1164,15 +1227,20 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 1425007364034,
+          "irq0": 0,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 70778,
           "error_warning": false,
           "error_passive": false,
           "bus_off": false,
           "last_error": "noChange",
-          "safety_model": "elm327",
-          "safety_param": 1,
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
           "alternative_experience": 0,
           "controls_allowed": false,
           "active_faults": [
@@ -1181,13 +1249,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 1425007364034,
-          "irq0": 0,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 65,
             "totalTxCnt": 0,
@@ -1195,7 +1260,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 1426007769199,
+          "irq0": 217,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 70778,
           "error_warning": false,
@@ -1212,13 +1282,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 1426007769199,
-          "irq0": 217,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 67,
             "totalTxCnt": 0,
@@ -1226,7 +1293,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 1427007632304,
+          "irq0": 742,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 70778,
           "error_warning": false,
@@ -1243,13 +1315,10 @@
           "fault_status": "faultTemp",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 1427007632304,
-          "irq0": 742,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 64,
             "totalTxCnt": 0,
@@ -1257,24 +1326,7 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
-          "receive_error": 0,
-          "total_error": 70778,
-          "error_warning": false,
-          "error_passive": false,
-          "bus_off": false,
-          "last_error": "noChange",
-          "safety_model": "hondaBosch",
-          "safety_param": 80,
-          "alternative_experience": 0,
-          "controls_allowed": false,
-          "active_faults": [
-            "interruptRateCan2"
-          ],
-          "fault_status": "faultTemp",
-          "safety_rx_checks_invalid": false,
-          "heartbeat_lost": false,
-          "reset": false
+          }
         }
       ],
       "events": [
@@ -1479,13 +1531,13 @@
         "ui_fps": 5,
         "gnss_almanac": 1
       },
-      "confidence": "sampled: one Panda state per monotonic second; no subsecond peak inference",
+      "confidence": "counters and IRQ peaks use every decoded Panda snapshot; a high-rate second means at least one above-limit snapshot in that integer monotonic second, not continuous exceedance for one second",
       "route_index": 1,
       "decoded_segments": 1
     },
     {
       "status": "COMPLETE_EXCEPT_FINAL",
-      "sample_cadence": "nearest Panda sample per integer monotonic second",
+      "sample_cadence": "nearest Panda sample per integer monotonic second for timeline rows; counters and rate metrics use every decoded Panda sample",
       "panda_seconds": 3722,
       "first_rate_exceed_ns": null,
       "first_active_fault_ns": null,
@@ -1493,15 +1545,20 @@
       "peak_irq0": 14139,
       "peak_irq1": 13,
       "high_rate_seconds": 0,
-      "longest_high_rate_run_seconds": 0,
+      "longest_consecutive_high_rate_flagged_seconds": 0,
+      "high_rate_panda_samples": 0,
+      "raw_panda_samples": 37208,
+      "counter_epoch_boundaries": 0,
+      "counter_delta_semantics": "sum of nonnegative changes between consecutive raw Panda snapshots within each observed epoch; reset boundaries and nonmonotonic-time overlaps are omitted until past the previous timestamp high-water mark",
+      "rate_semantics": "each high-rate snapshot reports a last-one-second IRQ rate; a flagged integer second does not establish continuous excess for one second",
       "observed_counter_delta_sum": {
-        "totalErrorCnt": 3150,
-        "totalRxCnt": 290833,
-        "totalTxCnt": 1,
+        "totalErrorCnt": 35437,
+        "totalRxCnt": 2831533,
+        "totalTxCnt": 51,
         "totalRxLostCnt": 0,
-        "totalTxLostCnt": 0,
+        "totalTxLostCnt": 2,
         "busOffCnt": 0,
-        "canCoreResetCnt": 1
+        "canCoreResetCnt": 4
       },
       "transitions": [
         {
@@ -1818,15 +1875,6 @@
           "mono_ns": 25023110405,
           "irq0": 757,
           "irq1": 0,
-          "counter_deltas": {
-            "totalErrorCnt": 0,
-            "totalRxCnt": 66,
-            "totalTxCnt": 0,
-            "totalRxLostCnt": 0,
-            "totalTxLostCnt": 0,
-            "busOffCnt": 0,
-            "canCoreResetCnt": 0
-          },
           "receive_error": 0,
           "total_error": 35438,
           "error_warning": false,
@@ -1841,21 +1889,23 @@
           "fault_status": "none",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 66,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          }
         },
         {
           "mono_ns": 26023265821,
           "irq0": 761,
           "irq1": 0,
-          "counter_deltas": {
-            "totalErrorCnt": 0,
-            "totalRxCnt": 66,
-            "totalTxCnt": 0,
-            "totalRxLostCnt": 0,
-            "totalTxLostCnt": 0,
-            "busOffCnt": 0,
-            "canCoreResetCnt": 0
-          },
           "receive_error": 0,
           "total_error": 35438,
           "error_warning": false,
@@ -1870,13 +1920,41 @@
           "fault_status": "none",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
+            "totalErrorCnt": 0,
+            "totalRxCnt": 66,
+            "totalTxCnt": 0,
+            "totalRxLostCnt": 0,
+            "totalTxLostCnt": 0,
+            "busOffCnt": 0,
+            "canCoreResetCnt": 0
+          }
         },
         {
           "mono_ns": 27022710508,
           "irq0": 756,
           "irq1": 0,
-          "counter_deltas": {
+          "receive_error": 0,
+          "total_error": 35438,
+          "error_warning": false,
+          "error_passive": false,
+          "bus_off": false,
+          "last_error": "noChange",
+          "safety_model": "elm327",
+          "safety_param": 1,
+          "alternative_experience": 0,
+          "controls_allowed": false,
+          "active_faults": [],
+          "fault_status": "none",
+          "safety_rx_checks_invalid": false,
+          "heartbeat_lost": false,
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 67,
             "totalTxCnt": 0,
@@ -1884,28 +1962,30 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 28029911966,
+          "irq0": 302,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 35438,
           "error_warning": false,
           "error_passive": false,
           "bus_off": false,
           "last_error": "noChange",
-          "safety_model": "elm327",
-          "safety_param": 1,
+          "safety_model": "hondaBosch",
+          "safety_param": 80,
           "alternative_experience": 0,
           "controls_allowed": false,
           "active_faults": [],
           "fault_status": "none",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 28029911966,
-          "irq0": 302,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 75,
             "totalTxCnt": 0,
@@ -1913,7 +1993,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 29030552330,
+          "irq0": 758,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 35438,
           "error_warning": false,
@@ -1928,13 +2013,10 @@
           "fault_status": "none",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 29030552330,
-          "irq0": 758,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 74,
             "totalTxCnt": 0,
@@ -1942,7 +2024,12 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
+          }
+        },
+        {
+          "mono_ns": 30031302903,
+          "irq0": 760,
+          "irq1": 0,
           "receive_error": 0,
           "total_error": 35438,
           "error_warning": false,
@@ -1957,13 +2044,10 @@
           "fault_status": "none",
           "safety_rx_checks_invalid": false,
           "heartbeat_lost": false,
-          "reset": false
-        },
-        {
-          "mono_ns": 30031302903,
-          "irq0": 760,
-          "irq1": 0,
-          "counter_deltas": {
+          "reset": false,
+          "counter_discontinuity": false,
+          "counter_quarantined": false,
+          "previous_raw_sample_counter_deltas": {
             "totalErrorCnt": 0,
             "totalRxCnt": 87,
             "totalTxCnt": 0,
@@ -1971,22 +2055,7 @@
             "totalTxLostCnt": 0,
             "busOffCnt": 0,
             "canCoreResetCnt": 0
-          },
-          "receive_error": 0,
-          "total_error": 35438,
-          "error_warning": false,
-          "error_passive": false,
-          "bus_off": false,
-          "last_error": "noChange",
-          "safety_model": "hondaBosch",
-          "safety_param": 80,
-          "alternative_experience": 0,
-          "controls_allowed": false,
-          "active_faults": [],
-          "fault_status": "none",
-          "safety_rx_checks_invalid": false,
-          "heartbeat_lost": false,
-          "reset": false
+          }
         }
       ],
       "events": [
@@ -2000,7 +2069,7 @@
         "gnss_almanac": 25,
         "gnss_nack": 24
       },
-      "confidence": "sampled: one Panda state per monotonic second; no subsecond peak inference",
+      "confidence": "counters and IRQ peaks use every decoded Panda snapshot; a high-rate second means at least one above-limit snapshot in that integer monotonic second, not continuous exceedance for one second",
       "route_index": 2,
       "decoded_segments": 62
     }
