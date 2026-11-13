@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "listed_segments": 83,
+  "full_rlogs": 82,
+  "excluded_segment": 62,
+  "routes": [
+    {"route_index": 0, "profile": {"brand": "honda", "fingerprint": "HONDA_ACCORD_11G", "safety_model": "hondaBosch", "safety_param": 80, "pcm_cruise": true, "openpilot_longitudinal": false, "alternative_experience": 0, "flags": 2180}, "controls_mismatch": 2603, "panda_states": 10912, "active_interrupt_rate_can2": 10873, "can1_irq0_peak": 17862, "can1_receive_error_peak": 127, "can1_total_error_peak": 35235, "enabled_lateral_with_stock_acc": false, "comm_issue_events": 0},
+    {"route_index": 1, "profile": {"brand": "honda", "fingerprint": "HONDA_ACCORD_11G", "safety_model": "hondaBosch", "safety_param": 80, "pcm_cruise": true, "openpilot_longitudinal": false, "alternative_experience": 0, "flags": 2180}, "controls_mismatch": 49, "panda_states": 230, "active_interrupt_rate_can2": 230, "can1_irq0_peak": 9700, "can1_receive_error_peak": 127, "can1_total_error_peak": 70778, "enabled_lateral_with_stock_acc": false, "comm_issue_events": 0},
+    {"route_index": 2, "profile": {"brand": "honda", "fingerprint": "HONDA_ACCORD_11G", "safety_model": "hondaBosch", "safety_param": 80, "pcm_cruise": true, "openpilot_longitudinal": false, "alternative_experience": 0, "flags": 2180}, "controls_mismatch": 0, "panda_states": 37208, "active_interrupt_rate_can2": 0, "can1_irq0_peak": 14139, "can1_receive_error_peak": 127, "can1_total_error_peak": 35438, "enabled_lateral_with_stock_acc": true, "comm_issue_events": 1}
+  ]
+}
