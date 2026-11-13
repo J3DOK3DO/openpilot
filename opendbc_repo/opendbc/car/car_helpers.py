@@ -18,7 +18,7 @@ from opendbc.car.hyundai.discovery import normal_bus_topology
 from opendbc.car.tesla.discovery import normal_bus0_topology as tesla_normal_bus0_topology
 from opendbc.car.honda.discovery import (normal_bus_topology as honda_normal_bus_topology,
                                         normal_bus_queries as honda_normal_bus_queries,
-                                        normal_bus_identified as honda_normal_bus_identified)
+                                        normal_bus_fw as honda_normal_bus_fw, OTHER as HONDA_OTHER, HOLD as HONDA_HOLD)
 from opendbc.car.values import BRANDS
 from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 
@@ -126,6 +126,7 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
   skip_fw_query = os.environ.get('SKIP_FW_QUERY', False)
   disable_fw_cache = os.environ.get('DISABLE_FW_CACHE', False)
   ecu_rx_addrs = set()
+  honda_hold = False
 
   start_time = time.monotonic()
   if not skip_fw_query:
@@ -183,13 +184,21 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
           time.sleep(warmup_remaining)
         vin_buses = (0,) if normal_brand in ('ford', 'gm', 'volvo', 'tesla', 'honda') else (0, 1)
         vin_rx_addr, vin_rx_bus, vin = get_vin(can_recv, can_send, vin_buses)
-        car_fw = get_fw_versions(can_recv, can_send, set_obd_multiplexing,
-                                 query_brand=normal_brand, normal_bus_only=True)
+        honda_outcome = None
+        if normal_brand == 'honda':
+          # Strict bus-0 only: no OBD mux and no CAN2 diagnostic traffic.
+          car_fw, honda_outcome = honda_normal_bus_fw(
+            lambda **kw: get_fw_versions(can_recv, can_send, set_obd_multiplexing, **kw), vin)
+        else:
+          car_fw = get_fw_versions(can_recv, can_send, set_obd_multiplexing,
+                                   query_brand=normal_brand, normal_bus_only=True)
         ecu_rx_addrs = {(fw.responseAddress, fw.subAddress or None, fw.bus) for fw in car_fw if fw.responseAddress > 0}
-        if normal_brand == 'honda' and not honda_normal_bus_identified(car_fw, vin):
-          # The layout only proved normal Honda wiring. Without an exact Accord 11G
-          # firmware match, keep the original all-brand OBD sweep and its evidence.
-          carlog.warning("Honda normal-bus discovery unconfirmed; using OBD sweep")
+        # Incomplete Accord 11G evidence holds identification closed rather than
+        # rerunning the OBD scan that produced the CAN2 storm.
+        honda_hold = honda_outcome == HONDA_HOLD
+        if honda_outcome == HONDA_OTHER:
+          # Firmware names another car: keep its original all-brand OBD sweep.
+          carlog.warning("Honda normal-bus firmware is not Accord 11G; using OBD sweep")
           set_obd_multiplexing(True)
           vin_rx_addr, vin_rx_bus, vin = get_vin(can_recv, can_send, (0, 1))
           ecu_rx_addrs = get_present_ecus(can_recv, can_send, set_obd_multiplexing)
@@ -234,6 +243,12 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
     car_fingerprint = list(fw_candidates)[0]
     source = CarParams.FingerprintSource.fw
     exact_match = exact_fw_match
+
+  if honda_hold:
+    # Fail closed: no CAN-only identity for an unconfirmed Accord 11G topology.
+    carlog.error({"event": "Honda normal-bus identification hold", "fw_count": len(car_fw),
+                  "can_candidate": str(car_fingerprint)})
+    car_fingerprint = None
 
   # Firmware catalogues can use the same broad Bolt aliases as legacy CAN.
   # Refine after both automatic sources, before the explicit override below.

@@ -124,7 +124,7 @@ def test_recorded_discovery_keeps_can2_on_normal_wiring_and_same_profile():
   assert peer.switches and set(peer.switches) == {False}
   assert peer.sent and all(f.src == 0 for f in peer.sent)
   normal.assert_called_once()
-  assert normal.call_args.kwargs == {'query_brand': 'honda', 'normal_bus_only': True}
+  assert normal.call_args.kwargs == {'query_brand': 'honda', 'normal_bus_only': True, 'request_buses': frozenset({0})}
   present.assert_not_called()
   generic.assert_not_called()
   cp = ci.CP
@@ -146,14 +146,37 @@ def test_same_profile_as_recorded_obd_sweep():
   assert [(c.safetyModel, c.safetyParam) for c in new.CP.safetyConfigs] == [(c.safetyModel, c.safetyParam) for c in old.CP.safetyConfigs]
 
 
-@pytest.mark.parametrize('fw', ([], 'other'))
-def test_unconfirmed_firmware_falls_back_to_original_obd_sweep(fw):
-  if fw == 'other':
-    fw = recorded_fw()
-    fw[1].fwVersion = b'39990-XXX-A000\x00\x00'
+def degraded_fw(kind):
+  fw = recorded_fw()
+  if kind == 'none':
+    return []
+  if kind == 'unknown':
+    fw[1].fwVersion = b'8S102-30A-A999\x00\x00'
+    return fw
+  keep = structs.CarParams.Ecu.fwdRadar if kind == 'radar_only' else structs.CarParams.Ecu.fwdCamera
+  return [f for f in fw if f.ecu == keep]
+
+
+@pytest.mark.parametrize('kind', ('none', 'unknown', 'radar_only', 'camera_only'))
+def test_incomplete_accord_firmware_holds_closed_without_obd_sweep(kind):
+  # C8.1: retry once on bus 0, then hold. Never rerun the storm-producing OBD scan.
+  fw = degraded_fw(kind)
+  ci, peer, present, generic, normal = discover(fw=fw)
+  assert normal.call_count == 2
+  assert True not in peer.switches
+  present.assert_not_called()
+  generic.assert_not_called()
+  assert ci.CP.carFingerprint == 'MOCK'
+
+
+def test_firmware_of_another_honda_keeps_original_obd_sweep():
+  from opendbc.car.fw_versions import FW_VERSIONS
+  fw = recorded_fw()
+  for f in fw:
+    f.fwVersion = next(v[0] for (_, address, _), v in FW_VERSIONS[CAR.HONDA_CRV_6G].items() if address == f.address)
   _, peer, present, generic, normal = discover(fw=fw)
   normal.assert_called_once()
-  assert peer.switches[-1] is False and True in peer.switches
+  assert True in peer.switches and peer.switches[-1] is False
   present.assert_called_once()
   generic.assert_called_once()
 

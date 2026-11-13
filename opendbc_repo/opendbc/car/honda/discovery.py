@@ -8,9 +8,14 @@ when it trips, latches interruptRateCan2 until the next Panda reset, which then
 blocks engagement as controlsMismatch. Every recorded firmware response came
 from the normal bus-0 request, so the OBD sweep adds no identity evidence.
 
-This layout selects only diagnostic query wiring. Fresh firmware must still
-match exactly HONDA_ACCORD_11G, otherwise discovery falls back to the original
-OBD sweep. CAN fingerprinting and CarParams construction are unchanged.
+This layout selects only diagnostic query wiring, and it is shared by the other
+Honda CAN-FD platforms. Firmware is queried on bus 0 only (no CAN2 traffic), with
+one retry. Then:
+  IDENTIFIED  exact {HONDA_ACCORD_11G} -> normal identification.
+  OTHER       firmware attributed to another car -> original OBD sweep (unchanged).
+  HOLD        missing/unknown/11G-only evidence -> no mux, no CAN-only identity (MOCK).
+On this car the OBD sweep never returned Honda firmware, so HOLD loses no
+identity evidence and avoids the storm. CarParams construction is unchanged.
 """
 from opendbc.car.honda.values import CAR
 
@@ -36,9 +41,44 @@ def normal_bus_queries():
           not any(request.bus % 4 == 1 and request.obd_multiplexing for request in kept))
 
 
-def normal_bus_identified(car_fw, vin):
-  from opendbc.car.fw_versions import match_fw_to_car
-  if not car_fw:
-    return False
+IDENTIFIED, OTHER, HOLD = 'identified', 'other', 'hold'
+NORMAL_BUS_ATTEMPTS = 2
+
+
+def normal_bus_outcome(car_fw, vin):
+  from opendbc.car.fw_versions import FW_VERSIONS, match_fw_to_car
   exact, candidates = match_fw_to_car(car_fw, vin, log=False)
-  return bool(exact) and candidates == {CAR.HONDA_ACCORD_11G}
+  if exact and candidates == {CAR.HONDA_ACCORD_11G}:
+    return IDENTIFIED
+  if candidates - {CAR.HONDA_ACCORD_11G}:
+    return OTHER
+  # Keyed by (address, subaddress) like production matching; live CarFw.ecu is a capnp enum.
+  known = {}
+  for car, ecus in FW_VERSIONS.items():
+    for (_, address, sub_address), versions in ecus.items():
+      for version in versions:
+        known.setdefault((address, sub_address, version), set()).add(car)
+  for fw in car_fw:
+    cars = known.get((fw.address, fw.subAddress or None, bytes(fw.fwVersion)), set())
+    if cars and CAR.HONDA_ACCORD_11G not in cars:
+      return OTHER
+  return HOLD
+
+
+def normal_bus_fw(query, vin):
+  """query(**kw) is production get_fw_versions bound to the live transport."""
+  car_fw, seen, outcome = [], set(), HOLD
+  for _ in range(NORMAL_BUS_ATTEMPTS):
+    for fw in query(query_brand='honda', normal_bus_only=True, request_buses=frozenset({0})):
+      key = (fw.address, fw.subAddress, bytes(fw.fwVersion), fw.bus)
+      if key not in seen:
+        seen.add(key)
+        car_fw.append(fw)
+    outcome = normal_bus_outcome(car_fw, vin)
+    if outcome != HOLD:
+      break
+  return car_fw, outcome
+
+
+def normal_bus_identified(car_fw, vin):
+  return bool(car_fw) and normal_bus_outcome(car_fw, vin) == IDENTIFIED
