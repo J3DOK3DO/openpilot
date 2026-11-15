@@ -179,6 +179,51 @@ class TestHondaStockAol(unittest.TestCase):
         self.stream(lkas=1, request=False)
         self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
 
+  def test_c5_reconnect_zero_after_pending_grant_retires_old_session(self):
+    # A first startup zero precedes any request. A later zero, after a previous
+    # request was seen, is a withdrawal even when a new physical grant is pending.
+    for case in CASES:
+      if case[2] not in (80, 81):
+        continue
+      with self.subTest(case=case[0]):
+        self.configure(case)
+        self.arm()
+        steer = self.steer_frame()
+        self.assertEqual(self.native_state(steer)[2:], (1, True))
+        self.safety.set_aol_test_heartbeat(False)
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+        self.stream(lkas=0, request=False)
+        self.safety.set_timer(1_010_000)
+        self.stream(lkas=1, request=False)
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.PENDING | self.DRIVE, 0, 0, False))
+        self.safety.aol_set_host_request(0)  # Replacement pandad's zero handshake.
+        self.safety.set_aol_test_heartbeat(True)
+        self.safety.set_timer(1_020_000)
+        self.stream(lkas=1, request=False)  # Held LKAS is not a fresh gesture.
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 1, 0, False))
+
+  def test_c5_gear_return_new_grant_needs_post_drive_host_request(self):
+    # A new physical gesture must not combine with a host mask from before
+    # the gear transition, even when that mask is less than 300 ms old.
+    for case in CASES:
+      if case[2] not in (80, 81):
+        continue
+      with self.subTest(case=case[0]):
+        self.configure(case)
+        self.arm()
+        steer = self.steer_frame()
+        self.assertEqual(self.native_state(steer)[2:], (1, True))
+        self.safety.set_timer(1_010_000)
+        self.stream(gear=0, request=False)
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+        self.safety.set_timer(1_020_000)
+        self.stream(gear=self.drive_value, lkas=0, request=False)
+        self.stream(lkas=1, request=False)  # New physical edge; no new host request.
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(steer)[2:], (1, True))
+
   def test_c4_gear_departure_and_main_in_park_require_new_drive_gesture(self):
     for case in CASES:
       if case[2] not in (80, 81):
@@ -189,13 +234,15 @@ class TestHondaStockAol(unittest.TestCase):
         steer = self.steer_frame()
         self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
         self.stream(gear=0, lkas=1, request=False)
-        self.assertEqual(self.native_state(steer), (self.SESSION, 1, 0, False))
+        self.assertEqual(self.native_state(steer), (self.SESSION, 0, 0, False))
         self.stream(gear=self.drive_value, lkas=1, request=False)
-        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 1, 0, False))
+        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 0, 0, False))
         self.stream(lkas=1, request=False)  # Held button cannot rearm.
-        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 1, 0, False))
+        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 0, 0, False))
         self.stream(lkas=0, request=False)
         self.stream(lkas=1, request=False)
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 0, 0, False))
+        self.safety.aol_set_host_request(1)
         self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
 
         self.configure(case)

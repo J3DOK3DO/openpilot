@@ -1,0 +1,84 @@
+diff --git a/opendbc_repo/opendbc/safety/modes/honda_stock_aol.h b/opendbc_repo/opendbc/safety/modes/honda_stock_aol.h
+index 29b56eabd..de2bbb37c 100644
+--- a/opendbc_repo/opendbc/safety/modes/honda_stock_aol.h
++++ b/opendbc_repo/opendbc/safety/modes/honda_stock_aol.h
+@@ -91,4 +91,5 @@ static void honda_stock_aol_host_request(uint8_t mask) {
+-      honda_stock_aol_flag(HONDA_STOCK_SESSION) && honda_stock_aol_flag(HONDA_STOCK_REQUEST_SEEN)) {
+-    // Retire an acknowledged grant on withdrawal. Preserve a pending physical
+-    // grant across the initial pandad zero-request session handshake; it still
+-    // needs a fresh post-gesture nonzero request before any output is allowed.
++      honda_stock_aol_flag(HONDA_STOCK_REQUEST_SEEN) &&
++      (honda_stock_aol_flag(HONDA_STOCK_SESSION) || honda_stock_aol_flag(HONDA_STOCK_PENDING))) {
++    // Retire an acknowledged or pending grant on withdrawal. Preserve a pending
++    // grant across only the first pandad zero-request startup handshake, before
++    // any host request has been seen.
+@@ -227,0 +229 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
++      const bool was_drive = honda_stock_aol_flag(HONDA_STOCK_DRIVE);
+@@ -236,0 +239,5 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
++      if (honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) &&
++          (!honda_stock_aol_flag(HONDA_STOCK_DRIVE) || !was_drive)) {
++        // A host mask from the prior gear cannot authorize a new Drive grant.
++        aol_host_axis_mask = 0U;
++      }
+diff --git a/opendbc_repo/opendbc/safety/tests/test_honda_stock_aol.py b/opendbc_repo/opendbc/safety/tests/test_honda_stock_aol.py
+index fb4b7f48c..614c38500 100644
+--- a/opendbc_repo/opendbc/safety/tests/test_honda_stock_aol.py
++++ b/opendbc_repo/opendbc/safety/tests/test_honda_stock_aol.py
+@@ -181,0 +182,45 @@ class TestHondaStockAol(unittest.TestCase):
++  def test_c5_reconnect_zero_after_pending_grant_retires_old_session(self):
++    # A first startup zero precedes any request. A later zero, after a previous
++    # request was seen, is a withdrawal even when a new physical grant is pending.
++    for case in CASES:
++      if case[2] not in (80, 81):
++        continue
++      with self.subTest(case=case[0]):
++        self.configure(case)
++        self.arm()
++        steer = self.steer_frame()
++        self.assertEqual(self.native_state(steer)[2:], (1, True))
++        self.safety.set_aol_test_heartbeat(False)
++        self.assertEqual(self.native_state(steer)[2:], (0, False))
++        self.stream(lkas=0, request=False)
++        self.safety.set_timer(1_010_000)
++        self.stream(lkas=1, request=False)
++        self.assertEqual(self.native_state(steer), (self.TOKEN | self.PENDING | self.DRIVE, 0, 0, False))
++        self.safety.aol_set_host_request(0)  # Replacement pandad's zero handshake.
++        self.safety.set_aol_test_heartbeat(True)
++        self.safety.set_timer(1_020_000)
++        self.stream(lkas=1, request=False)  # Held LKAS is not a fresh gesture.
++        self.safety.aol_set_host_request(1)
++        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 1, 0, False))
++
++  def test_c5_gear_return_new_grant_needs_post_drive_host_request(self):
++    # A new physical gesture must not combine with a host mask from before
++    # the gear transition, even when that mask is less than 300 ms old.
++    for case in CASES:
++      if case[2] not in (80, 81):
++        continue
++      with self.subTest(case=case[0]):
++        self.configure(case)
++        self.arm()
++        steer = self.steer_frame()
++        self.assertEqual(self.native_state(steer)[2:], (1, True))
++        self.safety.set_timer(1_010_000)
++        self.stream(gear=0, request=False)
++        self.assertEqual(self.native_state(steer)[2:], (0, False))
++        self.safety.set_timer(1_020_000)
++        self.stream(gear=self.drive_value, lkas=0, request=False)
++        self.stream(lkas=1, request=False)  # New physical edge; no new host request.
++        self.assertEqual(self.native_state(steer)[2:], (0, False))
++        self.safety.aol_set_host_request(1)
++        self.assertEqual(self.native_state(steer)[2:], (1, True))
++
+@@ -192 +237 @@ class TestHondaStockAol(unittest.TestCase):
+-        self.assertEqual(self.native_state(steer), (self.SESSION, 1, 0, False))
++        self.assertEqual(self.native_state(steer), (self.SESSION, 0, 0, False))
+@@ -194 +239 @@ class TestHondaStockAol(unittest.TestCase):
+-        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 1, 0, False))
++        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 0, 0, False))
+@@ -196 +241 @@ class TestHondaStockAol(unittest.TestCase):
+-        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 1, 0, False))
++        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 0, 0, False))
+@@ -198,0 +244,2 @@ class TestHondaStockAol(unittest.TestCase):
++        self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 0, 0, False))
++        self.safety.aol_set_host_request(1)

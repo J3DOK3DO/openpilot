@@ -88,10 +88,11 @@ static void honda_stock_aol_reset(void) {
 
 static void honda_stock_aol_host_request(uint8_t mask) {
   if ((mask == 0U) && honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) &&
-      honda_stock_aol_flag(HONDA_STOCK_SESSION) && honda_stock_aol_flag(HONDA_STOCK_REQUEST_SEEN)) {
-    // Retire an acknowledged grant on withdrawal. Preserve a pending physical
-    // grant across the initial pandad zero-request session handshake; it still
-    // needs a fresh post-gesture nonzero request before any output is allowed.
+      honda_stock_aol_flag(HONDA_STOCK_REQUEST_SEEN) &&
+      (honda_stock_aol_flag(HONDA_STOCK_SESSION) || honda_stock_aol_flag(HONDA_STOCK_PENDING))) {
+    // Retire an acknowledged or pending grant on withdrawal. Preserve a pending
+    // grant across only the first pandad zero-request startup handshake, before
+    // any host request has been seen.
     honda_stock_aol_clear();
     honda_stock_aol_set_flag(HONDA_STOCK_SESSION, false);
   } else if (mask != 0U) {
@@ -225,6 +226,7 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
       }
     }
     if (honda_stock_aol_selected(msg, honda_stock_aol_gear_check())) {
+      const bool was_drive = honda_stock_aol_flag(HONDA_STOCK_DRIVE);
       uint8_t gear = msg->data[4] & 15U;
       if (msg->addr == 0x191U) {
         gear = msg->data[5] & 31U;
@@ -234,6 +236,11 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
       }
       honda_stock_aol_set_flag(HONDA_STOCK_DRIVE, (msg->addr == 0x188U) ? ((gear == 8U) || (gear == 0U)) :
         ((gear == 4U) || (gear == 7U) || (gear == 10U) || (gear == 11U)));
+      if (honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) &&
+          (!honda_stock_aol_flag(HONDA_STOCK_DRIVE) || !was_drive)) {
+        // A host mask from the prior gear cannot authorize a new Drive grant.
+        aol_host_axis_mask = 0U;
+      }
       if (honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) && !honda_stock_aol_flag(HONDA_STOCK_DRIVE)) {
         // A later Drive frame cannot complete a grant from a previous gear.
         honda_stock_aol_clear();
