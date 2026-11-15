@@ -41,6 +41,11 @@ CASES = (
 
 
 class TestHondaStockAol(unittest.TestCase):
+  TOKEN = 0x0002
+  PENDING = 0x0004
+  SESSION = 0x0040
+  DRIVE = 0x0200
+
   def tearDown(self):
     # Later safety suites configure hooks before init_tests resets shared experience.
     libsafety_py.libsafety.set_alternative_experience(0)
@@ -110,6 +115,172 @@ class TestHondaStockAol(unittest.TestCase):
     if not alternate:
       values.update(ACC_STATUS=1, PEDAL_GAS=0)
     self.assertTrue(self.safety.safety_rx_hook(self.packet(name, values)))
+
+  def steer_frame(self):
+    tx = self.safety.current_safety_config
+    bus = next(int(tx.tx_msgs[i].bus) for i in range(tx.tx_msgs_len) if tx.tx_msgs[i].addr == 0xE4)
+    return self.packet("STEERING_CONTROL", {"STEER_TORQUE": 1, "STEER_TORQUE_REQUEST": 1}, bus=bus)
+
+  def native_state(self, steer):
+    request = int(self.safety.aol_get_request_mask())
+    permission = int(self.safety.aol_get_permission_mask())
+    tx = bool(self.safety.safety_tx_hook(steer))
+    flags = int(self.safety.safety_test_honda_stock_flags())
+    return (flags & (self.TOKEN | self.PENDING | self.SESSION | self.DRIVE), request, permission, tx)
+
+  def test_c4_non_drive_lkas_pending_cannot_rearm_in_drive(self):
+    for case in CASES:
+      if case[2] not in (80, 81):
+        continue
+      for gear in (0, 1, 2, 3, 15):  # Park, Reverse, Neutral and unknown values on 0x191.
+        with self.subTest(case=case[0], gear=gear):
+          self.configure(case)
+          self.safety.set_aol_test_heartbeat(False)
+          self.stream(gear=gear, request=False)
+          self.safety.aol_set_host_request(0)  # Initial pandad handshake.
+          steer = self.steer_frame()
+          self.safety.set_timer(1_010_000)
+          self.stream(gear=gear, lkas=1, request=False)
+          parked_state = self.native_state(steer)
+          print(f"C4 pre-drive {case[0]} gear={gear} state={parked_state}")
+          self.assertEqual(parked_state[1:], (0, 0, False))
+          self.safety.set_timer(1_020_000)
+          self.safety.set_aol_test_heartbeat(True)
+          self.stream(gear=self.drive_value, lkas=1, request=False)
+          self.safety.aol_set_host_request(1)  # Fresh host request; no new physical edge.
+          state = self.native_state(steer)
+          print(f"C4 non-drive {case[0]} gear={gear} state={state}")
+          self.assertEqual(state, (self.DRIVE | self.SESSION, 1, 0, False))
+
+  def test_c4_drive_pending_zero_handshake_and_fresh_lkas(self):
+    for case in CASES:
+      if case[2] not in (80, 81):
+        continue
+      with self.subTest(case=case[0]):
+        self.configure(case)
+        self.safety.set_aol_test_heartbeat(False)
+        self.stream(request=False)
+        steer = self.steer_frame()
+        self.safety.aol_set_host_request(0)
+        self.safety.set_timer(1_010_000)
+        self.stream(lkas=1, request=False)
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.PENDING | self.DRIVE, 0, 0, False))
+        self.safety.aol_set_host_request(0)
+        self.safety.set_aol_test_heartbeat(True)
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.PENDING | self.DRIVE, 0, 0, False))
+        self.safety.set_timer(1_020_000)
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
+        self.safety.aol_set_host_request(0)
+        self.assertEqual(self.native_state(steer), (self.DRIVE | self.SESSION, 0, 0, False))
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(steer), (self.DRIVE | self.SESSION, 1, 0, False))
+        self.stream(lkas=0, request=False)
+        self.stream(lkas=1, request=False)
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
+
+  def test_c4_gear_departure_and_main_in_park_require_new_drive_gesture(self):
+    for case in CASES:
+      if case[2] not in (80, 81):
+        continue
+      with self.subTest(case=case[0]):
+        self.configure(case)
+        self.arm()
+        steer = self.steer_frame()
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
+        self.stream(gear=0, lkas=1, request=False)
+        self.assertEqual(self.native_state(steer), (self.SESSION, 1, 0, False))
+        self.stream(gear=self.drive_value, lkas=1, request=False)
+        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 1, 0, False))
+        self.stream(lkas=1, request=False)  # Held button cannot rearm.
+        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 1, 0, False))
+        self.stream(lkas=0, request=False)
+        self.stream(lkas=1, request=False)
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
+
+        self.configure(case)
+        self.stream(main=False, gear=0, request=False)
+        self.stream(main=True, gear=0, request=False)
+        self.assertFalse(self.safety.safety_test_honda_stock_token())
+        self.stream(main=True, request=False)
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(self.steer_frame()), (self.SESSION | self.DRIVE, 1, 0, False))
+        self.stream(main=False, request=False)
+        self.stream(main=True, request=False)
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(self.steer_frame()), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
+
+  def test_c4_zero_edge_order_heartbeat_main_eps_and_rx_invalid(self):
+    for case in CASES:
+      if case[2] not in (80, 81):
+        continue
+      with self.subTest(case=case[0]):
+        self.configure(case)
+        self.arm()
+        steer = self.steer_frame()
+        self.safety.aol_set_host_request(0)
+        self.stream(lkas=0, request=False)
+        self.stream(lkas=1, request=False)
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
+        self.safety.aol_set_host_request(0)  # Same tick, zero after the new edge.
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(steer), (self.SESSION | self.DRIVE, 1, 0, False))
+        self.safety.set_timer(1_000_001)  # Adjacent tick needs a new physical edge.
+        self.stream(lkas=0, request=False)
+        self.stream(lkas=1, request=False)
+        self.assertEqual(self.native_state(steer), (self.TOKEN | self.SESSION | self.DRIVE, 1, 1, True))
+        for eps in (2, 6):
+          self.stream(eps=eps, request=False)
+          self.assertEqual(self.native_state(steer)[2:], (0, False))
+          self.stream(request=False)
+          self.assertEqual(self.native_state(steer)[2:], (1, True))
+        self.safety.set_aol_test_heartbeat(False)
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+        self.safety.set_aol_test_heartbeat(True)
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+        self.stream(main=False, request=False)
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+        self.stream(main=True, request=False)  # Fresh MAIN transition in Drive.
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(steer)[2:], (1, True))
+        bad = self.packet("POWERTRAIN_DATA", {"ACC_STATUS": 0})
+        bad.data[7] ^= 1
+        self.assertFalse(self.safety.safety_rx_hook(bad))
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+        self.stream(request=False)
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+
+  def test_c4_request_freshness_boundary_and_other_honda_scope(self):
+    for case in CASES:
+      if case[2] not in (80, 81):
+        continue
+      with self.subTest(case=case[0]):
+        self.configure(case)
+        self.arm()
+        steer = self.steer_frame()
+        self.safety.set_timer(1_300_000)
+        self.stream(request=False)
+        self.assertEqual(self.native_state(steer)[2:], (1, True))
+        self.safety.set_timer(1_300_001)
+        self.stream(request=False)
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(steer)[2:], (0, False))
+    for case in CASES:
+      if case[2] not in (16, 17):
+        continue
+      with self.subTest(case=case[0]):
+        self.configure(case)
+        self.safety.set_aol_test_heartbeat(False)
+        self.stream(gear=0, request=False)
+        self.stream(gear=0, lkas=1, request=False)
+        self.assertTrue(self.safety.safety_test_honda_stock_token())
+        self.stream(gear=self.drive_value, lkas=1, request=False)
+        self.safety.set_aol_test_heartbeat(True)
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.native_state(self.steer_frame())[2:], (1, True))
 
   def test_cancel_preserves_only_existing_lateral_without_renewing_request(self):
     for case in CASES:
@@ -549,7 +720,11 @@ class TestHondaStockAol(unittest.TestCase):
           self.assertEqual(self.safety.aol_get_permission_mask(), int(self.scoped and driving))
           self.assertFalse(self.safety.get_controls_allowed())
           self.stream()
-          self.assertEqual(self.safety.aol_get_permission_mask(), int(self.scoped))
+          expected = self.scoped and (driving or case[2] not in (80, 81))
+          self.assertEqual(self.safety.aol_get_permission_mask(), int(expected))
+          if self.scoped and not driving and case[2] in (80, 81):
+            self.stream(lkas=1)
+            self.assertEqual(self.safety.aol_get_permission_mask(), 1)
 
   def test_normal_grant_checks_each_current_eps_state(self):
     for case in CASES:

@@ -110,6 +110,11 @@ bool safety_test_honda_stock_token(void) {
   return honda_stock_aol_flag(HONDA_STOCK_TOKEN);
 }
 
+// Test-only snapshot of the native token, pending and session state.
+uint16_t safety_test_honda_stock_flags(void) {
+  return honda_stock_aol_flags;
+}
+
 void set_alternative_experience(int mode){
   alternative_experience = mode;
 }

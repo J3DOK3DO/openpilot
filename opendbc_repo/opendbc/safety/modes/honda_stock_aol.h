@@ -193,7 +193,9 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
         honda_stock_aol_clear();
         honda_stock_aol_set_flag(HONDA_STOCK_MAIN_NEUTRAL, true);
       } else if (honda_stock_aol_flag(HONDA_STOCK_MAIN_NEUTRAL)) {
-        honda_stock_aol_grant();
+        if (!honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) || honda_stock_aol_flag(HONDA_STOCK_DRIVE)) {
+          honda_stock_aol_grant();
+        }
         honda_stock_aol_set_flag(HONDA_STOCK_MAIN_NEUTRAL, false);
       } else {
       }
@@ -203,7 +205,8 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
       const bool lkas = setting == 1U;
       if (!lkas) {
         honda_stock_aol_set_flag(HONDA_STOCK_LKAS_NEUTRAL, true);
-      } else if (honda_stock_aol_flag(HONDA_STOCK_LKAS_NEUTRAL) && !honda_stock_aol_flag(HONDA_STOCK_LKAS_PREVIOUS) && acc_main_on) {
+      } else if (honda_stock_aol_flag(HONDA_STOCK_LKAS_NEUTRAL) && !honda_stock_aol_flag(HONDA_STOCK_LKAS_PREVIOUS) && acc_main_on &&
+                 (!honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) || honda_stock_aol_flag(HONDA_STOCK_DRIVE))) {
         honda_stock_aol_grant();
         honda_stock_aol_set_flag(HONDA_STOCK_LKAS_NEUTRAL, false);
       } else {
@@ -231,6 +234,11 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
       }
       honda_stock_aol_set_flag(HONDA_STOCK_DRIVE, (msg->addr == 0x188U) ? ((gear == 8U) || (gear == 0U)) :
         ((gear == 4U) || (gear == 7U) || (gear == 10U) || (gear == 11U)));
+      if (honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) && !honda_stock_aol_flag(HONDA_STOCK_DRIVE)) {
+        // A later Drive frame cannot complete a grant from a previous gear.
+        honda_stock_aol_clear();
+        honda_stock_aol_set_flag(HONDA_STOCK_SESSION, false);
+      }
     }
     // Only a newly accepted physical cruise grant can restore an independent token.
     // Qualify after parsing this frame's brake/main state, before generic pedal checks.
