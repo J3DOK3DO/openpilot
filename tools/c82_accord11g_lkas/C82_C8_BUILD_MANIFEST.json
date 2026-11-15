@@ -1,0 +1,142 @@
+{
+  "agnos_target": {
+    "actual_device_os": "UNKNOWN_DISCONNECTED",
+    "ondevice_hash": "8b0da1c6d7568e9377d15fd60f6aff94504b563d5051da319f77114ad17aaed7",
+    "system_hash_raw_sha256": "4f2aa50375915e52ea24ce069ccd92dcaf68d3fbd88959adc5f9e572457bdba2",
+    "system_hash_sparse_sha256": "ec1b9569c784dd0be5d81eb613f59c1628baba3fd13f20ca7568c740a208c5c6",
+    "verified_local_image": false,
+    "verified_local_sysroot": false,
+    "version_from_launch_env": "20.5.2"
+  },
+  "arm64_msgq": {
+    "archive_sha256": "d3266681d65e6129d8a4cf32ce5a8740465857f70b3b8d9a813a6b48cdb00711",
+    "compile_link_exit_code": 0,
+    "elf_machine": "AArch64",
+    "elf_needed": [
+      "libstdc++.so.6",
+      "libgcc_s.so.1",
+      "libc.so.6",
+      "ld-linux-aarch64.so.1"
+    ],
+    "elf_sha256": "77bbf4321a4d635e5c09af0fb1e84af78c3013efad2759a1200fc30759ba98eb",
+    "source_commit": "0bdc95e610d4e8766438cbc7b0de2035247adcdd",
+    "target_agnos_abi_qualified": false,
+    "test_exit_code": 0,
+    "tests_passed": 20,
+    "tests_total": 20
+  },
+  "branch": "accord11g-dom7-c8-2-c8-build-closure-offline-20261115",
+  "builder": {
+    "capnp_cli": "1.0.1",
+    "compiler": "aarch64-linux-gnu-g++ 13.2.0",
+    "container": "dom7-trackb-arm64:20261030",
+    "container_id": "sha256:b1c49f3a3f692eef3c43da5a48e641d577bdf26467a4e14fbe004819a1721718",
+    "old_venv_read_only": "core locked modules present; nanobind 3.1.0 from read-only uv cache; old sysroot diagnostic only",
+    "root_scons_dry_run_exit_code": 0,
+    "root_scons_dry_run_target": "msgq_repo/msgq/test_runner",
+    "root_scons_mode": "generic aarch64, no AGNOS marker, no COMMA_BUILD_SYSROOT; not product qualified"
+  },
+  "date_uae": "2026-11-15",
+  "entry_source_commit": "0bdc95e610d4e8766438cbc7b0de2035247adcdd",
+  "evidence_directory": "/mnt/commadrive/DOM7_C612_FAULT_DIAGNOSTICS_20261113/evidence/C8_2_C8_OFFLINE_20261115",
+  "evidence_files_sha256": {
+    "COMMANDS_AND_EXITS.md": "1eb3604ed9c7b8f8f044446001b7f7e6df6a21e4284b6d05b631abda501f13aa",
+    "SHA256SUMS.txt": "83fdb2e78dde4bf5a6b1a9fdd6e564658e5c385f13a164f689a1527f7a39dfbe",
+    "abi_inventory.json": "d6433df3f948c4caa0ea590e721b70d32d1a45a454ce97a16dc999bace8beb4a",
+    "agnos19_9_hash.log": "4b190903da3e31286d1e10c6fadf2c1b3e9b30ae3cc085fa1388c74788068218",
+    "arm64_msgq.log": "cf1811e7ea3629772bae14313e1ad4364a90bd33b1b3504ad2f5779281a6303b",
+    "arm64_msgq.sh": "9ff50545376eed0f028b4bdfe9075e21f44f444d1ed51f11ca9b1173c8b2914f",
+    "doctor.log": "09d1cb9b3854abfd61e0d25944377cb447b29b7604c3d13d9b7d4b072ca9d5b0",
+    "image_probe.log": "f18f0b8a7bcde22d6db0fbfbe2eb2c60d965911bd049c79f0f072c14e564087b",
+    "libmsgq_diag.a": "d3266681d65e6129d8a4cf32ce5a8740465857f70b3b8d9a813a6b48cdb00711",
+    "msgq_tests_arm64": "77bbf4321a4d635e5c09af0fb1e84af78c3013efad2759a1200fc30759ba98eb",
+    "probe_images.sh": "862a5dd1fe9aec55e81d6fda2b76ed85445c4faa443c551e0be4328fbf6e4c43",
+    "qcom_verify.log": "84dd9d2ac346cb489614fcccb25ddbe24d8ede99df89e88b308936b72de4d355",
+    "receipt_check.log": "39340c89742c81e5400625cbafa874b4f349dd1fc29c50ca3d621bcd42168773",
+    "root_preflight.log": "9ce6b71f0873d044653f8530238a2b3e747cd9a2012a6512e47462d511c5892e",
+    "root_preflight.sh": "556b1f7ea70ff0ea0da3bb26eb74078255f93d7447962c0c6679eb6d882b12ec"
+  },
+  "evidence_packet_bytes": 187184,
+  "evidence_scope_note": "Only files listed here were authored/copied in this campaign; separately existing QWEN preliminary files in the directory are excluded and not a final C8 independent review.",
+  "final_commit_note": "Resolve after local commit with git rev-parse HEAD. A commit cannot include its own SHA; no final-commit native product build or receipt exists.",
+  "final_documentation_commit": null,
+  "legacy_sysroots": {
+    "abi_paths_measured": 24,
+    "absent_in_both": 5,
+    "count": 2,
+    "present_in_both_matching_sha256": 19,
+    "provenance": "TrackAB AGNOS 19.8.1; not target matched",
+    "target_abi_comparison": "UNKNOWN_TARGET_BYTES_ABSENT"
+  },
+  "prior_unreplayed": {
+    "bus0_hold_deselected": 48,
+    "bus0_hold_passed": 8,
+    "honda_native_passed": 35,
+    "jetlink_baseline_failed": 2,
+    "jetlink_baseline_passed": 5,
+    "lifecycle_passed": 28
+  },
+  "qcom_cached_inputs": {
+    "current_target_count": 5,
+    "freshly_generated": false,
+    "producer_attestation": false,
+    "retired_driving_target_present": false,
+    "source_signature_sha256": "db2ee948465d03d8180db65d537bdccc1a7211142d4e7ba296bb78548761d6f8",
+    "verified_artifacts": {
+      "dm_warp_1344x760_tinygrad.pkl": {
+        "sha256": "79df4a2f9701aea9cf6c21477cae07852d7d8c245737599e6b72a1e6fa4fe88f",
+        "size": 1397448
+      },
+      "dm_warp_1928x1208_tinygrad.pkl": {
+        "sha256": "5711934a11792e539e72ce68837b8bab802ee7bd2a909402fd35a4cc4efc382f",
+        "size": 1397400
+      },
+      "dmonitoring_model_tinygrad.pkl": {
+        "sha256": "7f7198c63d2d9b0d015cc860fdd836db50a4b9a75ab5d56cffd4d4eee5eb7b97",
+        "size": 20768359
+      },
+      "driving_warp_1344x760_tinygrad.pkl": {
+        "sha256": "b8c123c5a040923169e1597d6ec0b6fb46c2d95b5c39dc0c71b0d5adf3441d02",
+        "size": 838183
+      },
+      "driving_warp_1928x1208_tinygrad.pkl": {
+        "sha256": "54a0a68e9375820049ddc09d573e06f983a1b03de7dd0750f11fd3e7871be1ba",
+        "size": 837991
+      }
+    },
+    "verify_exit_code": 0
+  },
+  "receipt": {
+    "entry_revision_check_exit_code": 1,
+    "full_product_built": false,
+    "inherited_receipt_valid": false,
+    "prebuilt_json_modified": false,
+    "prebuilt_marker_modified": false
+  },
+  "safety_source_ancestor": "38b51582deb2a75430b5f9c0dfec95e0f685449c",
+  "schema": "c82-c8-combined-offline-build-evidence-v1",
+  "source_hashes_sha256": {
+    "SConstruct": "c4ae8224009dc8cba061b2304f7b4ea0ed570e6cbc3dde19f43a3eaf0c251a54",
+    "launch_env.sh": "54cf2ef66586df22c4b433432473cc6bfd1432eccf62269e18b58c9d39ade161",
+    "msgq_repo/msgq/event.cc": "e76de4967fe3845867917b72d770dd24847d963d6d3d460118c4b7453a192fea",
+    "msgq_repo/msgq/ipc.cc": "194ac6031503a01433b0296565f7f96fdca6c2b7c37e48273e213b6d3a621dc8",
+    "msgq_repo/msgq/msgq.cc": "ddf4eb1d35bddef7d813b34989c06e23df57de0fee288376294b660a519a8bbc",
+    "msgq_repo/msgq/msgq_tests.cc": "a7645037de23884ce118a02750c55846b87d588d5f7c8f65bcfebaa6e06e65d1",
+    "opendbc_repo/opendbc/safety/modes/honda_stock_aol.h": "44decb9c4a51953db8434dc54027559aadbdcb7194ae784df56f61de05462882",
+    "openpilot/system/hardware/tici/agnos.json": "e69520f0c108606b552793551a848ee7702d8890f6786098f25299a81bb2023e",
+    "panda/board/main.c": "43be524884432b47064f4f29024d66883e51838d889d638ae98d35e52c4b44e3",
+    "pyproject.toml": "80252448e948ec08450f3a0116a686df709acd8b1195fa6ff61cfd0c35b4ad96",
+    "tools/laptop_device_build/qcom_artifact_contract.py": "e27c0814b03137a7294ff8d52b45752a26646001d21ecdb473ef3ca2ab2baafb",
+    "uv.lock": "99b1ed8b91303f9f1770607200ed16009b52cda0f5244bb6f15ed0d300684b1d"
+  },
+  "status": {
+    "bounded_arm64": "PASS_BOUNDED_ARM64",
+    "human_safety": "HUMAN_SAFETY_PENDING",
+    "independent_review": "PENDING",
+    "installable": false,
+    "native_product": "NO_GO",
+    "physical_safety": "HARDWARE_PHYSICAL_NO_GO",
+    "product_dependency": "FAIL_DEPENDENCY",
+    "road_qualified": false
+  }
+}
