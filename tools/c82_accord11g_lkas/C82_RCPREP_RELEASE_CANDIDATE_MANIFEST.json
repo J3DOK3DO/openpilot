@@ -1,0 +1,41 @@
+{
+  "schema": "c82-rcprep-source-freeze-v1",
+  "date": "2026-11-15",
+  "scope": "offline_source_release_candidate_only",
+  "installable": false,
+  "road_qualified": false,
+  "source_parent_sha": "38b51582deb2a75430b5f9c0dfec95e0f685449c",
+  "source_parent_parent_sha": "2fe2061228b2b55ddbe1bff8ccdf394194555f81",
+  "branch": "accord11g-dom7-c8-2-rcprep-offline-20261115",
+  "rc_prep_commit_sha": null,
+  "rc_prep_commit_note": "Resolve with git rev-parse HEAD after the docs-only local commit; a commit cannot embed its own SHA.",
+  "vehicle_control_delta_from_parent": "none; documentation files only",
+  "honda_native_header_sha256": "44decb9c4a51953db8434dc54027559aadbdcb7194ae784df56f61de05462882",
+  "historical_identities": {
+    "last_verified_installed_c81_sha": "9d2da330f6539beb5afb67867b28491526c0e1bd",
+    "original_dom_rollback_sha": "ab468b8ecd1baa3e63fb5436b69253213d892b5d",
+    "device_identity_refreshed": false
+  },
+  "reused_parent_test_evidence": [
+    {"name": "Honda native host safety", "result": "35 passed", "log_sha256": "51bcff334591c2ae54f8fad0fd99346947381cf5152c1d17edfd153c1d61f527"},
+    {"name": "Card/Controls/Panda host lifecycle", "result": "28 passed", "log_sha256": "3177100f7bb6844d13d6a051bbac67ff34d266c72ebe1daa545db60e87aa9a8d"},
+    {"name": "C8.1 bus-0/HOLD selected regression", "result": "8 passed, 48 deselected", "log_sha256": "5ced299b6a4be81e4713b23351bdb3843552f4f727a21ca4485563dfa967cf21"},
+    {"name": "Qwen source review", "result": "PASS_WITH_BLOCKERS; AI review, no human safety approval", "review_sha256": "f3600170f603d00f1ebda8599dfe340a90616eb74ca98aeae39ceea41ff44500"},
+    {"name": "Jetlink baseline", "result": "2 failed, 5 passed; unresolved"}
+  ],
+  "new_native_feasibility": {
+    "target": "panda_h7 DEBUG main from parent source in /tmp",
+    "command_exit_code": 0,
+    "compiler": "arm-none-eabi-gcc 13.2.1",
+    "scons": "4.9.1",
+    "log_sha256": "ee5877c1e7dea19ddcbc02ab679fa87681800fe22007163de6c97b31e687f612",
+    "arm_elf32_main_sha256": "397d2eda81d2631ed72e8fb8f44a754418a756ec9cec1e5e747242bac60a1846",
+    "debug_signed_h7_sha256": "71978f7f21b3c2435fc683fb86861bff543992f2421241b997722797ad5dcaf7",
+    "temporary_artifact_only": true,
+    "product_firmware_qualified": false
+  },
+  "release_receipt_check": {"revision": "38b51582deb2a75430b5f9c0dfec95e0f685449c", "exit_code": 1, "result": "no matching build receipt"},
+  "product_builds": {"qualcomm": "blocked_not_run", "panda_release": "blocked_not_run", "prebuilt_receipt": "absent", "install_package": "absent"},
+  "open_gates": ["independent human safety review", "exact final commit target firmware and product build provenance", "independent standstill protection and native steering authority", "CAN2 interrupt/controlsMismatch root cause and fault response", "physical EPS/CANCEL/driver-cue qualification"],
+  "prohibited_here": ["installation", "vehicle or USB use", "Panda flash", "CAN TX", "actuation", "road test", "push", "merge", "tag"]
+}
