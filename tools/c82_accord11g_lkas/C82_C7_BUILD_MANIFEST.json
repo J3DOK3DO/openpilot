@@ -1,0 +1,53 @@
+{
+  "schema": "c82-c7-offline-native-evidence-v1",
+  "date_uae": "2026-11-15",
+  "branch": "accord11g-dom7-c8-2-c7-native-artifacts-offline-20261115",
+  "entry_source_commit": "9d3f5c1db40c6e323f6b6f0c9b70aabfad2f2e22",
+  "final_documentation_commit": null,
+  "final_documentation_commit_note": "Resolve after local commit with git rev-parse HEAD; a commit cannot contain its own SHA. Precommit build version is not a final-commit release version.",
+  "c5c6_safety_source_parent": "38b51582deb2a75430b5f9c0dfec95e0f685449c",
+  "honda_header_sha256": "44decb9c4a51953db8434dc54027559aadbdcb7194ae784df56f61de05462882",
+  "panda_main_source_sha256": "43be524884432b47064f4f29024d66883e51838d889d638ae98d35e52c4b44e3",
+  "panda_debug": {
+    "source_commit": "9d3f5c1db40c6e323f6b6f0c9b70aabfad2f2e22",
+    "target": "panda_h7 standard main and bootstub",
+    "exit_code": 0,
+    "version": "DEV-9d3f5c1d-Pf38f504f-DEBUG",
+    "compiler": "arm-none-eabi-gcc 13.2.1",
+    "scons": "4.9.1",
+    "log_sha256": "38018b518518e76b1c195b31dc6019e5c27cd410abf31e0855aca8caf3e85a21",
+    "artifacts_sha256": {
+      "main.elf": "08759f7ff0b9f395e721d1582566bae98751ef0c5b4b0225779fad5e0badf89f",
+      "main.bin": "8be5ad7afef12ac06180ceaff57d46e5813cdae80f2d62393d61438cf08e383a",
+      "panda_h7.bin.signed_debug_certificate": "4157653d20a4e40fc304187708fb72530507608f453a2c729fb423b20e8d1f00",
+      "bootstub.elf": "cc1a5dd9703dcc3d776c134d5da987245078e36d394f0f3091c14352b4f8cbba",
+      "bootstub.panda_h7.bin": "e38c03d00bba5512fcc2c342d31c1c60248f38dbbcfdbbb3b1dac787bf822407"
+    },
+    "installable": false
+  },
+  "panda_release": {"dryrun_exit_code": 2, "blocker": "RELEASE requires owner CERT; no release-signed image", "status": "BLOCKED"},
+  "arm64_partial": {
+    "container": "dom7-trackb-arm64:20261030",
+    "compiler": "aarch64-linux-gnu-g++ 13.2.0",
+    "aol_protocol_executable_sha256": "6baaf783a95343ede73a967f6227624b94f4a7b3381d9defa6963a566f0300b7",
+    "aol_protocol_run_exit_code": 0,
+    "params_object_sha256": "41cbd5e59c00bd1f4713427b7e123c9ba75ee1a3475458b27186cc4ccdff0db4",
+    "full_product": false
+  },
+  "qcom_cached_inputs": {
+    "current_target_count": 5,
+    "source_signature_sha256": "db2ee948465d03d8180db65d537bdccc1a7211142d4e7ba296bb78548761d6f8",
+    "contract_verify": "PASS for every current target; producer attestation absent",
+    "retired_driving_target_present": false,
+    "log_sha256": "9132341e172d1e3dda8d30f6b6bf5ba18b4d704022c76b9ecd86d0f09e776afe"
+  },
+  "existing_static_artifact_validator_exit_code": 0,
+  "existing_static_artifact_validator_scope": "Inherited checkout outputs only, not fresh C8.2 product provenance or runtime inference",
+  "exact_entry_receipt_check_exit_code": 1,
+  "receipt_status": "INVALID_FOR_ENTRY_COMMIT",
+  "full_native_qualcomm_product": "NO_GO",
+  "physical_safety": "NOT_RUN_NO_GO",
+  "installable": false,
+  "road_qualified": false,
+  "reviewer_verdict": null
+}

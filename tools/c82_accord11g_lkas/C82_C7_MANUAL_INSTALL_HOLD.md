@@ -1,0 +1,7 @@
+# C8.2 C7 manual installation hold
+
+**HOLD. No C8.2 device installation, Panda flash, CAN TX, steering actuation or road use.** Offline native debug and partial ARM64 outputs are for engineering evidence only. The cached QCOM five-target input package and inherited checkout binaries do not make an installable image. The exact-commit receipt fails.
+
+A future manual installation process is gated on an authentic release-signed Panda firmware build, complete final-source Qualcomm product build and receipt, independent human native safety review, separately approved passive CAN2/`controlsMismatch` diagnosis, independently qualified stationary steering protection, and controlled physical EPS/CANCEL/driver-cue acceptance. Record actual device AGNOS, Panda firmware, safety mode/param and host source identity at that future gate; the disconnected device identity is unknown here. A separate authorization and recovery plan must precede any device contact.
+
+The last verified installed C8.1 identity is `9d2da330f6539beb5afb67867b28491526c0e1bd`; the intended rollback is a later authorized manual reinstall of that verified release. Original Dom fallback is `ab468b8ecd1baa3e63fb5436b69253213d892b5d`. The owner's C8.1 waiver of a full-image restoration rehearsal and optional settings preservation applies only to rollback logistics. It does not waive firmware, independent hardware, CAN2, torque or standstill safety gates. No installer or executable manual install steps are supplied for this held candidate.
