@@ -1858,7 +1858,8 @@ class SelfdriveD:
                         self.sm['driverMonitoringState'].alertLevel == AlertLevel.three)),
       pause_brake_mps=pause_brake_mps,
       gear_pause=reverse_pause,
-      lateral_inhibit=self.aol_dm_lateral_inhibit or accord11g_stationary_aol_inhibit(self.CP, CS) or sng_standstill_lateral_inhibit(self.CP, CS) or
+      lateral_inhibit=self.aol_dm_lateral_inhibit or accord11g_stationary_aol_inhibit(self.CP, CS, standard_lateral=self.active) or
+        sng_standstill_lateral_inhibit(self.CP, CS) or
         volkswagen_lateral_output_inhibited(self.CP, CS) or any(
         sample.steerFaultTemporary or pause_brake_mps > 0 and sample.brakePressed and not sample.standstill and
         sample.vEgo < pause_brake_mps

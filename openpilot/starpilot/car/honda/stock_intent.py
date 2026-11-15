@@ -1,7 +1,23 @@
+import math
+
 from opendbc.car import structs
 from opendbc.car.honda.values import CAR
 from openpilot.selfdrive.car.cruise import CRUISE_LONG_PRESS
 from openpilot.starpilot.aol.intent import AolCardIntent, AOL_TOGGLE, ButtonType
+
+
+def accord11g_stationary_aol_inhibit(CP, CS, *, standard_lateral: bool = False) -> bool:
+  """Veto lateral-only operation at low speed on Accord 11G."""
+  if CP.carFingerprint != CAR.HONDA_ACCORD_11G or standard_lateral:
+    return False
+  try:
+    v_ego = float(CS.vEgo)
+    min_steer = float(CP.minSteerSpeed)
+    if not math.isfinite(v_ego) or not math.isfinite(min_steer) or v_ego < 0 or min_steer < 0:
+      return True
+    return bool(CS.standstill or v_ego <= max(0.3, min_steer))
+  except (AttributeError, TypeError, ValueError, OverflowError):
+    return True
 
 
 class HondaStockCardIntent(AolCardIntent):
@@ -17,6 +33,21 @@ class HondaStockCardIntent(AolCardIntent):
     self.cancel_ticks = 0
     self.auto_main = settings.lkas_action != AOL_TOGGLE and settings.main_action != AOL_TOGGLE
     self.accord11g = cp.carFingerprint == CAR.HONDA_ACCORD_11G
+    self.cp = cp
+
+  def _clear_ineligible_accord11g_latch(self, CS):
+    if not self.accord11g:
+      return
+    reason = ('accord11g_non_drive_gear' if CS.gearShifter != structs.CarState.GearShifter.drive else
+              'accord11g_stationary' if accord11g_stationary_aol_inhibit(self.cp, CS) else '')
+    if reason:
+      self._record_latch_clear(reason)
+      self.allowed_latch = False
+      self._gesture_neutral_seen = False
+
+  def observe_full_engagement(self, CS, **kwargs):
+    super().observe_full_engagement(CS, **kwargs)
+    self._clear_ineligible_accord11g_latch(CS)
 
   def cancel_action(self, action):
     if action == AOL_TOGGLE and self.settings.enabled:
@@ -71,20 +102,19 @@ class HondaStockCardIntent(AolCardIntent):
       state.buttonEvents = events
       CS = state.as_reader()
     super().update(CS, **kwargs)
-    if self.accord11g and CS.gearShifter in (
-        structs.CarState.GearShifter.park, structs.CarState.GearShifter.neutral,
-        structs.CarState.GearShifter.reverse, structs.CarState.GearShifter.unknown):
-      # Offline C8.2 candidate: never carry a previously armed Accord 11G
-      # LKAS gesture from a non-driving gear into Drive. A new neutral edge
-      # followed by a fresh physical LKAS press is required to re-arm.
-      self._record_latch_clear('accord11g_non_driving_gear')
-      self.allowed_latch = False
-      self._gesture_neutral_seen = False
-    if not available:
-      self.allowed_latch = False
     if self.cancel_held:
       self.cancel_ticks += 1
       if self.cancel_ticks == CRUISE_LONG_PRESS:
         self.cancel_action(self.settings.cancel_actions[1])
       elif self.cancel_ticks == CRUISE_LONG_PRESS * 5:
         self.cancel_action(self.settings.cancel_actions[2])
+    # Apply the final guard after CANCEL actions, which may otherwise re-arm
+    # the latch later in this same update.
+    if not available:
+      self._record_latch_clear('cruise_unavailable')
+      self.allowed_latch = False
+    if self.accord11g and self._fault_inhibit:
+      self._record_latch_clear('accord11g_fault')
+      self.allowed_latch = False
+      self._gesture_neutral_seen = False
+    self._clear_ineligible_accord11g_latch(CS)

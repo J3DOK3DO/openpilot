@@ -24,3 +24,6 @@ class TestHondaCanfdCaller(CurrentCaller):
 
   def test_accord_mvl_eps_reverse_recovery(self):
     self.run_current_caller(candidate=CAR.HONDA_ACCORD_11G, word=80)
+
+  def test_accord_mvl_reverse_return_fresh_lkas(self):
+    self.run_current_caller(candidate=CAR.HONDA_ACCORD_11G, word=80, accord_fresh_lkas=True)

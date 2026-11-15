@@ -65,7 +65,10 @@ class TestHondaCurrentCaller(unittest.TestCase):
     self.run_current_caller(candidate=CAR.HONDA_CIVIC_BOSCH, word=0, fault='relay')
 
   def run_current_caller(self, *, candidate, word, fault=None, alternate_brake=False, alpha=False, speed_mps=12.5,
-                         pedal=False, host_scenario=None, serialized=False, eps_pedal=None, hybrid=False):
+                         pedal=False, host_scenario=None, serialized=False, eps_pedal=None, hybrid=False,
+                         accord_fresh_lkas=False):
+    accord11g = candidate == CAR.HONDA_ACCORD_11G
+    self.assertFalse(accord_fresh_lkas and not accord11g)
     safety = libsafety_py.libsafety
     with (
       OpenpilotPrefix(),
@@ -176,7 +179,7 @@ class TestHondaCurrentCaller(unittest.TestCase):
             gas=20 if eps_pedal == 'gas' and 80 <= tick < 95 else 0,
             steering_torque=1301 if eps_pedal and 80 <= tick < 95 else 0,
             gear=2 if 110 <= tick < 125 else None,
-            lkas=0, speed_kph=speed_mps * 3.6,
+            lkas=int(accord_fresh_lkas and tick == 130), speed_kph=speed_mps * 3.6,
           )
           safety.set_timer((now // 1000) & 0xFFFF_FFFF)
           if tick == 110 and fault == 'relay':
@@ -398,7 +401,8 @@ class TestHondaCurrentCaller(unittest.TestCase):
             row['TX'].append(tx)
           row['events'] = [str(e.name) for e in driven['onroadEvents'].onroadEvents]
           row['fault_reason'] = str(driven['aolAxisState'].aolAxisState.faultReason)
-          if tick in (45, 79, 105) or tick == 135 and fault != "relay" and host_scenario not in ("driver_lockout", "settings_off"):
+          if tick in (45, 79, 105) or (tick == 135 and fault != "relay" and host_scenario not in ("driver_lockout", "settings_off")
+                                             and (not accord11g or accord_fresh_lkas)):
             self.assertTrue(command.latActive, row)
             self.assertTrue(any(t.get('accepted') and t.get('request') and t.get('torque') for t in row['TX']), row)
             self.assertTrue(intent.allowedLatch, row)
@@ -407,11 +411,29 @@ class TestHondaCurrentCaller(unittest.TestCase):
             self.assertTrue(cs.brakePressed if eps_pedal == 'brake' else cs.gasPressed, row)
             self.assertTrue(card.aol_card_intent.allowed_latch, row)
             self.assertFalse(command.latActive or command.longActive or row['permission'] & 1, row)
-          if tick == 90 or tick == 120 and fault != "relay":
+          if tick == 90 or tick == 120 and fault != "relay" and not accord11g:
             self.assertTrue(card.aol_card_intent.allowed_latch, row)
             self.assertTrue(intent.lateralArmed, row)
             self.assertFalse(command.latActive or command.longActive, row)
             self.assertFalse(row['permission'] & 1, row)
+          if accord11g and 120 <= tick < 125:
+            self.assertEqual(cs.gearShifter, structs.CarState.GearShifter.reverse)
+            self.assertEqual(card.aol_card_intent.latch_clear_reason, 'accord11g_non_drive_gear', row)
+            self.assertFalse(card.aol_card_intent.allowed_latch or intent.allowedLatch or intent.lateralArmed, row)
+            self.assertFalse(command.latActive or command.longActive or row['request'] & 1 or row['permission'] & 1, row)
+          if accord11g and 125 <= tick < (130 if accord_fresh_lkas else 145):
+            self.assertEqual(cs.gearShifter, structs.CarState.GearShifter.drive)
+            self.assertFalse(card.aol_card_intent.allowed_latch or intent.allowedLatch or intent.lateralArmed, row)
+            self.assertFalse(command.latActive or row['request'] & 1 or row['permission'] & 1, row)
+            steer = [tx for tx in row['TX'] if 'torque' in tx]
+            if tick == 135:
+              self.assertTrue(steer, row)
+            self.assertTrue(all(tx['torque'] == 0 and not tx['request'] for tx in steer), row)
+          if accord_fresh_lkas and tick == 135:
+            # A parsed LKAS edge after returning to Drive must restore both
+            # host intent and the native physical grant before steering resumes.
+            self.assertTrue(card.aol_card_intent.allowed_latch and intent.lateralArmed, row)
+            self.assertTrue(row['request'] & 1 and row['permission'] & 1, row)
           if tick < 20:
             self.assertFalse(intent.allowedLatch or command.latActive or command.longActive, row)
           if host_scenario == "driver_lockout" and 135 <= tick < 140:
