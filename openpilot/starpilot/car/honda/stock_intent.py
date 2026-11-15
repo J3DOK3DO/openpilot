@@ -1,4 +1,5 @@
 from opendbc.car import structs
+from opendbc.car.honda.values import CAR
 from openpilot.selfdrive.car.cruise import CRUISE_LONG_PRESS
 from openpilot.starpilot.aol.intent import AolCardIntent, AOL_TOGGLE, ButtonType
 
@@ -15,6 +16,7 @@ class HondaStockCardIntent(AolCardIntent):
     self.cancel_held = False
     self.cancel_ticks = 0
     self.auto_main = settings.lkas_action != AOL_TOGGLE and settings.main_action != AOL_TOGGLE
+    self.accord11g = cp.carFingerprint == CAR.HONDA_ACCORD_11G
 
   def cancel_action(self, action):
     if action == AOL_TOGGLE and self.settings.enabled:
@@ -69,6 +71,15 @@ class HondaStockCardIntent(AolCardIntent):
       state.buttonEvents = events
       CS = state.as_reader()
     super().update(CS, **kwargs)
+    if self.accord11g and CS.gearShifter in (
+        structs.CarState.GearShifter.park, structs.CarState.GearShifter.neutral,
+        structs.CarState.GearShifter.reverse, structs.CarState.GearShifter.unknown):
+      # Offline C8.2 candidate: never carry a previously armed Accord 11G
+      # LKAS gesture from a non-driving gear into Drive. A new neutral edge
+      # followed by a fresh physical LKAS press is required to re-arm.
+      self._record_latch_clear('accord11g_non_driving_gear')
+      self.allowed_latch = False
+      self._gesture_neutral_seen = False
     if not available:
       self.allowed_latch = False
     if self.cancel_held:
