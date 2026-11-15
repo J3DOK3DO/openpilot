@@ -71,8 +71,10 @@ def accord11g_stationary_aol_inhibit(CP, CS) -> bool:
     return False
   try:
     v_ego = float(CS.vEgo)
-    threshold = max(0.3, float(CP.minSteerSpeed))
-    return bool(CS.standstill or not math.isfinite(v_ego) or not math.isfinite(threshold) or abs(v_ego) <= threshold)
+    min_steer = float(CP.minSteerSpeed)
+    if not math.isfinite(v_ego) or not math.isfinite(min_steer):
+      return True
+    return bool(CS.standstill or abs(v_ego) <= max(0.3, min_steer))
   except (AttributeError, TypeError, ValueError, OverflowError):
     return True
 
