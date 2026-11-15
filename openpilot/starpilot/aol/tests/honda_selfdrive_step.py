@@ -4,7 +4,8 @@ from unittest.mock import patch
 from openpilot.cereal import messaging
 
 
-def selfdrive_step(sd, published, native, previous_controls, cp, safety, now, *, calibration, driver_lockout=False, driver_monitoring_valid=True):
+def selfdrive_step(sd, published, native, previous_controls, cp, safety, now, *, calibration, driver_lockout=False,
+                   driver_monitoring_valid=True, panda_state=None):
   peers = []
   for service in sd.sm.data:
     if service in ('alertDebug', 'lateralManeuverPlan', 'laneChangeAssistWire', 'starpilotLongitudinalPlan'):
@@ -14,6 +15,9 @@ def selfdrive_step(sd, published, native, previous_controls, cp, safety, now, *,
       continue
     if service == 'aolSafetyWire':
       peers.append(native.as_reader())
+      continue
+    if service == 'pandaStates' and panda_state is not None:
+      peers.append(panda_state)
       continue
     if service in ('carControl', 'controlsState'):
       if service in previous_controls:

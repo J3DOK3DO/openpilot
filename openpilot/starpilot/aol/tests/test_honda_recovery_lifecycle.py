@@ -66,9 +66,11 @@ class TestHondaCurrentCaller(unittest.TestCase):
 
   def run_current_caller(self, *, candidate, word, fault=None, alternate_brake=False, alpha=False, speed_mps=12.5,
                          pedal=False, host_scenario=None, serialized=False, eps_pedal=None, hybrid=False,
-                         accord_fresh_lkas=False):
+                         accord_fresh_lkas=False, full_stop=False, stationary_lkas=False):
     accord11g = candidate == CAR.HONDA_ACCORD_11G
     self.assertFalse(accord_fresh_lkas and not accord11g)
+    self.assertFalse(full_stop and not accord11g)
+    self.assertFalse(stationary_lkas and not accord11g)
     safety = libsafety_py.libsafety
     with (
       OpenpilotPrefix(),
@@ -163,7 +165,9 @@ class TestHondaCurrentCaller(unittest.TestCase):
         for tick in range(145):
           now = base + tick * 10_000_000
           reengage = host_scenario == 'long_reengage' and tick >= 131
-          cancelled = host_scenario == 'cancel' and tick >= 40
+          cancel_scenario = host_scenario in ('cancel', 'cancel_without_latch')
+          cancelled = cancel_scenario and tick >= 50
+          braking = (50 <= tick < 55 and not cancel_scenario) or (eps_pedal == 'brake' and 80 <= tick < 95)
           if host_scenario == 'settings_off' and tick == 135:
             from openpilot.starpilot.aol.intent import read_settings
             saved.put_bool('AlwaysOnLateral', False, block=True)
@@ -171,15 +175,18 @@ class TestHondaCurrentCaller(unittest.TestCase):
             sd.aol_settings = read_settings(saved)
           # SET press/release is the real first ordinary native grant, preceding engaged HB.
           incoming = stream.frames(
-            cruise_button=2 if host_scenario == 'cancel' and tick == 40 else
+            cruise_button=2 if cancel_scenario and tick == 50 else
               3 if tick == 20 or host_scenario == 'long_reengage' and tick == 130 else 0,
             cruise=int(21 <= tick < 50 and not cancelled or reengage),
-            brake=50 <= tick < 55 or eps_pedal == 'brake' and 80 <= tick < 95,
+            brake=braking,
             eps=(2 if eps_pedal else 6) if 80 <= tick < 95 else 0,
             gas=20 if eps_pedal == 'gas' and 80 <= tick < 95 else 0,
             steering_torque=1301 if eps_pedal and 80 <= tick < 95 else 0,
             gear=2 if 110 <= tick < 125 else None,
-            lkas=int(accord_fresh_lkas and tick == 130), speed_kph=speed_mps * 3.6,
+            lkas=int(accord_fresh_lkas and tick == 130 or stationary_lkas and tick == 40 or
+                     accord11g and host_scenario == 'cancel' and tick in (30, 32) or
+                     accord11g and host_scenario == 'cancel_without_latch' and tick == 30),
+            speed_kph=(0 if full_stop and 60 <= tick < 100 or stationary_lkas and tick < 100 else speed_mps) * 3.6,
           )
           safety.set_timer((now // 1000) & 0xFFFF_FFFF)
           if tick == 110 and fault == 'relay':
@@ -204,10 +211,13 @@ class TestHondaCurrentCaller(unittest.TestCase):
           panda.pandaStates[0].safetyModel = cp.safetyConfigs[0].safetyModel
           panda.pandaStates[0].safetyParam, panda.pandaStates[0].alternativeExperience = word, 32
           panda.pandaStates[0].ignitionLine = True
+          if fault == 'can2_early' and tick >= 70:
+            panda.pandaStates[0].faults = ['interruptRateCan2']
           if tick >= 110 and fault in ('relay', 'diagnostic'):
             panda.pandaStates[0].faults = ['relayMalfunction' if fault == 'relay' else 'interruptRateCan2']
           panda.pandaStates[0].controlsAllowed = bool(safety.get_controls_allowed())
-          panda.pandaStates[0].safetyRxChecksInvalid = not bool(safety.safety_config_valid())
+          panda.pandaStates[0].safetyRxChecksInvalid = (not bool(safety.safety_config_valid()) or
+                                                        fault == 'rx_invalid_early' and tick >= 70)
           previous_event = controls_latest.get('carControl')
           if previous_event is not None:
             self.assertEqual(previous_event.carControl.to_dict(), previous.to_dict())
@@ -267,12 +277,16 @@ class TestHondaCurrentCaller(unittest.TestCase):
           }
           self.assertTrue(cs.canValid, (tick, parser_observation))
           self.assertFalse(cs.canTimeout)
-          self.assertAlmostEqual(cs.vEgoRaw, speed_mps, places=5)
-          self.assertFalse(cs.standstill or cs.seatbeltUnlatched)
+          self.assertAlmostEqual(cs.vEgoRaw, 0 if full_stop and 60 <= tick < 100 or stationary_lkas and tick < 100 else speed_mps, places=5)
+          self.assertFalse(cs.seatbeltUnlatched)
+          if full_stop and 79 <= tick < 100 or stationary_lkas and tick < 100:
+            self.assertTrue(cs.standstill, tick)
+          elif not full_stop and not stationary_lkas:
+            self.assertFalse(cs.standstill)
           self.assertFalse(cs.steerFaultPermanent)
           self.assertEqual(cs.steerFaultTemporary, 80 <= tick < 95)
           self.assertEqual(cs.gearShifter, structs.CarState.GearShifter.reverse if 110 <= tick < 125 else structs.CarState.GearShifter.drive)
-          self.assertEqual(cs.brakePressed, 50 <= tick < 55 or eps_pedal == 'brake' and 80 <= tick < 95)
+          self.assertEqual(cs.brakePressed, braking)
           self.assertTrue(cs.cruiseState.available)
           self.assertEqual(cs.cruiseState.enabled, 21 <= tick < 50 and not cancelled or reengage)
           intent = decode_intent(published['aolIntentWire'].aolIntentWire)
@@ -283,7 +297,8 @@ class TestHondaCurrentCaller(unittest.TestCase):
           driven_new = selfdrive_step(
             sd, published, current_receipt, controls_published, cp, safety, now, calibration='calibrated',
             driver_lockout=host_scenario == 'driver_lockout' and tick >= 135,
-            driver_monitoring_valid=not (host_scenario == 'driver_lockout' and tick >= 140))
+            driver_monitoring_valid=not (host_scenario == 'driver_lockout' and tick >= 140),
+            panda_state=panda.as_reader() if fault in ('can2_early', 'rx_invalid_early') else None)
           retained = dict(driven)
           driven.update(driven_new)
           for service, event in retained.items():
@@ -349,6 +364,7 @@ class TestHondaCurrentCaller(unittest.TestCase):
             'controls': bool(safety.get_controls_allowed()),
             'request': int(safety.aol_get_request_mask()),
             'permission': int(safety.aol_get_permission_mask()),
+            'token': bool(safety.safety_test_honda_stock_token()),
             'intent': intent.allowedLatch,
             'stored_latch': card.aol_card_intent.allowed_latch,
             'latch_clear_reason': card.aol_card_intent.latch_clear_reason,
@@ -374,15 +390,17 @@ class TestHondaCurrentCaller(unittest.TestCase):
             if address == steer_msg.address and bus == ci.CC.CAN.lkas:
               tx.update(torque=int(tx_parser.vl['STEERING_CONTROL']['STEER_TORQUE']), request=bool(tx_parser.vl['STEERING_CONTROL']['STEER_TORQUE_REQUEST']))
               if not accepted:
-                self.assertTrue(tick in (80, 110) or fault == "relay" and tick >= 110, row)
+                self.assertTrue(tick in (80, 110) or full_stop and tick == 60 or
+                                fault in ('can2_early', 'rx_invalid_early') and tick == 70 or
+                                fault == 'relay' and tick >= 110, row)
                 self.assertFalse(command.latActive, row)
-                if tick in (80, 110):
+                if tick in (80, 110) or full_stop and tick == 60 or fault in ('can2_early', 'rx_invalid_early') and tick == 70:
                   self.assertTrue(previous.latActive, row)
                 self.assertFalse(row['permission'] & 1, row)
               if not previous.latActive:
                 self.assertEqual((tx['torque'], tx['request']), (0, False), row)
             else:
-              if (alpha and address in (0x1DF, 0x1C8) or pedal and address == 0x200) and tick == (40 if host_scenario == 'cancel' else 50):
+              if (alpha and address in (0x1DF, 0x1C8) or pedal and address == 0x200) and tick == 50:
                 # Card applies the prior Controls envelope. Cancel or brake has
                 # already revoked LONG; the native hook must reject this
                 # in-flight positive command before the new envelope arrives.
@@ -401,24 +419,52 @@ class TestHondaCurrentCaller(unittest.TestCase):
             row['TX'].append(tx)
           row['events'] = [str(e.name) for e in driven['onroadEvents'].onroadEvents]
           row['fault_reason'] = str(driven['aolAxisState'].aolAxisState.faultReason)
-          if tick in (45, 79, 105) or (tick == 135 and fault != "relay" and host_scenario not in ("driver_lockout", "settings_off")
-                                             and (not accord11g or accord_fresh_lkas)):
+          if fault in ('can2_early', 'rx_invalid_early') and tick == 70:
+            self.assertIn('controlsMismatch', row['events'], row)
+          expect_lateral_command = (
+            (tick == 45 and not stationary_lkas and host_scenario != 'cancel_without_latch') or
+            (tick == 79 and not full_stop and not stationary_lkas and host_scenario != 'cancel_without_latch' and
+             fault not in ('can2_early', 'rx_invalid_early')) or
+            (tick == 105 and not accord11g) or
+            (tick == 135 and fault not in ('relay', 'can2_early', 'rx_invalid_early') and
+             host_scenario not in ('driver_lockout', 'settings_off') and
+             (not accord11g or accord_fresh_lkas))
+          )
+          if expect_lateral_command:
             self.assertTrue(command.latActive, row)
             self.assertTrue(any(t.get('accepted') and t.get('request') and t.get('torque') for t in row['TX']), row)
             self.assertTrue(intent.allowedLatch, row)
+          if accord11g and tick == 105:
+            # A temporary EPS withdrawal sent native zero; no latent token may
+            # resume steering when EPS returns without another physical edge.
+            self.assertFalse(command.latActive or row['permission'] & 1, row)
+            self.assertTrue(all(tx['torque'] == 0 and not tx['request'] for tx in row['TX'] if 'torque' in tx), row)
+          if full_stop and tick in (79, 90, 105):
+            self.assertFalse(command.latActive or row['permission'] & 1 or row['token'], row)
+            self.assertTrue(all(tx['torque'] == 0 and not tx['request'] for tx in row['TX'] if 'torque' in tx), row)
+          if stationary_lkas and tick in (45, 79, 105):
+            self.assertFalse(command.latActive or card.aol_card_intent.allowed_latch, row)
+            self.assertTrue(all(tx['torque'] == 0 and not tx['request'] for tx in row['TX'] if 'torque' in tx), row)
+          if fault in ('can2_early', 'rx_invalid_early') and tick in (79, 90, 105, 135):
+            self.assertFalse(command.latActive or row['permission'] & 1 or row['token'], row)
+            self.assertTrue(all(tx['torque'] == 0 and not tx['request'] for tx in row['TX'] if 'torque' in tx), row)
           if eps_pedal and 82 <= tick < 95:
             self.assertTrue(cs.steerFaultTemporary and cs.steeringPressed, row)
             self.assertTrue(cs.brakePressed if eps_pedal == 'brake' else cs.gasPressed, row)
             self.assertTrue(card.aol_card_intent.allowed_latch, row)
             self.assertFalse(command.latActive or command.longActive or row['permission'] & 1, row)
-          if tick == 90 or tick == 120 and fault != "relay" and not accord11g:
+          if ((tick == 90 and not full_stop and not stationary_lkas and host_scenario != 'cancel_without_latch' and
+               fault not in ('can2_early', 'rx_invalid_early')) or
+              (tick == 120 and fault != 'relay' and not accord11g)):
             self.assertTrue(card.aol_card_intent.allowed_latch, row)
             self.assertTrue(intent.lateralArmed, row)
             self.assertFalse(command.latActive or command.longActive, row)
             self.assertFalse(row['permission'] & 1, row)
           if accord11g and 120 <= tick < 125:
             self.assertEqual(cs.gearShifter, structs.CarState.GearShifter.reverse)
-            self.assertEqual(card.aol_card_intent.latch_clear_reason, 'accord11g_non_drive_gear', row)
+            self.assertIn(card.aol_card_intent.latch_clear_reason,
+                          ('accord11g_non_drive_gear', 'accord11g_stationary', 'native_rejection', 'physical_toggle',
+                           'disarming_fault'), row)
             self.assertFalse(card.aol_card_intent.allowed_latch or intent.allowedLatch or intent.lateralArmed, row)
             self.assertFalse(command.latActive or command.longActive or row['request'] & 1 or row['permission'] & 1, row)
           if accord11g and 125 <= tick < (130 if accord_fresh_lkas else 145):
@@ -463,13 +509,23 @@ class TestHondaCurrentCaller(unittest.TestCase):
           if host_scenario == "long_reengage" and tick == 144:
             self.assertTrue(command.latActive and command.longActive, row)
             self.assertEqual(row["permission"], 3, row)
-          if cancelled and tick >= 42:
+          if cancelled and host_scenario != 'cancel_without_latch' and tick >= 52 and (not accord11g or tick < 80):
             self.assertTrue(card.aol_card_intent.allowed_latch and intent.lateralArmed, row)
             self.assertFalse(command.longActive or row['permission'] & 2, row)
             if tick < 80 or 105 <= tick < 110 or tick >= 135:
               self.assertTrue(command.latActive and row['permission'] & 1, row)
             if (95 <= tick < 105 or 125 <= tick < 135) and not row['permission'] & 1:
               self.assertFalse(command.latActive, row)
+            if accord11g and tick == 55:
+              self.assertFalse(row['controls'] or cs.cruiseState.enabled, row)
+              self.assertTrue(row['token'] and row['request'] & 1 and row['permission'] & 1, row)
+          if accord11g and host_scenario == 'cancel' and tick == 35:
+            # Two real LKAS edges first toggle the ordinary latch off and then
+            # establish a fresh, explicit independent latch before CANCEL.
+            self.assertTrue(intent.allowedLatch and row['token'], row)
+          if accord11g and host_scenario == 'cancel_without_latch' and tick == 55:
+            self.assertFalse(intent.allowedLatch or command.latActive or row['request'] & 1 or row['permission'] & 1, row)
+            self.assertTrue(all(tx['torque'] == 0 and not tx['request'] for tx in row['TX'] if 'torque' in tx), row)
           if tick >= 55 and not reengage:
             self.assertFalse(command.longActive, row)
           if fault == 'relay' and tick >= 120:

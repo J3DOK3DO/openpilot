@@ -172,7 +172,11 @@ class TestHondaStockAol(unittest.TestCase):
             self.safety.aol_set_host_request(0)
             self.assertEqual(self.safety.aol_get_permission_mask(), 0)
             self.safety.aol_set_host_request(3)
-            self.assertEqual(self.safety.aol_get_permission_mask(), 1 if self.scoped else 0)
+            self.assertEqual(self.safety.aol_get_permission_mask(), int(self.scoped and case[2] not in (80, 81)))
+            if self.scoped and case[2] in (80, 81):
+              self.stream()
+              self.stream(lkas=1)
+              self.assertEqual(self.safety.aol_get_permission_mask(), 1)
             self.stream(main=False)
             self.assertEqual(self.safety.aol_get_permission_mask(), 0)
 
@@ -242,7 +246,10 @@ class TestHondaStockAol(unittest.TestCase):
           self.safety.aol_set_host_request(0)
           self.stream()
           self.assertFalse(self.safety.get_controls_allowed())
-          self.assertEqual(self.safety.aol_get_permission_mask(), 1 if self.scoped else 0)
+          self.assertEqual(self.safety.aol_get_permission_mask(), int(self.scoped and case[2] not in (80, 81)))
+          if self.scoped and case[2] in (80, 81):
+            self.stream(lkas=1)
+            self.assertEqual(self.safety.aol_get_permission_mask(), 1)
 
   def test_normal_grant_session_loss_before_first_permission_query(self):
     for case in CASES:
@@ -270,6 +277,71 @@ class TestHondaStockAol(unittest.TestCase):
     self.stream(main=True, lkas=1)
     self.assertEqual(self.safety.aol_get_permission_mask(), 1 if self.scoped else 0)
 
+  def test_voluntary_host_withdrawal_retires_native_token_and_blocks_late_tx(self):
+    for case in CASES:
+      with self.subTest(case=case[0]):
+        self.configure(case)
+        if not self.scoped or case[2] not in (80, 81):
+          continue
+        self.arm()
+        self.assertTrue(self.safety.safety_test_honda_stock_token())
+        tx = self.safety.current_safety_config
+        steer_bus = next(int(tx.tx_msgs[i].bus) for i in range(tx.tx_msgs_len) if tx.tx_msgs[i].addr == 0xE4)
+        steer = self.packet("STEERING_CONTROL", {"STEER_TORQUE": 1, "STEER_TORQUE_REQUEST": 1}, bus=steer_bus)
+        self.assertTrue(self.safety.safety_tx_hook(steer), case[0])
+        self.safety.set_timer(1_010_000)
+        self.safety.aol_set_host_request(0)  # Heartbeat stays engaged; no physical CANCEL or LKAS edge.
+        self.assertFalse(self.safety.safety_test_honda_stock_token())
+        self.assertEqual(self.safety.aol_get_request_mask(), 0)
+        self.assertEqual(self.safety.aol_get_permission_mask(), 0)
+        self.assertFalse(self.safety.safety_tx_hook(steer))
+        self.safety.set_timer(1_020_000)
+        self.stream(request=False)  # Fresh RX, but no fresh authority.
+        self.safety.aol_set_host_request(1)
+        self.assertFalse(self.safety.safety_test_honda_stock_token())
+        self.assertEqual(self.safety.aol_get_request_mask(), 1)
+        self.assertEqual(self.safety.aol_get_permission_mask(), 0)
+        self.assertFalse(self.safety.safety_tx_hook(steer))
+
+  def test_accord_main_fault_and_expired_request_block_native_steering_tx(self):
+    for case in CASES:
+      if case[2] not in (80, 81):
+        continue
+      with self.subTest(case=case[0]):
+        self.configure(case)
+        self.arm()
+        steer = self.packet("STEERING_CONTROL", {"STEER_TORQUE": 1, "STEER_TORQUE_REQUEST": 1}, bus=0)
+        self.assertTrue(self.safety.safety_tx_hook(steer))
+        self.stream(main=False, request=False)
+        self.assertFalse(self.safety.safety_test_honda_stock_token())
+        self.assertEqual(self.safety.aol_get_permission_mask(), 0)
+        self.assertFalse(self.safety.safety_tx_hook(steer))
+
+        # MAIN off->on is a new physical grant; EPS 6 blocks lateral TX.
+        self.stream(main=True)
+        self.assertEqual(self.safety.aol_get_permission_mask(), 1)
+        self.stream(eps=6, request=False)
+        self.assertEqual(self.safety.aol_get_permission_mask(), 0)
+        self.assertFalse(self.safety.safety_tx_hook(steer))
+        self.safety.aol_set_host_request(0)
+        self.stream(eps=0, request=False)
+        self.safety.aol_set_host_request(1)
+        self.assertFalse(self.safety.safety_test_honda_stock_token())
+        self.assertEqual(self.safety.aol_get_permission_mask(), 0)
+        self.assertFalse(self.safety.safety_tx_hook(steer))
+
+        self.stream(lkas=0, request=False)
+        self.stream(lkas=1)
+        self.assertEqual(self.safety.aol_get_permission_mask(), 1)
+        self.safety.set_timer(1_300_001)
+        self.stream(request=False)
+        self.assertEqual(self.safety.aol_get_permission_mask(), 0)
+        self.assertFalse(self.safety.safety_test_honda_stock_token())
+        self.assertFalse(self.safety.safety_tx_hook(steer))
+        self.safety.aol_set_host_request(1)
+        self.assertEqual(self.safety.aol_get_permission_mask(), 0)
+        self.assertFalse(self.safety.safety_tx_hook(steer))
+
   def test_validated_sources_and_fresh_gesture(self):
     for case in CASES:
       with self.subTest(case=case[0]):
@@ -289,7 +361,10 @@ class TestHondaStockAol(unittest.TestCase):
         self.stream(eps=6)
         self.assertEqual(self.safety.aol_get_permission_mask(), 0)
         self.stream()
-        self.assertEqual(self.safety.aol_get_permission_mask(), 1 if self.scoped else 0)
+        self.assertEqual(self.safety.aol_get_permission_mask(), int(self.scoped and case[2] not in (80, 81)))
+        if self.scoped and case[2] in (80, 81):
+          self.stream(lkas=1)
+          self.assertEqual(self.safety.aol_get_permission_mask(), 1)
         self.safety.set_aol_test_heartbeat(False)
         self.assertEqual(self.safety.aol_get_permission_mask(), 0)
         self.safety.set_aol_test_heartbeat(True)

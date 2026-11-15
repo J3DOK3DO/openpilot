@@ -22,6 +22,7 @@ enum {
   HONDA_STOCK_TWN = 0x0400U,
   HONDA_STOCK_TJA = 0x0800U,
   HONDA_STOCK_ALT_LONG = 0x1000U,
+  HONDA_STOCK_ACCORD11G = 0x2000U,
 };
 
 static bool honda_stock_aol_flag(uint16_t bit) {
@@ -79,13 +80,23 @@ static void honda_stock_aol_reset(void) {
   honda_stock_aol_set_flag(HONDA_STOCK_TWN, false);
   honda_stock_aol_set_flag(HONDA_STOCK_TJA, false);
   honda_stock_aol_set_flag(HONDA_STOCK_ALT_LONG, false);
+  honda_stock_aol_set_flag(HONDA_STOCK_ACCORD11G, false);
   honda_stock_aol_eps = 0U;
   honda_stock_aol_main_ts = 0U;
   honda_stock_aol_eps_index = 8U;
 }
 
 static void honda_stock_aol_host_request(uint8_t mask) {
-  if (mask != 0U) { honda_stock_aol_set_flag(HONDA_STOCK_REQUEST_SEEN, true); }
+  if ((mask == 0U) && honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) &&
+      honda_stock_aol_flag(HONDA_STOCK_SESSION) && honda_stock_aol_flag(HONDA_STOCK_REQUEST_SEEN)) {
+    // Retire an acknowledged grant on withdrawal. Preserve a pending physical
+    // grant across the initial pandad zero-request session handshake; it still
+    // needs a fresh post-gesture nonzero request before any output is allowed.
+    honda_stock_aol_clear();
+    honda_stock_aol_set_flag(HONDA_STOCK_SESSION, false);
+  } else if (mask != 0U) {
+    honda_stock_aol_set_flag(HONDA_STOCK_REQUEST_SEEN, true);
+  }
 }
 
 static bool honda_stock_aol_sources_current(void) {
@@ -262,6 +273,7 @@ static safety_config honda_stock_aol_configure(uint16_t param, bool nidec, bool 
   honda_stock_aol_set_flag(HONDA_STOCK_TWN, nidec && ((param == 260U) || (param == 804U)));
   honda_stock_aol_set_flag(HONDA_STOCK_TJA, !nidec && ((param == 512U) || (param == 513U) || (param == 1570U) || (param == 1571U)));
   honda_stock_aol_set_flag(HONDA_STOCK_ALT_LONG, !nidec && ((param == 1058U) || (param == 1059U) || (param == 1570U) || (param == 1571U)));
+  honda_stock_aol_set_flag(HONDA_STOCK_ACCORD11G, !nidec && ((param == 80U) || (param == 81U)));
   if (honda_stock_aol_flag(HONDA_STOCK_ENABLED) && (ret.rx_checks_len <= 6) && (pt_bus <= 1U)) {
     const unsigned int count = ret.rx_checks_len;
     static const RxCheck eps[] = {
