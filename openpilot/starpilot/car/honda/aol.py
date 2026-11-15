@@ -1,3 +1,5 @@
+import math
+
 from opendbc.car.structs import car
 from opendbc.car.honda.stock_aol import qualified as qualified_stock, BOSCH_WORDS, NIDEC_WORDS, temporary_restriction, ALT_RADAR_STOCK, CLASSIC_BOSCH
 from openpilot.starpilot.car.honda.stock_intent import HondaStockCardIntent
@@ -57,6 +59,24 @@ def policy_for(CP) -> AolVehiclePolicy:
     distance_personality=qualified,
     safety_param_addition=0x20 if qualified else 0,
   )
+
+
+def accord11g_stationary_aol_inhibit(CP, CS) -> bool:
+  """Second host-side stationary veto for Accord 11G independent lateral.
+
+  Offline C8.2 candidate. Complements (does not replace) controlsd's
+  command-level standstill veto. Does not grant steering authority.
+  """
+  if CP.carFingerprint != CAR.HONDA_ACCORD_11G:
+    return False
+  try:
+    v_ego = float(CS.vEgo)
+    min_steer = float(CP.minSteerSpeed)
+    if not math.isfinite(v_ego) or not math.isfinite(min_steer):
+      return True
+    return bool(CS.standstill or abs(v_ego) <= max(0.3, min_steer))
+  except (AttributeError, TypeError, ValueError, OverflowError):
+    return True
 
 
 def native_profile_supported(model: int, param: int) -> bool:
