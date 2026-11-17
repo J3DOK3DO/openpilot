@@ -1,0 +1,7 @@
+# C8.2 C9 external review handoff
+
+This packet requests a future independent review; no independent reviewer or human approval is claimed. Entry source is `58ef6e5fcea2d0d303855784e5f0dd58313941c4`. If a documentation checkpoint is committed, use `git rev-parse HEAD` for its actual SHA. The last known installed C8.1 SHA is `9d2da330f6539beb5afb67867b28491526c0e1bd`; physical AGNOS and Panda identities are unverified.
+
+Review these **four** C9 markdown documents and `SHA256SUMS.txt` under `D/evidence/C8_2_C9_AGNOS2052_20261115` (`D=/mnt/commadrive/DOM7_C612_FAULT_DIAGNOSTICS_20261113`). Compare the copied 15 November C8 download/extraction log with the 17 November compressed-file rehash and repository manifest. The raw image and its `/VERSION` marker are no longer present. Inspect sysroot symlink provenance, OpenCL absences, selected ELF metadata, and the old build command/exits. The staged `pandad` is inherited, while the selected AOL test was freshly linked. C9 exits 124 and 137 do not qualify `pandad`.
+
+Challenge remaining gates: complete native product build and inventory, target GPU runtime/inference, final-source build receipt, Panda release certificate, independent safety review, device OS/Panda identity, stationary CAN2 `controlsMismatch` qualification, and road acceptance. The unchanged Honda safety header SHA-256 is `44decb9c4a51953db8434dc54027559aadbdcb7194ae784df56f61de05462882`. Earlier GUI/rollback waivers address logistics only. This packet supplies no installation or vehicle-use authority.
