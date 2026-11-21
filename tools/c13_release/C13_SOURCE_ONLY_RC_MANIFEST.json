@@ -1,0 +1,153 @@
+{
+  "agnos_sysroot": "authenticated AGNOS 20.5.2 offline image; installed device version not verified",
+  "branch": "accord11g-dom7-c13-source-only-rcprep-nogo-20261121",
+  "c11_build": {
+    "aarch64_elf_count": 152,
+    "exit_code": 0,
+    "fresh_c11_entries": 123,
+    "loader_dependency_sample_passes": 6,
+    "log_sha256": "4391fa9076bc12dab90dfbf43a7bce6e3e2cd1b2e2073d198d3afcbf7eaaefea",
+    "native_inventory_sha256": "4d31e11e07f708ce84ecc286fbae9f7ea88f77ecaed6268d6bde09a5439177b9",
+    "non_aarch64_elf_count": 0,
+    "source_head": "586da6b91ffb43e2a1e114072104b694d3c8a2b3",
+    "targets": [
+      "openpilot",
+      "msgq_repo",
+      "opendbc_repo/opendbc/can",
+      "rednose_repo/rednose"
+    ],
+    "total_native_archive_qcom_entries": 221
+  },
+  "c13_documentation_commit_note": "Resolve from git rev-parse HEAD after committing; a commit cannot embed its own SHA",
+  "c13_documentation_commit_sha": null,
+  "c13_evidence_directory": "/mnt/commadrive/DOM7_C612_FAULT_DIAGNOSTICS_20261113/evidence/C13_SOURCE_ONLY_RCPREP_20261121",
+  "classification": "SOURCE_ONLY_PRE_RELEASE_PREPARATION_NO_GO",
+  "compiled_source_sha": "586da6b91ffb43e2a1e114072104b694d3c8a2b3",
+  "compiler": "host x86_64 Clang 18.1.3 targeting AArch64 for compile + target AArch64 Clang linker in isolated ARM64 Docker",
+  "core_native_artifact_examples": [
+    {
+      "bytes": 5702424,
+      "fresh_c11": true,
+      "path": "openpilot/selfdrive/pandad/pandad",
+      "sha256": "dc443c17e49a2ba63b6bf769865605b9e0788ee97d2ae67493017b90d990e592"
+    },
+    {
+      "bytes": 5342184,
+      "fresh_c11": true,
+      "path": "openpilot/system/camerad/camerad",
+      "sha256": "ebdb64a8dd293efdcdfa9ffc551ad8d7ea91223ec9252b6e640c677fc27e21f0"
+    },
+    {
+      "bytes": 5799384,
+      "fresh_c11": true,
+      "path": "openpilot/system/loggerd/loggerd",
+      "sha256": "847761f5ae7b402ba25811c2bd1a42365dfa278551e4f431572eb62c3e3a027b"
+    },
+    {
+      "bytes": 7092736,
+      "fresh_c11": true,
+      "path": "openpilot/system/loggerd/encoderd",
+      "sha256": "f75b0a14c3e3c6d8e2713da332802a032a1a1be7a73d9a6696fb2a477b2e60aa"
+    },
+    {
+      "bytes": 2643880,
+      "fresh_c11": true,
+      "path": "openpilot/common/libparams_c.so",
+      "sha256": "9e3fabac41a4736610f72ed890a4c15503ee69682987fcff5aaad57adeb35521"
+    },
+    {
+      "bytes": 24120312,
+      "fresh_c11": true,
+      "path": "openpilot/selfdrive/locationd/models/generated/libcar.so",
+      "sha256": "c7ba5a8084a34af9cecd4ae7e8541576bef865bbbcc85546af6e4a15336f12fd"
+    },
+    {
+      "bytes": 20605408,
+      "fresh_c11": true,
+      "path": "openpilot/selfdrive/locationd/models/generated/libpose.so",
+      "sha256": "2fb27d31f67c16c444a42ad339081566401e0d0bf893083168a42a1b5f988145"
+    }
+  ],
+  "created_date_uae": "2026-11-21",
+  "deferred_only_for_offline_preparation": [
+    "fresh_qcom_producer_gpu_target_execution",
+    "physical_can2_interrupts_and_controlsMismatch_qualification"
+  ],
+  "device_runtime_tested": false,
+  "evidence_directory": "/mnt/commadrive/DOM7_C612_FAULT_DIAGNOSTICS_20261113/evidence/C11_C12_COMBINED_20261121",
+  "git_diff_policy": "documentation-only under tools/c13_release; no source/firmware/model/prebuilt changes",
+  "honda_arm64_focused_tests": {
+    "exit_code": 0,
+    "failed": 0,
+    "log_sha256": "daf0de067e3d19e26a30188e1e6b99d14c0cd1cbbe4241c9565cd4659718441a",
+    "passed": 190
+  },
+  "installable": false,
+  "mandatory_unclosed_release_gates": [
+    "authenticated Panda firmware and device-installed AGNOS identities",
+    "QCOM producer and target GPU inference evidence",
+    "physical CAN2 and controlsMismatch safe fault handling",
+    "independent complete-source safety review",
+    "validated exact-commit product prebuilt receipt and recovery"
+  ],
+  "previous_rollback_identity_unverified_now": {
+    "historical_c81_sha": "9d2da330f6539beb5afb67867b28491526c0e1bd",
+    "method": "manual_reinstallation_accepted_in_principle_only"
+  },
+  "prior_documentation_checkpoint_sha": "c89df8b11ba9cc9d1ff707073570eced60d88c96",
+  "prohibited_actions": [
+    "install",
+    "flash",
+    "CAN_TX",
+    "steering_actuation",
+    "road_test",
+    "publish_installable_release",
+    "bypass_safety",
+    "forge_receipt"
+  ],
+  "qcom_cached_inputs": {
+    "items": [
+      {
+        "bytes": 20768359,
+        "name": "dmonitoring_model_tinygrad.pkl",
+        "sha256": "7f7198c63d2d9b0d015cc860fdd836db50a4b9a75ab5d56cffd4d4eee5eb7b97",
+        "validation": "verified_cached_input_only"
+      },
+      {
+        "bytes": 837991,
+        "name": "driving_warp_1928x1208_tinygrad.pkl",
+        "sha256": "54a0a68e9375820049ddc09d573e06f983a1b03de7dd0750f11fd3e7871be1ba",
+        "validation": "verified_cached_input_only"
+      },
+      {
+        "bytes": 1397400,
+        "name": "dm_warp_1928x1208_tinygrad.pkl",
+        "sha256": "5711934a11792e539e72ce68837b8bab802ee7bd2a909402fd35a4cc4efc382f",
+        "validation": "verified_cached_input_only"
+      },
+      {
+        "bytes": 838183,
+        "name": "driving_warp_1344x760_tinygrad.pkl",
+        "sha256": "b8c123c5a040923169e1597d6ec0b6fb46c2d95b5c39dc0c71b0d5adf3441d02",
+        "validation": "verified_cached_input_only"
+      },
+      {
+        "bytes": 1397448,
+        "name": "dm_warp_1344x760_tinygrad.pkl",
+        "sha256": "79df4a2f9701aea9cf6c21477cae07852d7d8c245737599e6b72a1e6fa4fe88f",
+        "validation": "verified_cached_input_only"
+      }
+    ],
+    "package_manifest_sha256": "ca1deae7c3be7c867a6ea5afaf96d80a4213418540802d7a902d485de1e4f204",
+    "source_signature": "db2ee948465d03d8180db65d537bdccc1a7211142d4e7ba296bb78548761d6f8",
+    "validated_count": 5
+  },
+  "release_artifacts_contain_executables": false,
+  "release_receipt_checker": {
+    "exit_code": 1,
+    "reason": "no same-commit production build receipt",
+    "status": "BLOCKING"
+  },
+  "road_qualified": false,
+  "schema": "c13-source-only-pre-release-nogo-v1"
+}
