@@ -1,0 +1,35 @@
+{
+  "c14_documentation_commit": "REFER_TO_GIT_HEAD_AFTER_COMMIT",
+  "compiled_control_source_commit": "586da6b91ffb43e2a1e114072104b694d3c8a2b3",
+  "controller_driving_tune_changed": false,
+  "exact_release_prebuilt_receipt": false,
+  "historical_c9_diagnostics_branch_commit": "ff618c42c8bb64c53b5b0fccf305b6b591201a6d",
+  "installable": false,
+  "longitudinal_code_changed": false,
+  "mvl_exact_opendbc_pin": "66a3ea89f42890a99237dbf20789f1ea3d3d5611",
+  "mvl_openpilot_snapshot": "48211d6a633cd172a8a8de7bc33004f3bc5f02a0",
+  "observed_parameters": {
+    "kf": 3.5e-05,
+    "kiV": 0.052,
+    "kpV": 0.115,
+    "steerActuatorDelay": 0.3
+  },
+  "other_mvl_opendbc_head_not_substituted": "254d6f150b21b82da9666b1000f7b99507f15c9a",
+  "panda_firmware_changed": false,
+  "parent_c13_commit": "966ffe5d175d59b3ce681249841aa0b3abfae443",
+  "physical_can2_controlsMismatch_qualified": false,
+  "pinned_numerical_parity": true,
+  "public_route_data_included": false,
+  "qcom_hardware_runtime_qualified": false,
+  "release_type": "SOURCE_ONLY_OFFLINE_NOT_INSTALLABLE",
+  "review_verdict": "PENDING",
+  "schema": "C14_MVL_PINNED_TUNING_GAP_NO_GO_V1",
+  "source_only_release": true,
+  "source_only_tests": {
+    "failed": 0,
+    "passed": 7,
+    "test_log": "C14_STATIC_AUDIT_TESTS.log"
+  },
+  "vehicle_operationally_approved": false,
+  "vehicle_safety_code_changed": false
+}
