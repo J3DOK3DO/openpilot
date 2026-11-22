@@ -15,7 +15,7 @@ Source ancestry: C14 `49059309672f3044f6ef4b9ca995e9c2eb146127`. No changes in v
 
 ## C15 fresh evidence
 - Added read-only `audit_offline_release.py` with immutable source pins, original log digest verification, no-control-diff check and actual `check_prebuilt_receipt.py` invocation.
-- Synthetic negative release-decision tests plus real C11/C12 evidence: **7/7 passed** on Ubuntu.
+- Synthetic negative release-decision tests plus real C11/C12 evidence: **8/8 passed** on Ubuntu.
 - Tool reports PASS for reusable offline artifacts only. The current exact HEAD production prebuilt receipt checker returned **exit 1: missing matching build receipt**.
 - Qualcomm target KGSL and genuine inference not available on host. Neither cached artifacts nor ARM64 ELF identification proves that the models work on Comma 4.
 - **C16 physical qualifications are deferred, not passed, waived or deemed irrelevant.** No direct device install, ignition, steering, CAN transmit, Panda flash, or road run.

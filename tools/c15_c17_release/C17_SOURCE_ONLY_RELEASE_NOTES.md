@@ -9,7 +9,7 @@ This pre-release contains the **C15 offline provenance auditor** and the **C17 f
 ## Evidence reused and newly checked
 - Prior full offline ARM64 product build exit 0, 190/190 Honda regression, 152/152 AArch64 ELF.
 - Selected AGNOS loader checks and five cached QCOM source/hash inputs, NOT a live Qualcomm GPU/target inference test.
-- C15 `audit_offline_release.py` checks original log SHA-256, source-code unchanged from the successful build, historical gate statuses, and actually executes the production receipt checker. **7/7 targeted C15 tests passed**.
+- C15 `audit_offline_release.py` checks original log SHA-256, source-code unchanged from the successful build, historical gate statuses, and actually executes the production receipt checker. **8/8 targeted C15 tests passed**.
 - Current prebuilt receipt validator **exit 1**, correctly captured as missing, not suppressed or fabricated.
 - The C17 decision deliberately marks C16 physical vehicle acceptance `DEFERRED_NOT_WAIVED`.
 
