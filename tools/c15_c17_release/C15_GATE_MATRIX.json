@@ -1,0 +1,82 @@
+{
+  "schema": "C15_C17_FAST_RELEASE_GATES_V1",
+  "vehicle": "Honda Accord 11G Hybrid Bosch-C CAN-FD stock ACC",
+  "built_control_source": "586da6b91ffb43e2a1e114072104b694d3c8a2b3",
+  "c14_source_parent": "49059309672f3044f6ef4b9ca995e9c2eb146127",
+  "gates": [
+    {
+      "id": "C15-01",
+      "name": "Unchanged control/safety code from successful C11 build",
+      "status": "PASS_FRESH_GIT_DIFF"
+    },
+    {
+      "id": "C15-02",
+      "name": "C11 successful ARM64 native full build",
+      "status": "PASS_REUSED_PRIOR_EVIDENCE"
+    },
+    {
+      "id": "C15-03",
+      "name": "C11 190/190 ARM64 Honda regressions",
+      "status": "PASS_REUSED_PRIOR_EVIDENCE"
+    },
+    {
+      "id": "C15-04",
+      "name": "C11 152/152 AArch64 ELF plus selected AGNOS loader checks",
+      "status": "PASS_REUSED_PRIOR_EVIDENCE"
+    },
+    {
+      "id": "C15-05",
+      "name": "Five cached QCOM input hash contract",
+      "status": "PASS_REUSED_INPUT_CONTRACT_ONLY"
+    },
+    {
+      "id": "C15-06",
+      "name": "Real Qualcomm producer and target GPU inference",
+      "status": "OPEN_UNVERIFIED"
+    },
+    {
+      "id": "C15-07",
+      "name": "Exact final code/product release receipt",
+      "status": "OPEN_VALIDATOR_EXIT_1"
+    },
+    {
+      "id": "C15-08",
+      "name": "Authentic Panda firmware image, source/build identity and installed device",
+      "status": "OPEN_UNVERIFIED"
+    },
+    {
+      "id": "C15-09",
+      "name": "Full independent final-source functional-safety review",
+      "status": "OPEN_PENDING"
+    },
+    {
+      "id": "C15-10",
+      "name": "Seven fresh read-only evidence audit negative/positive tests",
+      "status": "PASS_7_OF_7"
+    },
+    {
+      "id": "C16-01",
+      "name": "Physical device and vehicle CAN2/controlsMismatch qualification",
+      "status": "DEFERRED_UNWAIVED"
+    },
+    {
+      "id": "C16-02",
+      "name": "Physical LKAS/AOL/CANCEL EPS torque and recovery qualification",
+      "status": "DEFERRED_UNWAIVED"
+    },
+    {
+      "id": "C17-01",
+      "name": "Offline source-only publication",
+      "status": "ELIGIBLE_AFTER_SCOPED_RELEASE_REVIEW"
+    },
+    {
+      "id": "C17-02",
+      "name": "Installable production/road approval",
+      "status": "NO_GO"
+    }
+  ],
+  "c15_offline_evidence_verdict": "PASS",
+  "c15_full_production_verdict": "INCOMPLETE",
+  "c16": "DEFERRED_NOT_WAIVED",
+  "c17_operational": "NO_GO"
+}
