@@ -1,0 +1,23 @@
+{
+  "c14_parent": "49059309672f3044f6ef4b9ca995e9c2eb146127",
+  "c15_full_product_closure": "INCOMPLETE",
+  "c15_offline_closure": "PASS_SCOPED_EVIDENCE",
+  "c16_qualification": "DEFERRED_NOT_WAIVED",
+  "c17_installable_production_release": "NO_GO",
+  "c17_source_only_release": "GO_PENDING_SCOPED_REVIEW",
+  "c17_vehicle_or_public_road": "NO_GO",
+  "codex_scoped_review": "PENDING",
+  "current_prebuilt_check_exit": 1,
+  "driver_installation_package_provided": false,
+  "full_safety_review": "PENDING",
+  "new_driving_tune_imported": false,
+  "offline_evidence_pass": true,
+  "original_built_control_source": "586da6b91ffb43e2a1e114072104b694d3c8a2b3",
+  "parent_c15_checkpoint": "e0dd3aa6fb80632955c9db75f0e8ff4bf7f68100",
+  "physical_can2_fault": "UNVERIFIED",
+  "qcom_target_inference": "UNVERIFIED",
+  "schema": "C17_SOURCE_ONLY_RELEASE_DECISION_V1",
+  "source_tool_changes_only_since_native_build": true,
+  "vehicle": "Honda Accord 11G Hybrid Bosch-C CAN-FD; stock ACC",
+  "vehicle_device_contacted": false
+}
