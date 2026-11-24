@@ -105,6 +105,15 @@ void set_aol_test_heartbeat(bool engaged) {
   heartbeat_engaged = engaged;
 }
 
+// Test-only visibility: a zero exported request cannot prove token retirement.
+bool safety_test_honda_stock_token(void) {
+  return honda_stock_aol_flag(HONDA_STOCK_TOKEN);
+}
+
+uint16_t safety_test_honda_stock_flags(void) {
+  return honda_stock_aol_flags;
+}
+
 void set_alternative_experience(int mode){
   alternative_experience = mode;
 }

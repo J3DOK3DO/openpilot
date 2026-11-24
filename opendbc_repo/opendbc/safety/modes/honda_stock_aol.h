@@ -22,6 +22,7 @@ enum {
   HONDA_STOCK_TWN = 0x0400U,
   HONDA_STOCK_TJA = 0x0800U,
   HONDA_STOCK_ALT_LONG = 0x1000U,
+  HONDA_STOCK_ACCORD11G = 0x2000U,
 };
 
 static bool honda_stock_aol_flag(uint16_t bit) {
@@ -79,13 +80,24 @@ static void honda_stock_aol_reset(void) {
   honda_stock_aol_set_flag(HONDA_STOCK_TWN, false);
   honda_stock_aol_set_flag(HONDA_STOCK_TJA, false);
   honda_stock_aol_set_flag(HONDA_STOCK_ALT_LONG, false);
+  honda_stock_aol_set_flag(HONDA_STOCK_ACCORD11G, false);
   honda_stock_aol_eps = 0U;
   honda_stock_aol_main_ts = 0U;
   honda_stock_aol_eps_index = 8U;
 }
 
 static void honda_stock_aol_host_request(uint8_t mask) {
-  if (mask != 0U) { honda_stock_aol_set_flag(HONDA_STOCK_REQUEST_SEEN, true); }
+  if ((mask == 0U) && honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) &&
+      honda_stock_aol_flag(HONDA_STOCK_REQUEST_SEEN) &&
+      (honda_stock_aol_flag(HONDA_STOCK_SESSION) || honda_stock_aol_flag(HONDA_STOCK_PENDING))) {
+    // Retire an acknowledged or pending grant on withdrawal. Preserve a pending
+    // grant across only the first pandad zero-request startup handshake, before
+    // any host request has been seen.
+    honda_stock_aol_clear();
+    honda_stock_aol_set_flag(HONDA_STOCK_SESSION, false);
+  } else if (mask != 0U) {
+    honda_stock_aol_set_flag(HONDA_STOCK_REQUEST_SEEN, true);
+  }
 }
 
 static bool honda_stock_aol_sources_current(void) {
@@ -182,7 +194,9 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
         honda_stock_aol_clear();
         honda_stock_aol_set_flag(HONDA_STOCK_MAIN_NEUTRAL, true);
       } else if (honda_stock_aol_flag(HONDA_STOCK_MAIN_NEUTRAL)) {
-        honda_stock_aol_grant();
+        if (!honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) || honda_stock_aol_flag(HONDA_STOCK_DRIVE)) {
+          honda_stock_aol_grant();
+        }
         honda_stock_aol_set_flag(HONDA_STOCK_MAIN_NEUTRAL, false);
       } else {
       }
@@ -192,7 +206,8 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
       const bool lkas = setting == 1U;
       if (!lkas) {
         honda_stock_aol_set_flag(HONDA_STOCK_LKAS_NEUTRAL, true);
-      } else if (honda_stock_aol_flag(HONDA_STOCK_LKAS_NEUTRAL) && !honda_stock_aol_flag(HONDA_STOCK_LKAS_PREVIOUS) && acc_main_on) {
+      } else if (honda_stock_aol_flag(HONDA_STOCK_LKAS_NEUTRAL) && !honda_stock_aol_flag(HONDA_STOCK_LKAS_PREVIOUS) && acc_main_on &&
+                 (!honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) || honda_stock_aol_flag(HONDA_STOCK_DRIVE))) {
         honda_stock_aol_grant();
         honda_stock_aol_set_flag(HONDA_STOCK_LKAS_NEUTRAL, false);
       } else {
@@ -211,6 +226,7 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
       }
     }
     if (honda_stock_aol_selected(msg, honda_stock_aol_gear_check())) {
+      const bool was_drive = honda_stock_aol_flag(HONDA_STOCK_DRIVE);
       uint8_t gear = msg->data[4] & 15U;
       if (msg->addr == 0x191U) {
         gear = msg->data[5] & 31U;
@@ -220,6 +236,16 @@ static void honda_stock_aol_rx(const CANPacket_t *msg, unsigned int pt_bus, bool
       }
       honda_stock_aol_set_flag(HONDA_STOCK_DRIVE, (msg->addr == 0x188U) ? ((gear == 8U) || (gear == 0U)) :
         ((gear == 4U) || (gear == 7U) || (gear == 10U) || (gear == 11U)));
+      if (honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) &&
+          (!honda_stock_aol_flag(HONDA_STOCK_DRIVE) || !was_drive)) {
+        // A host mask from the prior gear cannot authorize a new Drive grant.
+        aol_host_axis_mask = 0U;
+      }
+      if (honda_stock_aol_flag(HONDA_STOCK_ACCORD11G) && !honda_stock_aol_flag(HONDA_STOCK_DRIVE)) {
+        // A later Drive frame cannot complete a grant from a previous gear.
+        honda_stock_aol_clear();
+        honda_stock_aol_set_flag(HONDA_STOCK_SESSION, false);
+      }
     }
     // Only a newly accepted physical cruise grant can restore an independent token.
     // Qualify after parsing this frame's brake/main state, before generic pedal checks.
@@ -262,6 +288,7 @@ static safety_config honda_stock_aol_configure(uint16_t param, bool nidec, bool 
   honda_stock_aol_set_flag(HONDA_STOCK_TWN, nidec && ((param == 260U) || (param == 804U)));
   honda_stock_aol_set_flag(HONDA_STOCK_TJA, !nidec && ((param == 512U) || (param == 513U) || (param == 1570U) || (param == 1571U)));
   honda_stock_aol_set_flag(HONDA_STOCK_ALT_LONG, !nidec && ((param == 1058U) || (param == 1059U) || (param == 1570U) || (param == 1571U)));
+  honda_stock_aol_set_flag(HONDA_STOCK_ACCORD11G, !nidec && ((param == 80U) || (param == 81U)));
   if (honda_stock_aol_flag(HONDA_STOCK_ENABLED) && (ret.rx_checks_len <= 6) && (pt_bus <= 1U)) {
     const unsigned int count = ret.rx_checks_len;
     static const RxCheck eps[] = {

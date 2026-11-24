@@ -104,7 +104,10 @@ class TestHondaCurrentCaller(unittest.TestCase):
 
   def run_current_caller(self, *, candidate, word, fault=None, alternate_brake=False, alpha=False, speed_mps=12.5,
                          pedal=False, host_scenario=None, serialized=False, eps_pedal=None, hybrid=False, eps_end=95,
-                         eps_repeat=None, eps_brake_end=None, native_brake_first=False, diagnostic_from_start=False):
+                         eps_repeat=None, eps_brake_end=None, native_brake_first=False, diagnostic_from_start=False,
+                         accord_fresh_lkas=False):
+    accord11g = candidate == CAR.HONDA_ACCORD_11G
+    self.assertFalse(accord_fresh_lkas and not accord11g)
     safety = libsafety_py.libsafety
     with (
       OpenpilotPrefix(),
@@ -221,7 +224,7 @@ class TestHondaCurrentCaller(unittest.TestCase):
             gas=20 if eps_pedal == 'gas' and eps_active else 0,
             steering_torque=1301 if eps_pedal and 80 <= tick < 95 else 0,
             gear=2 if 110 <= tick < 125 else None,
-            lkas=0, speed_kph=speed_mps * 3.6,
+            lkas=int(accord_fresh_lkas and tick == 130), speed_kph=speed_mps * 3.6,
           )
           safety.set_timer((now // 1000) & 0xFFFF_FFFF)
           if tick == 110 and fault == 'relay':
@@ -460,7 +463,7 @@ class TestHondaCurrentCaller(unittest.TestCase):
             row['TX'].append(tx)
           row['events'] = [str(e.name) for e in driven['onroadEvents'].onroadEvents]
           row['fault_reason'] = str(driven['aolAxisState'].aolAxisState.faultReason)
-          if tick in (45, 79, 105) or tick == 135 and fault != "relay" and host_scenario not in ("driver_lockout", "settings_off"):
+          if tick in (45, 79) or tick == 105 and not accord11g or tick == 135 and fault != "relay" and host_scenario not in ("driver_lockout", "settings_off"):
             self.assertTrue(command.latActive, row)
             self.assertTrue(any(t.get('accepted') and t.get('request') and t.get('torque') for t in row['TX']), row)
             self.assertTrue(intent.allowedLatch, row)
@@ -470,8 +473,10 @@ class TestHondaCurrentCaller(unittest.TestCase):
             self.assertTrue(card.aol_card_intent.allowed_latch, row)
             self.assertFalse(command.latActive or command.longActive or row['permission'] & 1, row)
           if tick == 90 and eps_end == 95 or tick == 120 and fault != "relay":
-            self.assertTrue(card.aol_card_intent.allowed_latch, row)
-            self.assertTrue(intent.lateralArmed, row)
+            if accord11g and tick == 120:
+              self.assertFalse(card.aol_card_intent.allowed_latch or intent.lateralArmed, row)
+            else:
+              self.assertTrue(card.aol_card_intent.allowed_latch and intent.lateralArmed, row)
             self.assertFalse(command.latActive or command.longActive, row)
             self.assertFalse(row['permission'] & 1, row)
           if eps_end == 82 and 82 <= tick < 90:

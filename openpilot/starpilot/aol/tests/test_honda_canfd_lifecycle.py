@@ -23,7 +23,7 @@ class TestHondaCanfdCaller(CurrentCaller):
     self.run_current_caller(candidate=CAR.HONDA_CRV_6G, word=17, alternate_brake=True)
 
   def test_accord_mvl_eps_reverse_recovery(self):
-    self.run_current_caller(candidate=CAR.HONDA_ACCORD_11G, word=80)
+    self.run_current_caller(candidate=CAR.HONDA_ACCORD_11G, word=80, accord_fresh_lkas=True)
 
   def test_canfd_crv_can2_diagnostic_from_start(self):
     self.run_current_caller(candidate=CAR.HONDA_CRV_6G, word=16, diagnostic_from_start=True, hybrid=True)
