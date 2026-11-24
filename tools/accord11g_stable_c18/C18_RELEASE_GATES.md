@@ -12,7 +12,7 @@
 
 ## Fresh sanitized-fixture regression
 - Synthetic public test fixture uses zero-filled fake CAN payloads of documented DLCs, deliberate malformed-DLC variants, and public Honda firmware catalog strings. **No private captured route data, raw CAN recording, VIN, or route identifier** is included in this public commit or its Git history.
-- R1 cross-brand Honda/GM/Volvo/Chrysler/Mazda/Tesla selected host suite: **326 passed, 3 deselected** due to missing host `msgq`.
+- R1 cross-brand Honda/GM/Volvo/Chrysler/Mazda/Tesla selected host suite: **327 passed, 3 deselected** due to missing host `msgq`.
 - Ford focused firmware identity: **3 passed after fixture sanitation**, plus 18 passes previously recorded by Codex prior to fixture change.
 - Native Honda MVL safety: **3 passed**, no source safety edits.
 - Prior broader Honda native file: **253 passed, 249 skipped, 10 failed due to missing host `msgq`**; these are blockers, not passes.
@@ -43,3 +43,7 @@ required before any source-only publication.**
 6. Verified rollback and installation and safe state under real faults.
 
 **Decision if blockers remain:** after fresh independent PASS_SCOPED review, a clearly marked source-only GitHub **pre-release** may be considered with explicit `NO INSTALL / NO ROAD USE`. Until that review passes, publication remains on hold. Do not provide `openpilot` quick-install instructions or pretend CI/native receipts passed. No changes to `stable` or `Dom`.
+
+## C18 R2 foreign Honda firmware fail-closed correction
+
+The R1 independent review found that even a fully attributable foreign Honda firmware version returned OTHER, triggering the generic OBD-multiplexed sweep on plausible Accord CAN-FD wiring. C18 R2 **never permits generic CAN2 OBD switching once Accord-like topology has selected the dedicated bus-0 path**. Exact unique Accord firmware remains the only way to identify Accord automatically; contradictory foreign Honda FW returns MOCK/HOLD. Production-level tests cover both full and partial Accord-like observations. Native safety/watchdog unchanged.

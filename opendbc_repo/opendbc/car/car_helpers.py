@@ -224,8 +224,11 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
         if normal_brand == 'honda_accord_11g':
           car_fw, outcome = accord_11g_fw(
             lambda **kw: get_fw_versions(can_recv, can_send, set_obd_multiplexing, **kw), vin, start=start_time)
-          accord_hold = outcome == HOLD
-          full_scan = outcome == OTHER
+          # Accord-like CAN-FD wiring is NOT sufficient to authorize OBD multiplexing.
+          # Even a fully attributable foreign Honda firmware match on bus 0 is
+          # inconsistent with the observed 11G topology; fail closed, no scan.
+          accord_hold = outcome != 'identified'
+          full_scan = False
         elif normal_brand == 'honda_nidec':
           car_fw = get_fw_versions(can_recv, can_send, set_obd_multiplexing, query_brand='honda', query_bus=0)
           exact, matches = match_fw_to_car(car_fw, vin)

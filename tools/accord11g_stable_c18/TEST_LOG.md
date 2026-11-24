@@ -7,8 +7,8 @@ helper. No prebuilt safety binary was used as a qualification receipt.
 
 | Check | Result |
 | --- | --- |
-| R1 production `fingerprint()` late/partial/malformed/unknown/no-reply Honda paths, exact bus-0 FW, unrelated-ID generic path, registered classic Honda; existing Honda/GM/Volvo/Chrysler/Mazda/Tesla checks | 326 passed, 3 deselected (`actual_card_publication` needs unavailable `msgq`) |
-| Final focused Accord discovery plus Ford firmware/source-health regression | 37 passed (19 Honda, 18 Ford) |
+| R1 production `fingerprint()` late/partial/malformed/unknown/no-reply Honda paths, exact bus-0 FW, unrelated-ID generic path, registered classic Honda; existing Honda/GM/Volvo/Chrysler/Mazda/Tesla checks | 327 passed, 3 deselected (`actual_card_publication` needs unavailable `msgq`) |
+| Final focused Accord discovery plus Ford firmware/source-health regression | 23 passed (R2 20 Honda, 3 Ford) and R1 37 passed (19 Honda, 18 Ford) |
 | Native Honda MVL safety | 3 passed |
 | Selected native Honda steering/ack tests | 11 passed, 6 skipped by test conditions, 492 deselected by focused selection |
 | Full Honda native safety file plus MVL | 253 passed, 249 skipped, 10 failed because `test_tx_hook_on_wrong_safety_mode` imports unrelated test modules requiring unavailable `msgq` |

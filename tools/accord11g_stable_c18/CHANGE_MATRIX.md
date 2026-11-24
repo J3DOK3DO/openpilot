@@ -26,3 +26,7 @@ No current stable-derived vehicle observation or physical safety qualification e
 ## Public test-fixture handling
 
 The recorded source CAN window that informed the topology constants is **not included** in this release or its committed history. Public tests use fabricated zero-valued CAN bytes with public bus IDs/DLCs and exact firmware strings from the existing public Honda fingerprint database. These tests do not substitute for real-vehicle validation.
+
+## C18 R2 foreign Honda firmware fail-closed correction
+
+The R1 independent review found that even a fully attributable foreign Honda firmware version returned OTHER, triggering the generic OBD-multiplexed sweep on plausible Accord CAN-FD wiring. C18 R2 **never permits generic CAN2 OBD switching once Accord-like topology has selected the dedicated bus-0 path**. Exact unique Accord firmware remains the only way to identify Accord automatically; contradictory foreign Honda FW returns MOCK/HOLD. Production-level tests cover both full and partial Accord-like observations. Native safety/watchdog unchanged.

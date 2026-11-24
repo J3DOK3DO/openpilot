@@ -40,7 +40,7 @@ def test_synthetic_signature_and_every_required_source():
   assert not accord_11g_topology([])
 
 
-@pytest.mark.parametrize('case', ('late', 'missing', 'malformed', 'malformed_pt', 'unknown', 'none', 'exact'))
+@pytest.mark.parametrize('case', ('late', 'missing', 'malformed', 'malformed_pt', 'unknown', 'none', 'exact', 'foreign_honda_fw'))
 def test_production_fingerprint_partial_accord_never_sweeps_can2(case):
   # The first 24 reads contain PT/camera evidence but no CAN-FD ADAS pair.
   # All frames are fabricated from the public ID/DLC layout.
@@ -66,6 +66,12 @@ def test_production_fingerprint_partial_accord_never_sweeps_can2(case):
   if case == 'unknown':
     fw = synthetic_fw()
     fw[-1].fwVersion = b'unknown synthetic firmware'
+  if case == 'foreign_honda_fw':
+    from opendbc.car.fw_versions import FW_VERSIONS
+    fw = synthetic_fw()
+    for row in fw:
+      row.fwVersion = next(v[0] for (_, addr, _), v in FW_VERSIONS[CAR.HONDA_CRV_6G].items()
+                           if addr == row.address)
   def read_vin(*args):
     vin_times.append(clock[0])
     return -1, -1, VIN_UNKNOWN
@@ -195,19 +201,18 @@ def test_discovery_no_mux_on_accord_and_other_honda_fallback(case):
        patch.object(car_helpers, 'get_fw_versions_ordered', return_value=[]) as generic, \
        patch.object(car_helpers, 'can_fingerprint', return_value=(CAR.HONDA_ACCORD_11G, {})):
     candidate, _, _, _, _, _ = car_helpers.fingerprint(recv, lambda frames: None, switches.append, None)
-  if case == 'other':
-    assert True in switches and present.called and generic.called
-    assert query.call_count == 1
+  assert switches and not any(switches) and not present.called and not generic.called
+  assert vin.call_args.args[2] == (0,)
+  assert all(call.kwargs == {'query_brand': 'honda', 'normal_bus_only': True, 'query_bus': 0}
+             for call in query.call_args_list)
+  if case == 'exact':
+    assert candidate == CAR.HONDA_ACCORD_11G and query.call_count == 1
+  elif case == 'other':
+    # Accord-shaped bus layout plus foreign Honda FW is contradictory; no CAN2 OBD sweep.
+    assert candidate is None and query.call_count == 1
   else:
-    assert switches and not any(switches) and not present.called and not generic.called
-    assert vin.call_args.args[2] == (0,)
-    assert all(call.kwargs == {'query_brand': 'honda', 'normal_bus_only': True, 'query_bus': 0}
-               for call in query.call_args_list)
-    if case == 'exact':
-      assert candidate == CAR.HONDA_ACCORD_11G and query.call_count == 1
-    else:
-      assert candidate is None and 2 <= query.call_count <= 10
-      assert clock[0] - 10. >= 4.5
+    assert candidate is None and 2 <= query.call_count <= 10
+    assert clock[0] - 10. >= 4.5
 
 
 def test_unrelated_vehicle_keeps_generic_path():

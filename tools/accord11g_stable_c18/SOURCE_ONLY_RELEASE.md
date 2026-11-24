@@ -27,3 +27,7 @@ classic/Nidec Honda keep their discovery priority. This correction has only
 synthetic host evidence and needs the fresh independent review above.
 
 The regression suite's Accord CAN packets are fabricated synthetic test inputs; no route-derived CAN payloads, route IDs or VINs are distributed.
+
+## C18 R2 foreign Honda firmware fail-closed correction
+
+The R1 independent review found that even a fully attributable foreign Honda firmware version returned OTHER, triggering the generic OBD-multiplexed sweep on plausible Accord CAN-FD wiring. C18 R2 **never permits generic CAN2 OBD switching once Accord-like topology has selected the dedicated bus-0 path**. Exact unique Accord firmware remains the only way to identify Accord automatically; contradictory foreign Honda FW returns MOCK/HOLD. Production-level tests cover both full and partial Accord-like observations. Native safety/watchdog unchanged.
