@@ -102,6 +102,51 @@ def test_production_fingerprint_partial_accord_never_sweeps_can2(case):
     assert calls[0] >= 30
 
 
+
+def test_one_accord_seed_then_full_layout_after_shared_probe_does_not_mux_can2():
+  # Boundary originally found by independent reviewer: only a single Honda
+  # frame in the initial 24-read Ford window, full 11G signature on read 25.
+  frames = [CanData(addr, bytes(size), bus) for (bus, addr), size in ACCORD_11G_LAYOUT.items()]
+  calls, clock, switches = [0], [10.], []
+  def recv(**kwargs):
+    calls[0] += 1
+    clock[0] += .002
+    if calls[0] == 1:
+      return [[CanData(0x158, bytes(8), 0)]]
+    if calls[0] == 25:
+      return [frames]
+    return []
+  with patch.dict(car_helpers.os.environ, {'FINGERPRINT': '', 'SKIP_FW_QUERY': '', 'DISABLE_FW_CACHE': ''}), \
+       patch.object(car_helpers.time, 'monotonic', side_effect=lambda: clock[0]), \
+       patch.object(car_helpers.time, 'sleep', side_effect=lambda delta: clock.__setitem__(0, clock[0] + delta)), \
+       patch.object(car_helpers, 'get_vin', return_value=(-1, -1, VIN_UNKNOWN)), \
+       patch.object(car_helpers, 'get_fw_versions', return_value=synthetic_fw()) as fw, \
+       patch.object(car_helpers, 'get_present_ecus') as present, \
+       patch.object(car_helpers, 'get_fw_versions_ordered') as generic, \
+       patch.object(car_helpers, 'can_fingerprint', return_value=(CAR.HONDA_ACCORD_11G, {})):
+    candidate, _, _, _, _, _ = car_helpers.fingerprint(recv, lambda frames: None, switches.append, None)
+  assert calls[0] >= 25 and calls[0] <= 24 + 48 + 2
+  assert candidate == CAR.HONDA_ACCORD_11G
+  assert switches and not any(switches) and not present.called and not generic.called
+  assert fw.called and all(call.kwargs.get('query_bus') == 0 for call in fw.call_args_list)
+
+
+def test_one_accord_seed_without_corrobation_keeps_generic_other_car_scan():
+  # A single shared ID does not qualify an unrelated car as Accord.
+  calls, switches = [0], []
+  def recv(**kwargs):
+    calls[0] += 1
+    if calls[0] == 1:
+      return [[CanData(0x158, bytes(8), 0)]]
+    return []
+  with patch.dict(car_helpers.os.environ, {'FINGERPRINT': '', 'SKIP_FW_QUERY': '', 'DISABLE_FW_CACHE': ''}), \
+       patch.object(car_helpers, 'get_vin', return_value=(-1,-1,VIN_UNKNOWN)), \
+       patch.object(car_helpers, 'get_present_ecus', return_value=set()) as present, \
+       patch.object(car_helpers, 'get_fw_versions_ordered', return_value=[]) as generic, \
+       patch.object(car_helpers, 'can_fingerprint', return_value=(None, {})):
+    candidate, _, _, _, _, _ = car_helpers.fingerprint(recv, lambda frames: None, switches.append, None)
+  assert candidate is None and switches == [True, False] and present.called and generic.called
+
 def test_partial_threshold_rejects_single_unrelated_id():
   single = [[CanData(0x158, bytes(8), 0)]]
   assert not accord_11g_plausible(single)

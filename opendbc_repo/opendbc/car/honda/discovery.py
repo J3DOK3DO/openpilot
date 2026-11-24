@@ -59,6 +59,13 @@ def accord_11g_topology(packets):
   return observed == ACCORD_11G_LAYOUT.keys()
 
 
+def accord_11g_seed(packets):
+  # One matching bus/ID is a reason to observe more passive frames, NEVER a
+  # vehicle identity or authorization to transmit diagnostics or controls.
+  return any((frame.src, frame.address) in ACCORD_11G_LAYOUT
+             for packet in packets for frame in packet)
+
+
 def accord_11g_plausible(packets):
   # Require a repeated PT/camera address on both normal buses, plus another
   # independent source. One incidental CAN ID (or one malformed frame) cannot

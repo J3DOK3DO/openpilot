@@ -16,7 +16,7 @@ from opendbc.car.ford.discovery import (normal_bus0_selection as ford_normal_bus
 from opendbc.car.volvo.discovery import normal_bus_topology as volvo_normal_bus_topology, v60_bus_topology as volvo_v60_bus_topology
 from opendbc.car.hyundai.discovery import normal_bus_topology
 from opendbc.car.honda.discovery import (nidec_bus0_topology, normal_bus_topology as honda_normal_bus_topology,
-                                         accord_11g_topology, accord_11g_plausible, accord_11g_bus0_queries,
+                                         accord_11g_topology, accord_11g_seed, accord_11g_plausible, accord_11g_bus0_queries,
                                          accord_11g_fw, HOLD, OTHER)
 from opendbc.car.honda.values import CAR as HONDA, HondaFlags
 from opendbc.car.mazda.discovery import normal_bus0_topology as mazda_normal_bus0_topology
@@ -139,7 +139,7 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
     return packets
 
   def accord_11g_partial_probe():
-    if not accord_11g_bus0_queries() or not accord_11g_plausible(normal_bus_packets):
+    if not accord_11g_bus0_queries() or not accord_11g_seed(normal_bus_packets):
       return None
     # The shared Ford/HKG window is only 0.12 s / 24 reads. Collect a little
     # more normal-harness CAN for delayed ADAS frames, with no diagnostic sends
@@ -150,7 +150,10 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
         break
       if not observe_normal_bus(wait_for_one=False):
         time.sleep(min(0.01, max(0., deadline - time.monotonic())))
-    return 'honda_accord_11g'
+    # A single initial frame must never select Honda; require independent
+    # topology evidence after the bounded extra observation. If it never
+    # arrives, preserve unrelated vehicles' normal generic discovery.
+    return 'honda_accord_11g' if accord_11g_plausible(normal_bus_packets) else None
 
   start_time = time.monotonic()
   if not skip_fw_query:

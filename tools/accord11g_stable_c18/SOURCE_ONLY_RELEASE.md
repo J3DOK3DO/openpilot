@@ -31,3 +31,7 @@ The regression suite's Accord CAN packets are fabricated synthetic test inputs; 
 ## C18 R2 foreign Honda firmware fail-closed correction
 
 The R1 independent review found that even a fully attributable foreign Honda firmware version returned OTHER, triggering the generic OBD-multiplexed sweep on plausible Accord CAN-FD wiring. C18 R2 **never permits generic CAN2 OBD switching once Accord-like topology has selected the dedicated bus-0 path**. Exact unique Accord firmware remains the only way to identify Accord automatically; contradictory foreign Honda FW returns MOCK/HOLD. Production-level tests cover both full and partial Accord-like observations. Native safety/watchdog unchanged.
+
+## C18 R3 single-seed passive-delay coverage
+
+R2 review found one matching 11G CAN ID in the initial short probe was insufficient to trigger the bounded 48-read passive extension; a full layout on read 25 could therefore encounter generic OBD mux. R3 uses single-ID seed solely to prolong **passive** observation, not to determine vehicle identity. If corroborating frames never arrive within bounds, other-car generic discovery remains available; if they do, a conservative Honda bus0 FW path handles the Accord. Tests cover both outcomes. No guarantee is claimed for arbitrary CAN silence or delays past the bounded discovery window; vehicle release remains NO-GO.

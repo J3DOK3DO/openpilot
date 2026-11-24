@@ -34,3 +34,7 @@ absent FW HOLDS as MOCK; no OBD mux enable or all-brand scan occurs. The
 single-ID unrelated case still takes the generic path. No private route bytes
 or IDs are in these tests. The missing `msgq` and `libparams_c.so` dependent
 checks remain blockers, not passes.
+
+## R3 final bounded single-seed startup regression
+
+The R2 independent review reproduced a single matching Honda normal CAN ID in the first 24 reads followed by full Accord topology on read 25. R3 now triggers extra bounded passive observation on even one matching ID, but demands corroborating topology after the observation; otherwise generic other-car discovery remains unchanged. The production-level read-25 no-OBD test and uncorroborated-one-ID generic fallback both passed. **R3 exact-source fresh host results:** cross-brand **329 passed, 3 `msgq` cases deselected**; Honda/Ford focused **25 passed**; native Honda MVL **3 passed**. No claim covers arbitrarily delayed CAN past the bounded window, real Panda/AGNOS identity, production binaries or physical CAN2 qualification. Installation/road NO-GO.
