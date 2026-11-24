@@ -15,7 +15,8 @@ from opendbc.car.ford.discovery import (normal_bus0_selection as ford_normal_bus
                                        normal_bus0_queries as ford_normal_bus0_queries, normal_bus_query_brand)
 from opendbc.car.volvo.discovery import normal_bus_topology as volvo_normal_bus_topology, v60_bus_topology as volvo_v60_bus_topology
 from opendbc.car.hyundai.discovery import normal_bus_topology
-from opendbc.car.honda.discovery import nidec_bus0_topology, normal_bus_topology as honda_normal_bus_topology
+from opendbc.car.honda.discovery import (nidec_bus0_topology, normal_bus_topology as honda_normal_bus_topology,
+                                         accord_11g_topology, accord_11g_bus0_queries, accord_11g_fw, HOLD, OTHER)
 from opendbc.car.honda.values import CAR as HONDA, HondaFlags
 from opendbc.car.mazda.discovery import normal_bus0_topology as mazda_normal_bus0_topology
 from opendbc.car.chrysler.discovery import normal_bus_topology as chrysler_normal_bus_topology
@@ -127,6 +128,7 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
   skip_fw_query = os.environ.get('SKIP_FW_QUERY', False)
   disable_fw_cache = os.environ.get('DISABLE_FW_CACHE', False)
   ecu_rx_addrs = set()
+  accord_hold = False
 
   normal_bus_packets = []
 
@@ -191,6 +193,7 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
           gm_probe=gm_normal_bus0_topology if _gm_fw_uses_normal_bus0() else None,
           volvo_probe=volvo_probe,
           tesla_probe=tesla_normal_bus0_topology if _tesla_fw_uses_normal_bus0() else None) or
+          ('honda_accord_11g' if accord_11g_bus0_queries() and accord_11g_topology(normal_bus_packets) else None) or
           ('honda' if honda_normal_bus_topology(normal_bus_packets) else None) or
           ('honda_nidec' if nidec_bus0_topology(normal_bus_packets) else None) or
           ('chrysler' if chrysler_normal_bus_topology(normal_bus_packets) else None) or
@@ -200,9 +203,14 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
         warmup_remaining = 0.1 - (time.monotonic() - start_time)
         if warmup_remaining > 0:
           time.sleep(warmup_remaining)
-        vin_buses = (0,) if normal_brand in ('ford', 'gm', 'volvo', 'tesla', 'chrysler', 'honda_nidec', 'mazda') else (0, 1)
+        vin_buses = (0,) if normal_brand in ('ford', 'gm', 'volvo', 'tesla', 'chrysler', 'honda_nidec', 'honda_accord_11g', 'mazda') else (0, 1)
         vin_rx_addr, vin_rx_bus, vin = get_vin(can_recv, can_send, vin_buses)
-        if normal_brand == 'honda_nidec':
+        if normal_brand == 'honda_accord_11g':
+          car_fw, outcome = accord_11g_fw(
+            lambda **kw: get_fw_versions(can_recv, can_send, set_obd_multiplexing, **kw), vin, start=start_time)
+          accord_hold = outcome == HOLD
+          full_scan = outcome == OTHER
+        elif normal_brand == 'honda_nidec':
           car_fw = get_fw_versions(can_recv, can_send, set_obd_multiplexing, query_brand='honda', query_bus=0)
           exact, matches = match_fw_to_car(car_fw, vin)
           full_scan = not (exact and len(matches) == 1 and any(
@@ -261,6 +269,10 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
   # Refine after both automatic sources, before the explicit override below.
   if not fixed_fingerprint:
     car_fingerprint = automatic_bolt_candidate(car_fingerprint, finger, camera_cruise_messages, vin)
+
+  if accord_hold and not fixed_fingerprint:
+    # CAN alone cannot authorize this identity when normal-bus firmware is absent or ambiguous.
+    car_fingerprint = None
 
   if fixed_fingerprint:
     car_fingerprint = fixed_fingerprint

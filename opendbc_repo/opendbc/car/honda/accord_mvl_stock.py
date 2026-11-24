@@ -11,7 +11,7 @@ def qualified(cp):
           len(cp.safetyConfigs) == 1 and cp.safetyConfigs[0].safetyModel == structs.CarParams.SafetyModel.hondaBosch and
           cp.safetyConfigs[0].safetyParam == (80 | int(bool(cp.flags & HondaFlags.BOSCH_ALT_BRAKE))) and
           not int(cp.flags) & ~(int(CAR.HONDA_ACCORD_11G.config.flags) |
-                                int(HondaFlags.BOSCH_ALT_BRAKE | HondaFlags.BOSCH_EXT_HUD | HondaFlags.HAS_BSM)))
+                                int(HondaFlags.BOSCH_ALT_BRAKE | HondaFlags.BOSCH_EXT_HUD | HondaFlags.HAS_BSM | HondaFlags.HYBRID)))
 
 
 class AccordMvlStock:
@@ -22,9 +22,14 @@ class AccordMvlStock:
   def update(self, packer, can, cp, control, state, frame):
     # The independent session can outlive the PCM. Its prior control envelope
     # must not keep camera button substitution alive after physical withdrawal.
-    if cp.alternativeExperience == 32 and (state.out.brakePressed or not state.out.cruiseState.enabled):
+    # Withdraw a pending camera pulse on any physical or control withdrawal,
+    # including frames between send ticks. Keep the last send for cooldown.
+    if (state.out.brakePressed or not state.out.cruiseState.enabled or
+        not state.lkas_hud['LKAS_READY'] or not control.enabled or
+        control.cruiseControl.cancel or control.cruiseControl.resume):
+      self.lkas_button_send_remaining = 0
       return []
-    if not control.enabled or frame % 4 or control.cruiseControl.cancel or control.cruiseControl.resume:
+    if frame % 4:
       return []
     if (self.lkas_button_send_remaining == 0 and state.lkas_hud["LKAS_READY"] and
         frame >= self.last_lkas_button_frame + 500):

@@ -51,7 +51,9 @@ def test_real_parser_controller_camera_button_cadence_and_override_exclusion():
     control.cruiseControl.resume = frame == 564
     _, messages = ci.apply(control.as_reader(), now)
     camera = [message for message in messages if message[0] == 0x296 and message[2] == 2]
-    expected = control.enabled and frame % 4 == 0 and not control.cruiseControl.cancel and not control.cruiseControl.resume
+    # The parser has no valid stock cruise engagement in this sparse fixture.
+    expected = (control.enabled and ci.CS.out.cruiseState.enabled and frame % 4 == 0 and
+                not control.cruiseControl.cancel and not control.cruiseControl.resume)
     assert len(camera) == int(expected)
     assert not any(message[0] in (0x1DF, 0x1EF, 0x310, 0x18DAB0F1, 0x6CD5558, 0x6CD5559,
                                   0xF31AA52, 0xF31AA5C, 0x1A45AA4E) for message in messages)
@@ -64,7 +66,7 @@ def test_real_parser_controller_camera_button_cadence_and_override_exclusion():
         pulses.append(frame)
       if setting == 1 and frame > 508:
         assert actual_setting == 0
-  assert pulses == [500, 504, 508]
+  assert pulses == []
 
 
 @pytest.mark.parametrize("alpha,release", ((False, False), (True, False), (True, True)))
