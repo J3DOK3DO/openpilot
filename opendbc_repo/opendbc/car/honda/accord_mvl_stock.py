@@ -24,7 +24,12 @@ class AccordMvlStock:
     # must not keep camera button substitution alive after physical withdrawal.
     # Withdraw a pending camera pulse on any physical or control withdrawal,
     # including frames between send ticks. Keep the last send for cooldown.
-    if (state.out.brakePressed or not state.out.cruiseState.enabled or
+    try:
+      in_drive = state.out.gearShifter == structs.CarState.GearShifter.drive
+    except Exception:
+      # An unavailable or invalid gear must withdraw the queued camera pulse.
+      in_drive = False
+    if (not in_drive or state.out.brakePressed or not state.out.cruiseState.enabled or
         not state.lkas_hud['LKAS_READY'] or not control.enabled or
         control.cruiseControl.cancel or control.cruiseControl.resume):
       self.lkas_button_send_remaining = 0

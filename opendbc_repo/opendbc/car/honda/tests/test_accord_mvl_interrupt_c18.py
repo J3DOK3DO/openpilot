@@ -3,6 +3,7 @@ from types import SimpleNamespace as NS
 
 import pytest
 
+from opendbc.car import structs
 from opendbc.car.honda.accord_mvl_stock import AccordMvlStock
 from opendbc.car.honda.values import CruiseSettings
 
@@ -10,7 +11,7 @@ from opendbc.car.honda.values import CruiseSettings
 def _step(obj, frame, *, enabled=True, braking=False, cruise=True,
           cancel=False, resume=False, experience=32, ready=True):
   control = NS(enabled=enabled, cruiseControl=NS(cancel=cancel, resume=resume))
-  state = NS(out=NS(brakePressed=braking, cruiseState=NS(enabled=cruise)),
+  state = NS(out=NS(gearShifter=structs.CarState.GearShifter.drive, brakePressed=braking, cruiseState=NS(enabled=cruise)),
              lkas_hud={"LKAS_READY": int(ready)}, cruise_setting=0,
              cruise_buttons=0, scm_ambient_light=0)
   cp = NS(alternativeExperience=experience)

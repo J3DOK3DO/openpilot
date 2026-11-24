@@ -1,16 +1,74 @@
+from types import SimpleNamespace as NS
+
 import pytest
 
 from opendbc.can import CANPacker, CANParser
 from opendbc.car import Bus, gen_empty_fingerprint, structs
-from opendbc.car.honda.accord_mvl_stock import qualified
+from opendbc.car.honda.accord_mvl_stock import AccordMvlStock, qualified
 from opendbc.car.honda.interface import CarInterface
-from opendbc.car.honda.values import CAR, DBC
+from opendbc.car.honda.values import CAR, CruiseSettings, DBC
 
 
 def final_cp(alpha=False, release=False):
   fingerprint = gen_empty_fingerprint()
   fingerprint[0][0x1A3] = 8
   return CarInterface.get_params(CAR.HONDA_ACCORD_11G, fingerprint, [], alpha, release, False)
+
+
+@pytest.fixture
+def camera_queue(monkeypatch):
+  def send(_packer, _can, _buttons, _cp, *, cruise_setting, ambient_light, bus):
+    assert bus == 2
+    return cruise_setting
+  monkeypatch.setattr("opendbc.car.honda.accord_mvl_stock.hondacan.spam_buttons_command", send)
+  return AccordMvlStock()
+
+
+def queue_step(queue, frame, gear):
+  state = NS(out=NS(gearShifter=gear, brakePressed=False, cruiseState=NS(enabled=True)),
+             lkas_hud={"LKAS_READY": 1}, cruise_setting=0, cruise_buttons=0, scm_ambient_light=0)
+  control = NS(enabled=True, cruiseControl=NS(cancel=False, resume=False))
+  return queue.update(None, NS(camera=2), None, control, state, frame)
+
+
+@pytest.mark.parametrize("gear", (structs.CarState.GearShifter.park,
+                                  structs.CarState.GearShifter.neutral,
+                                  structs.CarState.GearShifter.reverse,
+                                  structs.CarState.GearShifter.unknown,
+                                  None, 999))
+@pytest.mark.parametrize("withdraw_frame", (503, 504))
+def test_non_drive_withdraws_pending_camera_pulses_and_keeps_cooldown(camera_queue, gear, withdraw_frame):
+  drive = structs.CarState.GearShifter.drive
+  assert queue_step(camera_queue, 500, drive) == [CruiseSettings.LKAS]
+  assert camera_queue.lkas_button_send_remaining == 2
+  assert queue_step(camera_queue, withdraw_frame, gear) == []
+  assert camera_queue.lkas_button_send_remaining == 0
+  assert camera_queue.last_lkas_button_frame == 500
+  return_frame = 504 if withdraw_frame == 503 else 508
+  assert queue_step(camera_queue, return_frame, drive) == [0]
+  assert camera_queue.lkas_button_send_remaining == 0
+  assert queue_step(camera_queue, 996, drive) == [0]
+  assert queue_step(camera_queue, 1000, drive) == [CruiseSettings.LKAS]
+
+
+def test_inaccessible_gear_withdraws_queue(camera_queue):
+  drive = structs.CarState.GearShifter.drive
+  assert queue_step(camera_queue, 500, drive) == [CruiseSettings.LKAS]
+  assert queue_step(camera_queue, 503, drive) == []
+  state = NS(out=NS(brakePressed=False, cruiseState=NS(enabled=True)),
+             lkas_hud={"LKAS_READY": 1}, cruise_setting=0, cruise_buttons=0, scm_ambient_light=0)
+  control = NS(enabled=True, cruiseControl=NS(cancel=False, resume=False))
+  assert camera_queue.update(None, NS(camera=2), None, control, state, 504) == []
+  assert camera_queue.lkas_button_send_remaining == 0
+  assert camera_queue.last_lkas_button_frame == 500
+  assert queue_step(camera_queue, 508, drive) == [0]
+
+
+def test_drive_camera_pulse_cadence_remains_available(camera_queue):
+  drive = structs.CarState.GearShifter.drive
+  assert [queue_step(camera_queue, frame, drive) for frame in (500, 504, 508, 512)] == [
+    [CruiseSettings.LKAS], [CruiseSettings.LKAS], [CruiseSettings.LKAS], [0]]
+  assert camera_queue.last_lkas_button_frame == 508
 
 
 @pytest.mark.parametrize("alpha,release", ((False, False), (True, False), (True, True)))

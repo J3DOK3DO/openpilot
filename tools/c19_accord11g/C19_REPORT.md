@@ -1,10 +1,16 @@
-# C19 — SOURCE-ONLY PRE-RELEASE / NO INSTALL / NO ROAD USE
+# C19 R1 — SOURCE-ONLY REVIEW CANDIDATE / NO PUBLICATION / NO INSTALL / NO ROAD USE
 
 ## Identity and decision
 
 This branch selectively adapts the C8.2 Honda Accord 11G independent lateral safeguards on the published C18 parent `d146252ba988fb892155fef5ce71ab389908ccb1`. The stable origin is `404ef33a969c05297d8068fdf49b2c70e23e6697`. The read-only C8.2 reference is `20c86ebef9023845af0f62a946125700f7d51ce7`; the historical C8.1 GUI source is `9d2da330f6539beb5afb67867b28491526c0e1bd`. C8.1 route observations do not qualify C19. The source commit is the commit containing this report; its full SHA is recorded in the off-tree campaign evidence.
 
-**Release decision: source-only review candidate, installation and road use HOLD.** No tag, push, installer link, physical vehicle test, Panda flash, VIN harvest or road actuation was performed. The branch requires independent final source and safety review before any source-only publication. It is not an installable product candidate.
+**Release decision: source-only review candidate; source-only publication and installer NO-GO.** No tag, push, installer link, physical vehicle test, Panda flash, VIN harvest or road actuation was performed. A fresh independent PASS_SCOPED source and safety review is required before any source-only prerelease. This is not an installable product candidate and has no physical vehicle acceptance.
+
+## First independent review and R1 correction
+
+The first independent review of committed C19 `775cfc7507236d7d18ed624998c8906c2f8f6b85` returned **FAIL_SCOPED**. It found that `AccordMvlStock.update` withdrew queued camera LKAS button pulses for brake, ACC loss, LKAS not ready, disabled control, Cancel and Resume, but did not inspect `state.out.gearShifter`. A pending pulse could therefore transmit in Park, Neutral or Reverse while ACC and control remained enabled, despite the separate host latch and Panda token restrictions. The read-only C8.2 reference has the same omission.
+
+R1 checks the exact `structs.CarState.GearShifter.drive` value before the four-frame send cadence. Every other gear, an invalid or unknown value, and an inaccessible gear field immediately empty the queue and return no camera button command. The last transmitted LKAS frame remains intact for the original 500-frame cooldown. Returning to Drive neither restores withdrawn pulses nor grants an immediate new pulse. This is a non-actuating source correction; it adds no longitudinal or steering authority.
 
 ## C8.2 gap matrix
 
@@ -25,8 +31,9 @@ The local host uses Python 3.12, cached read-only Python dependencies and a safe
 
 | Gate | Result |
 | --- | --- |
-| Accord C8.2 host intent, C18 R1–R3 focused discovery, Accord hybrid/stock ACC | **72 passed**, 0 skipped, 0 errors (`/tmp/c19_host_targeted.log`). |
-| Honda stock AOL native C safety and MVL 80/81, including Park/N/R/Drive, zero handshake, stale mask, withdrawal, fault, cooldown and other Honda | **40 passed**, 0 skipped, 0 errors (`/tmp/c19_native_targeted.log`). |
+| R1 Accord camera queue, C18 interruption and hybrid stock ACC focused tests | **64 passed, 3 `actual_card` cases deselected**; see off-tree `C19_R1_FOCUSED_TESTS.log`. |
+| R1 Accord C8.2 host intent, C18 R1–R3 focused discovery, Accord hybrid/stock ACC | **72 passed**, 0 skipped, 0 errors; see off-tree `C19_R1_HOST_GATE.log`. |
+| Honda stock AOL native C safety and MVL 80/81, including Park/N/R/Drive, zero handshake, stale mask, withdrawal, fault, cooldown and other Honda | **40 passed** on the committed C19 candidate (`/tmp/c19_native_targeted.log`). R1 did not edit native C and did not rerun native tests. |
 | Additional Honda stock host file with unavailable `actual_card` tests deselected | **383 passed, 21 deselected**, 0 skipped/errors in the selected run. This overlaps the 72-pass gate; do not sum as unique tests. |
 | Python compileall of changed Python paths and `git diff --check` | Passed. |
 | Honda CAN-FD/recovery end-to-end caller | **Not runnable**: collection imports unavailable host `msgq`; no passing lifecycle claim. The old Accord recovery expectation was updated to request a fresh LKAS gesture, but remains unverified here. |
@@ -40,4 +47,4 @@ The parent tracks `prebuilt` and `prebuilt.json`, but `tools/ci/check_prebuilt_r
 
 `scripts/laptop_device_build.sh doctor` reports Docker CLI with inaccessible daemon, no checkout-local `.comma_sysroot`, and no checkout-local ARM64 build venv. Available disk space was about **7.7 GiB** before this work. A read-only older AGNOS sysroot exists at `/tmp/c10_agnos2052/sysroot` (about 1.2 GiB), and a C11 stage has a five-artifact QCOM package. Current QCOM source signature `db2ee948465d03d8180db65d537bdccc1a7211142d4e7ba296bb78548761d6f8` matches that older package's recorded source signature; this is input compatibility only, not C19 product compilation, ABI validation, full artifact verification, or installed-device identity. The current checkout lacks the required build setup and there is no matching C19 ARM64 product receipt. No full build or Panda firmware build was started under these constraints.
 
-Minimally sufficient next step: provide an accessible ARM64 container runtime, a version-verified matching AGNOS sysroot and complete validated QCOM package within a workspace with adequate free storage; then build the **final C19 commit** with the documented full build and verify its ARM64/QCOM artifacts and genuine exact-source receipt. Independently review the C19 source and safety gates, then separately qualify the real hardware before considering installation or road use. C8.1/C11 compiled outputs cannot serve as this receipt.
+Minimally sufficient next step: obtain a fresh independent PASS_SCOPED review of R1 before considering a source-only prerelease. For an installable product, provide an accessible ARM64 container runtime, a version-verified matching AGNOS sysroot and complete validated QCOM package within a workspace with adequate free storage; then build the **final C19 commit** with the documented full build and verify its ARM64/QCOM artifacts and genuine exact-source receipt. Separately qualify the real hardware before considering installation or road use. C8.1/C11 compiled outputs cannot serve as this receipt.

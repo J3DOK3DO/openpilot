@@ -133,7 +133,8 @@ def test_hybrid_camera_button_withdrawal_and_brake():
   cp = _cp()
   cp.alternativeExperience = 32
   mvl = AccordMvlStock()
-  state = SimpleNamespace(out=SimpleNamespace(brakePressed=False, cruiseState=SimpleNamespace(enabled=True)),
+  state = SimpleNamespace(out=SimpleNamespace(gearShifter=structs.CarState.GearShifter.drive, brakePressed=False,
+                                              cruiseState=SimpleNamespace(enabled=True)),
                           lkas_hud={"LKAS_READY": 1}, cruise_setting=0, cruise_buttons=0, scm_ambient_light=0)
   control = SimpleNamespace(enabled=True, cruiseControl=SimpleNamespace(cancel=False, resume=False))
   can = SimpleNamespace(camera=2)
