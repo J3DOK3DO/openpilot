@@ -1907,7 +1907,8 @@ class SelfdriveD:
     from openpilot.starpilot.car.gm.aol import physical_cancel_lateral_allowed, stock_ascm_independent_lateral, independent_lateral_below_engage
     from openpilot.starpilot.car.hyundai.aol import physical_cancel_lateral_allowed as hkg_cancel_lateral_allowed
     from openpilot.starpilot.car.mazda.aol import physical_cancel_lateral_allowed as mazda_cancel_lateral_allowed
-    from openpilot.starpilot.car.honda.aol import (below_engage_lateral_allowed as honda_below_engage_lateral_allowed,
+    from openpilot.starpilot.car.honda.aol import (accord11g_stationary_aol_inhibit,
+                                                   below_engage_lateral_allowed as honda_below_engage_lateral_allowed,
                                                    physical_cancel_lateral_allowed as honda_cancel_lateral_allowed)
     from openpilot.starpilot.car.ford.aol import physical_cancel_lateral_allowed as ford_cancel_lateral_allowed
     from openpilot.starpilot.car.subaru.aol import sng_standstill_lateral_inhibit
@@ -1987,7 +1988,8 @@ class SelfdriveD:
                         self.sm['driverMonitoringState'].alertLevel == AlertLevel.three)),
       pause_brake_mps=pause_brake_mps,
       gear_pause=reverse_pause,
-      lateral_inhibit=self.aol_dm_lateral_inhibit or sng_standstill_lateral_inhibit(
+      lateral_inhibit=self.aol_dm_lateral_inhibit or accord11g_stationary_aol_inhibit(self.CP, CS, standard_lateral=self.active) or
+        sng_standstill_lateral_inhibit(
         self.CP, CS, initial_wait=bool(native is None or not native.lateralAllowed)) or
         volkswagen_lateral_output_inhibited(self.CP, CS) or any(
         sample.steerFaultTemporary or pause_brake_mps > 0 and sample.brakePressed and not sample.standstill and

@@ -1,6 +1,6 @@
 from opendbc.car.structs import car
 from opendbc.car.honda.stock_aol import qualified as qualified_stock, BOSCH_WORDS, NIDEC_WORDS, temporary_restriction, ALT_RADAR_STOCK, CLASSIC_BOSCH
-from openpilot.starpilot.car.honda.stock_intent import HondaStockCardIntent
+from openpilot.starpilot.car.honda.stock_intent import HondaStockCardIntent, accord11g_stationary_aol_inhibit
 from opendbc.car.honda.values import CAR, HondaFlags, HondaSafetyFlags
 from openpilot.starpilot.aol.policy import AolVehiclePolicy
 
