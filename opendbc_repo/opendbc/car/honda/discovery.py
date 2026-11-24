@@ -59,6 +59,21 @@ def accord_11g_topology(packets):
   return observed == ACCORD_11G_LAYOUT.keys()
 
 
+def accord_11g_plausible(packets):
+  # Require a repeated PT/camera address on both normal buses, plus another
+  # independent source. One incidental CAN ID (or one malformed frame) cannot
+  # divert an unrelated car from its usual discovery path. DLC is deliberately
+  # not required here: a damaged required frame must still fail closed.
+  observed = {(frame.src, frame.address) for packet in packets for frame in packet
+              if (frame.src, frame.address) in ACCORD_11G_LAYOUT}
+  shared = {address for address in (0x14A, 0x18F, 0x17C, 0x158)
+            if (0, address) in observed and (2, address) in observed}
+  pt_camera = {address for bus, address in observed if bus in (0, 2)}
+  adas = any((1, address) in observed for address in (0x601, 0x603))
+  return len(shared) >= 2 or (bool(shared) and len(pt_camera) >= 3) or \
+         (bool(shared) and len(pt_camera) >= 2 and adas)
+
+
 def accord_11g_bus0_queries():
   from opendbc.car import fw_versions
   return any(brand == 'honda' and request.bus == 0 and not request.logging
@@ -82,7 +97,8 @@ def accord_11g_outcome(car_fw, vin):
     return HOLD
   # A foreign identity needs fully attributable evidence; an unknown Honda ECU
   # reply could be a newer Accord firmware and must not trigger the CAN2 sweep.
-  if attributed and all(attributed) and ((candidates - {CAR.HONDA_ACCORD_11G}) or any(attributed)):
+  if exact and len(candidates) == 1 and CAR.HONDA_ACCORD_11G not in candidates and \
+     attributed and all(next(iter(candidates)) in cars for cars in attributed):
     return OTHER
   return HOLD
 

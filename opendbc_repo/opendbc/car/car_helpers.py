@@ -16,7 +16,8 @@ from opendbc.car.ford.discovery import (normal_bus0_selection as ford_normal_bus
 from opendbc.car.volvo.discovery import normal_bus_topology as volvo_normal_bus_topology, v60_bus_topology as volvo_v60_bus_topology
 from opendbc.car.hyundai.discovery import normal_bus_topology
 from opendbc.car.honda.discovery import (nidec_bus0_topology, normal_bus_topology as honda_normal_bus_topology,
-                                         accord_11g_topology, accord_11g_bus0_queries, accord_11g_fw, HOLD, OTHER)
+                                         accord_11g_topology, accord_11g_plausible, accord_11g_bus0_queries,
+                                         accord_11g_fw, HOLD, OTHER)
 from opendbc.car.honda.values import CAR as HONDA, HondaFlags
 from opendbc.car.mazda.discovery import normal_bus0_topology as mazda_normal_bus0_topology
 from opendbc.car.chrysler.discovery import normal_bus_topology as chrysler_normal_bus_topology
@@ -137,6 +138,20 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
     normal_bus_packets.extend(packets)
     return packets
 
+  def accord_11g_partial_probe():
+    if not accord_11g_bus0_queries() or not accord_11g_plausible(normal_bus_packets):
+      return None
+    # The shared Ford/HKG window is only 0.12 s / 24 reads. Collect a little
+    # more normal-harness CAN for delayed ADAS frames, with no diagnostic sends
+    # or OBD mux switch. Both elapsed time and read count bound this extension.
+    deadline = start_time + 0.65
+    for _ in range(48):
+      if time.monotonic() >= deadline or accord_11g_topology(normal_bus_packets):
+        break
+      if not observe_normal_bus(wait_for_one=False):
+        time.sleep(min(0.01, max(0., deadline - time.monotonic())))
+    return 'honda_accord_11g'
+
   start_time = time.monotonic()
   if not skip_fw_query:
     if cached_params is not None and cached_params.brand != "mock" and len(cached_params.carFw) > 0 and \
@@ -197,7 +212,8 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
           ('honda' if honda_normal_bus_topology(normal_bus_packets) else None) or
           ('honda_nidec' if nidec_bus0_topology(normal_bus_packets) else None) or
           ('chrysler' if chrysler_normal_bus_topology(normal_bus_packets) else None) or
-          ('mazda' if mazda_normal_bus0_topology(normal_bus_packets) else None)) is not None:
+          ('mazda' if mazda_normal_bus0_topology(normal_bus_packets) else None) or
+          accord_11g_partial_probe()) is not None:
 
         set_obd_multiplexing(False)
         warmup_remaining = 0.1 - (time.monotonic() - start_time)

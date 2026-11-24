@@ -1,7 +1,7 @@
 # C18 source-only pre-release scope
 
-The committed source may be offered for independent review and a clearly
-labeled **source-only pre-release** outside this run. It is not an installable
+The R1 corrected source is ready for fresh independent review. **Source-only
+publication waits for a fresh PASS_SCOPED review.** It is not an installable
 or on-road release. No GitHub push or release publication occurred here.
 
 **Installation/on-road: NO-GO.** Required remaining gates are an independent
@@ -16,5 +16,14 @@ Source behavior is nonactuating at discovery. Stock ACC, radar/AEB, Panda
 safety mode and motor/rate fault handling are unchanged. An exact firmware
 match is still required before automatic Accord identity. Unknown or
 ambiguous Accord evidence HOLDS as MOCK, with no CAN2 mux sweep.
+
+R1 corrects the independent reviewer's FAIL_SCOPED / P0 finding: the earlier
+10-ID detector could miss late, absent or malformed frames in the shared
+0.12 s / 24-read window and enter the generic OBD mux scan. A bounded
+passive extension now follows multi-ID Honda PT/camera evidence; full or
+plausible partial layouts take normal-wiring bus-0 Honda VIN/FW. Missing,
+unknown or ambiguous FW remains MOCK/HOLD. Fully selected other brands and
+classic/Nidec Honda keep their discovery priority. This correction has only
+synthetic host evidence and needs the fresh independent review above.
 
 The regression suite's Accord CAN packets are fabricated synthetic test inputs; no route-derived CAN payloads, route IDs or VINs are distributed.
