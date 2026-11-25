@@ -1,0 +1,13 @@
+{
+  "source_kind": "RECORDED",
+  "carFingerprint": "HONDA_ACCORD_11G",
+  "vehicle": {"make": "Honda", "model": "Accord", "year": 2024, "powertrain": "Hybrid", "trim": "Touring", "market": "US-spec import"},
+  "route_id": "UNVERIFIED",
+  "ecu_firmware": {"radar": "UNVERIFIED", "camera": "UNVERIFIED", "brake": "UNVERIFIED"},
+  "software_sha": "UNVERIFIED",
+  "dbc_sha": "UNVERIFIED",
+  "trace_sha256": "UNVERIFIED",
+  "start_ns": 0,
+  "end_ns": 0,
+  "units": {"timestamp": "ns", "speed": "m/s", "acceleration": "m/s^2", "distance": "m", "pitch": "rad"}
+}

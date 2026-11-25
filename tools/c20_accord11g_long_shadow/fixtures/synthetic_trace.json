@@ -1,0 +1,136 @@
+[
+  {
+    "t_ns": 1000000000,
+    "v_ego": 20.0,
+    "a_ego": 0.0,
+    "v_cruise": 24.0,
+    "raw_accel": 0.2,
+    "pitch": 0.0,
+    "gas_pressed": false,
+    "brake_pressed": false,
+    "stock_aeb": false,
+    "lead": null,
+    "signal_t_ns": {
+      "v_ego": 1000000000,
+      "a_ego": 1000000000,
+      "v_cruise": 1000000000,
+      "raw_accel": 1000000000,
+      "pitch": 1000000000,
+      "gas_pressed": 1000000000,
+      "brake_pressed": 1000000000,
+      "stock_aeb": 1000000000
+    }
+  },
+  {
+    "t_ns": 1100000000,
+    "v_ego": 20.0,
+    "a_ego": -0.2,
+    "v_cruise": 24.0,
+    "raw_accel": -0.4,
+    "pitch": 0.01,
+    "gas_pressed": false,
+    "brake_pressed": false,
+    "stock_aeb": false,
+    "lead": {
+      "track_id": "synthetic-A",
+      "t_ns": 1100000000,
+      "valid": true,
+      "radar": true,
+      "distance": 31.0,
+      "speed": 18.0,
+      "confidence": 1.0
+    },
+    "signal_t_ns": {
+      "v_ego": 1100000000,
+      "a_ego": 1100000000,
+      "v_cruise": 1100000000,
+      "raw_accel": 1100000000,
+      "pitch": 1100000000,
+      "gas_pressed": 1100000000,
+      "brake_pressed": 1100000000,
+      "stock_aeb": 1100000000
+    }
+  },
+  {
+    "t_ns": 1200000000,
+    "v_ego": 19.9,
+    "a_ego": -1.0,
+    "v_cruise": 24.0,
+    "raw_accel": -1.5,
+    "pitch": 0.01,
+    "gas_pressed": false,
+    "brake_pressed": false,
+    "stock_aeb": false,
+    "lead": {
+      "track_id": "synthetic-B",
+      "t_ns": 1200000000,
+      "valid": true,
+      "radar": true,
+      "distance": 22.0,
+      "speed": 14.0,
+      "confidence": 1.0
+    },
+    "signal_t_ns": {
+      "v_ego": 1200000000,
+      "a_ego": 1200000000,
+      "v_cruise": 1200000000,
+      "raw_accel": 1200000000,
+      "pitch": 1200000000,
+      "gas_pressed": 1200000000,
+      "brake_pressed": 1200000000,
+      "stock_aeb": 1200000000
+    }
+  },
+  {
+    "t_ns": 1300000000,
+    "v_ego": 19.8,
+    "a_ego": -2.0,
+    "v_cruise": 24.0,
+    "raw_accel": -3.0,
+    "pitch": 0.01,
+    "gas_pressed": false,
+    "brake_pressed": true,
+    "stock_aeb": true,
+    "lead": {
+      "track_id": "synthetic-B",
+      "t_ns": 1300000000,
+      "valid": true,
+      "radar": true,
+      "distance": 18.0,
+      "speed": 12.0,
+      "confidence": 1.0
+    },
+    "signal_t_ns": {
+      "v_ego": 1300000000,
+      "a_ego": 1300000000,
+      "v_cruise": 1300000000,
+      "raw_accel": 1300000000,
+      "pitch": 1300000000,
+      "gas_pressed": 1300000000,
+      "brake_pressed": 1300000000,
+      "stock_aeb": 1300000000
+    }
+  },
+  {
+    "t_ns": 1400000000,
+    "v_ego": 18.0,
+    "a_ego": -1.0,
+    "v_cruise": 24.0,
+    "raw_accel": -0.8,
+    "pitch": 0.0,
+    "gas_pressed": false,
+    "brake_pressed": false,
+    "stock_aeb": false,
+    "lead": null,
+    "signal_t_ns": {
+      "v_ego": 1400000000,
+      "a_ego": 1400000000,
+      "v_cruise": 1400000000,
+      "raw_accel": 1400000000,
+      "pitch": 1400000000,
+      "gas_pressed": 1400000000,
+      "brake_pressed": 1400000000,
+      "stock_aeb": 1400000000
+    }
+  }
+]
