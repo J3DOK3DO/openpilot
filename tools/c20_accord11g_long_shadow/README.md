@@ -38,3 +38,7 @@ The two strategies are `c19_behavioral` and `c6_behavioral`. Both are simplified
 ## R8 historical and archive tools
 
 `historical_audit.py` streams the three September Candidate-1 CSVs and validates causal hold clocks, units, deltas and event-window attribution. `native_gap.py` checks scalar CSV or JSON cycle inventories and fails when complete C19 messages or provenance are missing. `shadow_advisory.py` is disabled by default and formats historical observations only. `bundle.py` builds and verifies a deterministic archive from committed research files after a clean Git state. The source hashes, measured results, current blockers and shadow interface are in [r8_evidence_and_decision.md](docs/r8_evidence_and_decision.md). Historical data are unverified for the current C19 vehicle identity; no raw data are bundled.
+
+## R9 raw census, readiness and inert contract
+
+`rawlog_census.py` verifies four exact historical SHA-256 digests and zstd frames, then optionally binds a separately collected sanitized service summary. `historical_attribution.py` reports source hold-age and same-row descriptive differences from validated CSVs. `native_preflight.py` emits a dependency graph; `native_gap.py` checks reset, lead-history and override fields but never runs a solver. `shadow_advisory.serialize_observation` returns disabled-by-default canonical bytes and rejects stale, future or unverified-current inputs. See [R9_CAMPAIGN_REPORT.md](docs/R9_CAMPAIGN_REPORT.md) and [r9_walkthrough.md](docs/r9_walkthrough.md). Active and road gates remain NO_GO.

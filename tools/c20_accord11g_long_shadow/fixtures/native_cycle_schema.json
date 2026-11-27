@@ -1,9 +1,15 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "classification": "QUEUED_SCHEMA_NOT_EXECUTABLE",
   "source_revision": "a32dcc0a6e62a4e2a15d9ac4425424e598313c98",
   "required_per_cycle": {
     "t_ns": "integer monotonic common clock",
+    "drive_id": "nonempty drive identifier; changes require explicit reset boundary",
+    "drive_reset_boundary": "boolean; a new drive starts with a reset and cycle clocks may restart only then",
+    "source_t_ns": "per-service positive source monotonic timestamps no later than receipt",
+    "receipt_t_ns": "per-service positive receiver timestamps no later than the cycle clock",
+    "driver_override": "explicit boolean gas_pressed and brake_pressed observations",
+    "lead_history": "source and receipt clocks for each model lead history entry; 200 ms maximum source age",
     "carState": "exact serialized C19 service fields with source and receipt timestamps",
     "radarState": "leadOne, leadTwo, radar errors, model alignment and source/receipt timestamps",
     "modelV2": "leadsV3 full trajectories, velocity, model timestamp and receipt",

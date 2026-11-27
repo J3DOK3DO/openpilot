@@ -1,0 +1,17 @@
+{
+  "method": "offline_capnp_historical_schema",
+  "schema_lineage": {
+    "checkout_commit": "1d998a73ceb3c177c463e85f207ae081c6b55e03",
+    "log_capnp_sha256": "c1f016626dea66d3de42beaf1b31418da6071494ccde7bba71baaa6787b3921a",
+    "car_capnp_sha256": "d86c2a9c52eb8670ff99b31346ec0644f16ffee6194aba880ec7ec7204d78f8a",
+    "custom_capnp_sha256": "428a40e32724188d2fedfc4db107a220e5f14ed0bc6a161297541740ee151c1a",
+    "reader": "pycapnp 2.1.0 Event.read_multiple_bytes on zstandard 0.25.0 stream output",
+    "qualification": "schema-readable historical bytes; schema and exact vehicle provenance unverified"
+  },
+  "segments": {
+    "5": {"raw_sha256": "495800114585f060007efa56472622125182b064834528511fb5576b0c95b435", "first_t_ns": 31421886966, "last_t_ns": 393051080005, "bad_events": 0, "counts": {"modelV2": 1200, "carState": 5973, "radarState": 1200, "controlsState": 5973, "selfdriveState": 5973, "carControl": 5973, "carParams": 2, "longitudinalPlan": 1200, "sendcan": 5973}},
+    "6": {"raw_sha256": "1646f143bc0a90bac360c0db329e302b022808a5f4c7ff70aa6f5f92b095355a", "first_t_ns": 31421886966, "last_t_ns": 453053266076, "bad_events": 0, "counts": {"modelV2": 1200, "carState": 5974, "radarState": 1200, "controlsState": 5974, "selfdriveState": 5974, "carControl": 5974, "carParams": 1, "longitudinalPlan": 1200, "sendcan": 5974}},
+    "105": {"raw_sha256": "1fba3eb1e1b37e217ab387b430073ad3a62672763e0d139325372ffc4a28135f", "first_t_ns": 31421886966, "last_t_ns": 6393172697716, "bad_events": 0, "counts": {"modelV2": 1200, "carState": 5972, "radarState": 1200, "controlsState": 5973, "selfdriveState": 5972, "carControl": 5973, "carParams": 1, "longitudinalPlan": 1200, "sendcan": 5972}},
+    "106": {"raw_sha256": "d4d8c4c368557e920c52f1484f307aa2859876f4e168d4396df264c40a5a0202", "first_t_ns": 31421886966, "last_t_ns": 6453163931444, "bad_events": 0, "counts": {"modelV2": 1200, "carState": 5970, "radarState": 1200, "controlsState": 5973, "selfdriveState": 5971, "carControl": 5973, "carParams": 1, "longitudinalPlan": 1200, "sendcan": 5970}}
+  }
+}

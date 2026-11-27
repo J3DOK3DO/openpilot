@@ -151,7 +151,9 @@ class NativeGapTests(unittest.TestCase):
   def _inventory(self) -> dict:
     cycle = {"t_ns": 100, "source_t_ns": {service: 90 for service in SERVICES[:-2]},
              "receipt_t_ns": {service: 95 for service in SERVICES[:-2]},
-             "drive_reset_boundary": False, "model_trajectories": [1], "lead_history": [1]}
+             "drive_reset_boundary": False, "drive_id": "test-drive", "model_trajectories": [1],
+             "lead_history": [{"source_t_ns": 90, "receipt_t_ns": 95}],
+             "driver_override": {"gas_pressed": False, "brake_pressed": False}}
     cycle.update({service: {"field": 1} for service in SERVICES})
     return {"provenance": {key: "present" for key in PROVENANCE}, "cycles": [cycle]}
 

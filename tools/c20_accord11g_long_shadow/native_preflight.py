@@ -6,6 +6,8 @@ import importlib.util
 import json
 import platform
 from pathlib import Path
+import re
+import subprocess
 
 SOLVER = Path("openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so")
 LIBRARIES = ("libacados.so", "libacados_ocp_solver_long.so", "libblasfeo.so", "libhpipm.so", "libqpOASES_e.so.3.1")
@@ -39,13 +41,28 @@ def qualify(repo: Path) -> dict:
     libs[name] = elf_machine(path) if path.is_file() else None
     if libs[name] != solver_arch or libs[name] is None:
       reasons.append(f"{name} absent or incompatible")
-  deps = {name: importlib.util.find_spec(name) is not None for name in ("numpy", "casadi", "capnp")}
+  deps = {name: importlib.util.find_spec(name) is not None for name in ("numpy", "scipy", "casadi", "capnp")}
   for name, found in deps.items():
-    if not found:
+    if not found and name != 'scipy':
       reasons.append(f"Python dependency {name} unavailable")
+  try:
+    dynamic = subprocess.run(["readelf", "-d", str(solver)], capture_output=True, text=True,
+                             timeout=5, check=False) if solver.is_file() else None
+    needed = re.findall(r"\(NEEDED\).*?\[(.*?)\]", dynamic.stdout) if dynamic and dynamic.returncode == 0 else []
+  except (OSError, subprocess.TimeoutExpired):
+    needed = []
+  graph = {
+    "planner_source": ["carState", "radarState", "modelV2", "controlsState", "selfdriveState",
+                       "carControl", "vehicleParameters", "CP", "model_lead_history", "receipt_times", "drive_reset_state"],
+    "long_mpc_python": ["numpy", "casadi", "acados_ocp_solver_pyx.so", "cereal log"],
+    "host_checked_python": deps,
+    "acados_ocp_solver_pyx.so": needed,
+    "generated_libraries": libs,
+  }
   return {"label": "NATIVE_C19_MPC", "status": "READY_FOR_ISOLATED_EXECUTION" if not reasons else "BLOCKED",
           "host_arch": machine, "solver_arch": solver_arch, "libraries": libs,
-          "python_dependencies": deps, "reasons": reasons,
+          "python_dependencies": deps, "dynamic_elf_needed": needed,
+          "dependency_graph": graph, "reasons": reasons,
           "executed_solver": False,
           "input_contract": "Same-cycle carState, radarState, modelV2 trajectories, controlsState, vehicleParameters, CP, cruise, personality, timebase and planner state; no interpolated or synthetic stand-ins for recorded equivalence",
           "source": "C19 a32dcc0a6e62 openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/long_mpc.py and longitudinal_planner.py"}

@@ -11,7 +11,7 @@ import subprocess
 
 RESEARCH = "tools/c20_accord11g_long_shadow/"
 BASELINE = "a32dcc0a6e62a4e2a15d9ac4425424e598313c98"
-REQUIRED_CODE = ("admission.py", "policies.py", "replay.py", "inventory.py", "native_preflight.py", "native_gap.py", "historical_audit.py", "shadow_advisory.py", "bundle.py", "scenarios.py", "release_gate.py")
+REQUIRED_CODE = ("admission.py", "policies.py", "replay.py", "inventory.py", "native_preflight.py", "native_gap.py", "historical_audit.py", "historical_attribution.py", "rawlog_census.py", "shadow_advisory.py", "bundle.py", "scenarios.py", "release_gate.py")
 FORBIDDEN_IMPORT_PREFIXES = ("opendbc", "panda", "openpilot", "cereal", "socket", "can", "serial")
 FORBIDDEN_ATTRS = {"send", "sendall", "transmit", "forward", "connect", "set_safety_mode", "setSafetyMode", "get_car_params", "CarParams"}
 
@@ -89,9 +89,9 @@ def source_audit(repo: Path) -> dict:
 def gate(repo: Path) -> dict:
   audit = source_audit(repo)
   stages = {
-    "R1": "BLOCKED_UNVERIFIED_VEHICLE_ROUTE", "R2": "BLOCKED_NATIVE_ARCH_AND_DEPENDENCY",
-    "R3": "SYNTHETIC_AND_UNVERIFIED_HISTORICAL_ATTRIBUTION", "R4": "RISK_ACCEPTED_RESEARCH_ONLY",
-    "R5": "OFFLINE_INERT_SHADOW_PROTOTYPE_ONLY", "R6": "PENDING_ARM64_HARDWARE_AND_BUILD_RECEIPT",
+    "R1": "FOUR_HISTORICAL_RAW_SEGMENTS_INTEGRITY_PASS_ZERO_CURRENT_AUTHENTICATED_ROUTES", "R2": "BLOCKED_NATIVE_ARCH_RECEIPT_PROVENANCE_AND_DEPENDENCY",
+    "R3": "SOURCE_ALIGNED_UNVERIFIED_HISTORICAL_ATTRIBUTION_NO_C19_EXECUTION", "R4": "RISK_ACCEPTED_RESEARCH_ONLY",
+    "R5": "OFFLINE_INERT_SERIALIZED_SHADOW_CONTRACT_ONLY", "R6": "PENDING_ARM64_HARDWARE_AND_BUILD_RECEIPT",
     "R7": "RESEARCH_CANDIDATE_ONLY", "R8": "NOT_STARTED_INDEPENDENT_QUALIFICATION",
     "A1": "NOT_VERIFIED_RADAR_CAMERA_OWNERSHIP", "A2": "NOT_VERIFIED_CAN2_STARTUP",
     "A3": "NOT_VERIFIED_PANDA_AND_BRAKE_PATH", "A4": "NOT_VERIFIED_OVERRIDE_AND_FAULTS",
