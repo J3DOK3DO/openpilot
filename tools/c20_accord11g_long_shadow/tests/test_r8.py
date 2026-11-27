@@ -151,7 +151,7 @@ class NativeGapTests(unittest.TestCase):
   def _inventory(self) -> dict:
     cycle = {"t_ns": 100, "source_t_ns": {service: 90 for service in SERVICES[:-2]},
              "receipt_t_ns": {service: 95 for service in SERVICES[:-2]},
-             "drive_reset_boundary": False, "drive_id": "test-drive", "model_trajectories": [1],
+             "drive_reset_boundary": True, "drive_id": "test-drive", "model_trajectories": [1],
              "lead_history": [{"source_t_ns": 90, "receipt_t_ns": 95}],
              "driver_override": {"gas_pressed": False, "brake_pressed": False}}
     cycle.update({service: {"field": 1} for service in SERVICES})
@@ -162,7 +162,7 @@ class NativeGapTests(unittest.TestCase):
     path.write_text(json.dumps(data))
     return analyze(path)
 
-  def test_explicit_false_boundary_and_valid_receipts_are_schema_only(self):
+  def test_initial_reset_boundary_and_valid_receipts_are_schema_only(self):
     with tempfile.TemporaryDirectory() as temp:
       report = self._analyze(self._inventory(), Path(temp))
     self.assertEqual(report["status"], "SCHEMA_PRESENT_EXECUTION_UNVERIFIED")

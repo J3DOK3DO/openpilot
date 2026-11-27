@@ -56,14 +56,19 @@ def serialize_observation(cycle: ShadowCycle, previous: ShadowCycle | None = Non
 
   if not config.enabled:
     return emit({'status': 'DISABLED', 'advisory_only': True})
+  measured = None
+  if type(cycle.measured_aego_mps2) in (int, float):
+    try:
+      measured = float(cycle.measured_aego_mps2)
+    except (OverflowError, TypeError, ValueError):
+      pass
   valid = (isinstance(cycle.drive_id, str) and bool(cycle.drive_id) and len(cycle.drive_id) <= 128
            and type(cycle.cycle_index) is int and cycle.cycle_index >= 0
            and type(cycle.reset_boundary) is bool
            and all(type(v) is int for v in (cycle.t_ns, cycle.source_t_ns, cycle.receipt_t_ns, max_age_ns))
            and 0 < cycle.source_t_ns <= cycle.receipt_t_ns <= cycle.t_ns
            and 0 <= cycle.t_ns - cycle.source_t_ns <= max_age_ns <= 1_000_000_000
-           and isinstance(cycle.measured_aego_mps2, (int, float))
-           and math.isfinite(cycle.measured_aego_mps2)
+           and measured is not None and math.isfinite(measured)
            and isinstance(cycle.source_sha256, str) and len(cycle.source_sha256) == 64
            and all(char in '0123456789abcdef' for char in cycle.source_sha256)
            and cycle.provenance in ('SIMULATED', 'HISTORICAL_UNVERIFIED'))
@@ -79,5 +84,5 @@ def serialize_observation(cycle: ShadowCycle, previous: ShadowCycle | None = Non
                'drive_id': cycle.drive_id, 'cycle_index': cycle.cycle_index,
                'reset_boundary': cycle.reset_boundary, 't_ns': cycle.t_ns,
                'source_t_ns': cycle.source_t_ns, 'receipt_t_ns': cycle.receipt_t_ns,
-               'max_age_ns': max_age_ns, 'measured_aego_mps2': float(cycle.measured_aego_mps2),
+               'max_age_ns': max_age_ns, 'measured_aego_mps2': measured,
                'source_sha256': cycle.source_sha256})

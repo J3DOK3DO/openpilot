@@ -44,9 +44,10 @@ def analyze(path: Path, expected_vehicle: str | None = None) -> dict:
     t = cycle.get("t_ns")
     reset = cycle.get("drive_reset_boundary") is True
     drive = cycle.get("drive_id")
-    if type(t) is not int or t <= 0 or (last_t is not None and t <= last_t and not reset):
-      raise ValueError(f"cycle {index} has nonmonotonic or duplicate t_ns without reset")
-    if reset and (index == 0 or not isinstance(drive, str) or not drive or drive == last_drive):
+    same_drive = index > 0 and drive == last_drive
+    if type(t) is not int or t <= 0 or (same_drive and t <= last_t):
+      raise ValueError(f"cycle {index} has nonmonotonic or duplicate t_ns within a drive")
+    if (index == 0 and not reset) or (same_drive and reset) or (index > 0 and not same_drive and not reset):
       missing_cycle.add("valid_drive_reset_boundary")
     if not isinstance(drive, str) or not drive or (last_drive is not None and drive != last_drive and not reset):
       missing_cycle.add("drive_id")
@@ -56,6 +57,7 @@ def analyze(path: Path, expected_vehicle: str | None = None) -> dict:
     missing_cycle.update(key for key in EXTRAS if key != "drive_reset_boundary" and not cycle.get(key))
     if type(cycle.get("drive_reset_boundary")) is not bool:
       missing_cycle.add("drive_reset_boundary")
+      missing_cycle.add("valid_drive_reset_boundary")
     override = cycle.get("driver_override")
     if not isinstance(override, dict) or any(type(override.get(key)) is not bool for key in ("gas_pressed", "brake_pressed")):
       missing_cycle.add("driver_override")
@@ -94,8 +96,18 @@ def analyze(path: Path, expected_vehicle: str | None = None) -> dict:
 def message_readiness(census_report: dict) -> dict:
   """Counts indicate schema availability only; rlogs do not record receiver clocks."""
   required = ("carState", "radarState", "modelV2", "controlsState", "selfdriveState", "carControl", "carParams")
-  available = {name: all(segment["services"][name]["count"] > 0
-                         for segment in census_report["segments"]) for name in required}
+  segments = census_report.get("segments") if isinstance(census_report, dict) else None
+  if not isinstance(segments, list) or not segments or census_report.get("status") != "PASS":
+    segments = []
+  def decoded_count_present(segment: object, name: str) -> bool:
+    if not isinstance(segment, dict) or segment.get("event_parse") != "DECODED_HISTORICAL_SCHEMA":
+      return False
+    services = segment.get("services")
+    service = services.get(name) if isinstance(services, dict) else None
+    return (isinstance(service, dict) and service.get("state") == "DECODED_HISTORICAL_SCHEMA"
+            and type(service.get("count")) is int and service["count"] > 0)
+  available = {name: bool(segments) and all(decoded_count_present(segment, name) for segment in segments)
+               for name in required}
   return {"status": "BLOCKED_RECEIPT_AND_EXACT_SOURCE_PROVENANCE",
           "historical_schema_messages_available_each_segment": available,
           "source_timestamps": "MESSAGE_LOG_MONO_TIME_AVAILABLE",
