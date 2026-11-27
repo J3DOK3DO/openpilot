@@ -12,6 +12,7 @@ import tarfile
 
 PREFIX = "tools/c20_accord11g_long_shadow/"
 MAX_BYTES = 5_000_000
+MAX_MEMBERS = 1024
 
 
 def _git(repo: Path, *args: str) -> bytes:
@@ -30,6 +31,8 @@ def build(repo: Path, output: Path) -> dict:
   paths = sorted(p.decode() for p in _git(repo, "ls-tree", "-r", "--name-only", "HEAD", PREFIX).splitlines())
   if not paths or any(not p.startswith(PREFIX) or "__pycache__" in p or p.endswith((".pyc", ".log", ".zst", ".csv")) for p in paths):
     raise ValueError("invalid committed research contents")
+  if len(paths) + 1 > MAX_MEMBERS:
+    raise ValueError("archive member limit exceeded")
   entries = {}
   total = 0
   for path in paths:
@@ -45,6 +48,8 @@ def build(repo: Path, output: Path) -> dict:
               "files": {path: {"bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()}
                         for path, content in entries.items()}}
   entries["RESEARCH_MANIFEST.json"] = _json(manifest)
+  if len(entries) > MAX_MEMBERS or total + len(entries["RESEARCH_MANIFEST.json"]) > MAX_BYTES:
+    raise ValueError("uncompressed archive contents exceed 5 MB or member limit")
   output.parent.mkdir(parents=True, exist_ok=True)
   with output.open("wb") as raw:
     with gzip.GzipFile(fileobj=raw, mode="wb", filename="", mtime=0) as zipped:
@@ -70,18 +75,29 @@ def build(repo: Path, output: Path) -> dict:
 
 def verify(path: Path) -> dict:
   with tarfile.open(path, "r:gz") as archive:
-    members = archive.getmembers()
-    names = [m.name for m in members]
-    if len(names) != len(set(names)) or "RESEARCH_MANIFEST.json" not in names:
+    members = {}
+    total = 0
+    for member in archive:
+      if len(members) >= MAX_MEMBERS or member.name in members:
+        raise ValueError("duplicate entry or member limit exceeded")
+      parts = Path(member.name).parts
+      if (not member.isfile() or member.mtime != 0 or member.size < 0
+          or member.size > MAX_BYTES or member.name.startswith("/")
+          or ".." in parts or member.name == "."
+          or (member.name != "RESEARCH_MANIFEST.json" and not member.name.startswith(PREFIX))):
+        raise ValueError("invalid archive entry")
+      total += member.size
+      if total > MAX_BYTES:
+        raise ValueError("uncompressed archive contents exceed 5 MB")
+      members[member.name] = member
+    names = set(members)
+    if "RESEARCH_MANIFEST.json" not in names:
       raise ValueError("duplicate or missing manifest")
-    if any(not m.isfile() or m.mtime != 0 or m.size > MAX_BYTES or
-           (m.name != "RESEARCH_MANIFEST.json" and not m.name.startswith(PREFIX)) for m in members):
-      raise ValueError("invalid archive entry")
-    manifest = json.load(archive.extractfile("RESEARCH_MANIFEST.json"))
-    if set(names) != set(manifest["files"]) | {"RESEARCH_MANIFEST.json"}:
+    manifest = json.load(archive.extractfile(members["RESEARCH_MANIFEST.json"]))
+    if names != set(manifest["files"]) | {"RESEARCH_MANIFEST.json"}:
       raise ValueError("manifest does not cover archive")
     for name, expected in manifest["files"].items():
-      data = archive.extractfile(name).read()
+      data = archive.extractfile(members[name]).read(MAX_BYTES + 1)
       if len(data) != expected["bytes"] or hashlib.sha256(data).hexdigest() != expected["sha256"]:
         raise ValueError(f"digest mismatch: {name}")
   return manifest

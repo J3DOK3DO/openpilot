@@ -11,6 +11,7 @@ SERVICES = ("carState", "radarState", "modelV2", "controlsState",
 PROVENANCE = ("route_id", "trace_sha256", "software_sha", "dbc_sha",
               "carFingerprint", "vehicle", "ecu_firmware", "independent_custody_reference")
 EXTRAS = ("source_t_ns", "receipt_t_ns", "drive_reset_boundary", "model_trajectories", "lead_history")
+CLOCKED_SERVICES = SERVICES[:-2]
 
 
 def analyze(path: Path) -> dict:
@@ -42,11 +43,23 @@ def analyze(path: Path) -> dict:
       raise ValueError(f"cycle {index} has nonmonotonic or duplicate t_ns")
     last_t = t
     missing_services.update(key for key in SERVICES if not isinstance(cycle.get(key), dict) or not cycle[key])
-    missing_cycle.update(key for key in EXTRAS if not cycle.get(key))
-    for service in SERVICES[:-2]:
-      stamp = cycle.get("source_t_ns", {}).get(service) if isinstance(cycle.get("source_t_ns"), dict) else None
-      if type(stamp) is not int or stamp <= 0 or stamp > t:
+    missing_cycle.update(key for key in EXTRAS if key != "drive_reset_boundary" and not cycle.get(key))
+    if type(cycle.get("drive_reset_boundary")) is not bool:
+      missing_cycle.add("drive_reset_boundary")
+    sources = cycle.get("source_t_ns")
+    receipts = cycle.get("receipt_t_ns")
+    if not isinstance(sources, dict):
+      sources = {}
+    if not isinstance(receipts, dict):
+      receipts = {}
+    for service in CLOCKED_SERVICES + tuple(key for key in SERVICES[-2:] if key in sources):
+      source_t = sources.get(service)
+      receipt_t = receipts.get(service)
+      if type(source_t) is not int or source_t <= 0 or source_t > t:
         missing_cycle.add(f"valid_{service}_source_t_ns")
+      if (type(receipt_t) is not int or receipt_t <= 0 or receipt_t > t
+          or type(source_t) is not int or receipt_t < source_t):
+        missing_cycle.add(f"valid_{service}_receipt_t_ns")
   missing = bool(missing_services or missing_cycle or missing_provenance)
   return {"status": "FAIL_MISSING_REQUIRED_INPUTS" if missing else "SCHEMA_PRESENT_EXECUTION_UNVERIFIED",
           "format": "cycle_json", "cycles": len(data["cycles"]),

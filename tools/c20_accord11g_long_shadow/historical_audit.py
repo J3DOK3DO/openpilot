@@ -9,15 +9,30 @@ import csv
 import hashlib
 import json
 import math
+from decimal import Decimal
 from pathlib import Path
 
 ORIGIN_NS = 31_374_859_675
+# Pinned to the read-only September extractor's EVENTS, not CSV-supplied flags.
+# LS004 legitimately continues from physical segment 5 into segment 6.
+EVENTS = {
+  "LS001": (105, "6332.903982011", "6361.700527937"),
+  "LS003": (106, "6361.910310646", "6375.783673595"),
+  "LS004": (5, "348.372878096", "370.920876374"),
+}
+# First next-segment CAN publications in the read-only extracted source CSVs.
+SEGMENT_SWITCH_NS = {105: 6_393_176_766_727, 5: 393_058_465_682}
+EVENT_BOUNDS_NS = {
+  event: (ORIGIN_NS + int(Decimal(start) * 1_000_000_000),
+          ORIGIN_NS + int(Decimal(end) * 1_000_000_000))
+  for event, (_, start, end) in EVENTS.items()
+}
 NUMERIC = ("carState.vEgo", "carState.aEgo", "longitudinalPlan.aTarget",
            "carControl.actuators.accel", "ACC_CONTROL.ACCEL_COMMAND",
            "GAS_COMMAND", "BRAKE_REQUEST", "planner_to_longcontrol_delta",
            "longcontrol_to_final_can_delta")
 SOURCES = ("longitudinalPlan", "carControl", "carState", "radarState", "starpilotPlan")
-REQUIRED = {"event_id", "logMonoTime", "time_s_from_route", "in_qualifying_event",
+REQUIRED = {"event_id", "segment", "logMonoTime", "time_s_from_route", "in_qualifying_event",
             "carControl.longControlState", "carState.standstill", *NUMERIC,
             *(s + "_logMonoTime" for s in SOURCES), *(s + "_age_ms" for s in SOURCES)}
 NATIVE_REQUIRED = {"carState", "radarState", "modelV2", "controlsState",
@@ -88,6 +103,14 @@ def audit_csv(path: Path) -> dict:
         event_id = row["event_id"]
       if row["event_id"] != event_id:
         raise ValueError(f"line {line}: mixed event IDs")
+      if event_id not in EVENTS:
+        raise ValueError(f"line {line}: unknown event ID")
+      segment = _integer(row, "segment", line)
+      source_segment = EVENTS[event_id][0]
+      first_segment = 5 if source_segment == 5 else 105
+      expected_segment = first_segment + (t >= SEGMENT_SWITCH_NS[first_segment])
+      if segment != expected_segment:
+        raise ValueError(f"line {line}: source segment disagrees with event")
       values = {key: _number(row, key, line) for key in NUMERIC}
       # A filtered near-zero vEgo can dip slightly below zero in this extraction.
       if values["carState.vEgo"] < -0.5 or values["BRAKE_REQUEST"] not in (0, 1):
@@ -107,10 +130,14 @@ def audit_csv(path: Path) -> dict:
         ages[source] = max(ages[source], age)
       if row["in_qualifying_event"] not in ("True", "False") or row["carState.standstill"] not in ("True", "False"):
         raise ValueError(f"line {line}: invalid boolean")
+      start_ns, end_ns = EVENT_BOUNDS_NS[event_id]
+      in_window = start_ns <= t <= end_ns
+      if (row["in_qualifying_event"] == "True") != in_window or (in_window and event_id != "LS004" and segment != source_segment):
+        raise ValueError(f"line {line}: event window flag or segment disagrees with clock")
       counts["all_rows"] += 1
       gas = values["GAS_COMMAND"] > -30000
       brake = values["BRAKE_REQUEST"] == 1
-      if row["in_qualifying_event"] == "True":
+      if in_window:
         counts["event_rows"] += 1
         if previous_gas is True and not gas and brake:
           counts["gas_to_brake"] += 1

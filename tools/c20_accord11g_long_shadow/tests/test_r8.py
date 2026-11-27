@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import csv
+import io
+import json
 from pathlib import Path
 import subprocess
+import tarfile
 import tempfile
 import unittest
 
-from tools.c20_accord11g_long_shadow.bundle import build, verify, verify_release
+from tools.c20_accord11g_long_shadow.bundle import MAX_BYTES, MAX_MEMBERS, build, verify, verify_release
 from tools.c20_accord11g_long_shadow.historical_audit import audit_csv
-from tools.c20_accord11g_long_shadow.native_gap import analyze
+from tools.c20_accord11g_long_shadow.native_gap import PROVENANCE, SERVICES, analyze
 from tools.c20_accord11g_long_shadow.shadow_advisory import HistoricalSample, ShadowConfig, observe
 
 HISTORY = Path("/home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004")
@@ -42,6 +45,11 @@ class HistoricalTests(unittest.TestCase):
       "nan": (1, "carState.aEgo", "nan"),
       "duplicate": (1, "logMonoTime", rows[0]["logMonoTime"]),
       "brake_bit": (1, "BRAKE_REQUEST", "-1"),
+      "outside_window_flag": (0, "in_qualifying_event", "True"),
+      "inside_window_flag": (next(i for i, row in enumerate(rows) if row["in_qualifying_event"] == "True"), "in_qualifying_event", "False"),
+      "segment_mismatch": (1, "segment", "999"),
+      "wrong_event_segment": (next(i for i, row in enumerate(rows) if row["in_qualifying_event"] == "True"), "segment", "105"),
+      "unknown_event": (0, "event_id", "LS999"),
     }
     with tempfile.TemporaryDirectory() as temp:
       target = Path(temp) / "fault.csv"
@@ -60,6 +68,15 @@ class HistoricalTests(unittest.TestCase):
         writer.writerows(rows[:2])
       with self.assertRaises(ValueError):
         audit_csv(target)
+
+  def test_ls004_legitimate_segment_crossing(self):
+    path = HISTORY / "LS004_FULL_RATE.csv"
+    if not path.is_file():
+      self.skipTest("historical read-only source unavailable")
+    with path.open(newline="") as stream:
+      rows = list(csv.DictReader(stream))
+    self.assertTrue(any(row["segment"] == "6" and row["in_qualifying_event"] == "True" for row in rows))
+    self.assertEqual(audit_csv(path)["counts"]["event_rows"], 1122)
 
   def test_inert_advisory_default_and_failure(self):
     sample = HistoricalSample(10, -1.0, -0.7, "a" * 64)
@@ -92,6 +109,88 @@ class HistoricalTests(unittest.TestCase):
       source.write_text("VALUE = 2\n")
       with self.assertRaises(ValueError):
         build(repo, Path(temp) / "dirty.tar.gz")
+
+  def test_manifest_counts_toward_build_limit(self):
+    with tempfile.TemporaryDirectory() as temp:
+      repo = Path(temp) / "repo"
+      repo.mkdir()
+      subprocess.check_call(["git", "init", "-q", str(repo)])
+      subprocess.check_call(["git", "-C", str(repo), "config", "user.name", "R8 Test"])
+      subprocess.check_call(["git", "-C", str(repo), "config", "user.email", "r8@example.invalid"])
+      source = repo / "tools/c20_accord11g_long_shadow/compressible.txt"
+      source.parent.mkdir(parents=True)
+      source.write_bytes(b"A" * (MAX_BYTES - 1))
+      subprocess.check_call(["git", "-C", str(repo), "add", "."])
+      subprocess.check_call(["git", "-C", str(repo), "commit", "-q", "-m", "near limit"])
+      output = Path(temp) / "overflow.tar.gz"
+      with self.assertRaisesRegex(ValueError, "uncompressed archive"):
+        build(repo, output)
+      self.assertFalse(output.exists())
+
+  def test_verify_rejects_aggregate_oversize_and_member_flood(self):
+    with tempfile.TemporaryDirectory() as temp:
+      archive_path = Path(temp) / "oversize.tar.gz"
+      with tarfile.open(archive_path, "w:gz") as archive:
+        for name, data in (("RESEARCH_MANIFEST.json", b"{}"),
+                           ("tools/c20_accord11g_long_shadow/compressible.txt", b"A" * (MAX_BYTES - 1))):
+          info = tarfile.TarInfo(name)
+          info.size = len(data)
+          archive.addfile(info, io.BytesIO(data))
+      with self.assertRaisesRegex(ValueError, "uncompressed archive"):
+        verify(archive_path)
+      archive_path = Path(temp) / "many.tar.gz"
+      with tarfile.open(archive_path, "w:gz") as archive:
+        for index in range(MAX_MEMBERS + 1):
+          info = tarfile.TarInfo(f"tools/c20_accord11g_long_shadow/{index}")
+          archive.addfile(info, io.BytesIO())
+      with self.assertRaisesRegex(ValueError, "member limit"):
+        verify(archive_path)
+
+
+class NativeGapTests(unittest.TestCase):
+  def _inventory(self) -> dict:
+    cycle = {"t_ns": 100, "source_t_ns": {service: 90 for service in SERVICES[:-2]},
+             "receipt_t_ns": {service: 95 for service in SERVICES[:-2]},
+             "drive_reset_boundary": False, "model_trajectories": [1], "lead_history": [1]}
+    cycle.update({service: {"field": 1} for service in SERVICES})
+    return {"provenance": {key: "present" for key in PROVENANCE}, "cycles": [cycle]}
+
+  def _analyze(self, data: dict, directory: Path) -> dict:
+    path = directory / "cycle.json"
+    path.write_text(json.dumps(data))
+    return analyze(path)
+
+  def test_explicit_false_boundary_and_valid_receipts_are_schema_only(self):
+    with tempfile.TemporaryDirectory() as temp:
+      report = self._analyze(self._inventory(), Path(temp))
+    self.assertEqual(report["status"], "SCHEMA_PRESENT_EXECUTION_UNVERIFIED")
+    self.assertFalse(report["executed_solver"])
+    self.assertEqual(report["missing_cycle_fields"], [])
+
+  def test_missing_invalid_and_out_of_order_receipts_fail_closed(self):
+    with tempfile.TemporaryDirectory() as temp:
+      for value in (None, -1, 0, True, "95", 89, 101):
+        data = self._inventory()
+        if value is None:
+          del data["cycles"][0]["receipt_t_ns"]["carState"]
+        else:
+          data["cycles"][0]["receipt_t_ns"]["carState"] = value
+        report = self._analyze(data, Path(temp))
+        self.assertEqual(report["status"], "FAIL_MISSING_REQUIRED_INPUTS")
+        self.assertIn("valid_carState_receipt_t_ns", report["missing_cycle_fields"])
+      data = self._inventory()
+      del data["cycles"][0]["source_t_ns"]["carState"]
+      self.assertIn("valid_carState_source_t_ns", self._analyze(data, Path(temp))["missing_cycle_fields"])
+      data = self._inventory()
+      data["cycles"][0]["source_t_ns"]["CP"] = 90
+      self.assertIn("valid_CP_receipt_t_ns", self._analyze(data, Path(temp))["missing_cycle_fields"])
+      for value in (None, "false", 0):
+        data = self._inventory()
+        if value is None:
+          del data["cycles"][0]["drive_reset_boundary"]
+        else:
+          data["cycles"][0]["drive_reset_boundary"] = value
+        self.assertIn("drive_reset_boundary", self._analyze(data, Path(temp))["missing_cycle_fields"])
 
 
 if __name__ == "__main__":
