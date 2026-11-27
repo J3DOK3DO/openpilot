@@ -8,13 +8,16 @@ import platform
 from pathlib import Path
 
 SOLVER = Path("openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so")
-LIBRARIES = ("libacados.so", "libacados_ocp_solver_long.so", "libblasfeo.so", "libhpipm.so")
+LIBRARIES = ("libacados.so", "libacados_ocp_solver_long.so", "libblasfeo.so", "libhpipm.so", "libqpOASES_e.so.3.1")
 MACHINES = {0x3e: "x86_64", 0xb7: "aarch64"}
 
 
 def elf_machine(path: Path) -> str | None:
-  with path.open("rb") as stream:
-    header = stream.read(20)
+  try:
+    with path.open("rb") as stream:
+      header = stream.read(20)
+  except OSError:
+    return None
   if len(header) < 20 or header[:4] != b"\x7fELF" or header[5] not in (1, 2):
     return None
   return MACHINES.get(int.from_bytes(header[18:20], "little" if header[5] == 1 else "big"), "OTHER")

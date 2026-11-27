@@ -16,7 +16,7 @@ The native preflight must say `executed_solver: false` until an actual compatibl
 
 The queued field-level contract is [native_cycle_schema.json](../fixtures/native_cycle_schema.json). It is deliberately incomplete data, never a solver input claim. The baseline C19 prebuilt receipt check passed for `a32dcc0a6e62a4e2a15d9ac4425424e598313c98`; that receipt does not cover the new research commit.
 
-For route inventory, pass explicit bounded evidence roots to `python3 -m tools.c20_accord11g_long_shadow.inventory ROOT --max-files 100`. Hashes are for local custody only. A route is admitted for recorded behavioral replay only with exact vehicle/firmware/software/DBC binding and an externally authenticated reference digest. A caller-created `authenticated: true` record is not independent proof. Route extraction from compressed logs and exact-cycle native fixture generation remain pending.
+For route inventory, pass explicit bounded evidence roots to `python3 -m tools.c20_accord11g_long_shadow.inventory ROOT --max-files 100 --max-dirs 100`. Both limits are independent, count examined entries/directories, and cap traversal even for empty trees. Review `truncated` and `truncation_reason`; a truncated inventory is incomplete. Hashes and metadata field names derive from one stable file snapshot and are for local custody only. A route is admitted for recorded behavioral replay only with exact vehicle/firmware/software/DBC binding and an externally authenticated reference digest. A caller-created `authenticated: true` record is not independent proof. Route extraction from compressed logs and exact-cycle native fixture generation remain pending.
 
 ## Release checklist
 
