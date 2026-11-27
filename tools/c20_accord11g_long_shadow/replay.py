@@ -10,10 +10,10 @@ import json
 from pathlib import Path
 
 try:
-  from .admission import Status, admit, load_json_bytes, validate_rows
+  from .admission import MAX_TRACE_BYTES, Status, admit, load_json_bytes, validate_rows
   from .policies import LeadMemory, response_reference, step
 except ImportError:  # direct script invocation
-  from admission import Status, admit, load_json_bytes, validate_rows
+  from admission import MAX_TRACE_BYTES, Status, admit, load_json_bytes, validate_rows
   from policies import LeadMemory, response_reference, step
 
 
@@ -30,9 +30,9 @@ def compare(rows: list[dict], *, mode: str = "SIMULATED", admission_status: str 
 def compare_recorded(trace_bytes: bytes, manifest: dict, trusted_reference: dict,
                      expected_reference_sha256: str) -> dict:
   admission = admit(manifest, trace_bytes, trusted_reference, expected_reference_sha256)
-  if admission.status != Status.VERIFIED_MATCH:
+  if admission.status != Status.REFERENCE_MATCH_UNVERIFIED:
     raise ValueError(f"recording rejected: {admission.status.value}: {'; '.join(admission.reasons)}")
-  return _compare(load_json_bytes(trace_bytes), mode="RECORDED_VERIFIED", admission_status=admission.status.value)
+  return _compare(load_json_bytes(trace_bytes), mode="RECORDED_REFERENCE_MATCH_UNVERIFIED", admission_status=admission.status.value)
 
 
 def _compare(rows: list[dict], *, mode: str, admission_status: str) -> dict:
@@ -47,6 +47,8 @@ def _compare(rows: list[dict], *, mode: str, admission_status: str) -> dict:
     jerk_values: list[float] = []
     accel_errors: list[float] = []
     headways: list[float] = []
+    ttcs: list[float] = []
+    stop_confidences: list[float] = []
     signal_ages_ms: list[float] = []
     previous = None
     for row in rows:
@@ -63,12 +65,19 @@ def _compare(rows: list[dict], *, mode: str, admission_status: str) -> dict:
       signal_ages_ms.extend((row["t_ns"] - source_ns) / 1e6 for source_ns in row["signal_t_ns"].values())
       if result.lead_fresh and row["v_ego"] >= 0.5:
         headways.append(row["lead"]["distance"] / row["v_ego"])
+      if result.lead_fresh:
+        closing = row["v_ego"] - row["lead"]["speed"]
+        if closing > 0.1:
+          ttcs.append(row["lead"]["distance"] / closing)
+        if row["v_ego"] < 1.0 and row["lead"]["speed"] < 0.5:
+          stop_confidences.append(row["lead"]["confidence"])
       accel_errors.append(result.accel - row["raw_accel"])
       if previous is not None:
         jerk_values.append((result.accel - previous[1]) / ((row["t_ns"] - previous[0]) / 1e9))
       previous = row["t_ns"], result.accel
       output.append({"t_ns": row["t_ns"], "accel_reference_mps2": round(result.accel, 6),
                      "brake_hold": result.brake_hold, "reason": result.reason,
+                     "lead_fresh": result.lead_fresh, "lead_transition": result.lead_transition,
                      "response": response_reference(row["v_ego"], row["pitch"], row["a_ego"], None)})
     n = len(rows)
     results[strategy] = {
@@ -76,15 +85,20 @@ def _compare(rows: list[dict], *, mode: str, admission_status: str) -> dict:
       "samples": n,
       "mean_headway_s": round(sum(headways) / len(headways), 6) if headways else None,
       "min_headway_s": round(min(headways), 6) if headways else None,
+      "min_closing_ttc_s": round(min(ttcs), 6) if ttcs else None,
+      "mean_stopped_lead_confidence": round(sum(stop_confidences) / len(stop_confidences), 6) if stop_confidences else None,
       "mean_abs_accel_demand_error_mps2": round(sum(abs(x) for x in accel_errors) / n, 6),
       "max_abs_jerk_mps3": round(max(map(abs, jerk_values)), 6) if jerk_values else None,
       "max_signal_age_ms": round(max(signal_ages_ms), 6),
       "counts": dict(sorted(counts.items())),
       "rows": output,
     }
+  left, right = results["c19_behavioral"]["rows"], results["c6_behavioral"]["rows"]
+  deltas = [{"t_ns": a["t_ns"], "c6_minus_c19_accel_mps2": round(b["accel_reference_mps2"] - a["accel_reference_mps2"], 6)}
+            for a, b in zip(left, right, strict=True)]
   return {"mode": mode, "admission_status": admission_status,
           "claim": "descriptive telemetry only; no vehicle improvement or braking validation",
-          "strategies": results}
+          "strategies": results, "identical_input_deltas": deltas}
 
 
 def main() -> None:
@@ -95,6 +109,8 @@ def main() -> None:
   parser.add_argument("--trusted-reference", type=Path, help="independently authenticated identity record")
   parser.add_argument("--reference-sha256", help="expected canonical SHA-256 obtained independently")
   args = parser.parse_args()
+  if args.trace.stat().st_size > MAX_TRACE_BYTES:
+    parser.error("trace byte limit exceeded")
   trace_bytes = args.trace.read_bytes()
   if args.synthetic:
     if args.manifest or args.trusted_reference or args.reference_sha256:

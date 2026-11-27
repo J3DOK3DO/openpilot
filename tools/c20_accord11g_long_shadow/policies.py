@@ -152,8 +152,11 @@ def step(row: dict, strategy: str, memory: LeadMemory = LeadMemory()) -> Referen
   if strategy not in ("c19_behavioral", "c6_behavioral"):
     raise ValueError("unknown reference strategy")
   t = row["t_ns"]
-  lead = row.get("lead") if lead_is_fresh(row) else None
-  fresh = lead is not None
+  observed_fresh = lead_is_fresh(row)
+  candidate = row.get("lead") if observed_fresh else None
+  low_confidence = bool(candidate and not candidate["radar"] and candidate["confidence"] < 0.5)
+  lead = None if low_confidence else candidate
+  fresh = observed_fresh
   track_id = lead["track_id"] if lead else None
   transition = memory.track_id != track_id and (memory.track_id is not None or track_id is not None)
   if transition or not fresh:
@@ -163,7 +166,7 @@ def step(row: dict, strategy: str, memory: LeadMemory = LeadMemory()) -> Referen
   accel = clip((row["v_cruise"] - row["v_ego"]) * 0.4, -2.0, 1.2)
   reason = "cruise_reference"
   hold = False
-  if fresh:
+  if lead is not None:
     v, d, vl = row["v_ego"], lead["distance"], lead["speed"]
     tracked = c6_track_window(v, d, vl, radar=lead["radar"])
     if tracked:
@@ -180,6 +183,8 @@ def step(row: dict, strategy: str, memory: LeadMemory = LeadMemory()) -> Referen
         reason = "stopped_lead_reference"
     elif lead["radar"]:
       reason = "lead_outside_tracking_window"
+  elif low_confidence:
+    reason = "low_confidence_vision_ignored"
   elif row.get("lead") is not None:
     reason = "stale_lead_ignored"
   if row["stock_aeb"]:

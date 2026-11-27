@@ -15,7 +15,7 @@ from typing import Any
 
 
 class Status(str, Enum):
-  VERIFIED_MATCH = "VERIFIED_MATCH"
+  REFERENCE_MATCH_UNVERIFIED = "REFERENCE_MATCH_UNVERIFIED"
   COMPATIBLE_BUT_UNVERIFIED = "COMPATIBLE_BUT_UNVERIFIED"
   MISMATCH = "MISMATCH"
   INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
@@ -35,6 +35,8 @@ HEX64 = re.compile(r"^[0-9a-f]{64}$")
 MAX_LEAD_AGE_NS = 200_000_000
 MAX_SIGNAL_AGE_NS = 200_000_000
 MAX_ROW_GAP_NS = 500_000_000
+MAX_ROWS = 10_000
+MAX_TRACE_BYTES = 64 * 1024 * 1024
 SIGNAL_KEYS = ("v_ego", "a_ego", "v_cruise", "raw_accel", "pitch",
                "gas_pressed", "brake_pressed", "stock_aeb")
 
@@ -69,6 +71,8 @@ def validate_rows(rows: Any, start_ns: int | None = None, end_ns: int | None = N
   reasons: list[str] = []
   if not isinstance(rows, list) or not rows:
     return ("missing time-series rows",)
+  if len(rows) > MAX_ROWS:
+    return ("time-series row limit exceeded",)
   previous = None
   for index, row in enumerate(rows):
     if not isinstance(row, dict):
@@ -124,6 +128,8 @@ def validate_rows(rows: Any, start_ns: int | None = None, end_ns: int | None = N
 
 def admit(manifest: Any, trace_bytes: bytes, trusted_reference: Any = None,
           expected_reference_sha256: str | None = None) -> Admission:
+  if len(trace_bytes) > MAX_TRACE_BYTES:
+    return Admission(Status.INSUFFICIENT_EVIDENCE, ("trace byte limit exceeded",))
   if not isinstance(manifest, dict):
     return Admission(Status.INSUFFICIENT_EVIDENCE, ("manifest is not an object",))
   mismatch: list[str] = []
@@ -145,7 +151,7 @@ def admit(manifest: Any, trace_bytes: bytes, trusted_reference: Any = None,
     missing.append("missing radar/camera/brake ECU firmware identifiers")
   digest = hashlib.sha256(trace_bytes).hexdigest()
   if manifest.get("trace_sha256") != digest:
-    missing.append("trace SHA-256 does not match bytes")
+    mismatch.append("trace SHA-256 does not match bytes")
   start, end = manifest.get("start_ns"), manifest.get("end_ns")
   if type(start) is not int or type(end) is not int or start < 0 or end <= start:
     missing.append("invalid timestamp range")
@@ -160,8 +166,8 @@ def admit(manifest: Any, trace_bytes: bytes, trusted_reference: Any = None,
       missing.append("invalid trusted reference")
     else:
       # Route and artifact binding prevent an unrelated route from inheriting identity.
-      for key in ("carFingerprint", "vehicle", "route_id", "software_sha", "dbc_sha",
-                  "ecu_firmware", "trace_sha256"):
+      for key in ("source_kind", "carFingerprint", "vehicle", "route_id", "software_sha", "dbc_sha",
+                  "ecu_firmware", "trace_sha256", "start_ns", "end_ns", "units"):
         if trusted_reference.get(key) != manifest.get(key):
           mismatch.append(f"trusted reference {key} mismatch")
       if trusted_reference.get("authenticated") is not True:
@@ -176,4 +182,5 @@ def admit(manifest: Any, trace_bytes: bytes, trusted_reference: Any = None,
     return Admission(Status.INSUFFICIENT_EVIDENCE, tuple(missing))
   if trusted_reference is None:
     return Admission(Status.COMPATIBLE_BUT_UNVERIFIED, ("no independently authenticated reference",))
-  return Admission(Status.VERIFIED_MATCH, ("exact identity, provenance and artifact match to supplied authenticated reference",))
+  return Admission(Status.REFERENCE_MATCH_UNVERIFIED,
+                   ("bytes match caller-supplied reference; independent issuer and vehicle custody remain unverified",))

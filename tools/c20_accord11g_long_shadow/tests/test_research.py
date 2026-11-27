@@ -33,10 +33,10 @@ def reference(m):
 
 
 class AdmissionTests(unittest.TestCase):
-  def test_exact_reference_match_is_conditional_verification(self):
+  def test_exact_reference_match_remains_unverified(self):
     m = manifest()
     r = reference(m)
-    self.assertEqual(admit(m, TRACE, r, reference_digest(r)).status, Status.VERIFIED_MATCH)
+    self.assertEqual(admit(m, TRACE, r, reference_digest(r)).status, Status.REFERENCE_MATCH_UNVERIFIED)
 
   def test_without_reference_is_unverified(self):
     self.assertEqual(admit(manifest(), TRACE).status, Status.COMPATIBLE_BUT_UNVERIFIED)
@@ -160,15 +160,15 @@ class ReplayTests(unittest.TestCase):
     self.assertEqual(result["brake_hold"], 2)
     self.assertEqual(result["lead_transition"], 2)
 
-  def test_recorded_requires_verified_gate(self):
+  def test_recorded_requires_reference_match_and_stays_unverified(self):
     with self.assertRaises(ValueError):
       compare(ROWS, mode="RECORDED_VERIFIED", admission_status=Status.COMPATIBLE_BUT_UNVERIFIED.value)
     with self.assertRaises(ValueError):
-      compare(ROWS, mode="RECORDED_VERIFIED", admission_status=Status.VERIFIED_MATCH.value)
+      compare(ROWS, mode="RECORDED_VERIFIED", admission_status=Status.REFERENCE_MATCH_UNVERIFIED.value)
     m = manifest()
     with self.assertRaises(ValueError):
       compare_recorded(TRACE, m, reference(m), "0" * 64)
-    self.assertEqual(compare_recorded(TRACE, m, reference(m), reference_digest(reference(m)))["mode"], "RECORDED_VERIFIED")
+    self.assertEqual(compare_recorded(TRACE, m, reference(m), reference_digest(reference(m)))["mode"], "RECORDED_REFERENCE_MATCH_UNVERIFIED")
 
   def test_no_actuation_imports_or_hooks(self):
     allowed = {"__future__", "argparse", "collections", "dataclasses", "enum", "hashlib",

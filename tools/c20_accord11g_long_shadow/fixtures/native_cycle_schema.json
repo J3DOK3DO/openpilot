@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "classification": "QUEUED_SCHEMA_NOT_EXECUTABLE",
+  "source_revision": "a32dcc0a6e62a4e2a15d9ac4425424e598313c98",
+  "required_per_cycle": {
+    "t_ns": "integer monotonic common clock",
+    "carState": "exact serialized C19 service fields with source and receipt timestamps",
+    "radarState": "leadOne, leadTwo, radar errors, model alignment and source/receipt timestamps",
+    "modelV2": "leadsV3 full trajectories, velocity, model timestamp and receipt",
+    "controlsState": "cruise and engagement fields with source/receipt timestamps",
+    "vehicleParameters": "pitch and vehicle parameters with source/receipt timestamps",
+    "carControl": "longActive and driver override fields with source/receipt timestamps",
+    "selfdriveState": "enabled/active state with source/receipt timestamps",
+    "CP": "exact serialized CarParams and safety config, read only",
+    "planner_state": "previous acceleration, profile, lead history, reset/drive boundary and all dynamic preferences"
+  },
+  "required_provenance": ["route_id", "trace_sha256", "software_sha", "dbc_sha", "carFingerprint", "vehicle", "ecu_firmware", "independent_custody_reference"],
+  "prohibited_inference": ["interpolated missing cycle", "fabricated lead trajectory", "synthetic CarParams labeled recorded", "actuator or CAN output"]
+}
