@@ -202,6 +202,20 @@ class AdversarialTests(unittest.TestCase):
       self.assertEqual(audit["status"], "FAIL")
       self.assertTrue(any("symlinked directory outside" in x for x in audit["findings"]))
 
+  def test_scope_audit_rejects_control_bindings_and_dynamic_execution(self):
+    with tempfile.TemporaryDirectory() as temp:
+      repo = Path(temp)
+      package = repo / "tools/c20_accord11g_long_shadow"
+      package.mkdir(parents=True)
+      (package / "__init__.py").write_text("x = CarParams\ny = Panda\nz.send(1)\neval('1')\n")
+      with patch("tools.c20_accord11g_long_shadow.release_gate.subprocess.check_output", return_value=""):
+        audit = source_audit(repo)
+      self.assertEqual(audit["status"], "FAIL")
+      self.assertTrue(any("forbidden control binding CarParams" in x for x in audit["findings"]))
+      self.assertTrue(any("forbidden control binding Panda" in x for x in audit["findings"]))
+      self.assertTrue(any("forbidden attribute send" in x for x in audit["findings"]))
+      self.assertTrue(any("dynamic execution" in x for x in audit["findings"]))
+
 
 if __name__ == "__main__":
   unittest.main()

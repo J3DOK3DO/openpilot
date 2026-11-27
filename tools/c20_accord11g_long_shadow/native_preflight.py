@@ -39,7 +39,7 @@ def qualify(repo: Path) -> dict:
     libs[name] = elf_machine(path) if path.is_file() else None
     if libs[name] != solver_arch or libs[name] is None:
       reasons.append(f"{name} absent or incompatible")
-  deps = {name: importlib.util.find_spec(name) is not None for name in ("numpy", "casadi")}
+  deps = {name: importlib.util.find_spec(name) is not None for name in ("numpy", "casadi", "capnp")}
   for name, found in deps.items():
     if not found:
       reasons.append(f"Python dependency {name} unavailable")
