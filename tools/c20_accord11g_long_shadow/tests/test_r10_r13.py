@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -14,7 +15,8 @@ from tools.c20_accord11g_long_shadow.telemetry_gate import (MAX_CAPTURE, MAX_MAN
                                                              read_bounded)
 
 ROOT = Path(__file__).resolve().parents[1]
-C19 = Path("/home/jdkd/accord11g_c19_stable_c82_minimal_release_20261124")
+C19 = Path(os.environ.get("C20_C19_REPO", "/home/jdkd/accord11g_c19_stable_c82_minimal_release_20261124"))
+EXTERNAL_C19_AVAILABLE = (C19 / "openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/long_mpc.py").is_file()
 MANIFEST = json.loads((ROOT / "fixtures/r10_r12_synthetic_manifest.json").read_text())
 CAPTURE = json.loads((ROOT / "fixtures/r10_r12_synthetic_capture.json").read_text())
 
@@ -143,6 +145,7 @@ class TelemetryGateTests(unittest.TestCase):
     self.assertIn("SOURCE_INTEGRITY_FAILURE", report["faults"])
 
 
+@unittest.skipUnless(EXTERNAL_C19_AVAILABLE, "external pinned C19 checkout unavailable; set C20_C19_REPO")
 class PlatformReceiptTests(unittest.TestCase):
   def test_pinned_source_receipt_is_not_execution(self):
     report = inventory(C19)

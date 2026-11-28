@@ -180,8 +180,33 @@ def verify_pinned_inventory(repo: Path, receipt_path: Path) -> dict:
     raise ValueError("pinned inventory oversized")
   expected = load_json_bytes(raw)
   actual = inventory(repo)
-  return {"schema_version": 1, "status": "MATCH" if expected == actual else "MISMATCH",
-          "classification": "SOURCE_ARTIFACT_ONLY", "executed_solver": False}
+  stable_keys = {"schema_version", "classification", "c19_commit", "model_options", "artifacts", "executed_solver"}
+  valid = (type(expected) is dict and stable_keys <= set(expected) and expected.get("schema_version") == 1
+           and expected.get("classification") == "SOURCE_ARTIFACT_ONLY"
+           and expected.get("c19_commit") == BASELINE and expected.get("executed_solver") is False
+           and expected.get("model_options") == {"N": 12, "tf": 10.0,
+                 "nlp_solver_type": "SQP_RTI", "qp_solver": "PARTIAL_CONDENSING_HPIPM"}
+           and type(expected.get("artifacts")) is dict
+           and set(expected["artifacts"]) == set(ARTIFACTS) | {"../longitudinal_planner.py"}
+           and all(type(expected["artifacts"].get(name)) is dict
+                   and expected["artifacts"][name].get("sha256") == digest
+                   for name, digest in PINNED_SHA256.items()))
+  mismatches = []
+  if not valid:
+    mismatches.append("pinned receipt schema or pinned digest invalid")
+  else:
+    for key in sorted(stable_keys - {"artifacts"}):
+      if expected[key] != actual.get(key):
+        mismatches.append(key)
+    for name in sorted(expected["artifacts"]):
+      if expected["artifacts"][name] != actual["artifacts"].get(name):
+        mismatches.append("artifact: " + name)
+  return {"schema_version": 1, "status": "MISMATCH" if mismatches else "MATCH",
+          "classification": "SOURCE_ARTIFACT_ONLY", "executed_solver": False,
+          "mismatches": mismatches, "host_facts": {
+            "host_architecture": actual["host_architecture"], "python_version": actual["python_version"],
+            "readelf_version": actual["readelf_version"], "python_dependencies": actual["python_dependencies"],
+            "native_execution_eligibility": actual["native_execution_eligibility"], "reasons": actual["reasons"]}}
 
 
 def main() -> None:

@@ -7,6 +7,17 @@
       "drive_token_sha256": "d92ab94925eb8d22c9a940857d94cbafe82b89bc2e42117800a24e88c793739c",
       "gas_pressed": false,
       "lead_present": true,
+      "model_lead_history": [
+        {
+          "lead_payload_sha256": [
+            "00a8900b9db3acbd27908907ebfd6332cb0fdfee880ffdbaa43a9e7d08a0e27f",
+            "e7514e7c8874d9d9f40b0502d93828406f2709484d7d6512010e63efc3430632"
+          ],
+          "payload_sha256": "ddb36a3bdf9b5365beb91e7e99fbb4d7cd6388f69d56f8687c8e6405b74aa80b",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        }
+      ],
       "model_leads": [
         {
           "payload_sha256": "00a8900b9db3acbd27908907ebfd6332cb0fdfee880ffdbaa43a9e7d08a0e27f",
@@ -19,6 +30,7 @@
           "source_t_ns": 990000000
         }
       ],
+      "radar_md_mono_time_ns": 990000000,
       "reset_boundary": true,
       "services": {
         "carControl": {
@@ -72,6 +84,26 @@
       "drive_token_sha256": "d92ab94925eb8d22c9a940857d94cbafe82b89bc2e42117800a24e88c793739c",
       "gas_pressed": false,
       "lead_present": true,
+      "model_lead_history": [
+        {
+          "lead_payload_sha256": [
+            "00a8900b9db3acbd27908907ebfd6332cb0fdfee880ffdbaa43a9e7d08a0e27f",
+            "e7514e7c8874d9d9f40b0502d93828406f2709484d7d6512010e63efc3430632"
+          ],
+          "payload_sha256": "ddb36a3bdf9b5365beb91e7e99fbb4d7cd6388f69d56f8687c8e6405b74aa80b",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        },
+        {
+          "lead_payload_sha256": [
+            "88c440073357bec791d65fe23ea674cf887649b2ec89151289a55d7161357dea",
+            "3fede971c5b7abefe4ea3ec9b190b66477c2335760a0dbabc77cbdb31080d842"
+          ],
+          "payload_sha256": "81bfbdf4eaeadaada94f4cfd31907fd9910f96828f0b083a63f1bcdc7809bbc5",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        }
+      ],
       "model_leads": [
         {
           "payload_sha256": "88c440073357bec791d65fe23ea674cf887649b2ec89151289a55d7161357dea",
@@ -84,6 +116,7 @@
           "source_t_ns": 1040000000
         }
       ],
+      "radar_md_mono_time_ns": 1040000000,
       "reset_boundary": false,
       "services": {
         "carControl": {

@@ -1,6 +1,6 @@
 {
   "attestation": "UNVERIFIED_SELF_REPORT",
-  "capture_sha256": "1550af298babe528606d9f29a58541a90f44fe37f3062769ff3cdead12bb748c",
+  "capture_sha256": "a717b63900565c7db65895119484f974846df9e51b87f8d450d3c2f7e3b3d759",
   "custody_reference_sha256": "1c231cf349a2a211ca3e440a51c4a479007ff5489007ffa505b3542f76c3ca20",
   "dbc_sha256": "e93f0a474e01c65ef2b56ca0a310de856f5d95a1be13f63bf4bd1c25c1ce3596",
   "ecu_firmware_sha256": "280c9667d43602853682b24d97530f2995de478bd47808ca943aab4d0bec99b5",

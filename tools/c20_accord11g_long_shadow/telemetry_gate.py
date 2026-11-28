@@ -25,9 +25,12 @@ MANIFEST_KEYS = {"schema_version", "label", "vehicle", "fingerprint_sha256", "ec
 CAPTURE_KEYS = {"schema_version", "label", "fingerprint_sha256", "ecu_firmware_sha256",
                 "source_commit", "dbc_sha256", "model_sha256", "hardware_sha256", "cycles"}
 CYCLE_KEYS = {"cycle_t_ns", "drive_token_sha256", "reset_boundary", "services", "model_leads",
+              "radar_md_mono_time_ns", "model_lead_history",
               "state_sha256", "gas_pressed", "brake_pressed", "lead_present", "source_integrity",
               "clock_disagreement"}
 SAMPLE_KEYS = {"source_t_ns", "receipt_t_ns", "payload_sha256"}
+HISTORY_KEYS = SAMPLE_KEYS | {"lead_payload_sha256"}
+MAX_HISTORY_AGE_NS = 150_000_000
 MAX_MANIFEST = 16 * 1024
 MAX_CAPTURE = 2 * 1024 * 1024
 MAX_CYCLES = 2000
@@ -109,6 +112,7 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
   last_cycle = None
   last_drive = None
   last_by_service = {}
+  last_history = {}
   state_valid_count = 0
   clocks_valid_count = 0
   for index, cycle in enumerate(capture["cycles"]):
@@ -135,6 +139,7 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
         faults.add("RESET_BOUNDARY_MISSING")
       last_source = {}
       last_by_service = {}
+      last_history = {}
     if index > 0 and cycle["reset_boundary"]:
       faults.add("RESET_OBSERVED")
     if not _keys(cycle["state_sha256"], set(STATES)) or any(not _digest(cycle["state_sha256"][key]) for key in STATES):
@@ -189,12 +194,48 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
       last_by_service[name] = receipt
     if cycle_clocks_valid:
       clocks_valid_count += 1
+    model = services.get("modelV2")
+    radar = services.get("radarState")
+    associated = cycle["radar_md_mono_time_ns"]
+    if not _ns(associated):
+      raise ValueError("radar model association clock invalid")
+    if type(radar) is not dict or not _ns(radar.get("source_t_ns")) or associated > radar["source_t_ns"]:
+      faults.add("FUTURE_SAMPLE")
+    history = cycle["model_lead_history"]
+    if not isinstance(history, list) or not 0 < len(history) <= 4:
+      raise ValueError("model lead history length invalid")
+    current_history = {}
+    for frame in history:
+      if (not _keys(frame, HISTORY_KEYS) or not _ns(frame["source_t_ns"])
+          or not _ns(frame["receipt_t_ns"]) or not _digest(frame["payload_sha256"])
+          or type(frame["lead_payload_sha256"]) is not list
+          or len(frame["lead_payload_sha256"]) != 2
+          or any(not _digest(value) for value in frame["lead_payload_sha256"])):
+        raise ValueError("model lead history schema invalid")
+      stamp = frame["source_t_ns"]
+      if stamp in current_history or (current_history and stamp <= max(current_history)):
+        faults.add("MODEL_HISTORY_INVALID")
+      if stamp > frame["receipt_t_ns"] or frame["receipt_t_ns"] > now or stamp > now:
+        faults.add("FUTURE_SAMPLE")
+      if now - stamp > MAX_HISTORY_AGE_NS:
+        faults.add("SENSOR_STALE")
+      if type(model) is not dict or not _ns(model.get("source_t_ns")) or stamp > model["source_t_ns"]:
+        faults.add("FUTURE_SAMPLE")
+      if type(model) is dict and stamp == model.get("source_t_ns"):
+        if frame["receipt_t_ns"] != model.get("receipt_t_ns") or frame["payload_sha256"] != model.get("payload_sha256"):
+          faults.add("MODEL_HISTORY_INVALID")
+      elif last_history.get(stamp) != frame:
+        faults.add("MODEL_HISTORY_INVALID")
+      current_history[stamp] = frame
+    if associated not in current_history:
+      faults.add("MODEL_LEAD_SOURCE_MISMATCH")
     leads = cycle["model_leads"]
     if not isinstance(leads, list) or len(leads) > 4:
       raise ValueError("model lead list invalid")
     if cycle["lead_present"] and len(leads) < 2:
       faults.add("MODEL_LEAD_DROPPED")
-    for lead in leads:
+    selected = current_history.get(associated)
+    for lead_index, lead in enumerate(leads):
       if not _keys(lead, SAMPLE_KEYS) or not _ns(lead["source_t_ns"]) or not _ns(lead["receipt_t_ns"]) or not _digest(lead["payload_sha256"]):
         faults.add("MODEL_LEAD_DROPPED")
         continue
@@ -202,9 +243,11 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
         faults.add("FUTURE_SAMPLE")
       if now - lead["source_t_ns"] > MAX_AGE_NS:
         faults.add("SENSOR_STALE")
-      model = services.get("modelV2")
-      if type(model) is dict and lead["source_t_ns"] != model.get("source_t_ns"):
+      if (selected is None or lead["source_t_ns"] != associated
+          or lead["receipt_t_ns"] != selected["receipt_t_ns"]
+          or lead_index >= 2 or lead["payload_sha256"] != selected["lead_payload_sha256"][lead_index]):
         faults.add("MODEL_LEAD_SOURCE_MISMATCH")
+    last_history = current_history
     last_cycle = now
     last_drive = drive
     next_state = "FAULT_LOCKED" if len(faults) > faults_before or state == "FAULT_LOCKED" else "OBSERVING"

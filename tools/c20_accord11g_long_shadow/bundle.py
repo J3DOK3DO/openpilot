@@ -11,6 +11,8 @@ import re
 import subprocess
 import tarfile
 
+from .admission import load_json_bytes
+
 PREFIX = "tools/c20_accord11g_long_shadow/"
 MAX_BYTES = 5_000_000
 MAX_MEMBERS = 1024
@@ -102,7 +104,24 @@ def verify(path: Path) -> dict:
     names = set(members)
     if "RESEARCH_MANIFEST.json" not in names:
       raise ValueError("duplicate or missing manifest")
-    manifest = json.load(archive.extractfile(members["RESEARCH_MANIFEST.json"]))
+    manifest_raw = archive.extractfile(members["RESEARCH_MANIFEST.json"]).read(MAX_BYTES + 1)
+    _check_public_entry("RESEARCH_MANIFEST.json", manifest_raw)
+    manifest = load_json_bytes(manifest_raw)
+    required = {"schema", "revision", "branch", "scope", "active_alpha_long", "road_deployment", "files"}
+    if (type(manifest) is not dict or set(manifest) != required or manifest["schema"] != 1
+        or type(manifest["revision"]) is not str or not re.fullmatch(r"[0-9a-f]{40}", manifest["revision"])
+        or type(manifest["branch"]) is not str or not manifest["branch"] or len(manifest["branch"]) > 128
+        or manifest["scope"] != PREFIX or manifest["active_alpha_long"] != "NO_GO"
+        or manifest["road_deployment"] != "NO_GO" or type(manifest["files"]) is not dict
+        or not manifest["files"]):
+      raise ValueError("manifest schema invalid")
+    _check_public_entry("RESEARCH_MANIFEST.json", _json(manifest))
+    for name, expected in manifest["files"].items():
+      if (type(name) is not str or not name.startswith(PREFIX) or type(expected) is not dict
+          or set(expected) != {"bytes", "sha256"} or type(expected["bytes"]) is not int
+          or not 0 <= expected["bytes"] <= MAX_BYTES or type(expected["sha256"]) is not str
+          or not re.fullmatch(r"[0-9a-f]{64}", expected["sha256"])):
+        raise ValueError("manifest file schema invalid")
     if names != set(manifest["files"]) | {"RESEARCH_MANIFEST.json"}:
       raise ValueError("manifest does not cover archive")
     for name, expected in manifest["files"].items():
