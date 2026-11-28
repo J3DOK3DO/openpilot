@@ -15,7 +15,7 @@ from openpilot.starpilot.models.catalog import DEFAULT_SMALL_SHA256, DEFAULT_SMA
 MODELS = Path("openpilot/selfdrive/modeld/models")
 BUNDLED = (
   ("cheddar_driving_tinygrad.pkl", 2, DEFAULT_SMALL_SHA256, DEFAULT_SMALL_SIZE),
-  ("dmonitoring_model_tinygrad.pkl", 1, None, None),
+  ("dmonitoring_model_tinygrad.pkl", 1, "7f7198c63d2d9b0d015cc860fdd836db50a4b9a75ab5d56cffd4d4eee5eb7b97", 20768359),
 )
 
 

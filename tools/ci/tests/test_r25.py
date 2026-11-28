@@ -13,7 +13,7 @@ import numpy as np
 from openpilot.starpilot.longitudinal.c20_shadow import Shadow, admit
 from openpilot.starpilot.longitudinal.c20_shadow_smoke import run_synthetic_smoke
 from tools.c20_accord11g_long_shadow.r25_gate import command_path_audit, evaluate
-from tools.c20_accord11g_long_shadow.r25_model_assets import MODEL_COMPONENTS, verify_models, verify_one
+from tools.c20_accord11g_long_shadow.r25_model_assets import BUNDLED, MODEL_COMPONENTS, verify_models, verify_one
 from tools.c20_accord11g_long_shadow.r25_package import candidate
 from tools.c20_accord11g_long_shadow.python_mpc import verify_receipt
 
@@ -178,6 +178,8 @@ class R25SyntheticIsolation(unittest.TestCase):
     # QCOM inference test or evidence of a current build.
     repo = Path(__file__).resolve().parents[3]
     self.assertEqual(len(MODEL_COMPONENTS), 7)
+    self.assertEqual(BUNDLED[1][2], "7f7198c63d2d9b0d015cc860fdd836db50a4b9a75ab5d56cffd4d4eee5eb7b97")
+    self.assertEqual(BUNDLED[1][3], 20768359)
     self.assertEqual(verify_models(repo), [])
     import tempfile
     with tempfile.TemporaryDirectory() as temporary:
