@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "release": "C20 R27 — Source-matched ARM64 installation candidate",
+  "source_revision": "7e1eea4ebc2c5b1760ea49988c35153951ebd07d",
+  "frozen_c19": "a32dcc0a6e62a4e2a15d9ac4425424e598313c98",
+  "build_profile": "comma_arm64 via official ./build 3",
+  "scons_build_exit": 0,
+  "build_mode": "incremental source-matched C19 native objects, SCons verified",
+  "static_arm64_artifacts": "PASS",
+  "qcom_source_matched": "PASS_5_OF_5",
+  "path_a": "FACTORY_ACC_SOURCE_UNCHANGED",
+  "path_b1": "NON_ACTUATING_MANUAL_MPC_SHADOW_SOURCE_INTEGRATED",
+  "path_b2": "ACTIVE_LONGITUDINAL_NO_GO",
+  "on_device_installation": "NOT_RUN",
+  "live_message_replay": "NOT_RUN",
+  "physical_safety": "UNVERIFIED",
+  "release_classification": "OFFLINE_DEVICE_TARGET_BUILD_COMPLETED_INSTALLATION_NOT_VERIFIED",
+  "active_vehicle_control_authorized": false
+}
