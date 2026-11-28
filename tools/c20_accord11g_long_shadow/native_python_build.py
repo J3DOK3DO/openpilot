@@ -84,6 +84,8 @@ def _provenance(root: Path, lib: Path) -> dict:
 
 def build(output: Path = EVIDENCE/'native') -> dict:
   root, solib, ext, lib = paths(output)
+  # A restarted build must not leave its previous successful receipt current.
+  (output/'python_build_receipt.json').unlink(missing_ok=True)
   if platform.machine().lower() != 'x86_64' or _git('rev-parse', 'HEAD') != BASELINE or _git('status', '--porcelain', '--untracked-files=all'):
     raise ValueError('clean pinned frozen C19 and x86_64 required')
   if any(elf_machine(lib/name) != 'x86_64' for name in LIBS):
@@ -124,7 +126,10 @@ def build(output: Path = EVIDENCE/'native') -> dict:
 def verify(output: Path = EVIDENCE/'native', expected_sha256: str | None = None) -> dict:
   root, solib, ext, lib = paths(output)
   receipt_file = output/'python_build_receipt.json'
-  receipt = json.loads(receipt_file.read_text())
+  try:
+    receipt = json.loads(receipt_file.read_text())
+  except (OSError, UnicodeError, ValueError) as exc:
+    return {'status': 'REJECTED', 'reasons': ['build receipt unreadable or malformed: '+type(exc).__name__]}
   if type(receipt) is not dict:
     return {'status': 'REJECTED', 'reasons': ['build receipt is not an object'], 'receipt_sha256': digest(receipt_file)}
   reasons = []

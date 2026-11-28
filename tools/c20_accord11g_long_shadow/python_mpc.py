@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import types
 from types import SimpleNamespace
 
@@ -221,31 +222,62 @@ def execute(native: Path, *, _test_fault_status: int | None = None) -> dict:
 
 def run() -> dict:
   native = EVIDENCE/'native'
-  if OUTPUT.is_symlink() or EVIDENCE.is_symlink():
+  if OUTPUT.parent != EVIDENCE or any(p.is_symlink() for p in (EVIDENCE, *EVIDENCE.parents)):
     raise ValueError('linked external MPC receipt path')
+  if OUTPUT.is_symlink() or (OUTPUT.exists() and
+      (not OUTPUT.is_file() or os.stat(OUTPUT, follow_symlinks=False).st_nlink != 1)):
+    raise ValueError('linked or unsafe external MPC receipt path')
+  # Publish the rejected state before verification or a native subprocess can fail.
+  _publish({'status': 'INVALIDATED_FOR_RERUN'})
   preliminary = verify(native)
   if preliminary['status'] != 'VERIFIED_LOCAL_BUILD':
     raise ValueError('native build verification rejected')
   env = dict(os.environ)
   env['PYTHONDONTWRITEBYTECODE'] = '1'
   env['LD_LIBRARY_PATH'] = str(CACHE/'lib') + (':' + env['LD_LIBRARY_PATH'] if env.get('LD_LIBRARY_PATH') else '')
-  result = subprocess.run([sys.executable, '-m', __package__+'.python_mpc', '_execute'],
-                          cwd=Path(__file__).resolve().parents[2], env=env,
-                          capture_output=True, text=True, timeout=30, check=False)
+  result = _native_subprocess(env)
   if result.returncode:
     raise RuntimeError('native Python MPC subprocess failed: '+result.stderr[-3000:])
   receipt = json.loads(result.stdout)
   if receipt.get('classification') != 'C19_PYTHON_MPC_NATIVE_X86_VERIFIED':
     raise RuntimeError('native Python MPC solve failed; verified receipt was not written')
-  OUTPUT.write_text(json.dumps(receipt, indent=2, sort_keys=True, allow_nan=False)+'\n')
+  _publish(receipt, verify_before_replace=True)
   return receipt
 
 
-def verify_receipt(expected_sha256: str | None = None) -> dict:
-  if OUTPUT.is_symlink():
-    return {'status': 'REJECTED', 'reasons': ['linked MPC receipt']}
+def _native_subprocess(env: dict[str, str]) -> subprocess.CompletedProcess:
+  return subprocess.run([sys.executable, '-m', __package__+'.python_mpc', '_execute'],
+                        cwd=Path(__file__).resolve().parents[2], env=env,
+                        capture_output=True, text=True, timeout=30, check=False)
+
+
+def _publish(receipt: dict, *, verify_before_replace: bool = False) -> None:
+  data = (json.dumps(receipt, indent=2, sort_keys=True, allow_nan=False)+'\n').encode()
+  if len(data) > 2_000_000:
+    raise ValueError('MPC receipt exceeds size limit')
+  fd, temporary = tempfile.mkstemp(prefix='.python_mpc_receipt.', suffix='.tmp', dir=EVIDENCE)
   try:
-    with OUTPUT.open('rb') as stream:
+    with os.fdopen(fd, 'wb') as stream:
+      stream.write(data)
+      stream.flush()
+      os.fsync(stream.fileno())
+    if verify_before_replace and verify_receipt(_receipt_path=Path(temporary))['status'] != 'VERIFIED_LOCAL_EXECUTION_RECEIPT':
+      raise RuntimeError('native Python MPC receipt failed local verification')
+    os.replace(temporary, OUTPUT)
+  finally:
+    if os.path.exists(temporary):
+      os.unlink(temporary)
+
+
+def verify_receipt(expected_sha256: str | None = None, *, _receipt_path: Path | None = None) -> dict:
+  receipt_file = OUTPUT if _receipt_path is None else _receipt_path
+  if receipt_file.is_symlink() or any(p.is_symlink() for p in (receipt_file.parent, *receipt_file.parent.parents)):
+    return {'status': 'REJECTED', 'reasons': ['linked MPC receipt']}
+  if receipt_file.exists() and (not receipt_file.is_file() or
+      os.stat(receipt_file, follow_symlinks=False).st_nlink != 1):
+    return {'status': 'REJECTED', 'reasons': ['unsafe MPC receipt path']}
+  try:
+    with receipt_file.open('rb') as stream:
       data = stream.read(2_000_001)
     if len(data) > 2_000_000:
       return {'status': 'REJECTED', 'reasons': ['MPC receipt exceeds size limit']}
@@ -254,6 +286,8 @@ def verify_receipt(expected_sha256: str | None = None) -> dict:
     return {'status': 'REJECTED', 'reasons': ['MPC receipt unreadable or malformed: '+type(exc).__name__]}
   if type(receipt) is not dict:
     return {'status': 'REJECTED', 'reasons': ['MPC receipt is not an object']}
+  if receipt == {'status': 'INVALIDATED_FOR_RERUN'}:
+    return {'status': 'REJECTED', 'reasons': ['MPC receipt invalidated for rerun']}
   reasons = []
   required = {'schema_version', 'classification', 'source_commit', 'input_classification',
               'execution_class', 'planner_execution', 'authenticated_vehicle_replay',
@@ -261,7 +295,7 @@ def verify_receipt(expected_sha256: str | None = None) -> dict:
               'scenario_inputs_sha256', 'scenario_output_sha256', 'scenarios'}
   if set(receipt) != required or receipt.get('schema_version') != 2:
     reasons.append('MPC receipt schema mismatch')
-  if expected_sha256 is not None and digest(OUTPUT) != expected_sha256:
+  if expected_sha256 is not None and digest(receipt_file) != expected_sha256:
     reasons.append('receipt digest mismatch')
   if verify()['status'] != 'VERIFIED_LOCAL_BUILD' or receipt.get('native_build_receipt_sha256') != verify()['receipt_sha256']:
     reasons.append('native build rejected')
@@ -321,7 +355,7 @@ def verify_receipt(expected_sha256: str | None = None) -> dict:
       or receipt.get('modelV2_trajectory') != 'NOT_SUPPLIED'):
     reasons.append('classification mismatch')
   return {'status': 'VERIFIED_LOCAL_EXECUTION_RECEIPT' if not reasons else 'REJECTED',
-          'reasons': reasons, 'receipt_sha256': digest(OUTPUT)}
+          'reasons': reasons, 'receipt_sha256': digest(receipt_file)}
 
 
 def main() -> None:

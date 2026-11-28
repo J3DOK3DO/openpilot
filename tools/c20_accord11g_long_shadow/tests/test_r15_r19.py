@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from tools.c20_accord11g_long_shadow import bundle, native_python_build, python_mpc, r19_campaign_gate, software_faults
 
@@ -46,6 +46,98 @@ class SyntheticInputTests(unittest.TestCase):
 
 
 class ReceiptAndGateTests(unittest.TestCase):
+  def test_other_explicit_reruns_clear_prior_external_receipts(self):
+    with tempfile.TemporaryDirectory() as directory:
+      evidence = Path(directory)
+      native = evidence/'native'
+      native.mkdir()
+      build_receipt = native/'python_build_receipt.json'
+      build_receipt.write_text('{"status":"old"}')
+      with patch.object(native_python_build, 'EVIDENCE', evidence), \
+           patch.object(native_python_build, '_git', return_value='wrong revision'):
+        with self.assertRaises(ValueError):
+          native_python_build.build(native)
+        self.assertFalse(build_receipt.exists())
+        self.assertEqual(native_python_build.verify(native)['status'], 'REJECTED')
+      faults_receipt = evidence/'software_faults_receipt.json'
+      faults_receipt.write_text('{"status":"old"}')
+      with patch.object(software_faults, 'EXTERNAL', faults_receipt), \
+           patch.object(software_faults, 'suite', side_effect=ValueError('simulated suite failure')), \
+           patch.object(sys, 'argv', ['software_faults', '--write-external']):
+        with self.assertRaises(ValueError):
+          software_faults.main()
+      self.assertFalse(faults_receipt.exists())
+
+  def test_failed_rerun_invalidates_prior_verified_mpc_receipt_and_blocks_gate(self):
+    source = python_mpc.OUTPUT
+    if not source.is_file() or not software_faults.EXTERNAL.is_file():
+      self.skipTest('external software receipts absent')
+    original = source.read_text()
+    self.assertEqual(python_mpc.verify_receipt()['status'], 'VERIFIED_LOCAL_EXECUTION_RECEIPT')
+    self.assertEqual(native_python_build.verify()['status'], 'VERIFIED_LOCAL_BUILD')
+    self.assertEqual(r19_campaign_gate._git(native_python_build.C19, 'rev-parse', 'HEAD'),
+                     r19_campaign_gate.BASELINE)
+    with tempfile.TemporaryDirectory() as directory:
+      evidence = Path(directory)
+      (evidence/'native').symlink_to(python_mpc.EVIDENCE/'native', target_is_directory=True)
+      output = evidence/'python_mpc_receipt.json'
+      with patch.object(python_mpc, 'EVIDENCE', evidence), patch.object(python_mpc, 'OUTPUT', output), \
+           patch.object(python_mpc, 'verify', side_effect=lambda *a, **k: native_python_build.verify()), \
+           patch.object(r19_campaign_gate, '_scope', return_value=(True, [])):
+        for failure in ('subprocess', 'timeout', 'injected_solve', 'preflight'):
+          output.write_text(original)
+          self.assertEqual(python_mpc.verify_receipt()['status'], 'VERIFIED_LOCAL_EXECUTION_RECEIPT')
+          self.assertEqual(r19_campaign_gate.evaluate()['status'],
+                           'R19_OFFLINE_RESEARCH_CANDIDATE_PENDING_INDEPENDENT_REVIEW')
+          if failure == 'preflight':
+            native_result = {'status': 'REJECTED', 'reasons': ['simulated preflight failure']}
+            with patch.object(python_mpc, 'verify', return_value=native_result):
+              with self.assertRaises(ValueError):
+                python_mpc.run()
+          elif failure == 'timeout':
+            with patch.object(python_mpc, '_native_subprocess', side_effect=subprocess.TimeoutExpired('native', 30)):
+              with self.assertRaises(subprocess.TimeoutExpired):
+                python_mpc.run()
+          else:
+            result = (Mock(returncode=1, stderr='simulated native failure', stdout='') if failure == 'subprocess'
+                      else Mock(returncode=0, stderr='', stdout=json.dumps({'classification': 'TEST_ONLY_INJECTED_SOLVER_FAILURE'})))
+            with patch.object(python_mpc, '_native_subprocess', return_value=result):
+              with self.assertRaises(RuntimeError):
+                python_mpc.run()
+          self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED')
+          self.assertEqual(json.loads(output.read_text()), {'status': 'INVALIDATED_FOR_RERUN'})
+          blocked = r19_campaign_gate.evaluate()
+          self.assertEqual(blocked['status'], 'R19_BLOCKED_SOFTWARE_EVIDENCE')
+          self.assertEqual(blocked['road_use'], 'NO_GO')
+          self.assertEqual(blocked['active_alpha_long'], 'NO_GO')
+          self.assertIn('C19 Python MPC execution receipt rejected', blocked['reasons'])
+        successful = json.loads(original)
+        with patch.object(python_mpc, '_native_subprocess', return_value=Mock(
+             returncode=0, stderr='', stdout=json.dumps(successful))):
+          python_mpc.run()
+        self.assertEqual(python_mpc.verify_receipt()['status'], 'VERIFIED_LOCAL_EXECUTION_RECEIPT')
+        samples = [sample for scenario in json.loads(output.read_text())['scenarios'].values()
+                   for sample in scenario['samples']]
+        self.assertEqual(len(samples), 24)
+        self.assertTrue(all(sample['solve_calls'] == 1 and sample['native_solve_status'] ==
+                            sample['solver_status'] == 0 for sample in samples))
+        self.assertEqual(r19_campaign_gate.evaluate()['status'],
+                         'R19_OFFLINE_RESEARCH_CANDIDATE_PENDING_INDEPENDENT_REVIEW')
+        target = evidence/'linked_target.json'
+        target.write_text(original)
+        output.unlink()
+        output.symlink_to(target)
+        with self.assertRaises(ValueError):
+          python_mpc.run()
+        self.assertEqual(target.read_text(), original)
+        self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED')
+        output.unlink()
+        os.link(target, output)
+        with self.assertRaises(ValueError):
+          python_mpc.run()
+        self.assertEqual(target.read_text(), original)
+        self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED')
+
   def test_native_output_path_and_archive_privacy_reject_substitutions(self):
     with tempfile.TemporaryDirectory() as directory:
       root = Path(directory)

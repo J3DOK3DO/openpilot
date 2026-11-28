@@ -125,10 +125,12 @@ def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument('--write-external', action='store_true')
   args = parser.parse_args()
-  result = suite()
   if args.write_external:
     if EXTERNAL.is_symlink() or EXTERNAL.parent.is_symlink():
       raise ValueError('linked external fault receipt path')
+    EXTERNAL.unlink(missing_ok=True)
+  result = suite()
+  if args.write_external:
     EXTERNAL.write_text(json.dumps(result, indent=2, sort_keys=True)+'\n')
   print(json.dumps({'status': result['status'], 'cases': {k: v['faults'] if 'faults' in v else v for k, v in result['cases'].items()}}, indent=2, sort_keys=True))
 
