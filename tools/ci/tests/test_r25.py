@@ -1,4 +1,6 @@
 """Synthetic isolation tests only; no assertion here claims native execution."""
+import hashlib
+import json
 import sys
 import types
 import unittest
@@ -11,6 +13,7 @@ import numpy as np
 from openpilot.starpilot.longitudinal.c20_shadow import Shadow, admit
 from openpilot.starpilot.longitudinal.c20_shadow_smoke import run_synthetic_smoke
 from tools.c20_accord11g_long_shadow.r25_gate import command_path_audit, evaluate
+from tools.c20_accord11g_long_shadow.r25_model_assets import MODEL_COMPONENTS, verify_models, verify_one
 from tools.c20_accord11g_long_shadow.r25_package import candidate
 from tools.c20_accord11g_long_shadow.python_mpc import verify_receipt
 
@@ -169,6 +172,32 @@ class R25SyntheticIsolation(unittest.TestCase):
       run_synthetic_smoke(0)
     with self.assertRaises(ValueError):
       run_synthetic_smoke(5)
+
+  def test_real_chunked_model_integrity_and_synthetic_tamper(self):
+    # Existing published compiled models are verified on disk; this is NOT a
+    # QCOM inference test or evidence of a current build.
+    repo = Path(__file__).resolve().parents[3]
+    self.assertEqual(len(MODEL_COMPONENTS), 7)
+    self.assertEqual(verify_models(repo), [])
+    import tempfile
+    with tempfile.TemporaryDirectory() as temporary:
+      sample = Path(temporary) / 'openpilot/selfdrive/modeld/models'
+      sample.mkdir(parents=True)
+      data = b'offline fake model fixture'
+      digest = hashlib.sha256(data).hexdigest()
+      name = 'fixture.pkl'
+      (sample / f'{name}.chunkmanifest').write_text('1')
+      (sample / f'{name}.chunksha256').write_text(json.dumps({
+        'bytes': len(data), 'sha256': digest,
+        'parts': [{'bytes': len(data), 'sha256': digest}],
+      }))
+      part = sample / f'{name}.chunk01of01'
+      part.write_bytes(data)
+      self.assertEqual(verify_one(Path(temporary), name, 1, digest, len(data)), [])
+      part.write_bytes(b'X' + data[1:])
+      self.assertTrue(verify_one(Path(temporary), name, 1, digest, len(data)))
+      part.unlink()
+      self.assertTrue(verify_one(Path(temporary), name, 1, digest, len(data)))
 
   def test_static_command_path_and_package_block(self):
     repo = Path(__file__).resolve().parents[3]

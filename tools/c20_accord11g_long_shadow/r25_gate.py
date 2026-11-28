@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 
 from .native_preflight import elf_machine, qualify
+from .r25_model_assets import MODEL_COMPONENTS
 
 START = '519a981b72fc0ba1bf0a029904628990086b9f37'
 C19 = Path('/home/jdkd/accord11g_c19_stable_c82_minimal_release_20261124')
@@ -19,6 +20,7 @@ ALLOWED = {
   str(SMOKE),
   'tools/c20_accord11g_long_shadow/r25_gate.py',
   'tools/c20_accord11g_long_shadow/r25_package.py',
+  'tools/c20_accord11g_long_shadow/r25_model_assets.py',
   'tools/c20_accord11g_long_shadow/docs/R20_R25_COMBINED_REPORT.md',
   'tools/c20_accord11g_long_shadow/docs/R25_INSTALLATION_RECIPE.md',
   'tools/c20_accord11g_long_shadow/docs/R25_OFFLINE_CANDIDATE_MANIFEST.json',
@@ -71,7 +73,9 @@ def _artifact_path(repo: Path, name: str) -> bool:
   path = Path(name)
   return (name.startswith('openpilot/') and '..' not in path.parts and
           not name.startswith(('openpilot/selfdrive/car/', 'openpilot/system/manager/')) and
-          (path.suffix in ('.so', '.pkl', '.bin', '.thneed', '.dlc') or elf_machine(repo / path) == 'aarch64'))
+          (path.suffix in ('.so', '.pkl', '.bin', '.thneed', '.dlc') or
+           name in {str(component) for component in MODEL_COMPONENTS} or
+           elf_machine(repo / path) == 'aarch64'))
 
 
 def evaluate(repo: Path) -> dict:

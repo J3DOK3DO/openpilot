@@ -11,14 +11,14 @@ import tarfile
 
 from .native_preflight import elf_machine
 from .r25_gate import START, _git, evaluate
+from .r25_model_assets import MODEL_COMPONENTS, verify_models
 
 MAX_ARCHIVE = 1_500_000_000
 ROOT = Path('openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code')
 REQUIRED_ARM = (ROOT / 'acados_ocp_solver_pyx.so', ROOT / 'libacados.so',
                 ROOT / 'libacados_ocp_solver_long.so', ROOT / 'libblasfeo.so', ROOT / 'libhpipm.so',
                 ROOT / 'libqpOASES_e.so.3.1')
-REQUIRED_MODELS = (Path('openpilot/selfdrive/modeld/models/driving_tinygrad.pkl'),
-                   Path('openpilot/selfdrive/modeld/models/dmonitoring_model_tinygrad.pkl'))
+REQUIRED_MODELS = MODEL_COMPONENTS  # Genuine shipped Cheddar/DM numbered chunks and integrity sidecars.
 
 
 def _digest(path: Path) -> str:
@@ -36,7 +36,9 @@ def _build_artifact(repo: Path, name: str) -> bool:
     return False
   full = repo / path
   return (full.is_file() and not full.is_symlink() and
-          (path.suffix in ('.so', '.pkl', '.bin', '.thneed', '.dlc') or elf_machine(full) == 'aarch64'))
+          (path.suffix in ('.so', '.pkl', '.bin', '.thneed', '.dlc') or
+           name in {str(component) for component in MODEL_COMPONENTS} or
+           elf_machine(full) == 'aarch64'))
 
 
 def candidate(repo: Path, build_receipt: Path | None = None) -> dict:
@@ -53,10 +55,9 @@ def candidate(repo: Path, build_receipt: Path | None = None) -> dict:
     full = repo / path
     if full.is_symlink() or elf_machine(full) != 'aarch64':
       reasons.append(f'ARM64 product binary absent or incompatible: {path}')
-  for path in REQUIRED_MODELS:
-    full = repo / path
-    if full.is_symlink() or not full.is_file() or full.stat().st_size == 0:
-      reasons.append(f'compiled product model absent: {path}')
+  # A chunked shipped model is an installable input only when every part and
+  # its sidecar match the catalog pin; never materialize or modify the worktree.
+  reasons.extend(verify_models(repo))
   if build_receipt is None:
     reasons.append('independent product build receipt not supplied')
   else:
