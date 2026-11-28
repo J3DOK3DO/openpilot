@@ -111,16 +111,14 @@ def summary(repo: Path, c19: Path, manifest: Path | None = None, capture: Path |
   if research_candidate:
     r12_stage = "WORKING_RESEARCH_CANDIDATE"
     r13_stage = "WORKING_CANDIDATE_PENDING_COMMIT_AND_INDEPENDENT_REVIEW"
-    release_decision = "PENDING_COMMIT_AND_INDEPENDENT_REVIEW"
   elif manifest and not telemetry_pass:
     r12_stage = r13_stage = "BLOCKED_TELEMETRY"
-    release_decision = "NO_GO_INVALID_TELEMETRY"
   elif not manifest:
     r12_stage = r13_stage = "NOT_SUPPLIED"
-    release_decision = "NO_GO_NO_TELEMETRY"
   else:
     r12_stage = r13_stage = "PENDING_CHECKS"
-    release_decision = "NO_GO_CHECKS_INCOMPLETE"
+  r14_stage = ("PENDING_HOST_COMMIT_AND_INDEPENDENT_REVIEW" if r14_candidate
+               else "BLOCKED_NATIVE_OR_SOFTWARE_CHECKS")
   return {"schema_version": 1, "classification": "TEST_ONLY_RESEARCH", "branch": branch, "head": head,
           "c19_baseline": original, "c19_baseline_matches": original == BASELINE,
           "c19_pinned_inventory": pinned,
@@ -132,15 +130,14 @@ def summary(repo: Path, c19: Path, manifest: Path | None = None, capture: Path |
                        "host_architecture": platform["host_architecture"], "reasons": platform["reasons"],
                        "executed_solver": False},
           "telemetry": telemetry, "native_x86_generated_cycle": native, "default_off": default_off,
-          "offline_research_release_decision": release_decision,
+          "offline_research_release_decision": r14_stage,
           "stage_eligibility": {"R10_source_and_solver_prep": (
                                   "X86_REBUILT_GENERATED_CYCLE_LOCAL_EVIDENCE" if baseline_pass and native["status"] == "LOCAL_EVIDENCE_CONSISTENT_UNAUTHENTICATED"
                                   else "SOURCE_RECEIPT_ONLY" if baseline_pass else "BLOCKED"),
                                 "R11_current_capture": "BLOCKED_UNVERIFIED_CUSTODY",
                                 "R12_audit_only": r12_stage,
                                 "R13_offline_research": r13_stage,
-                                "R14_software_research": ("PENDING_HOST_COMMIT_AND_INDEPENDENT_REVIEW" if r14_candidate
-                                                          else "BLOCKED_NATIVE_OR_SOFTWARE_CHECKS"),
+                                "R14_software_research": r14_stage,
                                 "R13_display_only_device": EXCLUDED,
                                 "R13_active_alpha_long": "NO_GO"},
           "A1_A5": {key: {"campaign": EXCLUDED, "verification": "UNVERIFIED"}

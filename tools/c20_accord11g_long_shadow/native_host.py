@@ -22,6 +22,8 @@ GENERATED = Path("openpilot/selfdrive/controls/lib/longitudinal_mpc_lib/c_genera
 LIBS = ("libacados.so", "libhpipm.so", "libblasfeo.so", "libqpOASES_e.so.3.1")
 MAX_FILE = 8 * 1024 * 1024
 MAX_OUTPUT = 128 * 1024
+OUTPUT_FILES = ("main_long_x86", "build_stdout.log", "build_stderr.log",
+                "run_stdout.log", "run_stderr.log", "native_receipt.json")
 
 
 def digest(path: Path) -> str:
@@ -85,8 +87,40 @@ def _checks(stdout: str) -> tuple[int, int] | None:
   return int(cycles[0]), int(iters[0])
 
 
+def _safe_output(repo: Path, output: Path) -> Path:
+  # Inspect the supplied spelling before resolve() can erase a linked component.
+  supplied = output if output.is_absolute() else Path.cwd() / output
+  current = Path(supplied.anchor)
+  for part in supplied.parts[1:]:
+    if part == "..":
+      current = current.parent
+    else:
+      current /= part
+      if current.is_symlink():
+        raise ValueError("linked output path component")
+  resolved = supplied.resolve()
+  research = Path(__file__).resolve().parents[2]
+  if resolved.is_relative_to(repo.resolve()) or resolved.is_relative_to(research):
+    raise ValueError("output overlaps a source checkout")
+  if resolved.exists() and not resolved.is_dir():
+    raise ValueError("output is not a directory")
+  if any((resolved / name).is_symlink() for name in OUTPUT_FILES):
+    raise ValueError("linked output artifact")
+  return resolved
+
+
+def _build_command(repo: Path, acados: Path, output: Path, src: list[Path]) -> list[str]:
+  root, include, lib = repo / GENERATED, acados / "include", acados / "lib"
+  command = ["gcc", "-O0", "-std=c99"]
+  command += ["-I" + str(path) for path in (include, include / "acados", include / "blasfeo/include", include / "hpipm/include", root)]
+  command += ["-o", str(output / "main_long_x86")] + [str(path) for path in src]
+  command += ["-L" + str(lib), "-Wl,-rpath," + str(lib), "-lacados", "-lhpipm", "-lblasfeo", "-lm"]
+  return command
+
+
 def build(repo: Path, acados: Path, output: Path) -> dict:
-  repo, acados, output = repo.resolve(), acados.resolve(), output.resolve()
+  output = _safe_output(repo, output)
+  repo, acados = repo.resolve(), acados.resolve()
   if _revision(repo) != BASELINE or not _clean(repo) or platform.machine().lower() != "x86_64":
     raise ValueError("clean pinned C19 and x86_64 host required")
   root, include, lib = repo / GENERATED, acados / "include", acados / "lib"
@@ -96,14 +130,9 @@ def build(repo: Path, acados: Path, output: Path) -> dict:
   include_hash = header_tree_digest(include)
   if any(elf_machine(lib / name) != "x86_64" for name in LIBS):
     raise ValueError("cached libraries are not x86_64")
-  if output.is_symlink():
-    raise ValueError("linked output directory")
   output.mkdir(parents=True, exist_ok=True)
   binary = output / "main_long_x86"
-  command = ["gcc", "-O0", "-std=c99"]
-  command += ["-I" + str(path) for path in (include, include / "acados", include / "blasfeo/include", include / "hpipm/include", root)]
-  command += ["-o", str(binary)] + [str(path) for path in src]
-  command += ["-L" + str(lib), "-Wl,-rpath," + str(lib), "-lacados", "-lhpipm", "-lblasfeo", "-lm"]
+  command = _build_command(repo, acados, output, src)
   compiler = _run(["gcc", "--version"], timeout=5).stdout.decode().splitlines()[0]
   built = _run(command)
   (output / "build_stdout.log").write_bytes(built.stdout)
@@ -136,6 +165,8 @@ def build(repo: Path, acados: Path, output: Path) -> dict:
 
 
 def verify(repo: Path, acados: Path, output: Path, expected_sha256: str) -> dict:
+  output = _safe_output(repo, output)
+  repo, acados = repo.resolve(), acados.resolve()
   receipt_path = output / "native_receipt.json"
   reasons = []
   if not re.fullmatch(r"[0-9a-f]{64}", expected_sha256):
@@ -158,6 +189,8 @@ def verify(repo: Path, acados: Path, output: Path, expected_sha256: str) -> dict
     reasons.append("cached library mismatch")
   if data["cached_headers_tree_sha256"] != header_tree_digest(acados / "include"):
     reasons.append("cached header mismatch")
+  if data["build_command"] != _build_command(repo, acados, output, sources(root)):
+    reasons.append("build command mismatch")
   binary = output / "main_long_x86"
   if data["binary_sha256"] != digest(binary) or elf_machine(binary) != "x86_64":
     reasons.append("binary mismatch or architecture")
