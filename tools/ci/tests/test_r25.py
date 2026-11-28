@@ -1,6 +1,7 @@
 """Synthetic isolation tests only; no assertion here claims native execution."""
 import hashlib
 import json
+import subprocess
 import sys
 import types
 import unittest
@@ -12,7 +13,7 @@ import numpy as np
 
 from openpilot.starpilot.longitudinal.c20_shadow import Shadow, admit
 from openpilot.starpilot.longitudinal.c20_shadow_smoke import run_synthetic_smoke
-from tools.c20_accord11g_long_shadow.r25_gate import command_path_audit, evaluate
+from tools.c20_accord11g_long_shadow.r25_gate import START, command_path_audit, evaluate
 from tools.c20_accord11g_long_shadow.r25_model_assets import BUNDLED, MODEL_COMPONENTS, verify_models, verify_one
 from tools.c20_accord11g_long_shadow.r25_package import candidate
 from tools.c20_accord11g_long_shadow.python_mpc import verify_receipt
@@ -234,7 +235,14 @@ class R25SyntheticIsolation(unittest.TestCase):
     repo = Path(__file__).resolve().parents[3]
     gate = evaluate(repo)
     self.assertEqual(gate['source_audit'], 'PASS')
-    self.assertFalse(any('out-of-scope changed paths' in reason for reason in gate['reasons']))
+    changed = subprocess.check_output(['git', '-C', str(repo), 'diff', '--name-only', START, 'HEAD'], text=True).splitlines()
+    firmware_built = any(name.startswith('panda/board/obj/') for name in changed)
+    scope_rejected = any('out-of-scope changed paths' in reason for reason in gate['reasons'])
+    # R25 research gate must keep rejecting R27's built firmware output; the
+    # R27 product release uses independently verified native-build receipts.
+    self.assertEqual(scope_rejected, firmware_built)
+    if firmware_built:
+      self.assertTrue(gate['exact_prebuilt_receipt'])
     self.assertEqual(gate['PATH_B2_ACTIVE_LONGITUDINAL'], 'NO_GO')
     self.assertFalse(gate['installable'])
 
