@@ -31,6 +31,7 @@ ALLOWED = {
 FORBIDDEN = {'PubMaster', 'pub_sock', 'send', 'sendall', 'transmit', 'can_send', 'Panda',
              'CarController', 'carcontroller', 'carControl', 'set_safety_mode', 'setSafetyMode',
              'Params', 'put', 'put_bool'}
+FORBIDDEN_DYNAMIC = {'__import__', 'import_module', 'eval', 'exec', 'compile'}
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -49,6 +50,10 @@ def command_path_audit(path: Path) -> list[str]:
       findings.append('forbidden name '+node.id)
     if isinstance(node, ast.Attribute) and node.attr in FORBIDDEN:
       findings.append('forbidden attribute '+node.attr)
+    if isinstance(node, ast.Call):
+      name = node.func.id if isinstance(node.func, ast.Name) else node.func.attr if isinstance(node.func, ast.Attribute) else ''
+      if name in FORBIDDEN_DYNAMIC:
+        findings.append('forbidden dynamic call '+name)
     if isinstance(node, ast.Import):
       for alias in node.names:
         if alias.name.startswith(('panda', 'opendbc.safety', 'openpilot.selfdrive.car')):

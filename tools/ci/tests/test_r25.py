@@ -185,6 +185,20 @@ class R25SyntheticIsolation(unittest.TestCase):
       self.assertIn('forbidden name PubMaster', findings)
       self.assertIn('forbidden attribute send', findings)
 
+  def test_static_command_path_rejects_dynamic_imports(self):
+    import tempfile
+    with tempfile.TemporaryDirectory() as directory:
+      path = Path(directory) / 'bad_dynamic.py'
+      path.write_text('import importlib\n'
+                      'def deep_import():\n'
+                      '  return importlib.import_module("openpilot.selfdrive.car")\n'
+                      '__import__("panda")\n'
+                      'eval("42")\n')
+      findings = command_path_audit(path)
+      self.assertIn('forbidden dynamic call import_module', findings)
+      self.assertIn('forbidden dynamic call __import__', findings)
+      self.assertIn('forbidden dynamic call eval', findings)
+
   def test_gate_preserves_first_porcelain_filename(self):
     repo = Path(__file__).resolve().parents[3]
     gate = evaluate(repo)
