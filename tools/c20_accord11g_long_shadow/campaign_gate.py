@@ -11,11 +11,13 @@ import sys
 
 from .bundle import MAX_BYTES, MAX_MEMBERS, _check_public_entry
 from .platform_receipt import BASELINE, inventory, verify_pinned_inventory
+from .native_host import verify as verify_native_host
 from .release_gate import gate
 from .shadow_advisory import ShadowConfig
 from .telemetry_gate import MAX_CAPTURE, MAX_MANIFEST, audit, read_bounded
 
-BRANCH = "c20-r10-r12-combined-r13-prep-20261128"
+BRANCH = "c20-r14-r10native-r11replay-r12software-20261128"
+EXCLUDED = "EXCLUDED_BY_USER_FOR_SOFTWARE_CAMPAIGN"
 
 
 def _run(args: list[str], timeout: int = 60, env: dict | None = None) -> subprocess.CompletedProcess:
@@ -48,9 +50,13 @@ def privacy_scan(repo: Path) -> dict:
 
 
 def summary(repo: Path, c19: Path, manifest: Path | None = None, capture: Path | None = None,
-            run_tests: bool = False, check_receipt: bool = False) -> dict:
+            run_tests: bool = False, check_receipt: bool = False,
+            native_acados: Path | None = None, native_output: Path | None = None,
+            native_sha256: str | None = None) -> dict:
   if bool(manifest) != bool(capture):
     raise ValueError("manifest and capture must be supplied together")
+  if any((native_acados, native_output, native_sha256)) and not all((native_acados, native_output, native_sha256)):
+    raise ValueError("native acados, output and SHA-256 must be supplied together")
   scope = gate(repo)
   platform = inventory(c19)
   try:
@@ -86,6 +92,14 @@ def summary(repo: Path, c19: Path, manifest: Path | None = None, capture: Path |
     except (OSError, ValueError, TypeError, KeyError):
       telemetry = {"status": "FAIL_CLOSED", "faults": ["INVALID_INPUT"],
                    "capture_digest_match": False, "custody_authenticated": False}
+  native = {"status": "NOT_SUPPLIED", "independent_authenticity_verified": False,
+            "native_c19_planner_replay": "NOT_DONE"}
+  if native_output:
+    try:
+      native = verify_native_host(c19, native_acados, native_output, native_sha256)
+    except (OSError, ValueError, TypeError, KeyError):
+      native = {"status": "REJECTED", "reasons": ["INVALID_NATIVE_EVIDENCE"],
+                "independent_authenticity_verified": False, "native_c19_planner_replay": "NOT_DONE"}
   source_pass = scope["source_audit"]["status"] == "PASS" and branch == BRANCH
   baseline_pass = original == BASELINE and pinned["status"] == "MATCH"
   telemetry_pass = telemetry["status"] == "PASS_SYNTHETIC_ONLY" and telemetry.get("capture_digest_match") is True
@@ -93,6 +107,7 @@ def summary(repo: Path, c19: Path, manifest: Path | None = None, capture: Path |
   offline_working = (source_pass and baseline_pass and diff_check.returncode == 0 and no_raw and default_off
                      and tests["status"] == "PASS" and receipt["status"] == "PASS")
   research_candidate = offline_working and telemetry_pass
+  r14_candidate = research_candidate and native["status"] == "LOCAL_EVIDENCE_CONSISTENT_UNAUTHENTICATED"
   if research_candidate:
     r12_stage = "WORKING_RESEARCH_CANDIDATE"
     r13_stage = "WORKING_CANDIDATE_PENDING_COMMIT_AND_INDEPENDENT_REVIEW"
@@ -116,15 +131,21 @@ def summary(repo: Path, c19: Path, manifest: Path | None = None, capture: Path |
                        "solver_architecture": (platform["artifacts"]["c_generated_code/acados_ocp_solver_pyx.so"] or {}).get("architecture"),
                        "host_architecture": platform["host_architecture"], "reasons": platform["reasons"],
                        "executed_solver": False},
-          "telemetry": telemetry, "default_off": default_off,
+          "telemetry": telemetry, "native_x86_generated_cycle": native, "default_off": default_off,
           "offline_research_release_decision": release_decision,
-          "stage_eligibility": {"R10_source_and_solver_prep": "SOURCE_RECEIPT_ONLY" if baseline_pass else "BLOCKED",
+          "stage_eligibility": {"R10_source_and_solver_prep": (
+                                  "X86_REBUILT_GENERATED_CYCLE_LOCAL_EVIDENCE" if baseline_pass and native["status"] == "LOCAL_EVIDENCE_CONSISTENT_UNAUTHENTICATED"
+                                  else "SOURCE_RECEIPT_ONLY" if baseline_pass else "BLOCKED"),
                                 "R11_current_capture": "BLOCKED_UNVERIFIED_CUSTODY",
                                 "R12_audit_only": r12_stage,
                                 "R13_offline_research": r13_stage,
-                                "R13_display_only_device": "BLOCKED_BUILD_AND_HARDWARE",
+                                "R14_software_research": ("PENDING_HOST_COMMIT_AND_INDEPENDENT_REVIEW" if r14_candidate
+                                                          else "BLOCKED_NATIVE_OR_SOFTWARE_CHECKS"),
+                                "R13_display_only_device": EXCLUDED,
                                 "R13_active_alpha_long": "NO_GO"},
-          "A1_A5": {key: scope["gates"][key] for key in ("A1", "A2", "A3", "A4", "A5")},
+          "A1_A5": {key: {"campaign": EXCLUDED, "verification": "UNVERIFIED"}
+                    for key in ("A1", "A2", "A3", "A4", "A5")},
+          "hardware_qualification": {"campaign": EXCLUDED, "verification": "UNVERIFIED"},
           "active_alpha_long": "NO_GO", "road_deployment": "NO_GO", "archive_ready": False,
           "product_build_receipt": "NOT_VERIFIED", "independent_review": "PENDING"}
 
@@ -137,9 +158,13 @@ def main() -> None:
   parser.add_argument("--capture", type=Path)
   parser.add_argument("--run-tests", action="store_true")
   parser.add_argument("--check-c19-receipt", action="store_true")
+  parser.add_argument("--native-acados", type=Path)
+  parser.add_argument("--native-output", type=Path)
+  parser.add_argument("--native-sha256")
   args = parser.parse_args()
   print(json.dumps(summary(args.repo, args.c19, args.manifest, args.capture,
-                           args.run_tests, args.check_c19_receipt), indent=2, sort_keys=True))
+                           args.run_tests, args.check_c19_receipt,
+                           args.native_acados, args.native_output, args.native_sha256), indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

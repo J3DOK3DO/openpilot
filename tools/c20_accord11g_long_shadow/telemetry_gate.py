@@ -108,6 +108,7 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
   ages = {name: [] for name in SERVICES}
   receipts = {name: [] for name in SERVICES}
   gaps = {name: [] for name in SERVICES}
+  source_skews = []
   last_source = {}
   last_cycle = None
   last_drive = None
@@ -115,8 +116,10 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
   last_history = {}
   state_valid_count = 0
   clocks_valid_count = 0
+  association_lags = []
+  fault_events = []
   for index, cycle in enumerate(capture["cycles"]):
-    faults_before = len(faults)
+    faults_before = set(faults) if index else set()
     if not _keys(cycle, CYCLE_KEYS):
       raise ValueError("cycle schema mismatch")
     if not _ns(cycle["cycle_t_ns"]) or not _digest(cycle["drive_token_sha256"]) or type(cycle["reset_boundary"]) is not bool:
@@ -159,6 +162,7 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
       faults.add("SERVICE_MISSING")
       services = {} if type(services) is not dict else services
     cycle_clocks_valid = True
+    cycle_sources = []
     for name in SERVICES:
       sample = services.get(name)
       if not _keys(sample, SAMPLE_KEYS) or not _ns(sample["source_t_ns"]) or not _ns(sample["receipt_t_ns"]) or not _digest(sample["payload_sha256"]):
@@ -167,6 +171,7 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
         continue
       source = sample["source_t_ns"]
       receipt = sample["receipt_t_ns"]
+      cycle_sources.append(source)
       if source > now or receipt > now:
         faults.add("FUTURE_SAMPLE")
         cycle_clocks_valid = False
@@ -192,6 +197,11 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
             faults.add("SERVICE_GAP")
       last_source[name] = source
       last_by_service[name] = receipt
+    if len(cycle_sources) == len(SERVICES):
+      skew = max(cycle_sources) - min(cycle_sources)
+      source_skews.append(skew)
+      if skew > MAX_AGE_NS:
+        faults.add("SOURCE_SKEW")
     if cycle_clocks_valid:
       clocks_valid_count += 1
     model = services.get("modelV2")
@@ -235,6 +245,8 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
     if cycle["lead_present"] and len(leads) < 2:
       faults.add("MODEL_LEAD_DROPPED")
     selected = current_history.get(associated)
+    if selected is not None and now >= associated:
+      association_lags.append(now - associated)
     for lead_index, lead in enumerate(leads):
       if not _keys(lead, SAMPLE_KEYS) or not _ns(lead["source_t_ns"]) or not _ns(lead["receipt_t_ns"]) or not _digest(lead["payload_sha256"]):
         faults.add("MODEL_LEAD_DROPPED")
@@ -250,11 +262,12 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
     last_history = current_history
     last_cycle = now
     last_drive = drive
-    next_state = "FAULT_LOCKED" if len(faults) > faults_before or state == "FAULT_LOCKED" else "OBSERVING"
+    next_state = "FAULT_LOCKED" if faults != faults_before or state == "FAULT_LOCKED" else "OBSERVING"
     if next_state != state:
       state_transitions += 1
     state = next_state
-  return {"schema_version": 1, "classification": "TEST_ONLY_RESEARCH", "input_label": capture["label"],
+    fault_events.append({"cycle_index": index, "new_faults": sorted(faults - faults_before), "audit_state": state})
+  return {"schema_version": 1, "classification": "SANITIZED_TEMPORAL_JOIN", "input_label": capture["label"],
           "input_presence": "PRESENT", "type_length_validation": "PASS" if (clocks_valid_count == len(capture["cycles"])
              and state_valid_count == len(capture["cycles"])
              and not faults.intersection({"MODEL_LEAD_DROPPED", "SERVICE_MISSING", "RECEIPT_OR_PAYLOAD_MISSING"})) else "FAIL",
@@ -262,11 +275,14 @@ def audit(manifest_raw: bytes, capture_raw: bytes) -> dict:
           "provenance": "UNVERIFIED_SELF_REPORT", "custody_authenticated": False,
           "capture_digest_match": "CAPTURE_DIGEST_MISMATCH" not in faults,
           "cycle_count": len(capture["cycles"]), "faults": sorted(faults),
-          "audit_state": state, "state_transitions": state_transitions,
+          "audit_state": state, "state_transitions": state_transitions, "fault_events": fault_events,
           "quality_state": "PASS_SYNTHETIC_ONLY" if not faults and capture["label"] == "SYNTHETIC" else "FAIL_CLOSED",
           "gaps_ns": {name: _percentiles(gaps[name]) for name in SERVICES},
           "source_age_ns": {name: _percentiles(ages[name]) for name in SERVICES},
           "receipt_latency_ns": {name: _percentiles(receipts[name]) for name in SERVICES},
+          "source_skew_ns": _percentiles(source_skews),
+          "model_association_lag_ns": _percentiles(association_lags),
+          "native_c19_planner_replay": "NOT_DONE",
           "native_solver_executed": False,
           "release_blockers": ["NATIVE_SOLVER_ABSENT", "CUSTODY_UNVERIFIED", "SERIALIZED_SOURCE_EQUIVALENCE_UNVERIFIED"],
           "active_alpha_long": "NO_GO", "road_deployment": "NO_GO"}
