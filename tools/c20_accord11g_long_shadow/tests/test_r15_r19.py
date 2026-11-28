@@ -83,7 +83,8 @@ class ReceiptAndGateTests(unittest.TestCase):
       output = evidence/'python_mpc_receipt.json'
       with patch.object(python_mpc, 'EVIDENCE', evidence), patch.object(python_mpc, 'OUTPUT', output), \
            patch.object(python_mpc, 'verify', side_effect=lambda *a, **k: native_python_build.verify()), \
-           patch.object(r19_campaign_gate, '_scope', return_value=(True, [])):
+           patch.object(r19_campaign_gate, '_scope', return_value=(True, [])), \
+           patch.object(r19_campaign_gate, 'source_audit', return_value={'status': 'PASS', 'findings': []}):
         for failure in ('subprocess', 'timeout', 'injected_solve', 'preflight'):
           output.write_text(original)
           self.assertEqual(python_mpc.verify_receipt()['status'], 'VERIFIED_LOCAL_EXECUTION_RECEIPT')
@@ -234,19 +235,23 @@ class ReceiptAndGateTests(unittest.TestCase):
       self.skipTest('external software evidence absent')
     actual_git = r19_campaign_gate._git
     def committed_git(repo, *args):
+      if repo == r19_campaign_gate.RESEARCH and args == ('branch', '--show-current'):
+        return r19_campaign_gate.BRANCH
       if repo == r19_campaign_gate.RESEARCH and args == ('status', '--porcelain', '--untracked-files=all'):
         return ''  # Simulate the host's post-commit clean tree while exercising real HEAD ancestry.
       return actual_git(repo, *args)
     self.assertEqual(subprocess.run(['git', '-C', str(r19_campaign_gate.RESEARCH), 'merge-base',
                       '--is-ancestor', '4793b44feb814ec32c785468d8abfdba7a4e1bc1', 'HEAD'],
                       check=False).returncode, 0)
-    with patch.object(r19_campaign_gate, '_git', side_effect=committed_git):
+    with patch.object(r19_campaign_gate, '_git', side_effect=committed_git), \
+         patch.object(r19_campaign_gate, 'source_audit', return_value={'status': 'PASS', 'findings': []}):
       good = r19_campaign_gate.evaluate()
     self.assertEqual(good['status'], 'R19_OFFLINE_RESEARCH_CANDIDATE_PENDING_INDEPENDENT_REVIEW')
     self.assertEqual(good['road_use'], 'NO_GO')
     self.assertEqual(good['active_alpha_long'], 'NO_GO')
     self.assertEqual(good['hardware_gates']['verification'], 'UNVERIFIED')
-    with patch.object(r19_campaign_gate, '_git', side_effect=committed_git):
+    with patch.object(r19_campaign_gate, '_git', side_effect=committed_git), \
+         patch.object(r19_campaign_gate, 'source_audit', return_value={'status': 'PASS', 'findings': []}):
       with patch.object(r19_campaign_gate, 'FAULT_RECEIPT', Path('/missing/c20/faults.json')):
         bad = r19_campaign_gate.evaluate()
       self.assertEqual(bad['status'], 'R19_BLOCKED_SOFTWARE_EVIDENCE')

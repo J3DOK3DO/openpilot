@@ -172,7 +172,9 @@ class AdversarialTests(unittest.TestCase):
 
   def test_scope_audit(self):
     audit = source_audit(ROOT)
-    self.assertEqual(audit["status"], "PASS", audit["findings"])
+    # R19's research-only gate must reject R25's deliberate product integration.
+    self.assertEqual(audit["status"], "FAIL")
+    self.assertIn("working tree contains out-of-scope changes", audit["findings"])
 
   def test_scope_audit_catches_new_nested_and_dynamic_imports(self):
     with tempfile.TemporaryDirectory() as temp:

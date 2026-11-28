@@ -151,6 +151,8 @@ class CapturedNativeAndCampaignTests(unittest.TestCase):
   def test_r14_gate_blocks_absent_and_tampered_native_evidence(self):
     original_run = campaign_gate._run
     def completed_checks(args, timeout=60, env=None):
+      if args[-2:] == ['branch', '--show-current']:
+        return subprocess.CompletedProcess(args, 0, campaign_gate.R15_BRANCH + '\n', '')
       if "unittest" in args:
         return subprocess.CompletedProcess(args, 0, "", "Ran 86 tests in 0.1s\n\nOK\n")
       if any("check_prebuilt_receipt.py" in str(arg) for arg in args):
@@ -158,7 +160,10 @@ class CapturedNativeAndCampaignTests(unittest.TestCase):
       return original_run(args, timeout=timeout, env=env)
     manifest = ROOT / "fixtures/r10_r12_synthetic_manifest.json"
     capture = ROOT / "fixtures/r10_r12_synthetic_capture.json"
-    with patch.object(campaign_gate, "_run", side_effect=completed_checks):
+    historical_scope = campaign_gate.gate(ROOT.parents[1])
+    historical_scope['source_audit'] = {'status': 'PASS', 'findings': []}
+    with patch.object(campaign_gate, "_run", side_effect=completed_checks), \
+         patch.object(campaign_gate, 'gate', return_value=historical_scope):
       absent = campaign_gate.summary(ROOT.parents[1], C19, manifest, capture, True, True)
       tampered = campaign_gate.summary(ROOT.parents[1], C19, manifest, capture, True, True,
                                        ACADOS, EVIDENCE, "0" * 64)

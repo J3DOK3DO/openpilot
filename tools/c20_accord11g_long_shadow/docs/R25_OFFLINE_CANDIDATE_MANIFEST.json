@@ -1,0 +1,36 @@
+{
+  "classification": "OFFLINE_SOURCE_CANDIDATE_BLOCKED",
+  "current_acceptance": "NOT_RUN",
+  "gate": {
+    "ARM64_BUILD": "BLOCKED",
+    "ON_DEVICE_ACCEPTANCE": "NOT_RUN",
+    "PATH_A_INSTALL_SOFTWARE": "BLOCKED_PRODUCT_BUILD_AND_INSTALLER",
+    "PATH_B1_SHADOW_SOFTWARE": "PENDING_COMMIT_OR_SOURCE_REVIEW",
+    "PATH_B2_ACTIVE_LONGITUDINAL": "NO_GO",
+    "PHYSICAL_SAFETY": "UNVERIFIED",
+    "current_product_mpc_execution": "NOT_EXECUTED",
+    "exact_prebuilt_receipt": false,
+    "full_planner_execution": "NOT_EXECUTED",
+    "installable": false
+  },
+  "git": "PENDING_COMMIT",
+  "historical_r19_x86_mpc": "VERIFIED_LOCAL_EXECUTION_RECEIPT_SYNTHETIC_ONLY",
+  "package": {
+    "active_longitudinal": "NO_GO",
+    "installable": false,
+    "on_device_acceptance": "NOT_RUN",
+    "reasons": [
+      "exact C20 implementation commit pending",
+      "source or provenance gate rejected",
+      "exact-commit prebuilt receipt missing or stale",
+      "compiled product model absent: openpilot/selfdrive/modeld/models/driving_tinygrad.pkl",
+      "compiled product model absent: openpilot/selfdrive/modeld/models/dmonitoring_model_tinygrad.pkl",
+      "independent product build receipt not supplied"
+    ],
+    "revision": "519a981b72fc0ba1bf0a029904628990086b9f37",
+    "schema_version": 1,
+    "status": "BLOCKED"
+  },
+  "schema_version": 1,
+  "snapshot_commit": "519a981b72fc0ba1bf0a029904628990086b9f37"
+}
