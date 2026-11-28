@@ -1,0 +1,142 @@
+{
+  "cycles": [
+    {
+      "brake_pressed": false,
+      "clock_disagreement": false,
+      "cycle_t_ns": 1000000000,
+      "drive_token_sha256": "d92ab94925eb8d22c9a940857d94cbafe82b89bc2e42117800a24e88c793739c",
+      "gas_pressed": false,
+      "lead_present": true,
+      "model_leads": [
+        {
+          "payload_sha256": "00a8900b9db3acbd27908907ebfd6332cb0fdfee880ffdbaa43a9e7d08a0e27f",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        },
+        {
+          "payload_sha256": "e7514e7c8874d9d9f40b0502d93828406f2709484d7d6512010e63efc3430632",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        }
+      ],
+      "reset_boundary": true,
+      "services": {
+        "carControl": {
+          "payload_sha256": "3bc536609b6e3f9c24a0c5f800bb2ef704320a75609b3de36aebfd52ca821c1c",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        },
+        "carState": {
+          "payload_sha256": "f3635493f33b19c87655c0ffcd29754a02489d579cffbf03468d8b8758475d4b",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        },
+        "controlsState": {
+          "payload_sha256": "59b3c984fbdf48c8ccdffe035b52860b766d4be0c09705f5987d420d64b6e953",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        },
+        "modelV2": {
+          "payload_sha256": "ddb36a3bdf9b5365beb91e7e99fbb4d7cd6388f69d56f8687c8e6405b74aa80b",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        },
+        "radarState": {
+          "payload_sha256": "ee598ea2e77e8efbcf3a8295487a207b0c4fb50b045bfc5e6e346f9fe7a955cf",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        },
+        "selfdriveState": {
+          "payload_sha256": "db75cef730feab1b531f99e909bb51a9fe9683c66e8ca15385350d117f8753de",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        },
+        "vehicleParameters": {
+          "payload_sha256": "b297f13b3a547353c19db469ce30230bf2150a2a6481d77fb8435f7fac981253",
+          "receipt_t_ns": 995000000,
+          "source_t_ns": 990000000
+        }
+      },
+      "source_integrity": true,
+      "state_sha256": {
+        "CP": "b1d1cba69b6450821a57d0438c049c04cf8a7748a6befd3e41b4b3982455f0ed",
+        "drive_state": "720531d7f18b56b7d6f0ca5bbf3ec89d50704be72b5dcf7c9809c75bc028cc9c",
+        "planner_state": "4a798dd18516f8c1a2f4ab9d1b446cfdb8ae4fcabaae4b660b45f4d647b2e4fb",
+        "preferences": "cefc51e50023c75f75ac629e548875b8cd4a37b10005b0a31981e27f6e0504cf"
+      }
+    },
+    {
+      "brake_pressed": false,
+      "clock_disagreement": false,
+      "cycle_t_ns": 1050000000,
+      "drive_token_sha256": "d92ab94925eb8d22c9a940857d94cbafe82b89bc2e42117800a24e88c793739c",
+      "gas_pressed": false,
+      "lead_present": true,
+      "model_leads": [
+        {
+          "payload_sha256": "88c440073357bec791d65fe23ea674cf887649b2ec89151289a55d7161357dea",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        },
+        {
+          "payload_sha256": "3fede971c5b7abefe4ea3ec9b190b66477c2335760a0dbabc77cbdb31080d842",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        }
+      ],
+      "reset_boundary": false,
+      "services": {
+        "carControl": {
+          "payload_sha256": "c4e72dca348460d4c890728a339cd26cff49a0e37d42ba48ec28675e33c4f693",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        },
+        "carState": {
+          "payload_sha256": "6ff92a7b376b5668b6d8f0c5b52939d7be0aa08a76cbeaed2b8f58279e34a8da",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        },
+        "controlsState": {
+          "payload_sha256": "48af46356773ca5fb4a1b9ea9b379be84caf78f590cc004ee1f47fac2ce5da11",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        },
+        "modelV2": {
+          "payload_sha256": "81bfbdf4eaeadaada94f4cfd31907fd9910f96828f0b083a63f1bcdc7809bbc5",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        },
+        "radarState": {
+          "payload_sha256": "22109f84dfd8e4485654323b1d934dd35c7fbb3cfbb9c9399f0b640a0d464632",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        },
+        "selfdriveState": {
+          "payload_sha256": "211438b64923d226fd7da4f127b4529e0382ebeede1b26c3714c4e77670562ef",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        },
+        "vehicleParameters": {
+          "payload_sha256": "f7f8a99dfb71d8cf22f4f47ff9c4446bb0552f2562c1ee01946d23eb1296877a",
+          "receipt_t_ns": 1045000000,
+          "source_t_ns": 1040000000
+        }
+      },
+      "source_integrity": true,
+      "state_sha256": {
+        "CP": "15bc3a992e3ccf77bda8398c4ccabd3cab4bfa0fddcff0a867d9e57eda34abcf",
+        "drive_state": "7c8f0a0a30ad8cc885dc41df0caa9973f73de92901dcaba5dbab4596714a46b0",
+        "planner_state": "483b9b186b62001b2bc26886bfe4cfc101da6c0bdd860a9d910435e90ffe4fc8",
+        "preferences": "9ab68a9d79f89837727a96c91eeab91a3c539ca73a7d56883093319a810b0a40"
+      }
+    }
+  ],
+  "dbc_sha256": "e93f0a474e01c65ef2b56ca0a310de856f5d95a1be13f63bf4bd1c25c1ce3596",
+  "ecu_firmware_sha256": "280c9667d43602853682b24d97530f2995de478bd47808ca943aab4d0bec99b5",
+  "fingerprint_sha256": "44863b03e9909b7100e05b02526909a346fd7455183f6619e0fe6198c89981e0",
+  "hardware_sha256": "26787dd2f72cc993706ee8209c6c8b2e77b8b6c7bbc8d168550dcfc1c8b28818",
+  "label": "SYNTHETIC",
+  "model_sha256": "9372c470eeadd5ecd9c3c74c2b3cb633f8e2f2fad799250a0f70d652b6b825e4",
+  "schema_version": 1,
+  "source_commit": "a32dcc0a6e62a4e2a15d9ac4425424e598313c98"
+}

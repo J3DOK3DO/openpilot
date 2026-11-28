@@ -2,7 +2,7 @@
 
 ## Source chain and custody limits
 
-Read-only originals are under `/home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004/`. The September Candidate-1 audit names source commit `d49c5ff167bfa2fc3e4c7a626dd8cd3404cd060b`, OpenDBC tree `d5967a1fc00912edde415105973e2a93224ec423`, and an original route archive. Its extraction script uses local `LogReader`, four rlog segments, and a native monotonic route origin of `31374859675 ns`. It chooses the latest plan/control/state/radar publication **at or before** each decoded `sendcan` `ACC_CONTROL` publication. Its CSVs are derived, not original signed recordings. We independently hashed the local bytes and validated the scalar clocks, deltas and event counts; we did not authenticate the upstream archive, vehicle, firmware, DBC or extraction environment. No VIN or location is included here.
+Read-only originals are privately held outside this research package. The September Candidate-1 audit names source commit `d49c5ff167bfa2fc3e4c7a626dd8cd3404cd060b`, OpenDBC tree `d5967a1fc00912edde415105973e2a93224ec423`, and an original route archive. Its extraction script uses local `LogReader`, four rlog segments, and a native monotonic route origin. It chooses the latest plan/control/state/radar publication **at or before** each decoded `sendcan` `ACC_CONTROL` publication. Its CSVs are derived, not original signed recordings. We independently hashed the local bytes and validated the scalar clocks, deltas and event counts; we did not authenticate the upstream archive, vehicle, firmware, DBC or extraction environment. No VIN or location is included here.
 
 | Read-only file | SHA-256 |
 | --- | --- |

@@ -11,15 +11,19 @@ import unittest
 
 from tools.c20_accord11g_long_shadow.historical_attribution import summarize
 from tools.c20_accord11g_long_shadow.native_gap import analyze, message_readiness, PROVENANCE, SERVICES
-from tools.c20_accord11g_long_shadow.rawlog_census import EXPECTED, ROOT, SUMMARY, census, _sha256
+from tools.c20_accord11g_long_shadow.rawlog_census import EXPECTED, ROOT, SUMMARY, census, segment_path, _sha256
 from tools.c20_accord11g_long_shadow.shadow_advisory import ShadowConfig, ShadowCycle, serialize_observation
 
-HISTORY = Path('/home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004')
+HISTORY = ROOT.parents[4] if ROOT.is_absolute() else Path('__R9_HISTORY_UNAVAILABLE__')
 
 
 class CensusTests(unittest.TestCase):
   def test_actual_four_pinned_segments_and_sanitized_counts(self):
-    if not all((ROOT / f'0000009b--9f046e6157--{s}' / 'rlog.zst').is_file() for s in EXPECTED):
+    try:
+      available = all(segment_path(ROOT, s).is_file() for s in EXPECTED)
+    except ValueError:
+      available = False
+    if not available:
       self.skipTest('historical inputs unavailable')
     result = census(summary=json.loads(SUMMARY.read_text()))
     self.assertEqual(result['status'], 'PASS')
@@ -33,7 +37,7 @@ class CensusTests(unittest.TestCase):
   def test_integrity_faults_and_unparsed_state(self):
     with tempfile.TemporaryDirectory() as temp:
       root = Path(temp)
-      path = root / '0000009b--9f046e6157--5' / 'rlog.zst'
+      path = root / 'synthetic--5' / 'rlog.zst'
       path.parent.mkdir()
       path.write_bytes(subprocess.check_output(['zstd', '-q', '-c'], input=b'harmless test bytes'))
       expected = {5: _sha256(path)}

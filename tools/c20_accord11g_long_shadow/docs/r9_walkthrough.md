@@ -18,12 +18,12 @@ import collections
 import json
 from pathlib import Path
 import zstandard as zstd
+from tools.c20_accord11g_long_shadow.rawlog_census import ROOT, segment_path
 
 schema = capnp.load('/home/jdkd/src/phase1_sources/starpilot-openpilot/cereal/log.capnp')
-root = Path('/home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004/original_rlogs/data/media/0/realdata')
 services = ('modelV2', 'carState', 'radarState', 'controlsState', 'selfdriveState', 'carControl', 'carParams', 'longitudinalPlan', 'sendcan')
 for segment in (5, 6, 105, 106):
-  path = root / f'0000009b--9f046e6157--{segment}' / 'rlog.zst'
+  path = segment_path(ROOT, segment)
   with path.open('rb') as stream:
     data = zstd.ZstdDecompressor().stream_reader(stream).read()
   counts = collections.Counter()
@@ -47,7 +47,7 @@ PY
 Check the three derived event windows and the same-cycle gap:
 
 ```sh
-R9_HISTORY=/home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004
+R9_HISTORY=/path/to/privately/held/derived/windows
 PYTHONDONTWRITEBYTECODE=1 python3 -m tools.c20_accord11g_long_shadow.historical_attribution "$R9_HISTORY/LS001_FULL_RATE.csv" "$R9_HISTORY/LS003_FULL_RATE.csv" "$R9_HISTORY/LS004_FULL_RATE.csv"
 PYTHONDONTWRITEBYTECODE=1 python3 -m tools.c20_accord11g_long_shadow.native_gap "$R9_HISTORY/LS001_FULL_RATE.csv"
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/c20_accord11g_long_shadow/tests -q

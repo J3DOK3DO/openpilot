@@ -8,16 +8,43 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 
-ROOT = Path('/home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004/original_rlogs/data/media/0/realdata')
 EXPECTED = {
   5: '495800114585f060007efa56472622125182b064834528511fb5576b0c95b435',
   6: '1646f143bc0a90bac360c0db329e302b022808a5f4c7ff70aa6f5f92b095355a',
   105: '1fba3eb1e1b37e217ab387b430073ad3a62672763e0d139325372ffc4a28135f',
   106: 'd4d8c4c368557e920c52f1484f307aa2859876f4e168d4396df264c40a5a0202',
 }
+
+
+def segment_path(root: Path, segment: int) -> Path:
+  """Locate a single segment by numeric suffix without exposing its route stem."""
+  if type(segment) is not int or segment < 0:
+    raise ValueError('invalid segment')
+  matches = sorted(root.glob(f'*--{segment}/rlog.zst'))
+  if len(matches) != 1:
+    raise ValueError(f'segment {segment}: missing or ambiguous input')
+  return matches[0]
+
+
+def discover_root() -> Path:
+  supplied = os.environ.get('C20_R9_RAW_ROOT')
+  if supplied:
+    return Path(supplied)
+  base = Path('/home/jdkd/AI_Workspace/projects')
+  for candidate in sorted(base.glob('*/*/original_rlogs/data/media/0/realdata')):
+    try:
+      if all(segment_path(candidate, number).is_file() for number in EXPECTED):
+        return candidate
+    except ValueError:
+      continue
+  return Path('__R9_HISTORICAL_INPUT_UNAVAILABLE__')
+
+
+ROOT = discover_root()
 SERVICES = ('modelV2', 'carState', 'radarState', 'controlsState', 'selfdriveState',
             'carControl', 'carParams', 'longitudinalPlan', 'sendcan')
 SUMMARY = Path(__file__).parent / 'fixtures/r9_decoded_summary.json'
@@ -47,7 +74,7 @@ def census(root: Path = ROOT, expected: dict[int, str] = EXPECTED,
     raise ValueError('unsupported or incomplete reader summary')
   reports = []
   for segment in sorted(expected):
-    path = root / f'0000009b--9f046e6157--{segment}' / 'rlog.zst'
+    path = segment_path(root, segment)
     if path.is_symlink() or not path.is_file():
       raise ValueError(f'segment {segment}: missing or nonregular input')
     before = path.stat()

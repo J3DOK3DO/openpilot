@@ -1,0 +1,106 @@
+{
+  "artifacts": {
+    "../longitudinal_planner.py": {
+      "bytes": 37706,
+      "sha256": "5d78f335aa20f0490bb743dfc6a069317fda2eca3f6e7a5bc574578fdf3c8a7d"
+    },
+    "acados_ocp_long.json": {
+      "bytes": 18933,
+      "sha256": "5f86aa27d7ea70bb066eaaaa58976a7a524c5f2f8d23da04e69441f1c16a5dcd"
+    },
+    "c_generated_code/acados_ocp_solver_pyx.so": {
+      "architecture": "aarch64",
+      "bytes": 1284048,
+      "needed": [
+        "libacados_ocp_solver_long.so",
+        "libc.so.6"
+      ],
+      "runpath": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:$ORIGIN"
+      ],
+      "sha256": "111ca810cbf69707124162374f3b320349afc0c039ee83d18b0949cfc4072387"
+    },
+    "c_generated_code/libacados.so": {
+      "architecture": "aarch64",
+      "bytes": 599184,
+      "needed": [
+        "libblasfeo.so",
+        "libc.so.6",
+        "libhpipm.so",
+        "libm.so.6",
+        "libqpOASES_e.so.3.1"
+      ],
+      "runpath": [],
+      "sha256": "c3b25e257ed8befa95c5d56493289881c34c790f7f75deae7acfc6d6bdd60335"
+    },
+    "c_generated_code/libacados_ocp_solver_long.so": {
+      "architecture": "aarch64",
+      "bytes": 195744,
+      "needed": [
+        "libacados.so",
+        "libc.so.6"
+      ],
+      "runpath": [
+        "/usr/local/venv/lib/python3.12/site-packages/ffmpeg/install/lib:$ORIGIN"
+      ],
+      "sha256": "b9aa77badbc77ed6e9c86962ca6572823309f89793910b7df0eced17cf2193d3"
+    },
+    "c_generated_code/libblasfeo.so": {
+      "architecture": "aarch64",
+      "bytes": 1256672,
+      "needed": [
+        "libc.so.6"
+      ],
+      "runpath": [],
+      "sha256": "bfa126e6d2f881be97792a1b3611c1aa786a68a7233c36f86c0091be08cf95da"
+    },
+    "c_generated_code/libhpipm.so": {
+      "architecture": "aarch64",
+      "bytes": 1383976,
+      "needed": [
+        "libblasfeo.so",
+        "libc.so.6"
+      ],
+      "runpath": [],
+      "sha256": "bc1f5825c52b53327f109821082af47c6053b49cc38381b0bd4845963a3d5075"
+    },
+    "c_generated_code/libqpOASES_e.so.3.1": {
+      "architecture": "aarch64",
+      "bytes": 350176,
+      "needed": [
+        "libc.so.6",
+        "libm.so.6"
+      ],
+      "runpath": [],
+      "sha256": "36b4eb60baba69fdaa1b4ef42bcc09e7b766bbcf0b0006be8e82e3c20e8dde85"
+    },
+    "long_mpc.py": {
+      "bytes": 24782,
+      "sha256": "3e2689f6c6366f98b2bfcfc1946074766585ed1e353a6fa22f9054934828d1ee"
+    }
+  },
+  "c19_commit": "a32dcc0a6e62a4e2a15d9ac4425424e598313c98",
+  "classification": "SOURCE_ARTIFACT_ONLY",
+  "executed_solver": false,
+  "host_architecture": "x86_64",
+  "model_options": {
+    "N": 12,
+    "nlp_solver_type": "SQP_RTI",
+    "qp_solver": "PARTIAL_CONDENSING_HPIPM",
+    "tf": 10.0
+  },
+  "native_execution_eligibility": "BLOCKED",
+  "python_dependencies": {
+    "capnp": false,
+    "casadi": false,
+    "numpy": true,
+    "scipy": false
+  },
+  "python_version": "3.12.3",
+  "readelf_version": "GNU readelf (GNU Binutils for Ubuntu) 2.42",
+  "reasons": [
+    "compiled solver architecture differs from host",
+    "required Python dependencies unavailable"
+  ],
+  "schema_version": 1
+}

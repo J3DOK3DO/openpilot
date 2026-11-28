@@ -1,0 +1,14 @@
+{
+  "attestation": "UNVERIFIED_SELF_REPORT",
+  "capture_sha256": "1550af298babe528606d9f29a58541a90f44fe37f3062769ff3cdead12bb748c",
+  "custody_reference_sha256": "1c231cf349a2a211ca3e440a51c4a479007ff5489007ffa505b3542f76c3ca20",
+  "dbc_sha256": "e93f0a474e01c65ef2b56ca0a310de856f5d95a1be13f63bf4bd1c25c1ce3596",
+  "ecu_firmware_sha256": "280c9667d43602853682b24d97530f2995de478bd47808ca943aab4d0bec99b5",
+  "fingerprint_sha256": "44863b03e9909b7100e05b02526909a346fd7455183f6619e0fe6198c89981e0",
+  "hardware_sha256": "26787dd2f72cc993706ee8209c6c8b2e77b8b6c7bbc8d168550dcfc1c8b28818",
+  "label": "SYNTHETIC",
+  "model_sha256": "9372c470eeadd5ecd9c3c74c2b3cb633f8e2f2fad799250a0f70d652b6b825e4",
+  "schema_version": 1,
+  "source_commit": "a32dcc0a6e62a4e2a15d9ac4425424e598313c98",
+  "vehicle": "HONDA_ACCORD_11G_HYBRID_TOURING_US_BOSCH_C"
+}

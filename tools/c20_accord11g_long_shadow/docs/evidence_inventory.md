@@ -1,6 +1,6 @@
 # Bounded local evidence inventory — 2026-11-27
 
-Command: `PYTHONDONTWRITEBYTECODE=1 python3 -m tools.c20_accord11g_long_shadow.inventory /home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004/original_rlogs --max-files 100 --max-dirs 100`. The scan examined four files, did not truncate, and read no other worktree for modification. The current inventory also reports a separate directory count and truncation reason when either limit is reached. Historical `FULL_RATE_LOW_SPEED_CAUSAL_AUDIT.md` says these were copied from `/mnt/commadrive/logs_14092026/accord-log-hub-20260914-190140.tar.gz` for route `0000009b--9f046e6157`. Local hashes match its abbreviated extraction record.
+The bounded inventory scanned a privately supplied local historical input directory with `--max-files 100 --max-dirs 100`. It examined four files, did not truncate, and read no other worktree for modification. The inventory reports separate directory counts and truncation reasons. Historical extraction notes describe one older route; local hashes match that record. The route identifier and local archive location are intentionally omitted from this research package.
 
 | Segment | Bytes | SHA-256 |
 | --- | ---: | --- |

@@ -9,12 +9,12 @@ python3 -m unittest discover -s tools/c20_accord11g_long_shadow/tests -v
 python3 -m tools.c20_accord11g_long_shadow.scenarios
 python3 -m tools.c20_accord11g_long_shadow.native_preflight
 python3 -m tools.c20_accord11g_long_shadow.release_gate
-python3 -m tools.c20_accord11g_long_shadow.historical_audit /home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004/LS{001,003,004}_FULL_RATE.csv
-python3 -m tools.c20_accord11g_long_shadow.native_gap /home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004/LS001_FULL_RATE.csv
+python3 -m tools.c20_accord11g_long_shadow.historical_audit "$R9_HISTORY"/LS{001,003,004}_FULL_RATE.csv
+python3 -m tools.c20_accord11g_long_shadow.native_gap "$R9_HISTORY"/LS001_FULL_RATE.csv
 python3 tools/ci/check_prebuilt_receipt.py --revision a32dcc0a6e62a4e2a15d9ac4425424e598313c98
 ```
 
-The native preflight must say `executed_solver: false` until an actual compatible acados solver is run in an isolated offline environment. The current AArch64 solver cannot run on the x86_64 host; CasADi and CapNP Python are absent. An identical-cycle native fixture must include carState, radarState, modelV2 trajectories and timestamps, controlsState, vehicleParameters, CP, cruise target, personality, all planner state and reset boundaries. The simplified JSON trace cannot substitute for those inputs. An ARM64 build or device hardware trial was not attempted.
+Set `R9_HISTORY` to the privately held derived-window directory before the historical commands. The native preflight must say `executed_solver: false` until an actual compatible acados solver is run in an isolated offline environment. The current AArch64 solver cannot run on the x86_64 host; CasADi and CapNP Python are absent. An identical-cycle native fixture must include carState, radarState, modelV2 trajectories and timestamps, controlsState, vehicleParameters, CP, cruise target, personality, all planner state and reset boundaries. The simplified JSON trace cannot substitute for those inputs. An ARM64 build or device hardware trial was not attempted.
 
 The queued field-level contract is [native_cycle_schema.json](../fixtures/native_cycle_schema.json). It is deliberately incomplete data, never a solver input claim. The baseline C19 prebuilt receipt check passed for `a32dcc0a6e62a4e2a15d9ac4425424e598313c98`; that receipt does not cover the new research commit.
 

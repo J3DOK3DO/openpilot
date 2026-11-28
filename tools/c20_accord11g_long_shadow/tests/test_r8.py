@@ -12,9 +12,10 @@ import unittest
 from tools.c20_accord11g_long_shadow.bundle import MAX_BYTES, MAX_MEMBERS, build, verify, verify_release
 from tools.c20_accord11g_long_shadow.historical_audit import audit_csv
 from tools.c20_accord11g_long_shadow.native_gap import PROVENANCE, SERVICES, analyze
+from tools.c20_accord11g_long_shadow.rawlog_census import ROOT
 from tools.c20_accord11g_long_shadow.shadow_advisory import HistoricalSample, ShadowConfig, observe
 
-HISTORY = Path("/home/jdkd/AI_Workspace/projects/accord11g-starpilot/c2-low-speed-causal-20260914_202004")
+HISTORY = ROOT.parents[4] if ROOT.is_absolute() else Path("__R8_HISTORY_UNAVAILABLE__")
 
 
 class HistoricalTests(unittest.TestCase):

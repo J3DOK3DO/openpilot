@@ -7,12 +7,20 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import re
 import subprocess
 import tarfile
 
 PREFIX = "tools/c20_accord11g_long_shadow/"
 MAX_BYTES = 5_000_000
 MAX_MEMBERS = 1024
+FORBIDDEN_SUFFIXES = (".pyc", ".log", ".zst", ".csv", ".rlog", ".qlog", ".mp4", ".hevc", ".mkv")
+PRIVATE_ROUTE_STEM = re.compile(rb"\b[0-9a-f]{8}--[0-9a-f]{10}\b")
+
+
+def _check_public_entry(path: str, content: bytes) -> None:
+  if path.endswith(FORBIDDEN_SUFFIXES) or PRIVATE_ROUTE_STEM.search(path.encode()) or PRIVATE_ROUTE_STEM.search(content):
+    raise ValueError("raw data or private route detail in research archive")
 
 
 def _git(repo: Path, *args: str) -> bytes:
@@ -29,7 +37,7 @@ def build(repo: Path, output: Path) -> dict:
   revision = _git(repo, "rev-parse", "HEAD").decode().strip()
   branch = _git(repo, "symbolic-ref", "--short", "HEAD").decode().strip()
   paths = sorted(p.decode() for p in _git(repo, "ls-tree", "-r", "--name-only", "HEAD", PREFIX).splitlines())
-  if not paths or any(not p.startswith(PREFIX) or "__pycache__" in p or p.endswith((".pyc", ".log", ".zst", ".csv")) for p in paths):
+  if not paths or any(not p.startswith(PREFIX) or "__pycache__" in p or p.endswith(FORBIDDEN_SUFFIXES) for p in paths):
     raise ValueError("invalid committed research contents")
   if len(paths) + 1 > MAX_MEMBERS:
     raise ValueError("archive member limit exceeded")
@@ -39,6 +47,7 @@ def build(repo: Path, output: Path) -> dict:
     if _git(repo, "ls-tree", "HEAD", path).split(None, 1)[0] != b"100644" and _git(repo, "ls-tree", "HEAD", path).split(None, 1)[0] != b"100755":
       raise ValueError(f"nonregular tracked entry: {path}")
     content = _git(repo, "show", f"HEAD:{path}")
+    _check_public_entry(path, content)
     total += len(content)
     if total > MAX_BYTES:
       raise ValueError("uncompressed archive contents exceed 5 MB")
@@ -98,6 +107,7 @@ def verify(path: Path) -> dict:
       raise ValueError("manifest does not cover archive")
     for name, expected in manifest["files"].items():
       data = archive.extractfile(members[name]).read(MAX_BYTES + 1)
+      _check_public_entry(name, data)
       if len(data) != expected["bytes"] or hashlib.sha256(data).hexdigest() != expected["sha256"]:
         raise ValueError(f"digest mismatch: {name}")
   return manifest
