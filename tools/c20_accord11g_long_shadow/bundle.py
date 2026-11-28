@@ -16,12 +16,16 @@ from .admission import load_json_bytes
 PREFIX = "tools/c20_accord11g_long_shadow/"
 MAX_BYTES = 5_000_000
 MAX_MEMBERS = 1024
-FORBIDDEN_SUFFIXES = (".pyc", ".log", ".zst", ".csv", ".rlog", ".qlog", ".mp4", ".hevc", ".mkv")
+FORBIDDEN_SUFFIXES = (".pyc", ".log", ".zst", ".csv", ".rlog", ".qlog", ".mp4", ".hevc", ".mkv",
+                      ".so", ".o", ".a", ".elf", ".bin", ".dll", ".dylib", ".exe")
 PRIVATE_ROUTE_STEM = re.compile(rb"\b[0-9a-f]{8}--[0-9a-f]{10}\b")
+VIN_VALUE = re.compile(rb"\b[A-HJ-NPR-Z0-9]{17}\b")
+GPS_VALUE = re.compile(rb'''["'](?:gps|latitude|longitude|lat|lon)["']\s*:\s*(?:[-+]?\d|["'][-+]?\d)''', re.I)
 
 
 def _check_public_entry(path: str, content: bytes) -> None:
-  if path.endswith(FORBIDDEN_SUFFIXES) or PRIVATE_ROUTE_STEM.search(path.encode()) or PRIVATE_ROUTE_STEM.search(content):
+  if (path.endswith(FORBIDDEN_SUFFIXES) or PRIVATE_ROUTE_STEM.search(path.encode()) or
+      PRIVATE_ROUTE_STEM.search(content) or VIN_VALUE.search(content) or GPS_VALUE.search(content)):
     raise ValueError("raw data or private route detail in research archive")
 
 

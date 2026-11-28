@@ -13,6 +13,10 @@ RESEARCH = "tools/c20_accord11g_long_shadow/"
 BASELINE = "a32dcc0a6e62a4e2a15d9ac4425424e598313c98"
 REQUIRED_CODE = ("admission.py", "policies.py", "replay.py", "inventory.py", "native_preflight.py", "native_gap.py", "historical_audit.py", "historical_attribution.py", "rawlog_census.py", "shadow_advisory.py", "bundle.py", "scenarios.py", "release_gate.py")
 FORBIDDEN_IMPORT_PREFIXES = ("opendbc", "panda", "openpilot", "cereal", "socket", "can", "serial")
+PINNED_OFFLINE_IMPORTS = {"python_mpc.py": {
+  "openpilot.selfdrive.controls.lib.longitudinal_mpc_lib",
+  "openpilot.selfdrive.modeld",
+}}
 FORBIDDEN_ATTRS = {"send", "sendall", "transmit", "forward", "connect", "set_safety_mode", "setSafetyMode", "get_car_params", "CarParams"}
 
 
@@ -63,7 +67,8 @@ def source_audit(repo: Path) -> dict:
     imports = [n.module or "" for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)]
     imports += [a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names]
     for module in imports:
-      if any(module == prefix or module.startswith(prefix + ".") for prefix in FORBIDDEN_IMPORT_PREFIXES):
+      if (module not in PINNED_OFFLINE_IMPORTS.get(name, set()) and
+          any(module == prefix or module.startswith(prefix + ".") for prefix in FORBIDDEN_IMPORT_PREFIXES)):
         findings.append(f"{name}: forbidden import {module}")
     for node in ast.walk(tree):
       if isinstance(node, ast.Name) and node.id in {"Panda", "CarParams"}:

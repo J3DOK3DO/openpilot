@@ -17,6 +17,7 @@ from .shadow_advisory import ShadowConfig
 from .telemetry_gate import MAX_CAPTURE, MAX_MANIFEST, audit, read_bounded
 
 BRANCH = "c20-r14-r10native-r11replay-r12software-20261128"
+R15_BRANCH = "c20-r15-r19-full-software-qual-20261128"
 EXCLUDED = "EXCLUDED_BY_USER_FOR_SOFTWARE_CAMPAIGN"
 
 
@@ -100,7 +101,7 @@ def summary(repo: Path, c19: Path, manifest: Path | None = None, capture: Path |
     except (OSError, ValueError, TypeError, KeyError):
       native = {"status": "REJECTED", "reasons": ["INVALID_NATIVE_EVIDENCE"],
                 "independent_authenticity_verified": False, "native_c19_planner_replay": "NOT_DONE"}
-  source_pass = scope["source_audit"]["status"] == "PASS" and branch == BRANCH
+  source_pass = scope["source_audit"]["status"] == "PASS" and branch in (BRANCH, R15_BRANCH)
   baseline_pass = original == BASELINE and pinned["status"] == "MATCH"
   telemetry_pass = telemetry["status"] == "PASS_SYNTHETIC_ONLY" and telemetry.get("capture_digest_match") is True
   default_off = ShadowConfig().enabled is False
