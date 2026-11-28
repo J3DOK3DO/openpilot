@@ -2,9 +2,9 @@
 
 ## Result and boundaries
 
-Research checkout: `c20-r15-r19-full-software-qual-20261128`, starting HEAD `7a10fb902449999054eaa4566f870656573e23b1`. Frozen C19: clean `a32dcc0a6e62a4e2a15d9ac4425424e598313c98`. Changes are confined to `tools/c20_accord11g_long_shadow/**`. All new compiler outputs and execution receipts are under `/home/jdkd/C20_RESEARCH_EVIDENCE_R15_R19_20261128`; no source checkout contains a newly built native binary. No network package install, push, device, vehicle, CAN, Panda, actuation, HIL, firmware or hardware work occurred. Active Alpha Long and road use remain **NO_GO**. Hardware gates are `EXCLUDED_BY_USER_FOR_SOFTWARE_CAMPAIGN` and `UNVERIFIED`.
+Research checkout: `c20-r15-r19-full-software-qual-20261128`, R14 ancestor `7a10fb902449999054eaa4566f870656573e23b1`, current committed HEAD `4793b44feb814ec32c785468d8abfdba7a4e1bc1`. Frozen C19: clean `a32dcc0a6e62a4e2a15d9ac4425424e598313c98`. Changes are confined to `tools/c20_accord11g_long_shadow/**`. All new compiler outputs and execution receipts are under `/home/jdkd/C20_RESEARCH_EVIDENCE_R15_R19_20261128`; no source checkout contains a newly built native binary. No network package install, push, device, vehicle, CAN, Panda, actuation, HIL, firmware or hardware work occurred. Active Alpha Long and road use remain **NO_GO**. Hardware gates are `EXCLUDED_BY_USER_FOR_SOFTWARE_CAMPAIGN` and `UNVERIFIED`.
 
-The new result is **local native x86 execution of the unmodified frozen C19 Python `LongitudinalMpc.update()` and its generated Cython/ACADOS solver**, with deterministic synthetic inputs. It is neither full C19 `LongitudinalPlanner` message-driven execution nor authenticated vehicle replay. Independent review is pending. R19 therefore reports `R19_OFFLINE_RESEARCH_CANDIDATE_PENDING_INDEPENDENT_REVIEW` for offline research only.
+The new result is **local native x86 execution of the unmodified frozen C19 Python `LongitudinalMpc.update()` and its generated Cython/ACADOS solver**, with deterministic synthetic inputs. It is neither full C19 `LongitudinalPlanner` message-driven execution nor authenticated vehicle replay. Independent re-review is pending. Once the remediation is committed on a clean tree, R19 can report `R19_OFFLINE_RESEARCH_CANDIDATE_PENDING_INDEPENDENT_REVIEW` for offline research only; the current dirty tree is blocked.
 
 ## R15 native Python MPC
 
@@ -23,11 +23,11 @@ Dependency map:
 
 The dedicated `python_mpc.py` source import is narrowly allowed in `release_gate.py`'s source audit; other forbidden or dynamic imports remain rejected. The runner sets `PYTHONDONTWRITEBYTECODE`/`sys.dont_write_bytecode` before C19 imports. Three bytecode files produced during the initial prototype were removed, and frozen C19 `git status --porcelain --untracked-files=all` is empty.
 
-Build receipt SHA-256: `ff5912cdcc399fbd81e0dd2673c394d594218dcbd84a2d1caaa9b99d9022ded0`. Python MPC execution receipt SHA-256: `9466ba5a6d2e8244d6ec817f9e071165329be1c329eb836e7387fa2a4bac84e3`. These establish local file consistency, not independent custody or product equivalence.
+Build receipt SHA-256: `ff5912cdcc399fbd81e0dd2673c394d594218dcbd84a2d1caaa9b99d9022ded0`. Remediated Python MPC execution receipt SHA-256: `bf69aedd22f4f143e6c6997e3ab64e84870f36315802c4321bdd6f2aadd0c561`. These establish local file consistency, not independent custody or product equivalence.
 
 ## R16 synthetic scenarios
 
-Six source-bounded scenario definitions made 24 native Python MPC update/solve cycles. Each scenario starts a fresh solver, then warm-starts subsequent synthetic cycles. Every recorded `solution_status` is zero. The receipt contains rounded first five velocity, acceleration and jerk predictions, first obstacle and acceleration ceiling for each cycle. Scenario input SHA-256 is `d7ede3ffe648f8072ad56b304d3fb4567ac9acbf4467fa8b6a6c1bfcf5e15d1f`; output SHA-256 is `c857326ac8dc123442bff7f4cf7fbc859879bc4b8f8b66c93261c92ac60c1daf`.
+Six source-bounded scenario definitions made 24 native Python MPC update/solve cycles. Each scenario starts a fresh solver, then warm-starts subsequent synthetic cycles. Each of the 24 genuine Cython `solve()` calls returned zero, exactly one call per cycle. The execution receipt records the native return before C19 can reset its mutable `solution_status`. The receipt contains rounded first five velocity, acceleration and jerk predictions, first obstacle and acceleration ceiling for each cycle. Scenario input SHA-256 is `d7ede3ffe648f8072ad56b304d3fb4567ac9acbf4467fa8b6a6c1bfcf5e15d1f`; remediated output SHA-256 is `61640ab72a448ad477ea620fc2cac00a4358877d773d9a7ae648ee724fdcf1da`.
 
 | Scenario | Cycles | All statuses | Maximum absolute predicted acceleration in first five nodes (m/s²) |
 |---|---:|---|---:|
@@ -48,7 +48,7 @@ The older C6/C12/MVL Boston material in this research package includes source-al
 
 ## R18 and R19 checks
 
-The existing 86 host tests plus six focused tests passed: `Ran 92 tests ... OK`; the final log is in the external evidence directory. `git diff --check`, the updated source audit and privacy/scope checks passed. The R19 gate verifies frozen C19 revision and cleanliness, research branch/start commit/scope, source audit, privacy scan, generated build receipt, Python MPC execution receipt, and exact reproducibility of the software fault report. The saved gate output is in the external evidence directory. It reports all hardware verification as `UNVERIFIED`, full planner and authenticated replay as `NOT_RUN`, independent review as `PENDING`, and road/active use as `NO_GO`.
+The existing 92 host tests plus one new native reset regression passed: `Ran 93 tests ... OK`. `git diff --check`, the updated source audit and privacy/scope checks passed. The R19 gate verifies frozen C19 revision and cleanliness, research branch/R14 ancestor/clean committed scope, source audit, privacy scan, generated build receipt, Python MPC execution receipt, and exact reproducibility of the software fault report. The live gate currently reports `R19_BLOCKED_SOFTWARE_EVIDENCE` because the remediation is uncommitted. It reports all hardware verification as `UNVERIFIED`, full planner and authenticated replay as `NOT_RUN`, independent review as `PENDING`, and road/active use as `NO_GO`.
 
 Independent review targets for the **host operator to initiate after implementation**:
 
@@ -56,4 +56,4 @@ Independent review targets for the **host operator to initiate after implementat
 2. Windows OpenCode Qwen3-Coder 30B: review the same final diff, scenario provenance, fault state lock, gate classification, privacy and packaging exclusion; report environment limits if native Linux x86 execution cannot be reproduced on Windows.
 3. Windows OpenCode Qwen2.5 Coder 14B: independent second code review of negative substitutions, dependency and status claims, documentation precision, and no hardware authorization; report environment limits explicitly.
 
-These reviews have **not** occurred in this campaign. The host operator will commit, request separate reviewers, remediate findings, and package only after an exact clean committed SHA. No archive was created or pushed.
+The independent XHIGH review in `R18_XHIGH_REVIEW_FINAL.txt` identified three findings. This remediation captures the native solve return before C19 reset, checks R14 as an ancestor, and rejects malformed receipt shapes without an uncaught exception. A test-only injected nonzero return after a genuine zero native solve triggers C19 reset and remains classified `TEST_ONLY_INJECTED_SOLVER_FAILURE`; it is not evidence that the native solver itself failed. Additional substitutions cover hidden reset status, fake wrapper hash, absent input hash, wrong cycles, malformed JSON, and oversized JSON. The live gate remains `R19_BLOCKED_SOFTWARE_EVIDENCE` until these edits are committed cleanly; the clean-tree candidate path passes the automated test against committed HEAD `4793b44...` and genuine receipts. Final independent approval remains pending. The host operator will commit, request a new independent review, and package only after an exact clean committed SHA. No archive was created or pushed.

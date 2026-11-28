@@ -2,8 +2,12 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -74,20 +78,100 @@ class ReceiptAndGateTests(unittest.TestCase):
         changed['scenario_inputs_sha256'] = '0'*64
         path.write_text(json.dumps(changed))
         self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED')
+        for value in ([], None, 'receipt', {}, {'scenarios': []}):
+          path.write_text(json.dumps(value))
+          self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED')
+        for value in ('{', '{"scenarios": NaN}', ' ' * 2_000_001):
+          path.write_text(value)
+          self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED')
+        for field in ('scenario_inputs_sha256', 'scenarios', 'schema_version'):
+          changed = copy.deepcopy(original)
+          del changed[field]
+          path.write_text(json.dumps(changed))
+          self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED')
+        for field in ('native_wrapper_sha256',):
+          changed = copy.deepcopy(original)
+          changed['imports'][field] = '0'*64
+          path.write_text(json.dumps(changed))
+          self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED')
+        for mutation in ('missing_samples', 'wrong_cycles', 'hidden_reset', 'fake_call_count'):
+          changed = copy.deepcopy(original)
+          scenario = changed['scenarios']['following']
+          if mutation == 'missing_samples':
+            del scenario['samples']
+          elif mutation == 'wrong_cycles':
+            scenario['cycles'] = []
+          elif mutation == 'hidden_reset':
+            scenario['samples'][0]['native_solve_status'] = 4
+            scenario['samples'][0]['solver_status'] = 0
+          else:
+            scenario['samples'][0]['solve_calls'] = 0
+          changed['scenario_output_sha256'] = hashlib.sha256(json.dumps(changed['scenarios'], sort_keys=True,
+              separators=(',', ':')).encode()).hexdigest()
+          path.write_text(json.dumps(changed))
+          self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED', mutation)
         path.write_text(json.dumps(original))
         self.assertEqual(python_mpc.verify_receipt('0'*64)['status'], 'REJECTED')
+
+  def test_test_only_failure_survives_c19_reset_without_writing_receipt(self):
+    if not python_mpc.OUTPUT.is_file():
+      self.skipTest('external native execution receipt absent')
+    before = python_mpc.OUTPUT.read_bytes()
+    code = ("from tools.c20_accord11g_long_shadow import python_mpc as p; "
+            "r=p.execute(p.EVIDENCE/'native', _test_fault_status=4); "
+            "print(json.dumps(r))")
+    env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1')
+    env['LD_LIBRARY_PATH'] = str(python_mpc.CACHE/'lib') + (':' + env['LD_LIBRARY_PATH'] if env.get('LD_LIBRARY_PATH') else '')
+    result = subprocess.run([sys.executable, '-B', '-c', 'import json; '+code], env=env,
+                            capture_output=True, text=True, timeout=30, check=True)
+    injected = json.loads(result.stdout)
+    samples = [sample for scenario in injected['scenarios'].values() for sample in scenario['samples']]
+    self.assertEqual(injected['classification'], 'TEST_ONLY_INJECTED_SOLVER_FAILURE')
+    self.assertEqual(len(samples), 24)
+    self.assertTrue(all(sample['native_solve_status'] == 0 and sample['solver_status'] == 4
+                        and sample['solve_calls'] == 1 for sample in samples))
+    with tempfile.TemporaryDirectory() as directory:
+      output = Path(directory)/'injected.json'
+      output.write_text(json.dumps(injected))
+      with patch.object(python_mpc, 'OUTPUT', output):
+        self.assertEqual(python_mpc.verify_receipt()['status'], 'REJECTED')
+    self.assertEqual(python_mpc.OUTPUT.read_bytes(), before)
 
   def test_gate_remains_no_go_on_success_and_tamper(self):
     if not python_mpc.OUTPUT.is_file() or not software_faults.EXTERNAL.is_file():
       self.skipTest('external software evidence absent')
-    good = r19_campaign_gate.evaluate()
+    actual_git = r19_campaign_gate._git
+    def committed_git(repo, *args):
+      if repo == r19_campaign_gate.RESEARCH and args == ('status', '--porcelain', '--untracked-files=all'):
+        return ''  # Simulate the host's post-commit clean tree while exercising real HEAD ancestry.
+      return actual_git(repo, *args)
+    self.assertEqual(subprocess.run(['git', '-C', str(r19_campaign_gate.RESEARCH), 'merge-base',
+                      '--is-ancestor', '4793b44feb814ec32c785468d8abfdba7a4e1bc1', 'HEAD'],
+                      check=False).returncode, 0)
+    with patch.object(r19_campaign_gate, '_git', side_effect=committed_git):
+      good = r19_campaign_gate.evaluate()
     self.assertEqual(good['status'], 'R19_OFFLINE_RESEARCH_CANDIDATE_PENDING_INDEPENDENT_REVIEW')
     self.assertEqual(good['road_use'], 'NO_GO')
+    self.assertEqual(good['active_alpha_long'], 'NO_GO')
     self.assertEqual(good['hardware_gates']['verification'], 'UNVERIFIED')
-    with patch.object(r19_campaign_gate, 'FAULT_RECEIPT', Path('/missing/c20/faults.json')):
-      bad = r19_campaign_gate.evaluate()
-    self.assertEqual(bad['status'], 'R19_BLOCKED_SOFTWARE_EVIDENCE')
-    self.assertEqual(bad['road_use'], 'NO_GO')
+    with patch.object(r19_campaign_gate, '_git', side_effect=committed_git):
+      with patch.object(r19_campaign_gate, 'FAULT_RECEIPT', Path('/missing/c20/faults.json')):
+        bad = r19_campaign_gate.evaluate()
+      self.assertEqual(bad['status'], 'R19_BLOCKED_SOFTWARE_EVIDENCE')
+      self.assertEqual(bad['road_use'], 'NO_GO')
+      with tempfile.TemporaryDirectory() as directory:
+        evidence = Path(directory)
+        output = evidence/'python_mpc_receipt.json'
+        with patch.object(python_mpc, 'OUTPUT', output):
+          for content in ('[]', '{', None):
+            if content is None:
+              output.unlink()
+            else:
+              output.write_text(content)
+            blocked = r19_campaign_gate.evaluate()
+            self.assertEqual(blocked['status'], 'R19_BLOCKED_SOFTWARE_EVIDENCE')
+            self.assertEqual(blocked['road_use'], 'NO_GO')
+            self.assertEqual(blocked['active_alpha_long'], 'NO_GO')
 
 
 if __name__ == '__main__':

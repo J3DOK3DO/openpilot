@@ -142,7 +142,30 @@ def _lead(value: dict | None):
     vLead=value['speed'] if value else 0.0, aLeadK=0.0, aLeadTau=1.5, modelProb=0.0, radar=True)
 
 
-def execute(native: Path) -> dict:
+class ObservedSolver:
+  """Delegate every operation to the real Cython solver; retain solve returns across reset."""
+  def __init__(self, native, fault_status: int | None = None):
+    self.native = native
+    self.fault_status = fault_status
+    self.native_statuses: list[int] = []
+    self.returned_statuses: list[int] = []
+
+  def __getattr__(self, name):
+    return getattr(self.native, name)
+
+  def solve(self):
+    status = self.native.solve()
+    if type(status) is not int:
+      raise ValueError('native solver returned a noninteger status')
+    self.native_statuses.append(status)
+    returned = self.fault_status if self.fault_status is not None else status
+    self.returned_statuses.append(returned)
+    return returned
+
+
+def execute(native: Path, *, _test_fault_status: int | None = None) -> dict:
+  if _test_fault_status is not None and (type(_test_fault_status) is not int or _test_fault_status == 0):
+    raise ValueError('test fault status must be nonzero integer')
   build = verify(native)
   if build['status'] != 'VERIFIED_LOCAL_BUILD':
     raise ValueError('native build receipt rejected: '+repr(build['reasons']))
@@ -152,16 +175,26 @@ def execute(native: Path) -> dict:
   definitions = scenario_definitions()
   for name, rows in definitions.items():
     mpc = cls()
+    observed = ObservedSolver(mpc.solver, _test_fault_status)
+    mpc.solver = observed
     samples = []
     for row in rows:
       _validate_cycle(row)
       mpc.set_cur_state(row['v'], row['a'])
       radar = SimpleNamespace(leadOne=_lead(row['lead']), leadTwo=_lead(None))
+      before = len(observed.native_statuses)
       mpc.update(radar, acceleration_max=row.get('cap'), stop_line_m=row.get('stop_line_m'))
+      if len(observed.native_statuses) != before + 1 or len(observed.returned_statuses) != before + 1:
+        raise ValueError('expected exactly one genuine native solve per cycle')
+      native_status = observed.native_statuses[-1]
+      returned_status = observed.returned_statuses[-1]
+      if returned_status != 0 and mpc.solution_status != 0:
+        raise ValueError('C19 solver failure reset behavior changed')
       arrays = (mpc.x_sol, mpc.v_solution, mpc.a_solution, mpc.j_solution, mpc.params)
       if any(not np.all(np.isfinite(a)) for a in arrays):
         raise ValueError('nonfinite native MPC trajectory')
-      samples.append({'solver_status': int(mpc.solution_status), 'source': int(mpc.source),
+      samples.append({'solver_status': returned_status, 'native_solve_status': native_status,
+                      'solve_calls': len(observed.native_statuses) - before, 'source': int(mpc.source),
                       'v_first_5_mps': np.round(mpc.v_solution[:5], 8).tolist(),
                       'a_first_5_mps2': np.round(mpc.a_solution[:5], 8).tolist(),
                       'jerk_first_5_mps3': np.round(mpc.j_solution[:5], 8).tolist(),
@@ -171,8 +204,11 @@ def execute(native: Path) -> dict:
        'statuses': [s['solver_status'] for s in samples],
        'max_abs_accel_first_5_mps2': round(max(abs(x) for s in samples for x in s['a_first_5_mps2']), 8)}
   scenario_bytes = json.dumps(scenarios, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()
-  return {'schema_version': 1, 'classification': 'C19_PYTHON_MPC_NATIVE_X86_VERIFIED' if
-          all(not any(s['statuses']) for s in scenarios.values()) else 'C19_PYTHON_MPC_SOLVER_FAILURE',
+  clean_solves = all(all(sample['solver_status'] == sample['native_solve_status'] == 0
+                         for sample in scenario['samples']) for scenario in scenarios.values())
+  classification = ('TEST_ONLY_INJECTED_SOLVER_FAILURE' if _test_fault_status is not None else
+                    'C19_PYTHON_MPC_NATIVE_X86_VERIFIED' if clean_solves else 'C19_PYTHON_MPC_SOLVER_FAILURE')
+  return {'schema_version': 2, 'classification': classification,
           'source_commit': BASELINE, 'input_classification': 'DETERMINISTIC_SYNTHETIC',
           'execution_class': 'C19_LONGITUDINAL_MPC_UPDATE_SOLVE',
           'planner_execution': 'FULL_C19_LONGITUDINAL_PLANNER_NOT_RUN',
@@ -199,6 +235,8 @@ def run() -> dict:
   if result.returncode:
     raise RuntimeError('native Python MPC subprocess failed: '+result.stderr[-3000:])
   receipt = json.loads(result.stdout)
+  if receipt.get('classification') != 'C19_PYTHON_MPC_NATIVE_X86_VERIFIED':
+    raise RuntimeError('native Python MPC solve failed; verified receipt was not written')
   OUTPUT.write_text(json.dumps(receipt, indent=2, sort_keys=True, allow_nan=False)+'\n')
   return receipt
 
@@ -206,8 +244,23 @@ def run() -> dict:
 def verify_receipt(expected_sha256: str | None = None) -> dict:
   if OUTPUT.is_symlink():
     return {'status': 'REJECTED', 'reasons': ['linked MPC receipt']}
-  receipt = json.loads(OUTPUT.read_text())
+  try:
+    with OUTPUT.open('rb') as stream:
+      data = stream.read(2_000_001)
+    if len(data) > 2_000_000:
+      return {'status': 'REJECTED', 'reasons': ['MPC receipt exceeds size limit']}
+    receipt = json.loads(data)
+  except (OSError, UnicodeError, ValueError, TypeError) as exc:
+    return {'status': 'REJECTED', 'reasons': ['MPC receipt unreadable or malformed: '+type(exc).__name__]}
+  if type(receipt) is not dict:
+    return {'status': 'REJECTED', 'reasons': ['MPC receipt is not an object']}
   reasons = []
+  required = {'schema_version', 'classification', 'source_commit', 'input_classification',
+              'execution_class', 'planner_execution', 'authenticated_vehicle_replay',
+              'actuation', 'modelV2_trajectory', 'native_build_receipt_sha256', 'imports',
+              'scenario_inputs_sha256', 'scenario_output_sha256', 'scenarios'}
+  if set(receipt) != required or receipt.get('schema_version') != 2:
+    reasons.append('MPC receipt schema mismatch')
   if expected_sha256 is not None and digest(OUTPUT) != expected_sha256:
     reasons.append('receipt digest mismatch')
   if verify()['status'] != 'VERIFIED_LOCAL_BUILD' or receipt.get('native_build_receipt_sha256') != verify()['receipt_sha256']:
@@ -240,12 +293,27 @@ def verify_receipt(expected_sha256: str | None = None) -> dict:
   if type(scenarios) is not dict or set(scenarios) != set(scenario_definitions()):
     reasons.append('scenario set mismatch')
   else:
-    raw = json.dumps(scenarios, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()
-    if hashlib.sha256(raw).hexdigest() != receipt.get('scenario_output_sha256'):
-      reasons.append('scenario output digest mismatch')
-    if any(s.get('cycles') != len(scenario_definitions()[name]) or len(s.get('samples', [])) != s.get('cycles') or
-           any(sample.get('solver_status') != 0 for sample in s.get('samples', [])) for name, s in scenarios.items()):
-      reasons.append('solver status mismatch')
+    try:
+      raw = json.dumps(scenarios, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()
+      if hashlib.sha256(raw).hexdigest() != receipt.get('scenario_output_sha256'):
+        reasons.append('scenario output digest mismatch')
+    except (TypeError, ValueError):
+      reasons.append('scenario values invalid')
+    for name, scenario in scenarios.items():
+      expected_cycles = len(scenario_definitions()[name])
+      if (type(scenario) is not dict or type(scenario.get('cycles')) is not int or
+          scenario['cycles'] != expected_cycles or type(scenario.get('samples')) is not list or
+          len(scenario['samples']) != expected_cycles or type(scenario.get('statuses')) is not list or
+          len(scenario['statuses']) != expected_cycles):
+        reasons.append('scenario cycles or samples mismatch: '+name)
+        continue
+      for index, sample in enumerate(scenario['samples']):
+        if (type(sample) is not dict or type(sample.get('solver_status')) is not int or
+            type(sample.get('native_solve_status')) is not int or sample['solver_status'] != 0 or
+            sample['native_solve_status'] != 0 or type(sample.get('solve_calls')) is not int or
+            sample['solve_calls'] != 1 or scenario['statuses'][index] != sample['solver_status']):
+          reasons.append('solver status or native call mismatch: '+name)
+          break
   if (receipt.get('classification') != 'C19_PYTHON_MPC_NATIVE_X86_VERIFIED' or receipt.get('actuation') != 'NONE'
       or receipt.get('planner_execution') != 'FULL_C19_LONGITUDINAL_PLANNER_NOT_RUN'
       or receipt.get('authenticated_vehicle_replay') != 'AUTHENTICATED_VEHICLE_REPLAY_NOT_RUN'

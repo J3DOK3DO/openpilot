@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import subprocess
 
-from .native_python_build import C19, EVIDENCE, verify as verify_build
+from .native_python_build import C19, verify as verify_build
 from .python_mpc import verify_receipt
 from .software_faults import EXTERNAL as FAULT_RECEIPT, suite as fault_suite
 from .platform_receipt import BASELINE
@@ -26,9 +26,12 @@ def _scope() -> tuple[bool, list[str]]:
   reasons = []
   if _git(RESEARCH, 'branch', '--show-current') != BRANCH:
     reasons.append('research branch mismatch')
-  if _git(RESEARCH, 'rev-parse', 'HEAD') != START:
-    reasons.append('research starting commit mismatch')
+  if subprocess.run(['git', '-C', str(RESEARCH), 'merge-base', '--is-ancestor', START, 'HEAD'],
+                    capture_output=True, timeout=10, check=False).returncode != 0:
+    reasons.append('research starting commit is not an ancestor of HEAD')
   changed = _git(RESEARCH, 'status', '--porcelain', '--untracked-files=all').splitlines()
+  if changed:
+    reasons.append('research source tree is not clean')
   for row in changed:
     path = row[3:]
     if not path.startswith('tools/c20_accord11g_long_shadow/'):
@@ -56,10 +59,9 @@ def evaluate() -> dict:
     reasons.append('native Python solver build receipt rejected')
   try:
     mpc = verify_receipt()
-    receipt = json.loads((EVIDENCE/'python_mpc_receipt.json').read_text())
-  except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as exc:
-    mpc, receipt = {'status': 'REJECTED', 'reasons': [str(exc)]}, {}
-  if mpc['status'] != 'VERIFIED_LOCAL_EXECUTION_RECEIPT' or receipt.get('classification') != 'C19_PYTHON_MPC_NATIVE_X86_VERIFIED':
+  except (OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.SubprocessError) as exc:
+    mpc = {'status': 'REJECTED', 'reasons': [str(exc)]}
+  if mpc['status'] != 'VERIFIED_LOCAL_EXECUTION_RECEIPT':
     reasons.append('C19 Python MPC execution receipt rejected')
   try:
     expected_faults = fault_suite()

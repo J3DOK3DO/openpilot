@@ -11,7 +11,7 @@ export PYTHONDONTWRITEBYTECODE=1
 python3 -B -m tools.c20_accord11g_long_shadow.native_python_build build
 python3 -B -m tools.c20_accord11g_long_shadow.native_python_build verify --expected-sha256 ff5912cdcc399fbd81e0dd2673c394d594218dcbd84a2d1caaa9b99d9022ded0
 python3 -B -m tools.c20_accord11g_long_shadow.python_mpc run
-python3 -B -m tools.c20_accord11g_long_shadow.python_mpc verify --expected-sha256 9466ba5a6d2e8244d6ec817f9e071165329be1c329eb836e7387fa2a4bac84e3
+python3 -B -m tools.c20_accord11g_long_shadow.python_mpc verify --expected-sha256 bf69aedd22f4f143e6c6997e3ab64e84870f36315802c4321bdd6f2aadd0c561
 python3 -B -m tools.c20_accord11g_long_shadow.software_faults --write-external
 python3 -B -m unittest discover -s tools/c20_accord11g_long_shadow/tests -q
 python3 -B -m tools.c20_accord11g_long_shadow.r19_campaign_gate
@@ -20,11 +20,11 @@ git status --porcelain --untracked-files=all
 git -C /home/jdkd/accord11g_c19_stable_c82_minimal_release_20261124 status --porcelain --untracked-files=all
 ```
 
-A rebuild may produce a different binary or receipt digest with another compiler/dependency environment; record the new hashes and verify against those actual local artifacts. Never relabel failed or absent native execution as passed. The current result is a local `C19_PYTHON_MPC_NATIVE_X86_VERIFIED` synthetic execution, `FULL_C19_LONGITUDINAL_PLANNER_NOT_RUN`, and `AUTHENTICATED_VEHICLE_REPLAY_NOT_RUN`.
+A rebuild may produce a different binary or receipt digest with another compiler/dependency environment; record the new hashes and verify against those actual local artifacts. Never relabel failed or absent native execution as passed. The remediated receipt records the actual Cython `solve()` return and one genuine native call per cycle. A nonzero return is retained even if C19 resets `solution_status`; test-only injected return values are labeled separately and cannot verify as genuine native success. The current result is a local `C19_PYTHON_MPC_NATIVE_X86_VERIFIED` synthetic execution, `FULL_C19_LONGITUDINAL_PLANNER_NOT_RUN`, and `AUTHENTICATED_VEHICLE_REPLAY_NOT_RUN`.
 
 ## Independent review and source archive
 
-The host operator reviews and commits only `tools/c20_accord11g_long_shadow/**` on `c20-r15-r19-full-software-qual-20261128`, records the exact new SHA, obtains the three separate independent reviews scoped in `R15_R19_COMBINED_REPORT.md`, resolves findings, reruns the checks, and creates an archive only from the final clean committed tree. If the linked worktree index cannot be written, leave permissions unchanged for the host operator.
+R19 requires the R14 starting commit to be an ancestor of the current HEAD and the research tree to be clean. Before the host commits this remediation, the live gate correctly reports `R19_BLOCKED_SOFTWARE_EVIDENCE`; after a scoped clean commit, rerun it and require `R19_OFFLINE_RESEARCH_CANDIDATE_PENDING_INDEPENDENT_REVIEW`. The independent XHIGH review findings have been remediated locally, and final independent approval remains pending. The host operator reviews and commits only `tools/c20_accord11g_long_shadow/**` on `c20-r15-r19-full-software-qual-20261128`, records the exact new SHA, obtains the three separate independent reviews scoped in `R15_R19_COMBINED_REPORT.md`, resolves findings, reruns the checks, and creates an archive only from the final clean committed tree. If the linked worktree index cannot be written, leave permissions unchanged for the host operator.
 
 ```sh
 git status --porcelain --untracked-files=all
